@@ -1,6 +1,19 @@
 # pg2b3dm
 
-Tool for converting from PostGIS to b3dm tiles.
+Tool for converting from PostGIS to b3dm tiles. This software is a partial port of py3dtiles (https://github.com/Oslandia/py3dtiles) 
+for generating b3dm tiles.
+
+Differences to py3dtiles:
+
+- 2* performance improvement;
+
+- loading geometries in batches in memory instead of full datataset;
+
+- fixed glTF warnings;
+
+- add styling options.
+
+To run this tool there must be a PostGIS table available containing polyhedralsurface geometries.
 
 ## Command line options
 

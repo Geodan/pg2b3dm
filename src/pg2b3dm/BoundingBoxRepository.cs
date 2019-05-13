@@ -74,11 +74,6 @@ namespace pg2b3dm
                 var rownumber = reader.GetInt32(0);
                 var stream = reader.GetStream(1);
                 var g = Geometry.Deserialize<WkbSerializer>(stream);
-
-                using (var stream1 = File.Open($"geom_{rownumber}.wkb", FileMode.Create)) {
-                    g.Serialize<WkbSerializer>(stream1);
-                }
-
                 var geometryRecord = new GeometryRecord { RowNumber = rownumber, Geometry = g };
                 geometries.Add(geometryRecord);
             }
