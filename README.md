@@ -11,7 +11,9 @@ Differences to py3dtiles:
 
 - fixed glTF warnings;
 
-- add styling options.
+- add styling options;
+
+- Docker support.
 
 To run this tool there must be a PostGIS table available containing polyhedralsurface geometries.
 
