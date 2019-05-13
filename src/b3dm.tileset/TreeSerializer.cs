@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace B3dm.Tileset
 {
@@ -11,7 +10,7 @@ namespace B3dm.Tileset
             double geometricError = 500.0;
             var tileset = new TileSet();
             tileset.asset = new Asset() { version = "1.0" };
-            var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, Math.Round(transform[0], 3), Math.Round(transform[1], 3), Math.Round(transform[2], 3), 1.0 };
+            var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
             tileset.geometricError = geometricError;
             var root = GetRoot(n, geometricError, t);
             tileset.root = root;

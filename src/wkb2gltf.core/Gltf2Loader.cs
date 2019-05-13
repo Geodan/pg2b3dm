@@ -53,14 +53,13 @@ namespace Wkb2Gltf
 
         private static Accessor[] GetAccessors(BoundingBox3D bb, int n)
         {
-            // q: max and min are reversed in next py code?
-            var max = new float[3] { (float)bb.YMin, (float)bb.ZMin, (float)bb.XMin };
-            var min = new float[3] { (float)bb.YMax, (float)bb.ZMax, (float)bb.XMax };
+            var max = new float[3] { (float)bb.XMax, (float)bb.YMax, (float)bb.ZMax };
+            var min = new float[3] { (float)bb.XMin, (float)bb.YMin, (float)bb.ZMin };
             var accessor = GetAccessor(0, n, min, max, Accessor.TypeEnum.VEC3);
             max = new float[3] { 1, 1, 1 };
             min = new float[3] { -1, -1, -1 };
             var accessorNormals = GetAccessor(1, n, min, max, Accessor.TypeEnum.VEC3);
-            var batchLength = 1;
+            var batchLength = 0;
             max = new float[1] { batchLength };
             min = new float[1] { 0 };
             var accessorBatched = GetAccessor(2, n, min, max, Accessor.TypeEnum.SCALAR);
@@ -152,7 +151,7 @@ namespace Wkb2Gltf
         private static Asset GetAsset()
         {
             var asset = new Asset();
-            asset.Generator = "Glt.Core";
+            asset.Generator = "pg2b3dm";
             asset.Version = "2.0";
             return asset;
         }

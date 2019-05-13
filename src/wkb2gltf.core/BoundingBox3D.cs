@@ -71,11 +71,11 @@ namespace Wkb2Gltf
         public double[] GetBox()
         {
             var center = GetCenter();
-            var xAxis = Math.Round(ExtentX() / 2, 3);
-            var yAxis = Math.Round(ExtentY() / 2, 3);
-            var zAxis = Math.Round(ExtentZ() / 2, 3);
+            var xAxis = ExtentX() / 3;
+            var yAxis = ExtentY() / 2;
+            var zAxis = ExtentZ() / 2;
 
-            var result = new double[] { Math.Round((double)center.X, 3), Math.Round((double)center.Y, 3), Math.Round((double)center.Z, 3),
+            var result = new double[] { (double)center.X, (double)center.Y, (double)center.Z,
                 xAxis,0,0,0,yAxis,0,0,0,zAxis
             };
             return result;

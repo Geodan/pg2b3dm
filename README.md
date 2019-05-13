@@ -24,6 +24,8 @@ Tool for converting from PostGIS to b3dm tiles.
 
 ## Run from Docker
 
+Docker image: https://hub.docker.com/r/geodan/pg2b3dm
+
 Building image:
 
 ```
