@@ -15,7 +15,7 @@ Differences to py3dtiles:
 
 - Docker support.
 
-To run this tool there must be a PostGIS table available containing polyhedralsurface geometries.
+To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries.
 
 ## Command line options
 
