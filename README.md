@@ -17,6 +17,8 @@ Differences to py3dtiles:
 
 To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries.
 
+Tileset.json and b3dm tiles are created in the 'tiles' subdirectory.
+
 ## Command line options
 
 All parameters are optional, except the -t --table option. 
