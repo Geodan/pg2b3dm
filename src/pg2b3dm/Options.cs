@@ -12,7 +12,7 @@ namespace pg2b3dm
         public string Database { get; set; }
         [Option('c', "column", Required = false, Default = "geom", HelpText = "Geometry column")]
         public string GeometryColumn { get; set; }
-        [Option('t', "table", Required = false, Default = "", HelpText = "Database table, include database schema if needed")]
+        [Option('t', "table", Required = true, HelpText = "Database table, include database schema if needed")]
         public string GeometryTable { get; set; }
         [Option('p', "port", Required = false, Default ="5432", HelpText = "Database port")]
         public string Port { get; set; }

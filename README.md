@@ -19,6 +19,8 @@ To run this tool there must be a PostGIS table available containing triangulated
 
 ## Command line options
 
+All parameters are optional, except the -t --table option.
+
 ```
   -U, --username     (Default: username) Database user
 
@@ -28,7 +30,7 @@ To run this tool there must be a PostGIS table available containing triangulated
 
   -c, --column      (Default: geom) Geometry column
 
-  -t, --table       (Default: empty) Database table, include database schema if needed
+  -t, --table       (Required) Database table, include database schema if needed
 
   -p, --port        (Default: 5432) Database port
 
@@ -52,13 +54,13 @@ Running image:
 Sample on Windows: 
 
 ```
-$ docker run -v C:/Users/bertt/tiles:/app/tiles -it geodan/pg2b3dm
+$ docker run -v C:/Users/bertt/tiles:/app/tiles -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_table
 ```
 
 Sample on Linux:
 
 ```
-$ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -H my_host -u my_user -p my_password -D my_database -t my_table -c my_geometry_column
+$ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_table
 ```
 
 ## Run from source
