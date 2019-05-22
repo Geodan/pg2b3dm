@@ -4,18 +4,17 @@ namespace pg2b3dm
 {
     public class Options
     {
-        [Option('H', "host", Required = true, HelpText = "Database host")]
-        public string Host { get; set; }
-        [Option('D', "database", Required = true, HelpText = "Database name")]
-        public string Database { get; set; }
-        [Option('c', "column", Required = true, HelpText = "Geometry column")]
-        public string GeometryColumn { get; set; }
-        [Option('t', "table", Required = true, HelpText = "Database table")]
-        public string GeometryTable { get; set; }
-        [Option('u', "user", Required = true, HelpText = "Database user")]
+        [Option('U', "username", Required = false, HelpText = "Database user")]
         public string User { get; set; }
-        [Option('p', "password", Required = true, HelpText = "Database password")]
-        public string Password { get; set; }
-
+        [Option('h', "host", Required = false, Default = "localhost",  HelpText = "Database host" )]
+        public string Host { get; set; }
+        [Option('d', "dbname", Required = false, HelpText = "Database name")]
+        public string Database { get; set; }
+        [Option('c', "column", Required = false, Default = "geom", HelpText = "Geometry column")]
+        public string GeometryColumn { get; set; }
+        [Option('t', "table", Required = false, Default = "", HelpText = "Database table, include database schema if needed")]
+        public string GeometryTable { get; set; }
+        [Option('p', "port", Required = false, Default ="5432", HelpText = "Database port")]
+        public string Port { get; set; }
     }
 }

@@ -20,22 +20,21 @@ To run this tool there must be a PostGIS table available containing polyhedralsu
 ## Command line options
 
 ```
- -H, --host        Required. Database host
+ -U, --username     (Default: username) Database user
 
-  -D, --database    Required. Database name
+  -h, --host        (Default: localhost) Database host
 
-  -c, --column      Required. Geometry column
+  -d, --dbname      (default: username) Database name
 
-  -t, --table       Required. Database table
+  -c, --column      (Default: geom) Geometry column
 
-  -u, --user        Required. Database user
+  -t, --table       (Default: empty) Database table, include database schema if needed
 
-  -p, --password    Required. Database password
+  -p, --port        (Default: 5432) Database port
 
   --help            Display this help screen.
 
-  --version         Display version information.
-  ```
+  --version         Display version information.  ```
 
 ## Run from Docker
 

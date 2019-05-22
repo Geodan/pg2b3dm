@@ -16,12 +16,41 @@ namespace pg2b3dm
 {
     class Program
     {
+        static string password = string.Empty;
+
         static void Main(string[] args)
         {
             Console.WriteLine("tool: pg2b3dm");
 
             Parser.Default.ParseArguments<Options>(args).WithParsed(o => {
-                var connectionString = $"Host={o.Host};Username={o.User};Password={o.Password};Database={o.Database}";
+                o.User = string.IsNullOrEmpty(o.User)? Environment.UserName :o.User;
+                o.Database = string.IsNullOrEmpty(o.Database) ? Environment.UserName : o.Database;
+
+                Console.Write($"Password for user {o.User}: ");
+                ConsoleKeyInfo keyInfo;
+
+                do {
+                    keyInfo = Console.ReadKey(true);
+                    // Skip if Backspace or Enter is Pressed
+                    if (keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter) {
+                        password += keyInfo.KeyChar;
+                        Console.Write("*");
+                    }
+                    else {
+                        if (keyInfo.Key == ConsoleKey.Backspace && password.Length > 0) {
+                            // Remove last charcter if Backspace is Pressed
+                            password = password.Substring(0, (password.Length - 1));
+                            Console.Write("\b \b");
+                        }
+                    }
+                }
+                // Stops Getting Password Once Enter is Pressed
+                while (keyInfo.Key != ConsoleKey.Enter);
+
+                Console.WriteLine();
+                Console.WriteLine($"Start processing....");
+
+                var connectionString = $"Host={o.Host};Username={o.User};Password={password};Database={o.Database};Port={o.Port}";
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
 
@@ -48,7 +77,8 @@ namespace pg2b3dm
                 WriteTiles(connectionString, geometryTable, geometryColumn, translation, tree, material);
 
                 stopWatch.Stop();
-                Console.WriteLine("Elapsed: " + stopWatch.ElapsedMilliseconds / 1000);
+                Console.WriteLine();
+                Console.WriteLine($"Elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");
                 Console.WriteLine("Program finished. Press any key to continue...");
                 Console.ReadKey();
             });

@@ -92,5 +92,10 @@ namespace Wkb2Gltf
             var zmax = Comparer.IsSimilar(ZMax, o_box.ZMax);
             return xmin && ymin && zmin && xmax && ymax && zmax;
         }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }
