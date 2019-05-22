@@ -20,7 +20,7 @@ To run this tool there must be a PostGIS table available containing triangulated
 ## Command line options
 
 ```
- -U, --username     (Default: username) Database user
+  -U, --username     (Default: username) Database user
 
   -h, --host        (Default: localhost) Database host
 
@@ -34,7 +34,8 @@ To run this tool there must be a PostGIS table available containing triangulated
 
   --help            Display this help screen.
 
-  --version         Display version information.  ```
+  --version         Display version information.  
+```
 
 ## Run from Docker
 
