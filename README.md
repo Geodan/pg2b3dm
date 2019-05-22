@@ -19,7 +19,9 @@ To run this tool there must be a PostGIS table available containing triangulated
 
 ## Command line options
 
-All parameters are optional, except the -t --table option.
+All parameters are optional, except the -t --table option. 
+
+If --username and/or --dbname are not specified the current username is used as default.
 
 ```
   -U, --username     (Default: username) Database user
