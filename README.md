@@ -58,7 +58,7 @@ Running image:
 Sample on Windows: 
 
 ```
-$ docker run -v C:/Users/bertt/tiles:/app/tiles -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_table
+$ docker run -v C:/Users/bertt/output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_table
 ```
 
 Sample on Linux:
