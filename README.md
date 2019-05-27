@@ -69,7 +69,9 @@ $ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_us
 
 Full sample: 
 
-$  docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h 192.168.25.241 -U postgres -d research -t roofs_3d .roofs_extruded
+```
+$ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h 192.168.25.241 -U postgres -d research -t roofs_3d .roofs_extruded
+```
 
 ## Run from source
 
