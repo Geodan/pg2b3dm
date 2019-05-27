@@ -67,6 +67,10 @@ Sample on Linux:
 $ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_table
 ```
 
+Full sample: 
+
+$  docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h 192.168.25.241 -U postgres -d research -t roofs_3d .roofs_extruded
+
 ## Run from source
 
 Requirement: Install .NET Core 2.2 SDK 
