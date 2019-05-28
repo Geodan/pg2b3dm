@@ -34,13 +34,11 @@ namespace pg2b3dm
                     // Skip if Backspace or Enter is Pressed
                     if (keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter) {
                         password += keyInfo.KeyChar;
-                        Console.Write("*");
                     }
                     else {
                         if (keyInfo.Key == ConsoleKey.Backspace && password.Length > 0) {
                             // Remove last charcter if Backspace is Pressed
                             password = password.Substring(0, (password.Length - 1));
-                            Console.Write("\b \b");
                         }
                     }
                 }
