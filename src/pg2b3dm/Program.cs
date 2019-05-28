@@ -18,6 +18,7 @@ namespace pg2b3dm
     class Program
     {
         static string password = string.Empty;
+        static int counter = 0;
 
         static void Main(string[] args)
         {
@@ -72,7 +73,7 @@ namespace pg2b3dm
                 Console.WriteLine("Writing tileset.json...");
                 WiteTilesetJson(translation, tree);
 
-                Console.WriteLine("Writing tiles...");
+                Console.WriteLine($"Writing {Counter.Instance.Count} tiles...");
                 var material = MaterialMaker.CreateMaterial("Material_house", 139 / 255f, 69 / 255f, 19 / 255f, 1.0f);
                 WriteTiles(connectionString, geometryTable, geometryColumn, translation, tree, material);
 
@@ -87,13 +88,16 @@ namespace pg2b3dm
         private static void WriteTiles(string connectionString, string geometryTable, string geometryColumn, double[] translation, B3dm.Tileset.Node node, Material material)
         {
             if (node.Features.Count > 0) {
+                counter++;
                 var subset = (from f in node.Features select (f.Id)).ToArray();
                 var geometries = BoundingBoxRepository.GetGeometrySubset(connectionString, geometryTable, geometryColumn, translation, subset);
                 WriteB3dm(geometries, node.Id, translation, material);
             }
             // and write children too
             foreach (var subnode in node.Children) {
-                Console.Write(".");
+                // Console.Write(".");
+                var perc = Math.Round(((double)counter / Counter.Instance.Count) * 100,2);
+                Console.Write($"\rProgress: tile {counter} - {perc.ToString("F")}%");
                 WriteTiles(connectionString, geometryTable, geometryColumn, translation, subnode, material);
             }
         }
