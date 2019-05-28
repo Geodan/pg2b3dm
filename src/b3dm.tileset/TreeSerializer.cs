@@ -9,7 +9,7 @@ namespace B3dm.Tileset
             Counter.Instance.Count = 0;
             double geometricError = 500.0;
             var tileset = new TileSet();
-            tileset.asset = new Asset() { version = "1.0" };
+            tileset.asset = new Asset() { version = "1.0", generator="pg2b3dm" };
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
             tileset.geometricError = geometricError;
             var root = GetRoot(n, geometricError, t);

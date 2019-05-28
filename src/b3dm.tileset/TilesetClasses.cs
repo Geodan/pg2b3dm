@@ -36,6 +36,8 @@ namespace B3dm.Tileset
 
     public class Asset
     {
+        public string generator { get; set; }
+
         public string version { get; set; }
     }
 }
