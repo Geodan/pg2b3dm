@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/pg2b3dm.csproj"
+                "${workspaceFolder}/pg2b3dm/pg2b3dm.csproj"
             ],
             "problemMatcher": "$tsc"
         },
@@ -17,7 +17,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/pg2b3dm.csproj"
+                "${workspaceFolder}/pg2b3dm/pg2b3dm.csproj"
             ],
             "problemMatcher": "$tsc"
         },
@@ -28,7 +28,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/pg2b3dm.csproj"
+                "${workspaceFolder}/pg2b3dm/pg2b3dm.csproj"
             ],
             "problemMatcher": "$tsc"
         }

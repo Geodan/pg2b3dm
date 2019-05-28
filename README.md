@@ -83,3 +83,20 @@ $ dotnet build
 $ dotnet run
 
 ```
+
+## Debugging in Visual Studio Code
+
+```
+$ git clone https://github.com/Geodan/pg2b3dm.git
+
+$ cd src
+```
+
+In Visual Studio Code, open .vscode/launch.json and adjust the 'args' parameter to your environment
+
+```
+"args": ["-h" ,"my_host", "-U" ,"my_user", "-d", "my_database", "-t", "my_table"],            
+```
+
+Press F5 to start debugging.
+
