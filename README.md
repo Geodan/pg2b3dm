@@ -90,6 +90,8 @@ $ dotnet run
 $ git clone https://github.com/Geodan/pg2b3dm.git
 
 $ cd src
+
+$ code .
 ```
 
 In Visual Studio Code, open .vscode/launch.json and adjust the 'args' parameter to your environment
