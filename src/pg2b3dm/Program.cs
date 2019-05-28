@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using B3dm.Tile;
 using B3dm.Tileset;
 using CommandLine;
@@ -20,7 +21,8 @@ namespace pg2b3dm
 
         static void Main(string[] args)
         {
-            Console.WriteLine("tool: pg2b3dm");
+            var version = Assembly.GetEntryAssembly().GetName().Version;
+            Console.WriteLine($"tool: pg2b3dm {version}");
 
             Parser.Default.ParseArguments<Options>(args).WithParsed(o => {
                 o.User = string.IsNullOrEmpty(o.User)? Environment.UserName :o.User;
