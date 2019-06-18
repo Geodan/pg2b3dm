@@ -1,4 +1,4 @@
-﻿# pg2b3dm
+﻿-t geodan/arena# pg2b3dm
 
 Tool for converting from PostGIS to b3dm tiles.
 

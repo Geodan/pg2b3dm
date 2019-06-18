@@ -80,8 +80,7 @@ namespace pg2b3dm
                 stopWatch.Stop();
                 Console.WriteLine();
                 Console.WriteLine($"Elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");
-                Console.WriteLine("Program finished. Press any key to continue...");
-                Console.ReadKey();
+                Console.WriteLine("Program finished.");
             });
         }
 
