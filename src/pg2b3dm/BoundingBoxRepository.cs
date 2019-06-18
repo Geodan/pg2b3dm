@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using Npgsql;
 using Wkb2Gltf;
 using Wkx;
@@ -11,7 +10,6 @@ namespace pg2b3dm
     {
         public static BoundingBox3D GetBoundingBox3D(string connectionString, string geometry_table, string geometry_column)
         {
-            // read bounding box
             var conn = new NpgsqlConnection(connectionString);
             conn.Open();
 

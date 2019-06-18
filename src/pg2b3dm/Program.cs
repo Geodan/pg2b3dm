@@ -26,32 +26,21 @@ namespace pg2b3dm
             Console.WriteLine($"tool: pg2b3dm {version}");
 
             Parser.Default.ParseArguments<Options>(args).WithParsed(o => {
-                o.User = string.IsNullOrEmpty(o.User)? Environment.UserName :o.User;
+                o.User = string.IsNullOrEmpty(o.User) ? Environment.UserName : o.User;
                 o.Database = string.IsNullOrEmpty(o.Database) ? Environment.UserName : o.Database;
 
-                Console.Write($"Password for user {o.User}: ");
-                ConsoleKeyInfo keyInfo;
+                var connectionString = $"Host={o.Host};Username={o.User};Database={o.Database};Port={o.Port}";
+                var istrusted = TrustedConnectionChecker.HasTrustedConnection(connectionString);
 
-                do {
-                    keyInfo = Console.ReadKey(true);
-                    // Skip if Backspace or Enter is Pressed
-                    if (keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter) {
-                        password += keyInfo.KeyChar;
-                    }
-                    else {
-                        if (keyInfo.Key == ConsoleKey.Backspace && password.Length > 0) {
-                            // Remove last charcter if Backspace is Pressed
-                            password = password.Substring(0, (password.Length - 1));
-                        }
-                    }
+                if (!istrusted) {
+                    Console.Write($"Password for user {o.User}: ");
+                    password = PasswordAsker.GetPassword();
+                    Console.WriteLine();
                 }
-                // Stops Getting Password Once Enter is Pressed
-                while (keyInfo.Key != ConsoleKey.Enter);
 
-                Console.WriteLine();
                 Console.WriteLine($"Start processing....");
 
-                var connectionString = $"Host={o.Host};Username={o.User};Password={password};Database={o.Database};Port={o.Port}";
+                connectionString = $"Host={o.Host};Username={o.User};Password={password};Database={o.Database};Port={o.Port}";
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
 
@@ -94,8 +83,7 @@ namespace pg2b3dm
             }
             // and write children too
             foreach (var subnode in node.Children) {
-                // Console.Write(".");
-                var perc = Math.Round(((double)counter / Counter.Instance.Count) * 100,2);
+               var perc = Math.Round(((double)counter / Counter.Instance.Count) * 100,2);
                 Console.Write($"\rProgress: tile {counter} - {perc.ToString("F")}%");
                 WriteTiles(connectionString, geometryTable, geometryColumn, translation, subnode, material);
             }
