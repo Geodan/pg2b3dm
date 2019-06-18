@@ -18,7 +18,7 @@ namespace pg2b3dm
     class Program
     {
         static string password = string.Empty;
-        static int counter = 0;
+        static int counter = 1;
 
         static void Main(string[] args)
         {
@@ -33,6 +33,7 @@ namespace pg2b3dm
                 var istrusted = TrustedConnectionChecker.HasTrustedConnection(connectionString);
 
                 if (!istrusted) {
+                    connectionString = $"Host={o.Host};Username={o.User};Password={password};Database={o.Database};Port={o.Port}";
                     Console.Write($"Password for user {o.User}: ");
                     password = PasswordAsker.GetPassword();
                     Console.WriteLine();
@@ -40,7 +41,6 @@ namespace pg2b3dm
 
                 Console.WriteLine($"Start processing....");
 
-                connectionString = $"Host={o.Host};Username={o.User};Password={password};Database={o.Database};Port={o.Port}";
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
 
