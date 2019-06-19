@@ -118,5 +118,5 @@ In code: calculate center for transform
 
 ````
 SELECT ST_AsBinary(ST_RotateX(ST_Translate(geom, -3893180.29274884, -337609.41850392846, -5023897.8453492), -pi() / 2)),ST_Area(ST_Force2D(geom)) AS weight FROM tmptom.betterroofs_extruded where ST_GeometryType(geom) like 'ST_PolyhedralSurface' ORDER BY weight DESC
-``
+```
 
