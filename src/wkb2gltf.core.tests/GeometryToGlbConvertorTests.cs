@@ -23,7 +23,7 @@ namespace Wkb2Gltf.Tests
             var material = MaterialMaker.CreateMaterial("Material_house", 139 / 255f, 69 / 255f, 19 / 255f, 1.0f);
             var gltf = Gltf2Loader.ToGltf(gltfArray, translation, material);
 
-            gltf.Gltf.SaveBinaryModel(gltf.Body, @"d:/aaa/test43434.glb");
+            // gltf.Gltf.SaveBinaryModel(gltf.Body, @"d:/aaa/test43434.glb");
 
             // assert
             Assert.IsTrue(gltf!=null);

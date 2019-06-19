@@ -19,6 +19,14 @@ To run this tool there must be a PostGIS table available containing triangulated
 
 Tileset.json and b3dm tiles are created in the 'tiles' subdirectory.
 
+## History
+
+2019-06-01: release 0.2.1 with some small fixes
+
+2019-06-01: initial release 0.2
+
+2019-05-01: initial release 0.1
+
 ## Command line options
 
 All parameters are optional, except the -t --table option. 

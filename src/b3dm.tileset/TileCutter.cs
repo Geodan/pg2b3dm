@@ -30,7 +30,7 @@ namespace B3dm.Tileset
 
                     // loop through all zupboxes
                     for (var t = 0; t < zupboxes.Count; t++) {
-                        var isinside = tileextent.Inside(zupboxes[t]);
+                        var isinside = tileextent.Inside(zupboxes[t].GetCenter());
                         if (isinside) {
                             var f = new Feature() { Id = t, BoundingBox3D = zupboxes[t] };
                             features.Add(f);
@@ -47,7 +47,7 @@ namespace B3dm.Tileset
                         var new_x = x * 2;
                         var new_y = y * 2;
                         var new_maxTileSize = maxTileSize / 2;
-                        Divide(bbox, new_features, new_x, new_y, new_maxTileSize, featuresPerTile, node);
+                        Divide(tileextent, new_features, new_x, new_y, new_maxTileSize, featuresPerTile, node);
                     }
                     else {
                         node.Features = features;

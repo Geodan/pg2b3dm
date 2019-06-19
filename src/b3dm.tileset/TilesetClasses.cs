@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace B3dm.Tileset
 {
@@ -26,6 +27,7 @@ namespace B3dm.Tileset
 
     public class Boundingvolume
     {
+        // [JsonConverter(typeof(RoundingJsonConverter), 3)]
         public double[] box { get; set; }
     }
 

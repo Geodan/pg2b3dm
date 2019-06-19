@@ -26,6 +26,7 @@ namespace Wkb2Gltf
         public static TriangleCollection GetTriangles(Polygon geometry)
         {
             var pnts = geometry.ExteriorRing.Points;
+            // assertion: pnt.Count == 4 (because triangle), maybe add error handling for this.
             var triangle = new Triangle(pnts[0], pnts[1], pnts[2]);
             return new TriangleCollection() { triangle };
         }

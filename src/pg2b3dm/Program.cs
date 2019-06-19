@@ -55,6 +55,7 @@ namespace pg2b3dm
                 var geometryColumn = o.GeometryColumn;
                 Console.WriteLine("Calculating bounding boxes...");
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3D(connectionString, geometryTable, geometryColumn);
+
                 var translation = bbox3d.GetCenter().ToVector();
                 var zupBoxes = GetZupBoxes(connectionString, geometryTable, geometryColumn, translation);
                 var tree = TileCutter.ConstructTree(zupBoxes);
@@ -63,7 +64,8 @@ namespace pg2b3dm
                 WiteTilesetJson(translation, tree);
 
                 Console.WriteLine($"Writing {Counter.Instance.Count} tiles...");
-                var material = MaterialMaker.CreateMaterial("Material_house", 139 / 255f, 69 / 255f, 19 / 255f, 1.0f);
+                // var material = MaterialMaker.CreateMaterial("Material_house", 139 / 255f, 69 / 255f, 19 / 255f, 1.0f);
+                var material = MaterialMaker.CreateMaterial("Material_house", 255 / 255f, 255 / 255f, 255 / 255f, 1.0f);
                 WriteTiles(connectionString, geometryTable, geometryColumn, translation, tree, material);
 
                 stopWatch.Stop();

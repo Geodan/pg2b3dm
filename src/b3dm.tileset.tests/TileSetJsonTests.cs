@@ -20,7 +20,7 @@ namespace B3dm.Tileset.Tests
             // act
             var tileset_json_actual = TreeSerializer.ToTileset(tree,translation);
             var actual_json = JsonConvert.SerializeObject(tileset_json_actual, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
-            File.WriteAllText("d:/aaa/sample_tileset_actual.json", actual_json);
+            //File.WriteAllText("d:/aaa/sample_tileset_actual.json", actual_json);
 
             // assert
             Assert.IsTrue(tileset_json_actual.asset.version=="1.0");
