@@ -120,3 +120,10 @@ In code: calculate center for transform
 SELECT ST_AsBinary(ST_RotateX(ST_Translate(geom, -3893180.29274884, -337609.41850392846, -5023897.8453492), -pi() / 2)),ST_Area(ST_Force2D(geom)) AS weight FROM tmptom.betterroofs_extruded where ST_GeometryType(geom) like 'ST_PolyhedralSurface' ORDER BY weight DESC
 ```
 
+3] Loop thourgh all bboxes and convert to zupboxes
+
+Sample first geometry:
+
+bbox: [array([ 597.0333 , -485.8998 ,  261.94238], dtype=float32), array([ 749.3507, -354.325 ,  508.3083], dtype=float32)]
+
+zupbox: [-1695.9141, -2153.4897] [1695.9141, 2183.8198]
