@@ -110,3 +110,32 @@ In Visual Studio Code, open .vscode/launch.json and adjust the 'args' parameter 
 
 Press F5 to start debugging.
 
+## Debugging SQL Queries
+
+py3dtiles:
+
+1] select 3D extent of all ST_PolyhedralSurface geometries
+
+```
+SELECT ST_3DExtent(geom) FROM tmptom.betterroofs_extruded where ST_GeometryType(geom) like 'ST_PolyhedralSurface'
+```
+
+In code: calculate center for transform
+
+2] Select all geometries to process
+
+```
+SELECT ST_AsBinary(ST_RotateX(ST_Translate(geom, -3893180.29274884, -337609.41850392846, -5023897.8453492), -pi() / 2)),ST_Area(ST_Force2D(geom)) AS weight FROM tmptom.betterroofs_extruded where ST_GeometryType(geom) like 'ST_PolyhedralSurface' ORDER BY weight DESC
+```
+
+3] Loop through all bboxes and convert to zupboxes
+
+Sample first geometry:
+
+bbox: [array([ 597.0333 , -485.8998 ,  261.94238], dtype=float32), array([ 749.3507, -354.325 ,  508.3083], dtype=float32)]
+
+zupbox: [-1695.9141, -2153.4897] [1695.9141, 2183.8198]
+
+4] Calculate tree
+
+tile 0,0: [-1695.9140625, -2153.48974609375] [304.0859375, -153.48974609375]
