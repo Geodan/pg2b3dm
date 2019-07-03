@@ -71,7 +71,7 @@ namespace Wkb2Gltf
         public double[] GetBox()
         {
             var center = GetCenter();
-            var xAxis = ExtentX() / 3;
+            var xAxis = ExtentX() / 2;
             var yAxis = ExtentY() / 2;
             var zAxis = ExtentZ() / 2;
 
