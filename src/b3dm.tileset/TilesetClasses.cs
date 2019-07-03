@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace B3dm.Tileset
 {
@@ -27,8 +28,15 @@ namespace B3dm.Tileset
 
     public class Boundingvolume
     {
-        // [JsonConverter(typeof(RoundingJsonConverter), 3)]
-        public double[] box { get; set; }
+        private double[] _box;
+        public double[] box {
+            get {
+                return this._box;
+            }
+            set {
+                _box = value.Select(d => Math.Round(d,3)).ToArray();
+            }
+        }
     }
 
     public class Content
