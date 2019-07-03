@@ -3,15 +3,19 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using B3dm.Tile;
 using B3dm.Tileset;
 using CommandLine;
-using glTFLoader;
-using glTFLoader.Schema;
 using Newtonsoft.Json;
+using SharpGLTF.Geometry;
+using SharpGLTF.Materials;
+using SharpGLTF.Schema2;
 using Wkb2Gltf;
 using Wkx;
+using VERTEX = SharpGLTF.Geometry.VertexTypes.VertexPosition;
+
 
 namespace pg2b3dm
 {
@@ -64,9 +68,7 @@ namespace pg2b3dm
                 WiteTilesetJson(translation, tree);
 
                 Console.WriteLine($"Writing {Counter.Instance.Count} tiles...");
-                // var material = MaterialMaker.CreateMaterial("Material_house", 139 / 255f, 69 / 255f, 19 / 255f, 1.0f);
-                var material = MaterialMaker.CreateMaterial("Material_house", 255 / 255f, 255 / 255f, 255 / 255f, 1.0f);
-                WriteTiles(connectionString, geometryTable, geometryColumn, translation, tree, material);
+                WriteTiles(connectionString, geometryTable, geometryColumn, translation, tree);
 
                 stopWatch.Stop();
                 Console.WriteLine();
@@ -75,19 +77,19 @@ namespace pg2b3dm
             });
         }
 
-        private static void WriteTiles(string connectionString, string geometryTable, string geometryColumn, double[] translation, B3dm.Tileset.Node node, Material material)
+        private static void WriteTiles(string connectionString, string geometryTable, string geometryColumn, double[] translation, B3dm.Tileset.Node node)
         {
             if (node.Features.Count > 0) {
                 counter++;
                 var subset = (from f in node.Features select (f.Id)).ToArray();
                 var geometries = BoundingBoxRepository.GetGeometrySubset(connectionString, geometryTable, geometryColumn, translation, subset);
-                WriteB3dm(geometries, node.Id, translation, material);
+                WriteB3dm(geometries, node.Id);
             }
             // and write children too
             foreach (var subnode in node.Children) {
                var perc = Math.Round(((double)counter / Counter.Instance.Count) * 100,2);
                 Console.Write($"\rProgress: tile {counter} - {perc.ToString("F")}%");
-                WriteTiles(connectionString, geometryTable, geometryColumn, translation, subnode, material);
+                WriteTiles(connectionString, geometryTable, geometryColumn, translation, subnode);
             }
         }
 
@@ -110,7 +112,7 @@ namespace pg2b3dm
             return zupBoxes;
         }
 
-        private static void WriteB3dm(List<GeometryRecord> geomrecords, int tile_id, double[] translation, Material material)
+        private static void WriteB3dm(List<GeometryRecord> geomrecords, int tile_id)
         {
             var triangleCollection = new TriangleCollection();
             foreach(var g in geomrecords) {
@@ -119,27 +121,32 @@ namespace pg2b3dm
                 triangleCollection.AddRange(triangles);
             }
 
-            var bb = GetBoundingBox3D(geomrecords);
-            var gltfArray = Gltf2Loader.GetGltfArray(triangleCollection, bb);
-            var gltfall = Gltf2Loader.ToGltf(gltfArray, translation, material);
-            var ms = new MemoryStream();
-            gltfall.Gltf.SaveBinaryModel(gltfall.Body, ms);
-            var glb = ms.ToArray();
-            var b3dm = new B3dm.Tile.B3dm(glb);
-            B3dmWriter.WriteB3dm($"./output/tiles/{tile_id}.b3dm", b3dm);
-        }
 
-        private static BoundingBox3D GetBoundingBox3D(List<GeometryRecord> records)
-        {
-            var bboxes = new List<BoundingBox3D>();
-            foreach (var record in records) {
-                var surface = (PolyhedralSurface)record.Geometry;
-                var bbox = surface.GetBoundingBox3D();
-                bboxes.Add(bbox);
+            var material1 = new MaterialBuilder().
+                WithDoubleSide(true).
+                WithMetallicRoughnessShader().
+                WithChannelParam("BaseColor", new Vector4(1, 0, 0, 1));
+
+            var mesh = new MeshBuilder<VERTEX>("mesh");
+
+            var prim = mesh.UsePrimitive(material1);
+
+            foreach (var triangle in triangleCollection) {
+                prim.AddTriangle(
+                    new VERTEX((float)triangle.GetP0().X, (float)triangle.GetP0().Y, (float)triangle.GetP0().Z),
+                    new VERTEX((float)triangle.GetP1().X, (float)triangle.GetP1().Y, (float)triangle.GetP1().Z),
+                    new VERTEX((float)triangle.GetP2().X, (float)triangle.GetP2().Y, (float)triangle.GetP2().Z)
+                    );
             }
-            var combinedBoundingBox = BoundingBoxCalculator.GetBoundingBox(bboxes);
 
-            return combinedBoundingBox;
+            var model = ModelRoot.CreateModel();
+            model.CreateMeshes(mesh);
+            model.UseScene("Default")
+                .CreateNode()
+                .WithMesh(model.LogicalMeshes[0]);
+            var bytes = model.WriteGLB().Array;
+            var b3dm = new B3dm.Tile.B3dm(bytes);
+            B3dmWriter.WriteB3dm($"./output/tiles/{tile_id}.b3dm", b3dm);
         }
     }
 }
