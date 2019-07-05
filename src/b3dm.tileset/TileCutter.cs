@@ -16,7 +16,7 @@ namespace B3dm.Tileset
             var bbox = bbox3d.ToBoundingBox();
 
             double maxTileSize = 2000.0;
-            var featuresPerTile = 20;
+            var featuresPerTile = 200;
 
             var xrange = (int)Math.Ceiling(bbox3d.ExtentX() / maxTileSize);
             var yrange = (int)Math.Ceiling(bbox3d.ExtentY() / maxTileSize);
