@@ -57,15 +57,13 @@ namespace pg2b3dm
             return bboxes;
         }
 
-        public static List<GeometryRecord>  GetGeometrySubset(string connectionString, string geometry_table, string geometry_column, double[] translation, int[] row_numbers)
+        public static List<GeometryRecord>  GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, int[] row_numbers)
         {
             var geometries = new List<GeometryRecord>();
             var new_row_numbers= Array.ConvertAll(row_numbers, x => x+1);
             var ids = string.Join(",", new_row_numbers);
             var geometryTable = GetGeometryTable(geometry_table, geometry_column, translation);
             var sql = $"select row_number, ST_AsBinary(geom1) from(SELECT row_number() over(), geom1 FROM({geometryTable}) as t) as p where row_number in ({ids})";
-            var conn = new NpgsqlConnection(connectionString);
-            conn.Open();
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
             while (reader.Read()) {
@@ -77,8 +75,7 @@ namespace pg2b3dm
             }
 
             reader.Close();
-            conn.Close();
-            return geometries;
+             return geometries;
         }
     }
 }

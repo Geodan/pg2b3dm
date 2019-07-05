@@ -9,6 +9,7 @@ using B3dm.Tile;
 using B3dm.Tileset;
 using CommandLine;
 using Newtonsoft.Json;
+using Npgsql;
 using SharpGLTF.Geometry;
 using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
@@ -68,8 +69,11 @@ namespace pg2b3dm
                 WiteTilesetJson(translation, tree);
 
                 Console.WriteLine($"Writing {Counter.Instance.Count} tiles...");
-                WriteTiles(connectionString, geometryTable, geometryColumn, translation, tree);
 
+                var conn = new NpgsqlConnection(connectionString);
+                conn.Open();
+                WriteTiles(conn, geometryTable, geometryColumn, translation, tree);
+                conn.Close();
                 stopWatch.Stop();
                 Console.WriteLine();
                 Console.WriteLine($"Elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");
@@ -77,19 +81,19 @@ namespace pg2b3dm
             });
         }
 
-        private static void WriteTiles(string connectionString, string geometryTable, string geometryColumn, double[] translation, B3dm.Tileset.Node node)
+        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, double[] translation, B3dm.Tileset.Node node)
         {
             if (node.Features.Count > 0) {
                 counter++;
                 var subset = (from f in node.Features select (f.Id)).ToArray();
-                var geometries = BoundingBoxRepository.GetGeometrySubset(connectionString, geometryTable, geometryColumn, translation, subset);
+                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset);
                 WriteB3dm(geometries, node.Id);
             }
             // and write children too
             foreach (var subnode in node.Children) {
                var perc = Math.Round(((double)counter / Counter.Instance.Count) * 100,2);
                 Console.Write($"\rProgress: tile {counter} - {perc.ToString("F")}%");
-                WriteTiles(connectionString, geometryTable, geometryColumn, translation, subnode);
+                WriteTiles(conn, geometryTable, geometryColumn, translation, subnode);
             }
         }
 
