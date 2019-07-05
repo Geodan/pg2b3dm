@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.4.3" />
+    <PackageReference Include="CommandLineParser" Version="2.5.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
-    <PackageReference Include="Npgsql" Version="4.0.5" />
+    <PackageReference Include="Npgsql" Version="4.0.7" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0009" />
   </ItemGroup>
 

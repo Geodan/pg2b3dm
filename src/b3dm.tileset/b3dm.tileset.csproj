@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="b3dm-tile" Version="0.6.0" />
+    <PackageReference Include="b3dm-tile" Version="0.7.0" />
   </ItemGroup>
 
   <ItemGroup>
