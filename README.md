@@ -21,6 +21,8 @@ Tileset.json and b3dm tiles are created in the 'tiles' subdirectory.
 
 ## History
 
+2019-07-09: release 0.3 using library SharpGLTF
+
 2019-06-01: release 0.2.1 with some small fixes
 
 2019-06-01: initial release 0.2
