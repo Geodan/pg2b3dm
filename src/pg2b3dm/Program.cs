@@ -15,7 +15,7 @@ using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
 using Wkb2Gltf;
 using Wkx;
-using VERTEX = SharpGLTF.Geometry.VertexTypes.VertexPosition;
+using VERTEX = SharpGLTF.Geometry.VertexTypes.VertexPositionNormal;
 
 
 namespace pg2b3dm
@@ -136,10 +136,11 @@ namespace pg2b3dm
             var prim = mesh.UsePrimitive(material1);
 
             foreach (var triangle in triangleCollection) {
+                var normal = triangle.GetNormal();
                 prim.AddTriangle(
-                    new VERTEX((float)triangle.GetP0().X, (float)triangle.GetP0().Y, (float)triangle.GetP0().Z),
-                    new VERTEX((float)triangle.GetP1().X, (float)triangle.GetP1().Y, (float)triangle.GetP1().Z),
-                    new VERTEX((float)triangle.GetP2().X, (float)triangle.GetP2().Y, (float)triangle.GetP2().Z)
+                    new VERTEX((float)triangle.GetP0().X, (float)triangle.GetP0().Y, (float)triangle.GetP0().Z, normal.X, normal.Y, normal.Z),
+                    new VERTEX((float)triangle.GetP1().X, (float)triangle.GetP1().Y, (float)triangle.GetP1().Z, normal.X, normal.Y, normal.Z),
+                    new VERTEX((float)triangle.GetP2().X, (float)triangle.GetP2().Y, (float)triangle.GetP2().Z, normal.X, normal.Y, normal.Z)
                     );
             }
 
