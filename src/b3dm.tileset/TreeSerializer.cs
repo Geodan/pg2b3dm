@@ -21,7 +21,7 @@ namespace B3dm.Tileset
         {
             var root = new Root();
             root.geometricError = geometricError;
-            root.refine = "add";
+            root.refine = "ADD";
             root.transform = t;
             root.boundingVolume = GetBoundingvolume(n);
             n.Id = Counter.Instance.Count;
@@ -47,7 +47,7 @@ namespace B3dm.Tileset
         {
             var child = new Child();
             child.geometricError=geometricError;
-            child.refine = "add";
+            child.refine = "ADD";
             child.content = new Content();
             child.content.uri = $"tiles/{node.Id}.b3dm";
             child.boundingVolume = GetBoundingvolume(node);

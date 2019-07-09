@@ -25,9 +25,6 @@ namespace Wkb2Gltf
 
         public static TriangleCollection GetTriangles(Polygon geometry)
         {
-            if (geometry.IsEmpty) {
-                var z = 0;
-            }
             var pnts = geometry.ExteriorRing.Points;
             //if (pnts.Count != 4) {
             //    var p = 0;
