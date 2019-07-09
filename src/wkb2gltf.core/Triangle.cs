@@ -39,5 +39,13 @@ namespace Wkb2Gltf
             return n;
         }
 
+        public float[] Flatten()
+        {
+            var floats = new List<float>();
+            floats.AddRange(GetP0().ToArray());
+            floats.AddRange(GetP1().ToArray());
+            floats.AddRange(GetP2().ToArray());
+            return floats.ToArray();
+        }
     }
 }

@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 using B3dm.Tile;
 using B3dm.Tileset;
 using CommandLine;
+using glTFLoader;
+using glTFLoader.Schema;
 using Newtonsoft.Json;
 using Npgsql;
 using SharpGLTF.Geometry;
@@ -16,7 +17,6 @@ using SharpGLTF.Schema2;
 using Wkb2Gltf;
 using Wkx;
 using VERTEX = SharpGLTF.Geometry.VertexTypes.VertexPositionNormal;
-
 
 namespace pg2b3dm
 {
@@ -88,6 +88,8 @@ namespace pg2b3dm
                 var subset = (from f in node.Features select (f.Id)).ToArray();
                 var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset);
                 WriteB3dm(geometries, node.Id);
+                var geometries = BoundingBoxRepository.GetGeometrySubset(connectionString, geometryTable, geometryColumn, translation, subset);
+                WriteB3dm(geometries, node.Id, translation, material);
             }
             // and write children too
             foreach (var subnode in node.Children) {
@@ -116,7 +118,7 @@ namespace pg2b3dm
             return zupBoxes;
         }
 
-        private static void WriteB3dm(List<GeometryRecord> geomrecords, int tile_id)
+        private static void WriteB3dm(List<GeometryRecord> geomrecords, int tile_id, double[] translation, Material material)
         {
             var triangleCollection = new TriangleCollection();
             foreach(var g in geomrecords) {
@@ -125,6 +127,15 @@ namespace pg2b3dm
                 triangleCollection.AddRange(triangles);
             }
 
+            var bb = GetBoundingBox3D(geomrecords);
+            var gltfArray = Gltf2Loader.GetGltfArray(triangleCollection, bb);
+            var gltfall = Gltf2Loader.ToGltf(gltfArray, translation, material);
+            var ms = new MemoryStream();
+            gltfall.Gltf.SaveBinaryModel(gltfall.Body, ms);
+            var glb = ms.ToArray();
+            var b3dm = new B3dm.Tile.B3dm(glb);
+            B3dmWriter.WriteB3dm($"./output/tiles/{tile_id}.b3dm", b3dm);
+        }
 
             var material1 = new MaterialBuilder().
                 WithDoubleSide(true).
@@ -143,15 +154,9 @@ namespace pg2b3dm
                     new VERTEX((float)triangle.GetP2().X, (float)triangle.GetP2().Y, (float)triangle.GetP2().Z, normal.X, normal.Y, normal.Z)
                     );
             }
+            var combinedBoundingBox = BoundingBoxCalculator.GetBoundingBox(bboxes);
 
-            var model = ModelRoot.CreateModel();
-            model.CreateMeshes(mesh);
-            model.UseScene("Default")
-                .CreateNode()
-                .WithMesh(model.LogicalMeshes[0]);
-            var bytes = model.WriteGLB().Array;
-            var b3dm = new B3dm.Tile.B3dm(bytes);
-            B3dmWriter.WriteB3dm($"./output/tiles/{tile_id}.b3dm", b3dm);
+            return combinedBoundingBox;
         }
     }
 }
