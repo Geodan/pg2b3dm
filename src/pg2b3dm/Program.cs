@@ -152,7 +152,8 @@ namespace pg2b3dm
 
             foreach (var triangle in triangleCollection) {
                 var normal = triangle.GetNormal();
-                if(normal.Y > 0) {
+                // todo: use some formula for this...
+                if(normal.Y > 0 && normal.X > -0.1) {
                     prim = mesh.UsePrimitive(materialRed);
                 }
                 else {
