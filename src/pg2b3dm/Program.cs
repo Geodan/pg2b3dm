@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Threading;
 using B3dm.Tile;
 using B3dm.Tileset;
 using CommandLine;
@@ -59,10 +60,12 @@ namespace pg2b3dm
                 var geometryTable = o.GeometryTable;
                 var geometryColumn = o.GeometryColumn;
                 Console.WriteLine("Calculating bounding boxes...");
-                var bbox3d = BoundingBoxRepository.GetBoundingBox3D(connectionString, geometryTable, geometryColumn);
+                var conn = new NpgsqlConnection(connectionString);
+                conn.Open();
+                var bbox3d = BoundingBoxRepository.GetBoundingBox3D(conn, geometryTable, geometryColumn);
 
                 var translation = bbox3d.GetCenter().ToVector();
-                var zupBoxes = GetZupBoxes(connectionString, geometryTable, geometryColumn, translation);
+                var zupBoxes = GetZupBoxes(conn, geometryTable, geometryColumn, translation);
                 var tree = TileCutter.ConstructTree(zupBoxes);
 
                 Console.WriteLine("Writing tileset.json...");
@@ -70,8 +73,6 @@ namespace pg2b3dm
 
                 Console.WriteLine($"Writing {Counter.Instance.Count} tiles...");
 
-                var conn = new NpgsqlConnection(connectionString);
-                conn.Open();
                 WriteTiles(conn, geometryTable, geometryColumn, translation, tree);
                 conn.Close();
                 stopWatch.Stop();
@@ -87,7 +88,10 @@ namespace pg2b3dm
                 counter++;
                 var subset = (from f in node.Features select (f.Id)).ToArray();
                 var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset);
-                WriteB3dm(geometries, node.Id);
+
+                // WriteB3dm(geometries, node.Id);
+                var state = new StateInfo() { Geometries = geometries, TileId = node.Id };
+                ThreadPool.QueueUserWorkItem(WriteB3dmBackgroundTask, state);
             }
             // and write children too
             foreach (var subnode in node.Children) {
@@ -104,9 +108,9 @@ namespace pg2b3dm
             File.WriteAllText("./output/tileset.json", s);
         }
 
-        private static List<BoundingBox3D> GetZupBoxes(string connectionString, string GeometryTable, string GeometryColumn, double[] translation)
+        private static List<BoundingBox3D> GetZupBoxes(NpgsqlConnection conn, string GeometryTable, string GeometryColumn, double[] translation)
         {
-            var bboxes = BoundingBoxRepository.GetAllBoundingBoxes(connectionString, GeometryTable, GeometryColumn, translation);
+            var bboxes = BoundingBoxRepository.GetAllBoundingBoxes(conn, GeometryTable, GeometryColumn, translation);
             var zupBoxes = new List<BoundingBox3D>();
             foreach (var bbox in bboxes) {
                 var zupBox = bbox.TransformYToZ();
@@ -114,6 +118,11 @@ namespace pg2b3dm
             }
 
             return zupBoxes;
+        }
+
+        private static void WriteB3dmBackgroundTask(Object stateInfo)
+        {
+            WriteB3dm(((StateInfo)stateInfo).Geometries, ((StateInfo)stateInfo).TileId);
         }
 
         private static void WriteB3dm(List<GeometryRecord> geomrecords, int tile_id)
@@ -126,17 +135,30 @@ namespace pg2b3dm
             }
 
 
-            var material1 = new MaterialBuilder().
+            var materialRed = new MaterialBuilder().
                 WithDoubleSide(true).
                 WithMetallicRoughnessShader().
-                WithChannelParam("BaseColor", new Vector4(1, 1, 1, 1));
+                WithChannelParam("BaseColor", new Vector4(1, 0, 0, 1));
+
+            var materialGreen = new MaterialBuilder().
+                WithDoubleSide(true).
+                WithMetallicRoughnessShader().
+                WithChannelParam("BaseColor", new Vector4(0, 1, 0, 1));
+
 
             var mesh = new MeshBuilder<VERTEX>("mesh");
 
-            var prim = mesh.UsePrimitive(material1);
+            var prim = mesh.UsePrimitive(materialGreen);
 
             foreach (var triangle in triangleCollection) {
                 var normal = triangle.GetNormal();
+                if(normal.Y > 0) {
+                    prim = mesh.UsePrimitive(materialRed);
+                }
+                else {
+                    prim = mesh.UsePrimitive(materialGreen);
+                }
+
                 prim.AddTriangle(
                     new VERTEX((float)triangle.GetP0().X, (float)triangle.GetP0().Y, (float)triangle.GetP0().Z, normal.X, normal.Y, normal.Z),
                     new VERTEX((float)triangle.GetP1().X, (float)triangle.GetP1().Y, (float)triangle.GetP1().Z, normal.X, normal.Y, normal.Z),
@@ -153,5 +175,11 @@ namespace pg2b3dm
             var b3dm = new B3dm.Tile.B3dm(bytes);
             B3dmWriter.WriteB3dm($"./output/tiles/{tile_id}.b3dm", b3dm);
         }
+    }
+
+    public class StateInfo
+    {
+        public List<GeometryRecord> Geometries { get; set; }
+        public int TileId { get; set; }
     }
 }

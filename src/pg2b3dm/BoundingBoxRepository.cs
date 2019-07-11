@@ -8,11 +8,8 @@ namespace pg2b3dm
 {
     public static class BoundingBoxRepository
     {
-        public static BoundingBox3D GetBoundingBox3D(string connectionString, string geometry_table, string geometry_column)
+        public static BoundingBox3D GetBoundingBox3D(NpgsqlConnection conn, string geometry_table, string geometry_column)
         {
-            var conn = new NpgsqlConnection(connectionString);
-            conn.Open();
-
             var cmd = new NpgsqlCommand($"SELECT st_xmin(geom1), st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType(geom) =  'ST_PolyhedralSurface') as t", conn);
             var reader = cmd.ExecuteReader();
             reader.Read();
@@ -23,7 +20,6 @@ namespace pg2b3dm
             var ymax = reader.GetDouble(4);
             var zmax = reader.GetDouble(5);
             reader.Close();
-            conn.Close();
             return new BoundingBox3D() { XMin = xmin, YMin = ymin, ZMin = zmin, XMax = xmax, YMax = ymax, ZMax = zmax };
         }
 
@@ -33,12 +29,10 @@ namespace pg2b3dm
             return sql;
         }
 
-        public static List<BoundingBox3D> GetAllBoundingBoxes(string connectionString, string geometry_table, string geometry_column, double[] translation)
+        public static List<BoundingBox3D> GetAllBoundingBoxes(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation)
         {
             var geometryTable = GetGeometryTable(geometry_table, geometry_column, translation);
             var sql = $"SELECT ST_XMIN(geom1),ST_YMIN(geom1),ST_ZMIN(geom1), ST_XMAX(geom1),ST_YMAX(geom1),ST_ZMAX(geom1) FROM ({geometryTable}) as t";
-            var conn = new NpgsqlConnection(connectionString);
-            conn.Open();
             var cmd = new NpgsqlCommand(sql, conn);
             var bboxes = new List<BoundingBox3D>();
             var reader = cmd.ExecuteReader();
@@ -53,7 +47,6 @@ namespace pg2b3dm
                 bboxes.Add(bbox);
             }
             reader.Close();
-            conn.Close();
             return bboxes;
         }
 

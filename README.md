@@ -17,7 +17,7 @@ Differences to py3dtiles:
 
 To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries.
 
-Tileset.json and b3dm tiles are created in the 'tiles' subdirectory.
+Tileset.json and b3dm tiles are created in the 'output/tiles' subdirectory.
 
 ## History
 
@@ -57,18 +57,18 @@ If --username and/or --dbname are not specified the current username is used as 
 
 Docker image: https://hub.docker.com/r/geodan/pg2b3dm
 
-Building image:
+### Building
 
 ```
 $ docker build -t geodan/pg2b3dm .
 ```
 
-Running image:
+### Running
 
 Sample on Windows: 
 
 ```
-$ docker run -v C:/Users/bertt/output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_table
+$ docker run -v C:\output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_table
 ```
 
 Sample on Linux:

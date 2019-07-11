@@ -30,6 +30,10 @@ namespace Wkb2Gltf
             //    var p = 0;
             //}
             //     (because triangle), maybe add error handling for this.
+
+            //if (pnts[1].Equals(pnts[2])){
+            //    var p = 0;
+            //}
             var triangle = new Triangle(pnts[0], pnts[1], pnts[2]);
             return new TriangleCollection() { triangle };
         }
