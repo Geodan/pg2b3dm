@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Npgsql;
 using Wkb2Gltf;
 using Wkx;
@@ -25,7 +26,7 @@ namespace pg2b3dm
 
         private static string GetGeometryTable(string geometry_table, string geometry_column, double[] translation)
         {
-            var sql = $"select ST_RotateX(ST_Translate({geometry_column}, {translation[0]}*-1,{translation[1]}*-1 , {translation[2]}*-1), -pi() / 2) as geom1, ST_Area(ST_Force2D(geom)) AS weight FROM {geometry_table} where ST_GeometryType(geom) =  'ST_PolyhedralSurface' ORDER BY weight DESC";
+            var sql = $"select ST_RotateX(ST_Translate({geometry_column}, {translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , {translation[2].ToString(CultureInfo.InvariantCulture)}*-1), -pi() / 2) as geom1, ST_Area(ST_Force2D(geom)) AS weight FROM {geometry_table} where ST_GeometryType(geom) =  'ST_PolyhedralSurface' ORDER BY weight DESC";
             return sql;
         }
 
