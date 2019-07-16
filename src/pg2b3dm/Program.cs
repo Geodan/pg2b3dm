@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using B3dm.Tile;
 using B3dm.Tileset;
 using CommandLine;
@@ -50,11 +51,14 @@ namespace pg2b3dm
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
 
-                if (!Directory.Exists("./output")) {
-                    Directory.CreateDirectory("./output");
+                // Do in try catch as may not have acces rights.
+                string output = o.Output;
+                string outputTiles = output + "/tiles";
+                if (!Directory.Exists(output)) {
+                    Directory.CreateDirectory(output);
                 }
-                if (!Directory.Exists("./output/tiles")) {
-                    Directory.CreateDirectory("./output/tiles");
+                if (!Directory.Exists(outputTiles)) {
+                    Directory.CreateDirectory(outputTiles);
                 }
 
                 var geometryTable = o.GeometryTable;
@@ -69,11 +73,13 @@ namespace pg2b3dm
                 var tree = TileCutter.ConstructTree(zupBoxes);
 
                 Console.WriteLine("Writing tileset.json...");
-                WiteTilesetJson(translation, tree);
+                WiteTilesetJson(translation, tree, o.Output);
 
                 Console.WriteLine($"Writing {Counter.Instance.Count} tiles...");
 
-                WriteTiles(conn, geometryTable, geometryColumn, translation, tree);
+                List<Task> tasks = new List<Task>();
+                WriteTiles(conn, geometryTable, geometryColumn, translation, tree, o.Output, tasks);
+                Task.WaitAll(tasks.ToArray());
                 conn.Close();
                 stopWatch.Stop();
                 Console.WriteLine();
@@ -82,7 +88,7 @@ namespace pg2b3dm
             });
         }
 
-        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, double[] translation, B3dm.Tileset.Node node)
+        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, double[] translation, B3dm.Tileset.Node node, string outputPath, List<Task> tasks)
         {
             if (node.Features.Count > 0) {
                 counter++;
@@ -90,22 +96,24 @@ namespace pg2b3dm
                 var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset);
 
                 // WriteB3dm(geometries, node.Id);
-                var state = new StateInfo() { Geometries = geometries, TileId = node.Id };
-                ThreadPool.QueueUserWorkItem(WriteB3dmBackgroundTask, state);
+                var state = new StateInfo() { Geometries = geometries, TileId = node.Id, OutputPath = outputPath };
+                var backgroundTask = new Task(() => WriteB3dmBackgroundTask(state));
+                backgroundTask.Start();
+                tasks.Add(backgroundTask);
             }
             // and write children too
             foreach (var subnode in node.Children) {
                var perc = Math.Round(((double)counter / Counter.Instance.Count) * 100,2);
                 Console.Write($"\rProgress: tile {counter} - {perc.ToString("F")}%");
-                WriteTiles(conn, geometryTable, geometryColumn, translation, subnode);
+                WriteTiles(conn, geometryTable, geometryColumn, translation, subnode, outputPath, tasks);
             }
         }
 
-        private static void WiteTilesetJson(double[] translation, B3dm.Tileset.Node tree)
+        private static void WiteTilesetJson(double[] translation, B3dm.Tileset.Node tree, string outputPath)
         {
             var tileset = TreeSerializer.ToTileset(tree, translation);
             var s = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-            File.WriteAllText("./output/tileset.json", s);
+            File.WriteAllText($"{outputPath}/tileset.json", s);
         }
 
         private static List<BoundingBox3D> GetZupBoxes(NpgsqlConnection conn, string GeometryTable, string GeometryColumn, double[] translation)
@@ -122,10 +130,10 @@ namespace pg2b3dm
 
         private static void WriteB3dmBackgroundTask(Object stateInfo)
         {
-            WriteB3dm(((StateInfo)stateInfo).Geometries, ((StateInfo)stateInfo).TileId);
+            WriteB3dm(((StateInfo)stateInfo).Geometries, ((StateInfo)stateInfo).TileId, ((StateInfo)stateInfo).OutputPath);
         }
 
-        private static void WriteB3dm(List<GeometryRecord> geomrecords, int tile_id)
+        private static void WriteB3dm(List<GeometryRecord> geomrecords, int tile_id, string outputPath)
         {
             var triangleCollection = new TriangleCollection();
             foreach(var g in geomrecords) {
@@ -174,7 +182,7 @@ namespace pg2b3dm
                 .WithMesh(model.LogicalMeshes[0]);
             var bytes = model.WriteGLB().Array;
             var b3dm = new B3dm.Tile.B3dm(bytes);
-            B3dmWriter.WriteB3dm($"./output/tiles/{tile_id}.b3dm", b3dm);
+            B3dmWriter.WriteB3dm($"{outputPath}/tiles/{tile_id}.b3dm", b3dm);
         }
     }
 
@@ -182,5 +190,6 @@ namespace pg2b3dm
     {
         public List<GeometryRecord> Geometries { get; set; }
         public int TileId { get; set; }
+        public string OutputPath { get; set; }
     }
 }
