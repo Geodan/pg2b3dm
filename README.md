@@ -15,6 +15,8 @@ Differences to py3dtiles:
 
 - add styling options;
 
+- added output directory option;
+
 - Docker support.
 
 To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries.
@@ -47,6 +49,8 @@ If --username and/or --dbname are not specified the current username is used as 
   -c, --column      (Default: geom) Geometry column
 
   -t, --table       (Required) Database table, include database schema if needed
+
+  -o, --output      (Default: ./output/tiles) Output directory, will be created if not exists
 
   -p, --port        (Default: 5432) Database port
 
