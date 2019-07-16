@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 
 namespace pg2b3dm
 {
@@ -16,5 +16,7 @@ namespace pg2b3dm
         public string GeometryTable { get; set; }
         [Option('p', "port", Required = false, Default ="5432", HelpText = "Database port")]
         public string Port { get; set; }
+        [Option('o', "output", Required = false, Default = "./output", HelpText = "Output path")]
+        public string Output { get; set; }
     }
 }
