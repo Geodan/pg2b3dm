@@ -114,3 +114,15 @@ In Visual Studio Code, open .vscode/launch.json and adjust the 'args' parameter 
 
 Press F5 to start debugging.
 
+## Cesium sample code 
+
+Cesium sample code to add 3D Tiles - b3dm's:
+
+```
+    var viewer = new Cesium.Viewer('cesiumContainer');
+    viewer.scene.debugShowFramesPerSecond = true;
+    var tileset = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
+      url : './tiles/tileset.json'
+    }));
+    viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, 0));
+```
