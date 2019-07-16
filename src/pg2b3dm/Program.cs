@@ -9,6 +9,8 @@ using System.Threading;
 using B3dm.Tile;
 using B3dm.Tileset;
 using CommandLine;
+
+
 using Newtonsoft.Json;
 using Npgsql;
 using SharpGLTF.Geometry;
