@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Wkb2Gltf;
 
@@ -16,12 +17,12 @@ namespace B3dm.Tileset.Tests
             while ((line = reader.ReadLine()) != null) {
                 var splitted = line.Split(",");
                 var bbox = new BoundingBox3D();
-                bbox.XMin = Double.Parse(splitted[0]);
-                bbox.YMin = Double.Parse(splitted[1]);
-                bbox.ZMin = Double.Parse(splitted[2]);
-                bbox.XMax = Double.Parse(splitted[3]);
-                bbox.YMax = Double.Parse(splitted[4]);
-                bbox.ZMax = Double.Parse(splitted[5]);
+                bbox.XMin = Double.Parse(splitted[0], CultureInfo.InvariantCulture);
+                bbox.YMin = Double.Parse(splitted[1], CultureInfo.InvariantCulture);
+                bbox.ZMin = Double.Parse(splitted[2], CultureInfo.InvariantCulture);
+                bbox.XMax = Double.Parse(splitted[3], CultureInfo.InvariantCulture);
+                bbox.YMax = Double.Parse(splitted[4], CultureInfo.InvariantCulture);
+                bbox.ZMax = Double.Parse(splitted[5], CultureInfo.InvariantCulture);
                 bboxes.Add(bbox);
             }
             fileStream.Close();

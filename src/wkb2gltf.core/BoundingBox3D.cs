@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Wkx;
 
 namespace Wkb2Gltf
@@ -47,8 +48,9 @@ namespace Wkb2Gltf
 
         public override string ToString()
         {
-            return $"{XMin},{YMin},{ZMin},{XMax},{YMax},{ZMax}";
+            return $"{XMin.ToString(CultureInfo.InvariantCulture)},{YMin.ToString(CultureInfo.InvariantCulture)},{ZMin.ToString(CultureInfo.InvariantCulture)},{XMax.ToString((CultureInfo.InvariantCulture))},{YMax.ToString((CultureInfo.InvariantCulture))},{ZMax.ToString((CultureInfo.InvariantCulture))}";
         }
+
 
         public BoundingBox ToBoundingBox()
         {
