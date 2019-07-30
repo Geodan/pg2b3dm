@@ -77,9 +77,9 @@ namespace pg2b3dm
 
                 Console.WriteLine($"Writing {Counter.Instance.Count} tiles...");
 
-                List<Task> tasks = new List<Task>();
-                WriteTiles(conn, geometryTable, geometryColumn, translation, tree, o.Output, tasks);
-                Task.WaitAll(tasks.ToArray());
+                //List<Task> tasks = new List<Task>();
+                WriteTiles(conn, geometryTable, geometryColumn, translation, tree, o.Output);
+                //Task.WaitAll(tasks.ToArray());
                 conn.Close();
                 stopWatch.Stop();
                 Console.WriteLine();
@@ -88,24 +88,20 @@ namespace pg2b3dm
             });
         }
 
-        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, double[] translation, B3dm.Tileset.Node node, string outputPath, List<Task> tasks)
+        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, double[] translation, B3dm.Tileset.Node node, string outputPath)
         {
             if (node.Features.Count > 0) {
                 counter++;
                 var subset = (from f in node.Features select (f.Id)).ToArray();
                 var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset);
 
-                // WriteB3dm(geometries, node.Id);
-                var state = new StateInfo() { Geometries = geometries, TileId = node.Id, OutputPath = outputPath };
-                var backgroundTask = new Task(() => WriteB3dmBackgroundTask(state));
-                backgroundTask.Start();
-                tasks.Add(backgroundTask);
+                WriteB3dm(geometries, node.Id, outputPath);
             }
             // and write children too
             foreach (var subnode in node.Children) {
                var perc = Math.Round(((double)counter / Counter.Instance.Count) * 100,2);
                 Console.Write($"\rProgress: tile {counter} - {perc.ToString("F")}%");
-                WriteTiles(conn, geometryTable, geometryColumn, translation, subnode, outputPath, tasks);
+                WriteTiles(conn, geometryTable, geometryColumn, translation, subnode, outputPath);
             }
         }
 
@@ -128,11 +124,6 @@ namespace pg2b3dm
             return zupBoxes;
         }
 
-        private static void WriteB3dmBackgroundTask(Object stateInfo)
-        {
-            WriteB3dm(((StateInfo)stateInfo).Geometries, ((StateInfo)stateInfo).TileId, ((StateInfo)stateInfo).OutputPath);
-        }
-
         private static void WriteB3dm(List<GeometryRecord> geomrecords, int tile_id, string outputPath)
         {
             var triangleCollection = new TriangleCollection();
@@ -141,7 +132,6 @@ namespace pg2b3dm
                 var triangles = Triangulator.GetTriangles(surface);
                 triangleCollection.AddRange(triangles);
             }
-
 
             var materialRed = new MaterialBuilder().
                 WithDoubleSide(true).
@@ -153,20 +143,17 @@ namespace pg2b3dm
                 WithMetallicRoughnessShader().
                 WithChannelParam("BaseColor", new Vector4(0, 1, 0, 1));
 
+            var materialWhite = new MaterialBuilder().
+                WithDoubleSide(true).
+                WithMetallicRoughnessShader().
+                WithChannelParam("BaseColor", new Vector4(1, 1, 1, 1));
 
             var mesh = new MeshBuilder<VERTEX>("mesh");
 
-            var prim = mesh.UsePrimitive(materialGreen);
+            var prim = mesh.UsePrimitive(materialWhite);
 
             foreach (var triangle in triangleCollection) {
                 var normal = triangle.GetNormal();
-                // todo: use some formula for this...
-                if(normal.Y > 0 && normal.X > -0.1) {
-                    prim = mesh.UsePrimitive(materialRed);
-                }
-                else {
-                    prim = mesh.UsePrimitive(materialGreen);
-                }
 
                 prim.AddTriangle(
                     new VERTEX((float)triangle.GetP0().X, (float)triangle.GetP0().Y, (float)triangle.GetP0().Z, normal.X, normal.Y, normal.Z),
