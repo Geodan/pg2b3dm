@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.IO;
+using System.Numerics;
 using NUnit.Framework;
 using SharpGLTF.Geometry;
 using SharpGLTF.Materials;
@@ -11,11 +12,31 @@ namespace Wkb2Gltf.Tests
     public class WkbCreatorTests
     {
         [Test]
+        public void CreateWkbTest()
+        {
+            // arrange
+            var buildingWkb = File.OpenRead(@"testfixtures/coloring_issue.wkb");
+            var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
+            var polyhedralsurface = ((PolyhedralSurface)g);
+            var triangleCollection = Triangulator.GetTriangles(polyhedralsurface);
+
+            // act
+            var bytes = GlbCreator.GetGlb(triangleCollection);
+
+            // Save bytes to binary file...
+            File.WriteAllBytes(@"d:\aaa\test1.glb",bytes);
+
+
+
+            // assert
+            Assert.IsTrue(bytes != null);
+
+        }
+
+
+        [Test]
         public void ColorTest()
         {
-            //var p1 = new Point(-335.4, 390.4, -388.2);
-            //var p2 = new Point(-335.2, 390.3, -388.2);
-            //var p3 = new Point(-334.5, 389.7, -388.2);
             var p1 = new Point(0, 0, 0);
             var p2 = new Point(1, 1, 0);
             var p3 = new Point(1, 0, 0);

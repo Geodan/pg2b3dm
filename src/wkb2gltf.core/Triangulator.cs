@@ -10,11 +10,6 @@ namespace Wkb2Gltf
             var triangleCollection = new TriangleCollection();
             foreach (var g in geomrecords) {
                 var surface = (PolyhedralSurface)g.Geometry;
-
-                //var fs = new FileStream(@"d:\aaa\DataFile.wkb", FileMode.Create);
-                //surface.Serialize<WkbSerializer>(fs);
-                //fs.Close();
-
                 var triangles = Triangulator.GetTriangles(surface);
                 triangleCollection.AddRange(triangles);
             }
