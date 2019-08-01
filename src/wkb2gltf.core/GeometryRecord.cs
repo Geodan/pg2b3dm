@@ -1,11 +1,10 @@
 ﻿using Wkx;
 
-namespace pg2b3dm
+namespace Wkb2Gltf
 {
     public class GeometryRecord
     {
         public int RowNumber { get; set; }
-        public Wkx.Geometry Geometry { get; set; }
-
+        public Geometry Geometry { get; set; }
     }
 }

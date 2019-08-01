@@ -3,21 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using B3dm.Tile;
 using B3dm.Tileset;
 using CommandLine;
 using Newtonsoft.Json;
 using Npgsql;
-using SharpGLTF.Geometry;
-using SharpGLTF.Materials;
-using SharpGLTF.Schema2;
 using Wkb2Gltf;
-using Wkx;
-using VERTEX = SharpGLTF.Geometry.VertexTypes.VertexPositionNormal;
 
 
 namespace pg2b3dm
@@ -87,7 +79,6 @@ namespace pg2b3dm
                 Console.WriteLine("Program finished.");
             });
         }
-
         private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, double[] translation, B3dm.Tileset.Node node, string outputPath)
         {
             if (node.Features.Count > 0) {
@@ -95,7 +86,12 @@ namespace pg2b3dm
                 var subset = (from f in node.Features select (f.Id)).ToArray();
                 var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset);
 
-                WriteB3dm(geometries, node.Id, outputPath);
+                var triangleCollection = Triangulator.GetTriangles(geometries);
+                var bytes = GlbCreator.GetGlb(triangleCollection);
+
+                var b3dm = new B3dm.Tile.B3dm(bytes);
+                B3dmWriter.WriteB3dm($"{outputPath}/tiles/{node.Id}.b3dm", b3dm);
+
             }
             // and write children too
             foreach (var subnode in node.Children) {
@@ -124,59 +120,5 @@ namespace pg2b3dm
             return zupBoxes;
         }
 
-        private static void WriteB3dm(List<GeometryRecord> geomrecords, int tile_id, string outputPath)
-        {
-            var triangleCollection = new TriangleCollection();
-            foreach(var g in geomrecords) {
-                var surface = (PolyhedralSurface)g.Geometry;
-                var triangles = Triangulator.GetTriangles(surface);
-                triangleCollection.AddRange(triangles);
-            }
-
-            var materialRed = new MaterialBuilder().
-                WithDoubleSide(true).
-                WithMetallicRoughnessShader().
-                WithChannelParam("BaseColor", new Vector4(1, 0, 0, 1));
-
-            var materialGreen = new MaterialBuilder().
-                WithDoubleSide(true).
-                WithMetallicRoughnessShader().
-                WithChannelParam("BaseColor", new Vector4(0, 1, 0, 1));
-
-            var materialWhite = new MaterialBuilder().
-                WithDoubleSide(true).
-                WithMetallicRoughnessShader().
-                WithChannelParam("BaseColor", new Vector4(1, 1, 1, 1));
-
-            var mesh = new MeshBuilder<VERTEX>("mesh");
-
-            var prim = mesh.UsePrimitive(materialWhite);
-
-            foreach (var triangle in triangleCollection) {
-                var normal = triangle.GetNormal();
-
-                prim.AddTriangle(
-                    new VERTEX((float)triangle.GetP0().X, (float)triangle.GetP0().Y, (float)triangle.GetP0().Z, normal.X, normal.Y, normal.Z),
-                    new VERTEX((float)triangle.GetP1().X, (float)triangle.GetP1().Y, (float)triangle.GetP1().Z, normal.X, normal.Y, normal.Z),
-                    new VERTEX((float)triangle.GetP2().X, (float)triangle.GetP2().Y, (float)triangle.GetP2().Z, normal.X, normal.Y, normal.Z)
-                    );
-            }
-
-            var model = ModelRoot.CreateModel();
-            model.CreateMeshes(mesh);
-            model.UseScene("Default")
-                .CreateNode()
-                .WithMesh(model.LogicalMeshes[0]);
-            var bytes = model.WriteGLB().Array;
-            var b3dm = new B3dm.Tile.B3dm(bytes);
-            B3dmWriter.WriteB3dm($"{outputPath}/tiles/{tile_id}.b3dm", b3dm);
-        }
-    }
-
-    public class StateInfo
-    {
-        public List<GeometryRecord> Geometries { get; set; }
-        public int TileId { get; set; }
-        public string OutputPath { get; set; }
     }
 }

@@ -5,6 +5,23 @@ namespace Wkb2Gltf
 {
     public static class Triangulator
     {
+        public static TriangleCollection GetTriangles(List<GeometryRecord> geomrecords)
+        {
+            var triangleCollection = new TriangleCollection();
+            foreach (var g in geomrecords) {
+                var surface = (PolyhedralSurface)g.Geometry;
+
+                //var fs = new FileStream(@"d:\aaa\DataFile.wkb", FileMode.Create);
+                //surface.Serialize<WkbSerializer>(fs);
+                //fs.Close();
+
+                var triangles = Triangulator.GetTriangles(surface);
+                triangleCollection.AddRange(triangles);
+            }
+
+            return triangleCollection;
+        }
+
         public static TriangleCollection GetTriangles(PolyhedralSurface polyhedralsurface)
         {
             var geometries = polyhedralsurface.Geometries;
