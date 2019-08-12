@@ -13,7 +13,7 @@ Differences to py3dtiles:
 
 - fixed glTF warnings;
 
-- add styling options;
+- added styling options like roof color column per geometry;
 
 - added output directory option;
 
