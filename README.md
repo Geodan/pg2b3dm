@@ -44,25 +44,25 @@ All parameters are optional, except the -t --table option.
 If --username and/or --dbname are not specified the current username is used as default.
 
 ```
-  -U, --username			(Default: username) Database user
+  -U, --username			    (Default: username) Database user
 
-  -h, --host				(Default: localhost) Database host
+  -h, --host				      (Default: localhost) Database host
 
-  -d, --dbname				(default: username) Database name
+  -d, --dbname				    (Default: username) Database name
 
-  -c, --column				(Default: geom) Geometry column
+  -c, --column				    (Default: geom) Geometry column
 
-  -t, --table				(Required) Database table, include database schema if needed
+  -t, --table				      (Required) Database table, include database schema if needed
 
-  -o, --output				(Default: ./output/tiles) Output directory, will be created if not exists
+  -o, --output				    (Default: ./output/tiles) Output directory, will be created if not exists
 
-  -p, --port				(Default: 5432) Database port
+  -p, --port				      (Default: 5432) Database port
 
   -r , --roofcolorcolumn	(default: '') Roof color column, sample value: '#ff5555'
   
-  --help					Display this help screen.
+  --help					        Display this help screen.
 
-  --version					Display version information.  
+  --version					      Display version information.  
 ```
 
 ## Run from Docker
