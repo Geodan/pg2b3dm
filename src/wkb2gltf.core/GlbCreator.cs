@@ -1,49 +1,43 @@
-﻿using System.Diagnostics;
+﻿using System;
 using System.Numerics;
 using SharpGLTF.Geometry;
+using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
-using VERTEX = SharpGLTF.Geometry.VertexTypes.VertexPositionNormal;
 
 namespace Wkb2Gltf
 {
     public static class GlbCreator
     {
+        private static Vector4 ColorToVector4(float r, float g, float b)
+        {
+            return new Vector4(r / 255, g / 255, b / 255, 1);
+        }
+
+        private static MaterialBuilder GetMaterial(float r, float g, float b)
+        {
+            var material = new MaterialBuilder().
+                WithDoubleSide(true).
+                WithMetallicRoughnessShader().
+                WithChannelParam("BaseColor", ColorToVector4(r, g, b));
+            return material;
+        }
+
         public static byte[] GetGlb(TriangleCollection triangles)
         {
+            var materialSchuindak = GetMaterial(255, 0, 0);
+            var materialMuur = GetMaterial(255, 255, 255);
 
-            var materialPlatdak = new MaterialBuilder().
-                WithDoubleSide(true).
-                WithMetallicRoughnessShader().
-                WithChannelParam("BaseColor", new Vector4(187/255, 187/255, 187/255, 1));
-
-            var materialSchuindak = new MaterialBuilder().
-                WithDoubleSide(true).
-                WithMetallicRoughnessShader().
-                WithChannelParam("BaseColor", new Vector4(1, 218/255, 153/255, 1));
-
-            var materialMuur = new MaterialBuilder().
-                WithDoubleSide(true).
-                WithMetallicRoughnessShader().
-                WithChannelParam("BaseColor", new Vector4(1, 1, 1, 1));
-
-            var materialRed = new MaterialBuilder().
-                WithDoubleSide(true).
-                WithMetallicRoughnessShader().
-                WithChannelParam("BaseColor", new Vector4(1,0,0, 1));
-
-            var materialGreen = new MaterialBuilder().
-                WithDoubleSide(true).
-                WithMetallicRoughnessShader().
-                WithChannelParam("BaseColor", new Vector4(0, 1, 0, 1));
-
-
-            var mesh = new MeshBuilder<VERTEX>("mesh");
+            var mesh = new MeshBuilder<VertexPositionNormal>("mesh");
 
 
             foreach (var triangle in triangles) {
                 MaterialBuilder material = null;
                 var normal = triangle.GetNormal();
+                var tr = (float)Math.PI / 2;
+                var m = new Matrix4x4(tr,tr,tr,tr,1,1,1,1,1,1,1,1,1,1,1,1);
+
+                var s = Vector3.TransformNormal(normal, m);
 
                 // todo: find better formulas here
                 if (normal.Y > 0 && normal.X > -0.1) {
@@ -66,14 +60,15 @@ namespace Wkb2Gltf
             return bytes;
         }
 
-        private static void DrawTriangle(Triangle triangle, MaterialBuilder material, MeshBuilder<VERTEX> mesh)
+
+        private static void DrawTriangle(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal> mesh)
         {
             var normal = triangle.GetNormal();
             var prim = mesh.UsePrimitive(material);
             prim.AddTriangle(
-                new VERTEX((float)triangle.GetP0().X, (float)triangle.GetP0().Y, (float)triangle.GetP0().Z, normal.X, normal.Y, normal.Z),
-                new VERTEX((float)triangle.GetP1().X, (float)triangle.GetP1().Y, (float)triangle.GetP1().Z, normal.X, normal.Y, normal.Z),
-                new VERTEX((float)triangle.GetP2().X, (float)triangle.GetP2().Y, (float)triangle.GetP2().Z, normal.X, normal.Y, normal.Z)
+                new VertexPositionNormal((float)triangle.GetP0().X, (float)triangle.GetP0().Y, (float)triangle.GetP0().Z, normal.X, normal.Y, normal.Z),
+                new VertexPositionNormal((float)triangle.GetP1().X, (float)triangle.GetP1().Y, (float)triangle.GetP1().Z, normal.X, normal.Y, normal.Z),
+                new VertexPositionNormal((float)triangle.GetP2().X, (float)triangle.GetP2().Y, (float)triangle.GetP2().Z, normal.X, normal.Y, normal.Z)
                 );
         }
     }

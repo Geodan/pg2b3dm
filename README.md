@@ -25,6 +25,8 @@ Tileset.json and b3dm tiles are created in the 'output/tiles' subdirectory.
 
 ## History
 
+2019-08-01: release 0.3.3 with 2 colors
+
 2019-07-09: release 0.3 using library SharpGLTF
 
 2019-06-01: release 0.2.1 with some small fixes
@@ -53,7 +55,6 @@ If --username and/or --dbname are not specified the current username is used as 
   -o, --output      (Default: ./output/tiles) Output directory, will be created if not exists
 
   -p, --port        (Default: 5432) Database port
-
   --help            Display this help screen.
 
   --version         Display version information.  
