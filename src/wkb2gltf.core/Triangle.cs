@@ -39,5 +39,6 @@ namespace Wkb2Gltf
             return n;
         }
 
+        public string Color { get; set; }
     }
 }

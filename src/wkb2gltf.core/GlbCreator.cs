@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Numerics;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
@@ -25,7 +26,7 @@ namespace Wkb2Gltf
 
         public static byte[] GetGlb(TriangleCollection triangles)
         {
-            var materialSchuindak = GetMaterial(255, 0, 0);
+            var materialSchuindak = GetMaterial(255, 85, 85);
             var materialMuur = GetMaterial(255, 255, 255);
 
             var mesh = new MeshBuilder<VertexPositionNormal>("mesh");
@@ -34,14 +35,14 @@ namespace Wkb2Gltf
             foreach (var triangle in triangles) {
                 MaterialBuilder material = null;
                 var normal = triangle.GetNormal();
-                var tr = (float)Math.PI / 2;
-                var m = new Matrix4x4(tr,tr,tr,tr,1,1,1,1,1,1,1,1,1,1,1,1);
-
-                var s = Vector3.TransformNormal(normal, m);
-
                 // todo: find better formulas here
                 if (normal.Y > 0 && normal.X > -0.1) {
                     material = materialSchuindak;
+
+                    if (!String.IsNullOrEmpty(triangle.Color)) {
+                        var c = ColorTranslator.FromHtml(triangle.Color);
+                        material = GetMaterial(c.R, c.G, c.B);
+                    }
                 }
                 else {
                     material = materialMuur;

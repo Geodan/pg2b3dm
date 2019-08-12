@@ -11,7 +11,6 @@ using Newtonsoft.Json;
 using Npgsql;
 using Wkb2Gltf;
 
-
 namespace pg2b3dm
 {
     class Program
@@ -68,10 +67,7 @@ namespace pg2b3dm
                 WiteTilesetJson(translation, tree, o.Output);
 
                 Console.WriteLine($"Writing {Counter.Instance.Count} tiles...");
-
-                //List<Task> tasks = new List<Task>();
-                WriteTiles(conn, geometryTable, geometryColumn, translation, tree, o.Output);
-                //Task.WaitAll(tasks.ToArray());
+                WriteTiles(conn, geometryTable, geometryColumn, translation, tree, o.Output, o.RoofColorColumn);
                 conn.Close();
                 stopWatch.Stop();
                 Console.WriteLine();
@@ -79,12 +75,12 @@ namespace pg2b3dm
                 Console.WriteLine("Program finished.");
             });
         }
-        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, double[] translation, B3dm.Tileset.Node node, string outputPath)
+        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, double[] translation, Node node, string outputPath, string colorColumn = "")
         {
             if (node.Features.Count > 0) {
                 counter++;
                 var subset = (from f in node.Features select (f.Id)).ToArray();
-                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset);
+                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset,colorColumn);
 
                 var triangleCollection = Triangulator.GetTriangles(geometries);
                 var bytes = GlbCreator.GetGlb(triangleCollection);
@@ -97,11 +93,11 @@ namespace pg2b3dm
             foreach (var subnode in node.Children) {
                var perc = Math.Round(((double)counter / Counter.Instance.Count) * 100,2);
                 Console.Write($"\rProgress: tile {counter} - {perc.ToString("F")}%");
-                WriteTiles(conn, geometryTable, geometryColumn, translation, subnode, outputPath);
+                WriteTiles(conn, geometryTable, geometryColumn, translation, subnode, outputPath, colorColumn);
             }
         }
 
-        private static void WiteTilesetJson(double[] translation, B3dm.Tileset.Node tree, string outputPath)
+        private static void WiteTilesetJson(double[] translation, Node tree, string outputPath)
         {
             var tileset = TreeSerializer.ToTileset(tree, translation);
             var s = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });

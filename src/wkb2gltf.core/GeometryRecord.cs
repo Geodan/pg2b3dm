@@ -6,5 +6,7 @@ namespace Wkb2Gltf
     {
         public int RowNumber { get; set; }
         public Geometry Geometry { get; set; }
+
+        public string HexColor { get; set; }
     }
 }
