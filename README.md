@@ -25,6 +25,8 @@ Tileset.json and b3dm tiles are created in the 'output/tiles' subdirectory.
 
 ## History
 
+2019-08-13: release 0.4.1 with fix for roof colors (option -r)
+
 2019-08-12: release 0.4 adding roof color column option (-r)
 
 2019-08-01: release 0.3.3 with 2 colors
