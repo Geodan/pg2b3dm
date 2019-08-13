@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Numerics;
 using SharpGLTF.Geometry;
@@ -10,7 +11,7 @@ namespace Wkb2Gltf
 {
     public static class GlbCreator
     {
-        private static Vector4 ColorToVector4(float r, float g, float b)
+        public static Vector4 ColorToVector4(float r, float g, float b)
         {
             return new Vector4(r / 255, g / 255, b / 255, 1);
         }
@@ -20,7 +21,7 @@ namespace Wkb2Gltf
             var material = new MaterialBuilder().
                 WithDoubleSide(true).
                 WithMetallicRoughnessShader().
-                WithChannelParam("BaseColor", ColorToVector4(r, g, b));
+                WithChannelParam(KnownChannels.BaseColor, ColorToVector4(r, g, b));
             return material;
         }
 
@@ -28,20 +29,19 @@ namespace Wkb2Gltf
         {
             var materialSchuindak = GetMaterial(255, 85, 85);
             var materialMuur = GetMaterial(255, 255, 255);
-
             var mesh = new MeshBuilder<VertexPositionNormal>("mesh");
-
 
             foreach (var triangle in triangles) {
                 MaterialBuilder material = null;
                 var normal = triangle.GetNormal();
+
                 // todo: find better formulas here
                 if (normal.Y > 0 && normal.X > -0.1) {
                     material = materialSchuindak;
 
-                    if (!String.IsNullOrEmpty(triangle.Color)) {
+                    if (!string.IsNullOrEmpty(triangle.Color)) {
                         var c = ColorTranslator.FromHtml(triangle.Color);
-                        material = GetMaterial(c.R, c.G, c.B);
+                        materialSchuindak.GetChannel(KnownChannels.BaseColor).Parameter = GlbCreator.ColorToVector4(c.R, c.G, c.B);
                     }
                 }
                 else {
