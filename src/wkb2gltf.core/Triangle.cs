@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using Wkx;
 
 namespace Wkb2Gltf
@@ -40,5 +41,42 @@ namespace Wkb2Gltf
         }
 
         public string Color { get; set; }
+
+        public bool IsWellFormed()
+        {
+            var c01 = !p0.Equals(p1);
+            var c02 = !p1.Equals(p2);
+            var c03 = !p2.Equals(p0);
+
+            if (c01 && c02 && c03) {
+                return true;
+            }
+            return false;
+        }
+
+        public double Area()
+        {
+            double a = p0.DistanceTo(p1);
+            double b = p1.DistanceTo(p2);
+            double c = p2.DistanceTo(p1);
+            double s = (a + b + c) / 2;
+            return Math.Sqrt(s * (s - a) * (s - b) * (s - c));
+        }
+    }
+
+}
+
+public static class PointExt
+{
+    public static double DistanceTo(this Point p, Point other)
+    {
+        var deltax = (p.X - other.X).Value;
+        var deltay = (p.Y - other.Y).Value;
+        var deltaz = (p.Z - other.Z).Value;
+        var distance = Math.Sqrt(
+            (deltax * deltax) +
+            (deltay * deltay) +
+            (deltaz * deltaz));
+        return distance;
     }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.Numerics;
+﻿using System.Collections.Generic;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
@@ -11,44 +8,44 @@ namespace Wkb2Gltf
 {
     public static class GlbCreator
     {
-        public static Vector4 ColorToVector4(float r, float g, float b)
+        public static List<string> GetColors(TriangleCollection triangles)
         {
-            return new Vector4(r / 255, g / 255, b / 255, 1);
-        }
-
-        private static MaterialBuilder GetMaterial(float r, float g, float b)
-        {
-            var material = new MaterialBuilder().
-                WithDoubleSide(true).
-                WithMetallicRoughnessShader().
-                WithChannelParam(KnownChannels.BaseColor, ColorToVector4(r, g, b));
-            return material;
+            var res = new List<string>();
+            foreach (var t in triangles) {
+                if (!res.Contains(t.Color)) {
+                    res.Add(t.Color);
+                }
+            }
+            return res;
         }
 
         public static byte[] GetGlb(TriangleCollection triangles)
         {
-            var materialSchuindak = GetMaterial(255, 85, 85);
-            var materialMuur = GetMaterial(255, 255, 255);
+            var colors = GetColors(triangles);
+            var materialCache = new MaterialCache(colors);
+            var materialSchuindak = MaterialCache.CreateMaterial(255, 85, 85);
+            var materialMuur = MaterialCache.CreateMaterial(255, 255, 255);
             var mesh = new MeshBuilder<VertexPositionNormal>("mesh");
 
             foreach (var triangle in triangles) {
                 MaterialBuilder material = null;
-                var normal = triangle.GetNormal();
+                var area = triangle.Area();
+                if(area > 0.01) {
+                    // todo: find better formulas here
+                    var normal = triangle.GetNormal();
+                    if (normal.Y > 0 && normal.X > -0.1) {
+                        material = materialSchuindak;
 
-                // todo: find better formulas here
-                if (normal.Y > 0 && normal.X > -0.1) {
-                    material = materialSchuindak;
-
-                    if (!string.IsNullOrEmpty(triangle.Color)) {
-                        var c = ColorTranslator.FromHtml(triangle.Color);
-                        materialSchuindak.GetChannel(KnownChannels.BaseColor).Parameter = GlbCreator.ColorToVector4(c.R, c.G, c.B);
+                        if (!string.IsNullOrEmpty(triangle.Color)) {
+                            material = materialCache.GetMaterialBuilderByColor(triangle.Color);
+                        }
                     }
-                }
-                else {
-                    material = materialMuur;
-                }
+                    else {
+                        material = materialMuur;
+                    }
 
-                DrawTriangle(triangle, material, mesh);
+                    DrawTriangle(triangle, material, mesh);
+                }
             }
 
             var model = ModelRoot.CreateModel();
