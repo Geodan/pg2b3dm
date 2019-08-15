@@ -95,6 +95,18 @@ Sample on Linux:
 $ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_schema.my_table
 ```
 
+## Dependencies
+
+- SharpGLTF (https://github.com/vpenades/SharpGLTF) for generating glTF;
+
+- CommandLineParser (https://github.com/commandlineparser/commandline) for parsing command line options;
+
+- Npgsql (https://www.npgsql.org/) - for access to PostgreSQL
+
+- b3dm-tile (https://github.com/bertt/b3dm-tile-cs) - for generating b3dm files;
+
+- Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling
+
 ## Run from source
 
 Requirement: Install .NET Core 3.0 SDK 
