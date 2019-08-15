@@ -3,8 +3,6 @@
 Tool for converting from PostGIS to b3dm tiles. This software is a partial port of py3dtiles (https://github.com/Oslandia/py3dtiles) 
 for generating b3dm tiles.
 
-![huisjes](https://user-images.githubusercontent.com/538812/60990513-e6671980-a348-11e9-9205-a7ab580ee69b.png)
-
 Differences to py3dtiles:
 
 - 2* performance improvement;
