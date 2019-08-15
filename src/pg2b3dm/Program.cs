@@ -23,6 +23,8 @@ namespace pg2b3dm
             var version = Assembly.GetEntryAssembly().GetName().Version;
             Console.WriteLine($"tool: pg2b3dm {version}");
 
+            // 4978
+
             Parser.Default.ParseArguments<Options>(args).WithParsed(o => {
                 o.User = string.IsNullOrEmpty(o.User) ? Environment.UserName : o.User;
                 o.Database = string.IsNullOrEmpty(o.Database) ? Environment.UserName : o.Database;
@@ -84,7 +86,7 @@ namespace pg2b3dm
 
                 var triangleCollection = Triangulator.GetTriangles(geometries);
 
-                var bytes = GlbCreator.GetGlb(triangleCollection);
+                var bytes = GlbCreator.GetGlb(triangleCollection, translation);
                 var b3dm = new B3dm.Tile.B3dm(bytes);
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{node.Id}.b3dm", b3dm);
 

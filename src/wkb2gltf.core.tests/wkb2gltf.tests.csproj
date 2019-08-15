@@ -27,6 +27,9 @@
     <None Update="testfixtures\2CylinderEngine0.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="testfixtures\8123.wkb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="testfixtures\building.wkb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

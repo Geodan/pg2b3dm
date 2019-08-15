@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
@@ -19,8 +21,23 @@ namespace Wkb2Gltf
             return res;
         }
 
-        public static byte[]  GetGlb(TriangleCollection triangles)
+
+        private static bool IsRoof(Vector3 triangleNormal, Vector3 triangleTop)
         {
+            var checkX = Math.Abs(triangleNormal.X*-1 - triangleTop.X) < 0.9;
+            var checkY = Math.Abs(triangleNormal.Y*-1 - triangleTop.Y) < 0.8;
+            var checkZ = Math.Abs(triangleNormal.Z*-1 - triangleTop.Z) < 0.9;
+
+            if (checkY && checkX && checkZ) {
+                return true;
+            } 
+            return false;
+        }
+
+        public static byte[]  GetGlb(TriangleCollection triangles, double[] translation)
+        {
+            var normal_translation = new Vector3((float)translation[0], (float)translation[2], (float)translation[1]);
+            var normalized_translation = Vector3.Normalize(normal_translation);
             var colors = GetColors(triangles);
             var materialCache = new MaterialCache(colors);
             var materialSchuindak = MaterialCache.CreateMaterial(255, 85, 85);
@@ -33,8 +50,13 @@ namespace Wkb2Gltf
                 MaterialBuilder material = null;
 
                 var normal = triangle.GetNormal();
-                if (normal.Y > 0 && normal.X > -0.1) {
+
+                var isRoof = IsRoof(normal, normalized_translation);
+
+                if (isRoof) {
                     material = materialSchuindak;
+
+                    // material = materialRed;
 
                     if (!string.IsNullOrEmpty(triangle.Color)) {
                         material = materialCache.GetMaterialBuilderByColor(triangle.Color);

@@ -22,14 +22,35 @@ namespace Wkb2Gltf.Tests
             var triangleCollection = Triangulator.GetTriangles(polyhedralsurface);
 
             // act
-            var bytes = GlbCreator.GetGlb(triangleCollection);
+            var bytes = GlbCreator.GetGlb(triangleCollection, new double[] { 3916436, 297015, 5008536 });
 
             // Save bytes to binary file...
-            // File.WriteAllBytes(@"d:\aaa\test1.glb",bytes);
+            File.WriteAllBytes(@"d:\aaa\test1.glb",bytes);
 
             // assert
             Assert.IsTrue(bytes != null);
         }
+
+
+        [Test]
+        public void CreateWkb1Test()
+        {
+            // arrange
+            var buildingWkb = File.OpenRead(@"testfixtures/8123.wkb");
+            var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
+            var polyhedralsurface = ((PolyhedralSurface)g);
+            var triangleCollection = Triangulator.GetTriangles(polyhedralsurface);
+
+            // act
+            var bytes = GlbCreator.GetGlb(triangleCollection, new double[] { 3916436, 297015, 5008536 });
+
+            // Save bytes to binary file...
+            File.WriteAllBytes(@"d:\aaa\test1.glb", bytes);
+
+            // assert
+            Assert.IsTrue(bytes != null);
+        }
+
 
         [Test]
         public void ColorTest()
