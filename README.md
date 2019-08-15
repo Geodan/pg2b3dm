@@ -25,6 +25,8 @@ Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdire
 
 ## History
 
+2019-08-15: release 0.4.4 improving roof colors
+
 2019-08-15: release 0.4.3 change degenerated triangles detection + removal
 
 2019-08-14: release 0.4.2 fixing roof colors + filter very small triangles (<0.01)
