@@ -3,7 +3,7 @@
 Tool for converting from PostGIS to b3dm tiles. This software is a partial port of py3dtiles (https://github.com/Oslandia/py3dtiles) 
 for generating b3dm tiles.
 
-![huisjes](https://user-images.githubusercontent.com/538812/60990513-e6671980-a348-11e9-9205-a7ab580ee69b.png)
+![mokum](https://user-images.githubusercontent.com/538812/63088752-24fa8000-bf56-11e9-9ba8-3273a21dfda0.png)
 
 Differences to py3dtiles:
 
@@ -21,7 +21,7 @@ Differences to py3dtiles:
 
 To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries.
 
-Tileset.json and b3dm tiles are created in the 'output/tiles' subdirectory.
+Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdirectory (or specify directory with   -o, --output).
 
 ## History
 
@@ -94,6 +94,18 @@ Sample on Linux:
 ```
 $ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_schema.my_table
 ```
+
+## Dependencies
+
+- SharpGLTF (https://github.com/vpenades/SharpGLTF) for generating glTF;
+
+- CommandLineParser (https://github.com/commandlineparser/commandline) for parsing command line options;
+
+- Npgsql (https://www.npgsql.org/) - for access to PostgreSQL;
+
+- b3dm-tile (https://github.com/bertt/b3dm-tile-cs) - for generating b3dm files;
+
+- Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## Run from source
 
