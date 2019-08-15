@@ -42,25 +42,14 @@ namespace Wkb2Gltf
 
         public string Color { get; set; }
 
-        public bool IsWellFormed()
+        public bool IsDegenerated()
         {
-            var c01 = !p0.Equals(p1);
-            var c02 = !p1.Equals(p2);
-            var c03 = !p2.Equals(p0);
+            var v0 = new Vector3((float)p0.X, (float)p0.Y, (float)p0.Z);
+            var v1 = new Vector3((float)p1.X, (float)p1.Y, (float)p1.Z);
+            var v2 = new Vector3((float)p2.X, (float)p2.Y, (float)p2.Z);
 
-            if (c01 && c02 && c03) {
-                return true;
-            }
-            return false;
-        }
-
-        public double Area()
-        {
-            double a = p0.DistanceTo(p1);
-            double b = p1.DistanceTo(p2);
-            double c = p2.DistanceTo(p1);
-            double s = (a + b + c) / 2;
-            return Math.Sqrt(s * (s - a) * (s - b) * (s - c));
+            var isDegenerated = (v0.Equals(v1) || v1.Equals(v2)) || v2.Equals(v0);
+            return isDegenerated;
         }
     }
 
@@ -78,5 +67,10 @@ public static class PointExt
             (deltay * deltay) +
             (deltaz * deltaz));
         return distance;
+    }
+
+    public static string ToString1(this Point p)
+    {
+        return $"{p.X}, {p.Y}, {p.Z}";
     }
 }

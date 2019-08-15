@@ -11,6 +11,7 @@ namespace Wkb2Gltf.Tests
 {
     public class WkbCreatorTests
     {
+
         [Test]
         public void CreateWkbTest()
         {
@@ -24,15 +25,11 @@ namespace Wkb2Gltf.Tests
             var bytes = GlbCreator.GetGlb(triangleCollection);
 
             // Save bytes to binary file...
-            File.WriteAllBytes(@"d:\aaa\test1.glb",bytes);
-
-
+            // File.WriteAllBytes(@"d:\aaa\test1.glb",bytes);
 
             // assert
             Assert.IsTrue(bytes != null);
-
         }
-
 
         [Test]
         public void ColorTest()

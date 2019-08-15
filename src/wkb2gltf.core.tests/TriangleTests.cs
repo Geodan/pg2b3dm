@@ -6,19 +6,20 @@ namespace Wkb2Gltf.Tests
     public class TriangleTests
     {
         [Test]
-        public void TestArea()
+        public void TestIsDegenerated()
         {
             // arrange
-            var p0 = new Point(0, 0, 0);
-            var p1 = new Point(1, 1, 0);
-            var p2 = new Point(1, 0, 0);
-            var t = new Triangle(p0, p1, p2);
+            var p0 = new Point(4403.12831325084, 5497.3228336684406, -451.62756590108586);
+            var p1 = new Point(4403.1283132596873, 5497.3228336591274, -451.62756593199413);
+            var p2 = new Point(4392.54991199635, 5483.549242743291, -450.72132376581396);
+
+            var triangle = new Triangle(p0, p1, p2);
 
             // act
-            var area = t.Area();
+            var isDegenerated = triangle.IsDegenerated();
 
             // assert
-            Assert.IsTrue(area > 0.5 - 0.00001);
+            Assert.IsTrue(isDegenerated);
         }
     }
 }

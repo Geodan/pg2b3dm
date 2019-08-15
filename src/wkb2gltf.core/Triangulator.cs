@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Wkx;
 
 namespace Wkb2Gltf
@@ -27,31 +28,37 @@ namespace Wkb2Gltf
 
         public static TriangleCollection GetTriangles(List<Polygon> geometries, string hexColor = "")
         {
+            var degenerated_triangles = 0;
             var allTriangles = new TriangleCollection();
             foreach (var geometry in geometries) {
-                var triangles = GetTriangles(geometry, hexColor);
-                allTriangles.AddRange(triangles);
+                var triangle = GetTriangle(geometry, hexColor);
+                if (triangle != null) {
+                    allTriangles.Add(triangle);
+                }
+                else {
+                    degenerated_triangles++;
+                }
             }
 
             return allTriangles;
         }
 
-        public static TriangleCollection GetTriangles(Polygon geometry, string hexColor = "")
+        public static Triangle GetTriangle(Polygon geometry, string hexColor = "")
         {
             var pnts = geometry.ExteriorRing.Points;
-            //if (pnts.Count != 4) {
-            //    var p = 0;
-            //}
-            //     (because triangle), maybe add error handling for this.
+            if (pnts.Count != 4) {
+                throw new ArgumentOutOfRangeException($"Expected number of vertices in triangles: 4, actual: {pnts.Count}");
+            }
 
-            //if (pnts[1].Equals(pnts[2])){
-            //    var p = 0;
-            //}
             var triangle = new Triangle(pnts[0], pnts[1], pnts[2]);
             if (hexColor != string.Empty) {
                 triangle.Color = hexColor;
             }
-            return new TriangleCollection() { triangle };
+
+            if (!triangle.IsDegenerated()) {
+                return triangle;
+            }
+            return null;
         }
     }
 }

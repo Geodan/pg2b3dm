@@ -19,32 +19,34 @@ namespace Wkb2Gltf
             return res;
         }
 
-        public static byte[] GetGlb(TriangleCollection triangles)
+        public static byte[]  GetGlb(TriangleCollection triangles)
         {
             var colors = GetColors(triangles);
             var materialCache = new MaterialCache(colors);
             var materialSchuindak = MaterialCache.CreateMaterial(255, 85, 85);
             var materialMuur = MaterialCache.CreateMaterial(255, 255, 255);
             var mesh = new MeshBuilder<VertexPositionNormal>("mesh");
+            //mesh.VertexPreprocessor.SetDebugPreprocessors();
+            var degenerated_triangles = 0;
 
             foreach (var triangle in triangles) {
                 MaterialBuilder material = null;
-                var area = triangle.Area();
-                if(area > 0.01) {
-                    // todo: find better formulas here
-                    var normal = triangle.GetNormal();
-                    if (normal.Y > 0 && normal.X > -0.1) {
-                        material = materialSchuindak;
 
-                        if (!string.IsNullOrEmpty(triangle.Color)) {
-                            material = materialCache.GetMaterialBuilderByColor(triangle.Color);
-                        }
-                    }
-                    else {
-                        material = materialMuur;
-                    }
+                var normal = triangle.GetNormal();
+                if (normal.Y > 0 && normal.X > -0.1) {
+                    material = materialSchuindak;
 
-                    DrawTriangle(triangle, material, mesh);
+                    if (!string.IsNullOrEmpty(triangle.Color)) {
+                        material = materialCache.GetMaterialBuilderByColor(triangle.Color);
+                    }
+                }
+                else {
+                    material = materialMuur;
+                }
+
+                var isadded = DrawTriangle(triangle, material, mesh);
+                if (!isadded) {
+                    degenerated_triangles++;
                 }
             }
 
@@ -59,15 +61,16 @@ namespace Wkb2Gltf
         }
 
 
-        private static void DrawTriangle(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal> mesh)
+        private static bool DrawTriangle(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal> mesh)
         {
             var normal = triangle.GetNormal();
             var prim = mesh.UsePrimitive(material);
-            prim.AddTriangle(
+            var indices = prim.AddTriangle(
                 new VertexPositionNormal((float)triangle.GetP0().X, (float)triangle.GetP0().Y, (float)triangle.GetP0().Z, normal.X, normal.Y, normal.Z),
                 new VertexPositionNormal((float)triangle.GetP1().X, (float)triangle.GetP1().Y, (float)triangle.GetP1().Z, normal.X, normal.Y, normal.Z),
                 new VertexPositionNormal((float)triangle.GetP2().X, (float)triangle.GetP2().Y, (float)triangle.GetP2().Z, normal.X, normal.Y, normal.Z)
                 );
+            return indices.Item1 > 0;
         }
     }
 }
