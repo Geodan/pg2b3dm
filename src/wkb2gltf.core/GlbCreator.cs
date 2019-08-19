@@ -22,6 +22,18 @@ namespace Wkb2Gltf
         }
 
 
+        private static bool IsFloor(Vector3 triangleNormal, Vector3 triangleTop)
+        {
+            var checkY = Math.Abs(triangleNormal.Y  - triangleTop.Y) < 0.1;
+
+            if (checkY) {
+                return true;
+            }
+            return false;
+        }
+
+
+
         private static bool IsRoof(Vector3 triangleNormal, Vector3 triangleTop)
         {
             var checkX = Math.Abs(triangleNormal.X*-1 - triangleTop.X) < 0.9;
@@ -42,6 +54,8 @@ namespace Wkb2Gltf
             var materialCache = new MaterialCache(colors);
             var materialSchuindak = MaterialCache.CreateMaterial(255, 85, 85);
             var materialMuur = MaterialCache.CreateMaterial(255, 255, 255);
+            var materialFloor = MaterialCache.CreateMaterial(0,0, 0);
+
             var mesh = new MeshBuilder<VertexPositionNormal>("mesh");
             //mesh.VertexPreprocessor.SetDebugPreprocessors();
             var degenerated_triangles = 0;
@@ -52,8 +66,12 @@ namespace Wkb2Gltf
                 var normal = triangle.GetNormal();
 
                 var isRoof = IsRoof(normal, normalized_translation);
+                var isFloor = IsFloor(normal, normalized_translation);
 
-                if (isRoof) {
+                if (isFloor) {
+                    material = materialFloor;
+                }
+                else if (isRoof) {
                     material = materialSchuindak;
 
                     // material = materialRed;

@@ -45,7 +45,7 @@ namespace Wkb2Gltf.Tests
             var bytes = GlbCreator.GetGlb(triangleCollection, new double[] { 3916436, 297015, 5008536 });
 
             // Save bytes to binary file...
-            File.WriteAllBytes(@"d:\aaa\test1.glb", bytes);
+            File.WriteAllBytes(@"d:\aaa\test2.glb", bytes);
 
             // assert
             Assert.IsTrue(bytes != null);
