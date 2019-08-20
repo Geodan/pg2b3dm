@@ -69,7 +69,7 @@ namespace pg2b3dm
 
             var sqlFrom = $"from(SELECT row_number() over(), geom1 FROM({geometryTable}) as t) as p ";
             if (colorColumn != String.Empty) {
-                sqlFrom = $"from(SELECT row_number() over(), geom1, color FROM({geometryTable}) as t) as p ";
+                sqlFrom = $"from(SELECT row_number() over(), geom1, {colorColumn} FROM({geometryTable}) as t) as p ";
             }
 
             var sqlWhere = $"where row_number in ({ids})";
@@ -86,7 +86,13 @@ namespace pg2b3dm
                 var geometryRecord = new GeometryRecord { RowNumber = rownumber, Geometry = g };
 
                 if (colorColumn != String.Empty) {
-                    geometryRecord.HexColor = reader.GetString(2);
+                    if (reader.GetFieldType(2).Name == "String") {
+                        var hexcolor = reader.GetString(2);
+                        geometryRecord.HexColors = new string[1] { hexcolor };
+                    }
+                    else {
+                        geometryRecord.HexColors = reader.GetFieldValue<string[]>(2);
+                    }
                 }
 
                 geometries.Add(geometryRecord);

@@ -11,27 +11,36 @@ namespace Wkb2Gltf
             var triangleCollection = new TriangleCollection();
             foreach (var g in geomrecords) {
                 var surface = (PolyhedralSurface)g.Geometry;
-                var color = g.HexColor;
-                var triangles = Triangulator.GetTriangles(surface, color);
+                var colors = g.HexColors;
+                var triangles = Triangulator.GetTriangles(surface, colors);
                 triangleCollection.AddRange(triangles);
             }
 
             return triangleCollection;
         }
 
-        public static TriangleCollection GetTriangles(PolyhedralSurface polyhedralsurface, string hexColor="")
-        {
-            var geometries = polyhedralsurface.Geometries;
-            var allTriangles = GetTriangles(geometries, hexColor);
-            return allTriangles;
-        }
-
-        public static TriangleCollection GetTriangles(List<Polygon> geometries, string hexColor = "")
+        public static TriangleCollection GetTriangles(PolyhedralSurface polyhedralsurface, string[] hexColors)
         {
             var degenerated_triangles = 0;
             var allTriangles = new TriangleCollection();
-            foreach (var geometry in geometries) {
-                var triangle = GetTriangle(geometry, hexColor);
+            for(var i=0;i<polyhedralsurface.Geometries.Count;i++) {
+                var geometry = polyhedralsurface.Geometries[i];
+                Triangle triangle;
+                if (hexColors.Length > 0) {
+                    if (hexColors.Length == 1) {
+                        triangle = GetTriangle(geometry, hexColors[0]);
+                    }
+                    else {
+                        if (hexColors.Length != polyhedralsurface.Geometries.Count) {
+                            throw new ArgumentOutOfRangeException($"Expected number of colors: {polyhedralsurface.Geometries.Count}, actual: {hexColors.Length}");
+                        }
+                        triangle = GetTriangle(geometry, hexColors[i]);
+                    }
+                }
+                else {
+                    triangle = GetTriangle(geometry, String.Empty);
+                }
+
                 if (triangle != null) {
                     allTriangles.Add(triangle);
                 }
@@ -42,6 +51,7 @@ namespace Wkb2Gltf
 
             return allTriangles;
         }
+
 
         public static Triangle GetTriangle(Polygon geometry, string hexColor = "")
         {

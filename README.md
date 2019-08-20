@@ -13,7 +13,7 @@ Differences to py3dtiles:
 
 - fixed glTF warnings;
 
-- added styling options like roof color column per geometry;
+- added styling options like roof color column per geometry/triangle;
 
 - added output directory option;
 
@@ -24,6 +24,8 @@ To run this tool there must be a PostGIS table available containing triangulated
 Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdirectory (or specify directory with   -o, --output).
 
 ## History
+
+2019-08-20: release 0.5 adds support for multiple colors
 
 2019-08-15: release 0.4.4 improving roof colors
 
@@ -66,12 +68,29 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -p, --port            (Default: 5432) Database port
 
-  -r , --roofcolorcolumn (default: '') Roof color column name, must contain hex code colors like '#ff5555'
+  -r , --roofcolorcolumn (default: '') color column name
   
   --help                Display this help screen.
 
   --version             Display version information.  
 ```
+
+Geometry rules:
+
+- All geometries must consist of triangles with 4 vertices each. If not 4 vertices exception is thrown.
+
+Color column rules:
+
+- Colors must be specified as hex colors, like '#ff5555';
+
+- If no color column is specified, a default color (#bb3333) is used for all buildings;
+
+- If color column is specified and database type is 'text', 1 color per building is used;
+
+- If color column is specified and database type is '_text', a color per triangle is used. Exception is thrown when number
+
+of colors doesn't equal the number of triangles in geometry. Order of colors must be equal to order of triangles.
+
 
 ## Run from Docker
 
@@ -149,10 +168,10 @@ Press F5 to start debugging.
 Cesium sample code to add 3D Tiles - b3dm's:
 
 ```
-    var viewer = new Cesium.Viewer('cesiumContainer');
-    viewer.scene.debugShowFramesPerSecond = true;
-    var tileset = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
-      url : './tiles/tileset.json'
-    }));
-    viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, 0));
+var viewer = new Cesium.Viewer('cesiumContainer');
+viewer.scene.debugShowFramesPerSecond = true;
+var tileset = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
+    url : './tiles/tileset.json'
+}));
+viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, 0));
 ```

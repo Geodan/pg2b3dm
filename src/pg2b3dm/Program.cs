@@ -82,11 +82,11 @@ namespace pg2b3dm
             if (node.Features.Count > 0) {
                 counter++;
                 var subset = (from f in node.Features select (f.Id)).ToArray();
-                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset,colorColumn);
+                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset, colorColumn);
 
                 var triangleCollection = Triangulator.GetTriangles(geometries);
 
-                var bytes = GlbCreator.GetGlb(triangleCollection, translation);
+                var bytes = GlbCreator.GetGlb(triangleCollection);
                 var b3dm = new B3dm.Tile.B3dm(bytes);
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{node.Id}.b3dm", b3dm);
 

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using SharpGLTF.Geometry;
+﻿using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
@@ -10,84 +7,24 @@ namespace Wkb2Gltf
 {
     public static class GlbCreator
     {
-        public static List<string> GetColors(TriangleCollection triangles)
+        public static byte[] GetGlb(TriangleCollection triangles)
         {
-            var res = new List<string>();
-            foreach (var t in triangles) {
-                if (!res.Contains(t.Color)) {
-                    res.Add(t.Color);
-                }
-            }
-            return res;
-        }
-
-
-        private static bool IsFloor(Vector3 triangleNormal, Vector3 triangleTop)
-        {
-            var checkY = Math.Abs(triangleNormal.Y  - triangleTop.Y) < 0.1;
-
-            if (checkY) {
-                return true;
-            }
-            return false;
-        }
-
-
-
-        private static bool IsRoof(Vector3 triangleNormal, Vector3 triangleTop)
-        {
-            var checkX = Math.Abs(triangleNormal.X*-1 - triangleTop.X) < 0.9;
-            var checkY = Math.Abs(triangleNormal.Y*-1 - triangleTop.Y) < 0.8;
-            var checkZ = Math.Abs(triangleNormal.Z*-1 - triangleTop.Z) < 0.9;
-
-            if (checkY && checkX && checkZ) {
-                return true;
-            } 
-            return false;
-        }
-
-        public static byte[]  GetGlb(TriangleCollection triangles, double[] translation)
-        {
-            var normal_translation = new Vector3((float)translation[0], (float)translation[2], (float)translation[1]);
-            var normalized_translation = Vector3.Normalize(normal_translation);
-            var colors = GetColors(triangles);
-            var materialCache = new MaterialCache(colors);
-            var materialSchuindak = MaterialCache.CreateMaterial(255, 85, 85);
-            var materialMuur = MaterialCache.CreateMaterial(255, 255, 255);
-            var materialFloor = MaterialCache.CreateMaterial(0,0, 0);
+            var materialCache = new MaterialsCache();
+            var default_hex_color = "#bb3333";
+            var defaultMaterial = materialCache.GetMaterialBuilderByColor(default_hex_color);
 
             var mesh = new MeshBuilder<VertexPositionNormal>("mesh");
-            //mesh.VertexPreprocessor.SetDebugPreprocessors();
-            var degenerated_triangles = 0;
 
             foreach (var triangle in triangles) {
-                MaterialBuilder material = null;
-
-                var normal = triangle.GetNormal();
-
-                var isRoof = IsRoof(normal, normalized_translation);
-                var isFloor = IsFloor(normal, normalized_translation);
-
-                if (isFloor) {
-                    material = materialFloor;
-                }
-                else if (isRoof) {
-                    material = materialSchuindak;
-
-                    // material = materialRed;
-
-                    if (!string.IsNullOrEmpty(triangle.Color)) {
-                        material = materialCache.GetMaterialBuilderByColor(triangle.Color);
-                    }
+                MaterialBuilder material;
+                if (!string.IsNullOrEmpty(triangle.Color)) {
+                    material = materialCache.GetMaterialBuilderByColor(triangle.Color);
                 }
                 else {
-                    material = materialMuur;
+                    material = defaultMaterial;
                 }
 
-                var isadded = DrawTriangle(triangle, material, mesh);
-                if (!isadded) {
-                    degenerated_triangles++;
-                }
+                DrawTriangle(triangle, material, mesh);
             }
 
             var model = ModelRoot.CreateModel();
