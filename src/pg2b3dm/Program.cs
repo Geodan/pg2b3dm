@@ -23,8 +23,6 @@ namespace pg2b3dm
             var version = Assembly.GetEntryAssembly().GetName().Version;
             Console.WriteLine($"tool: pg2b3dm {version}");
 
-            // 4978
-
             Parser.Default.ParseArguments<Options>(args).WithParsed(o => {
                 o.User = string.IsNullOrEmpty(o.User) ? Environment.UserName : o.User;
                 o.Database = string.IsNullOrEmpty(o.Database) ? Environment.UserName : o.Database;
@@ -33,9 +31,9 @@ namespace pg2b3dm
                 var istrusted = TrustedConnectionChecker.HasTrustedConnection(connectionString);
 
                 if (!istrusted) {
-                    connectionString = $"Host={o.Host};Username={o.User};Password={password};Database={o.Database};Port={o.Port}";
                     Console.Write($"Password for user {o.User}: ");
                     password = PasswordAsker.GetPassword();
+                    connectionString += $";password={password}";
                     Console.WriteLine();
                 }
 
