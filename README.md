@@ -63,7 +63,7 @@ Color column rules:
 
 - If color column is specified and database type is 'text', 1 color per building is used;
 
-- If color column is specified and database type is '_text', a color per triangle is used. Exception is thrown when number
+- If color column is specified and database type is 'text[]', 1 color per triangle is used. Exception is thrown when number
 
 of colors doesn't equal the number of triangles in geometry. Order of colors must be equal to order of triangles.
 
