@@ -187,7 +187,7 @@ $ docker run --name some-postgis -e POSTGRES_PASSWORD=postgres -p 5432:5432 -it 
 
 3] Create schema 'bertt'
 
-4] Select postgres database and restore file buildings.backup
+4] Select PostgreSQL database and restore file buildings.backup
 
 A table bertt.buildings will be created, contains 100 sample buildings in Amsterdam.
 
