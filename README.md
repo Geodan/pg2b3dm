@@ -25,6 +25,8 @@ Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdire
 
 ## History
 
+2019-08-21: release 0.5.1 with fix for non trusted Postgres connection
+
 2019-08-20: release 0.5 adds support for multiple colors
 
 2019-08-15: release 0.4.4 improving roof colors
