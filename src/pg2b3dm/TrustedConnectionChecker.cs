@@ -16,6 +16,9 @@ namespace pg2b3dm
                     return false;
                 }
             }
+            catch (NpgsqlException) {
+                return false;
+            }
 
             conn.Close();
             return true;

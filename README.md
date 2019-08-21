@@ -1,4 +1,4 @@
-# pg2b3dm
+﻿# pg2b3dm
 
 Tool for converting from PostGIS to b3dm tiles. This software is a partial port of py3dtiles (https://github.com/Oslandia/py3dtiles) 
 for generating b3dm tiles.
@@ -96,6 +96,12 @@ of colors doesn't equal the number of triangles in geometry. Order of colors mus
 
 Docker image: https://hub.docker.com/r/geodan/pg2b3dm
 
+Tags used (https://hub.docker.com/r/geodan/pg2b3dm/tags): 
+
+- 0.5: 0.5 release
+
+- latest: latest release
+
 ### Building
 
 ```
@@ -163,9 +169,50 @@ In Visual Studio Code, open .vscode/launch.json and adjust the 'args' parameter 
 
 Press F5 to start debugging.
 
-## Cesium sample code 
+## Getting started 
 
-Cesium sample code to add 3D Tiles - b3dm's:
+A sample dataset with some 3D buildings is provided, see sample_data/buildings.backup.
+
+Steps to get pg2b3dm running on this sample dataset:
+
+1] Start PostGIS database
+
+```
+$ docker run --name some-postgis -e POSTGRES_PASSWORD=postgres -p 5432:5432 -it --network mynetwork mdillon/postgis
+```
+
+2] Connect to database using pgAdmin or similar db management tool
+
+3] Create schema 'bertt'
+
+4] Select postgres database and restore file buildings.backup
+
+A table bertt.buildings will be created, contains 100 sample buildings in Amsterdam.
+
+5] Run pg2b3dm, the program will make a connection to the database and 9 b3dm's will be created in the output directory.
+
+```
+λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom -t  bertt.buildings -d postgres -r colors
+tool: pg2b3dm 0.5.1.0
+Password for user postgres:
+Start processing....
+Calculating bounding boxes...
+Writing tileset.json...
+Writing 9 tiles...
+Progress: tile 9 - 100.00%
+Elapsed: 2 seconds
+Program finished.
+```
+
+6] Install Cesium 
+
+See https://cesium.com/docs/tutorials/getting-started/ for installing/running Cesium application
+
+7] Configure Cesium
+
+Now change a basic sample Cesium viewer and add a 3D Tile layer by pointing to the generated tileset.json:
+
+Sample code: 
 
 ```
 var viewer = new Cesium.Viewer('cesiumContainer');
@@ -175,3 +222,11 @@ var tileset = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
 }));
 viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, 0));
 ```
+
+8] Test Cesium
+
+If all goes well In Amsterdam you can find some 3D Tiles buildings:
+
+9] Advanced - customize building colors
+
+Change some colors in the 'colors' column and run pg2b3m again. Restart Cesium and the new colors should be visible.
