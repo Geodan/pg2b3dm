@@ -53,7 +53,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
 Geometry rules:
 
-- All geometries must consist of triangles with 4 vertices each. If not 4 vertices exception is thrown.
+- All geometries must be type polyhedralsurface consisting of triangles with 4 vertices each. If not 4 vertices exception is thrown.
 
 Color column rules:
 
@@ -78,72 +78,6 @@ Tags used (https://hub.docker.com/r/geodan/pg2b3dm/tags):
 
 - latest: latest release
 
-### Building
-
-```
-$ docker build -t geodan/pg2b3dm .
-```
-
-### Running
-
-Sample on Windows: 
-
-```
-$ docker run -v C:\output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_table
-```
-
-Sample on Linux:
-
-```
-$ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_schema.my_table
-```
-
-## Dependencies
-
-- SharpGLTF (https://github.com/vpenades/SharpGLTF) for generating glTF;
-
-- CommandLineParser (https://github.com/commandlineparser/commandline) for parsing command line options;
-
-- Npgsql (https://www.npgsql.org/) - for access to PostgreSQL;
-
-- b3dm-tile (https://github.com/bertt/b3dm-tile-cs) - for generating b3dm files;
-
-- Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
-
-## Run from source
-
-Requirement: Install .NET Core 3.0 SDK 
-
-https://dotnet.microsoft.com/download/dotnet-core/3.0
-
-```
-$ git clone https://github.com/Geodan/pg2b3dm.git
-
-$ cd src/pg2b3dm
-
-$ dotnet build
-
-$ dotnet run
-
-```
-
-## Debugging in Visual Studio Code
-
-```
-$ git clone https://github.com/Geodan/pg2b3dm.git
-
-$ cd src
-
-$ code .
-```
-
-In Visual Studio Code, open .vscode/launch.json and adjust the 'args' parameter to your environment
-
-```
-"args": ["-h" ,"my_host", "-U" ,"my_user", "-d", "my_database", "-t", "my_table"],            
-```
-
-Press F5 to start debugging.
 
 ## Getting started 
 
@@ -208,6 +142,74 @@ If all goes well In Amsterdam you can find some 3D Tiles buildings:
 9] Advanced scenario - customize building colors
 
 Change some colors in the 'colors' column and run pg2b3m again. Restart Cesium and the new colors should be visible.
+
+### Building
+
+```
+$ docker build -t geodan/pg2b3dm .
+```
+
+### Running
+
+Sample on Windows: 
+
+```
+$ docker run -v C:\output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_table
+```
+
+Sample on Linux:
+
+```
+$ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_schema.my_table
+```
+
+## Run from source
+
+Requirement: Install .NET Core 3.0 SDK 
+
+https://dotnet.microsoft.com/download/dotnet-core/3.0
+
+```
+$ git clone https://github.com/Geodan/pg2b3dm.git
+
+$ cd src/pg2b3dm
+
+$ dotnet build
+
+$ dotnet run
+
+```
+
+## Debugging in Visual Studio Code
+
+```
+$ git clone https://github.com/Geodan/pg2b3dm.git
+
+$ cd src
+
+$ code .
+```
+
+In Visual Studio Code, open .vscode/launch.json and adjust the 'args' parameter to your environment
+
+```
+"args": ["-h" ,"my_host", "-U" ,"my_user", "-d", "my_database", "-t", "my_table"],            
+```
+
+Press F5 to start debugging.
+
+## Dependencies
+
+- SharpGLTF (https://github.com/vpenades/SharpGLTF) for generating glTF;
+
+- CommandLineParser (https://github.com/commandlineparser/commandline) for parsing command line options;
+
+- Npgsql (https://www.npgsql.org/) - for access to PostgreSQL;
+
+- b3dm-tile (https://github.com/bertt/b3dm-tile-cs) - for generating b3dm files;
+
+- Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
+
 
 ## History
 
