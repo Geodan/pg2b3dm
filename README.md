@@ -1,6 +1,6 @@
 ﻿# pg2b3dm
 
-Tool for converting from PostGIS to b3dm tiles. This software is a partial port of py3dtiles (https://github.com/Oslandia/py3dtiles) 
+Tool for converting from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software is a partial port of py3dtiles (https://github.com/Oslandia/py3dtiles) 
 for generating b3dm tiles.
 
 ![mokum](https://user-images.githubusercontent.com/538812/63088752-24fa8000-bf56-11e9-9ba8-3273a21dfda0.png)
