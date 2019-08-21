@@ -227,7 +227,7 @@ viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, 0));
 
 If all goes well In Amsterdam you can find some 3D Tiles buildings:
 
-![Hello World Buildings](img src="https://user-images.githubusercontent.com/538812/63441248-6517a200-c431-11e9-96c5-d1d38d2513a6.png)
+![Hello World Buildings](https://user-images.githubusercontent.com/538812/63441248-6517a200-c431-11e9-96c5-d1d38d2513a6.png)
 
 9] Advanced scenario - customize building colors
 
