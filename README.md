@@ -23,32 +23,6 @@ To run this tool there must be a PostGIS table available containing triangulated
 
 Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdirectory (or specify directory with   -o, --output).
 
-## History
-
-2019-08-21: release 0.5.1 with fix for non trusted Postgres connection
-
-2019-08-20: release 0.5 adds support for multiple colors
-
-2019-08-15: release 0.4.4 improving roof colors
-
-2019-08-15: release 0.4.3 change degenerated triangles detection + removal
-
-2019-08-14: release 0.4.2 fixing roof colors + filter very small triangles (<0.01)
-
-2019-08-13: release 0.4.1 with fix for roof colors (option -r)
-
-2019-08-12: release 0.4 adding roof color column option (-r)
-
-2019-08-01: release 0.3.3 with 2 colors
-
-2019-07-09: release 0.3 using library SharpGLTF
-
-2019-06-01: release 0.2.1 with some small fixes
-
-2019-06-01: initial release 0.2
-
-2019-05-01: initial release 0.1
-
 ## Command line options
 
 All parameters are optional, except the -t --table option. 
@@ -234,3 +208,30 @@ If all goes well In Amsterdam you can find some 3D Tiles buildings:
 9] Advanced scenario - customize building colors
 
 Change some colors in the 'colors' column and run pg2b3m again. Restart Cesium and the new colors should be visible.
+
+## History
+
+2019-08-21: release 0.5.1 with fix for non trusted Postgres connection
+
+2019-08-20: release 0.5 adds support for multiple colors
+
+2019-08-15: release 0.4.4 improving roof colors
+
+2019-08-15: release 0.4.3 change degenerated triangles detection + removal
+
+2019-08-14: release 0.4.2 fixing roof colors + filter very small triangles (<0.01)
+
+2019-08-13: release 0.4.1 with fix for roof colors (option -r)
+
+2019-08-12: release 0.4 adding roof color column option (-r)
+
+2019-08-01: release 0.3.3 with 2 colors
+
+2019-07-09: release 0.3 using library SharpGLTF
+
+2019-06-01: release 0.2.1 with some small fixes
+
+2019-06-01: initial release 0.2
+
+2019-05-01: initial release 0.1
+
