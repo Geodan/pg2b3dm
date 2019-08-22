@@ -6,7 +6,7 @@ using NUnit.Framework;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
-using SharpGLTF.Schema2;
+using SharpGLTF.Scenes;
 using Wkx;
 
 namespace Wkb2Gltf.Tests
@@ -111,9 +111,9 @@ namespace Wkb2Gltf.Tests
             var mesh = new MeshBuilder<VertexPositionNormal>("mesh");
             DrawTriangle(triangle1, materialWhite, mesh);
             DrawTriangle(triangle2, materialGreen, mesh);
-
-            var model = ModelRoot.CreateModel();
-            model.CreateMeshes(mesh);
+            var scene = new SceneBuilder();
+            scene.AddMesh(mesh, Matrix4x4.Identity);
+            var model = scene.ToSchema2();
         }
 
         private static void DrawTriangle(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal> mesh)

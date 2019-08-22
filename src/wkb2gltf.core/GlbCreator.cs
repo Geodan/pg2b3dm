@@ -1,7 +1,8 @@
-﻿using SharpGLTF.Geometry;
+﻿using System.Numerics;
+using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
-using SharpGLTF.Schema2;
+using SharpGLTF.Scenes;
 
 namespace Wkb2Gltf
 {
@@ -26,12 +27,9 @@ namespace Wkb2Gltf
 
                 DrawTriangle(triangle, material, mesh);
             }
-
-            var model = ModelRoot.CreateModel();
-            model.CreateMeshes(mesh);
-            model.UseScene("Default")
-                .CreateNode()
-                .WithMesh(model.LogicalMeshes[0]);
+            var scene = new SceneBuilder();
+            scene.AddMesh(mesh, Matrix4x4.Identity);
+            var model = scene.ToSchema2();
             var bytes = model.WriteGLB().Array;
 
             return bytes;
