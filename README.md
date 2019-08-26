@@ -70,7 +70,7 @@ of colors doesn't equal the number of triangles in geometry. Order of colors mus
 
 ## Getting started
 
-See [getting started](getting_started.md)
+See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and visualize in Cesium and MapBox GL JS on a sample dataset.
 
 ## Run from Docker
 
