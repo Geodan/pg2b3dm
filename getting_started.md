@@ -1,8 +1,12 @@
-# Getting started 
+# Getting started
+
+## Introduction
 
 A sample dataset with some 3D buildings is provided, see [sample_data/buildings.backup](sample_data/buildings.backup). The coordinate system of these buildings is earth centred, earth fixed (EPSG:4978). 
 
 In this document we run pg2b3dm on this dataset and visualize the buildings in Cesium and MapBox GL JS.
+
+## Run pg2b3dm
 
 Steps to get pg2b3dm running on this sample dataset:
 
@@ -35,7 +39,7 @@ Elapsed: 2 seconds
 Program finished.
 ```
 
-6] Visualize in Cesium
+## Visualize in Cesium
 
 Put [sample_data/index_cesium.html](sample_data/index_cesium.html) on a webserver next to the generated tileset.json.
 
@@ -43,11 +47,7 @@ If all goes well In Amsterdam you can find some 3D Tiles buildings:
 
 ![Hello World Buildings](https://user-images.githubusercontent.com/538812/63441248-6517a200-c431-11e9-96c5-d1d38d2513a6.png)
 
-7] Advanced scenario - customize building colors
-
-Change some colors in the 'colors' column and run pg2b3m again. Restart Cesium and the new colors should be visible.
-
-8] Visualize in MapBox GL JS
+## Visualize in MapBox GL JS
 
 To visualize in MapBox GL JS we have to transform the buildings table to Spherical Mercator (3857):
 
@@ -70,3 +70,8 @@ Put sample html page [sample_data/index_mapbox.html](sample_data/index_mapbox.ht
 Final result in MapBox GL JS:
 
 ![hoofden](https://user-images.githubusercontent.com/538812/63675318-d320e800-c7e8-11e9-82f4-fcfb2a187044.png)
+
+## Customize building colors
+
+Change some colors in the 'colors' column and run pg2b3m again. Restart Cesium and the new colors should be visible.
+
