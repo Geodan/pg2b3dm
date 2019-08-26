@@ -20,7 +20,7 @@ $ docker run --name some-postgis -e POSTGRES_PASSWORD=postgres -p 5432:5432 -it 
 
 A table bertt.buildings will be created, contains 100 sample buildings in Amsterdam.
 
-5] Run pg2b3dm, the program will make a connection to the database and 9 b3dm's will be created in the output directory.
+5] Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 9 b3dm's will be created in the output directory.
 
 ```
 λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom -t  bertt.buildings -d postgres -r colors
@@ -37,7 +37,7 @@ Program finished.
 
 6] Visualize in Cesium
 
-Put [sample_data/index_cesium.html](sample_data/index_cesium.html) on a webserver next to tileset.json.
+Put [sample_data/index_cesium.html](sample_data/index_cesium.html) on a webserver next to the generated tileset.json.
 
 If all goes well In Amsterdam you can find some 3D Tiles buildings:
 
@@ -65,7 +65,7 @@ $ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm
 
 The b3dm tiles can be visualized by adding Three.JS and glTF functionality to the MapBox GL JS viewer. See https://github.com/Geodan/mapbox-3dtiles for more information about this topic.
 
-Put sample html page [sample_data/index_mapbox.html](sample_data/index_mapbox.html) on a webserver next to tileset.json, and copy https://github.com/Geodan/mapbox-3dtiles/blob/master/Mapbox3DTiles.js to this folder.
+Put sample html page [sample_data/index_mapbox.html](sample_data/index_mapbox.html) on a webserver next to the generated tileset.json, and copy https://github.com/Geodan/mapbox-3dtiles/blob/master/Mapbox3DTiles.js to this folder.
 
 Final result in MapBox GL JS:
 
