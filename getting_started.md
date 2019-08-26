@@ -37,7 +37,7 @@ Program finished.
 
 6] Visualize in Cesium
 
-Put [sample_data/index_cesium](sample_data/index_cesium) on a webserver next to tileset.json.
+Put [sample_data/index_cesium.html](sample_data/index_cesium.html) on a webserver next to tileset.json.
 
 If all goes well In Amsterdam you can find some 3D Tiles buildings:
 
