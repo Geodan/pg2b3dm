@@ -1,6 +1,6 @@
 # Getting started 
 
-A sample dataset with some 3D buildings is provided, see [sample_data/buildings.backup](sample_data/buildings.backup).
+A sample dataset with some 3D buildings is provided, see [sample_data/buildings.backup](sample_data/buildings.backup). The coordinate system of these buildings is earth centred, earth fixed (EPSG:4978). 
 
 In this document we run pg2b3dm on this dataset and visualize the buildings in Cesium and MapBox GL JS.
 
