@@ -143,6 +143,28 @@ If all goes well In Amsterdam you can find some 3D Tiles buildings:
 
 Change some colors in the 'colors' column and run pg2b3m again. Restart Cesium and the new colors should be visible.
 
+10] Visualize in MapBox GL JS
+
+To visualize in MapBox GL JS we have to transform the buildings table to Spherical Mercator (3857):
+
+```
+CREATE TABLE bertt.buildings_3857_ AS 
+SELECT ST_Transform(geom,3857) AS geom, blockid,color, colors 
+FROM bertt.buildings;
+```
+
+And rerun pg2b3dm on this table:
+
+```
+$ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom -t  bertt.buildings_3857 -d postgres -r colors
+```
+
+The b3dm tiles can be visualized by adding Three.JS and glTF functionality to the MapBox GL JS viewer. See https://github.com/Geodan/mapbox-3dtiles for more information about this topic.
+
+Put sample html page sample_data/index_mapbox.html on a webserver, and copy https://github.com/Geodan/mapbox-3dtiles/blob/master/Mapbox3DTiles.js to this folder.
+
+Final result in MapBox GL JS:
+
 ### Building
 
 ```
