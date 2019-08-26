@@ -35,36 +35,19 @@ Elapsed: 2 seconds
 Program finished.
 ```
 
-6] Install Cesium 
+6] Visualize in Cesium
 
-See https://cesium.com/docs/tutorials/getting-started/ for installing/running Cesium application
-
-7] Configure Cesium
-
-Now change a basic sample Cesium viewer and add a 3D Tile layer by pointing to the generated tileset.json:
-
-Sample code: 
-
-```
-var viewer = new Cesium.Viewer('cesiumContainer');
-viewer.scene.debugShowFramesPerSecond = true;
-var tileset = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
-    url : './tiles/tileset.json'
-}));
-viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, 0));
-```
-
-8] Test Cesium
+Put [sample_data/index_cesium](sample_data/index_cesium) on a webserver next to tileset.json.
 
 If all goes well In Amsterdam you can find some 3D Tiles buildings:
 
 ![Hello World Buildings](https://user-images.githubusercontent.com/538812/63441248-6517a200-c431-11e9-96c5-d1d38d2513a6.png)
 
-9] Advanced scenario - customize building colors
+7] Advanced scenario - customize building colors
 
 Change some colors in the 'colors' column and run pg2b3m again. Restart Cesium and the new colors should be visible.
 
-10] Visualize in MapBox GL JS
+8] Visualize in MapBox GL JS
 
 To visualize in MapBox GL JS we have to transform the buildings table to Spherical Mercator (3857):
 
@@ -82,9 +65,8 @@ $ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm
 
 The b3dm tiles can be visualized by adding Three.JS and glTF functionality to the MapBox GL JS viewer. See https://github.com/Geodan/mapbox-3dtiles for more information about this topic.
 
-Put sample html page [index_mapbox.html](sample_data/index_mapbox.html) on a webserver, and copy https://github.com/Geodan/mapbox-3dtiles/blob/master/Mapbox3DTiles.js to this folder.
+Put sample html page [sample_data/index_mapbox.html](sample_data/index_mapbox.html) on a webserver next to tileset.json, and copy https://github.com/Geodan/mapbox-3dtiles/blob/master/Mapbox3DTiles.js to this folder.
 
 Final result in MapBox GL JS:
 
 ![hoofden](https://user-images.githubusercontent.com/538812/63675318-d320e800-c7e8-11e9-82f4-fcfb2a187044.png)
-
