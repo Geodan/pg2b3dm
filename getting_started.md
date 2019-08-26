@@ -82,7 +82,7 @@ $ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm
 
 The b3dm tiles can be visualized by adding Three.JS and glTF functionality to the MapBox GL JS viewer. See https://github.com/Geodan/mapbox-3dtiles for more information about this topic.
 
-Put sample html page [a relative link](sample_data/index_mapbox.html) on a webserver, and copy https://github.com/Geodan/mapbox-3dtiles/blob/master/Mapbox3DTiles.js to this folder.
+Put sample html page [index_mapbox.html](sample_data/index_mapbox.html) on a webserver, and copy https://github.com/Geodan/mapbox-3dtiles/blob/master/Mapbox3DTiles.js to this folder.
 
 Final result in MapBox GL JS:
 
