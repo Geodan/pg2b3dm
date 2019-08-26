@@ -165,6 +165,8 @@ Put sample html page sample_data/index_mapbox.html on a webserver, and copy http
 
 Final result in MapBox GL JS:
 
+![hoofden](https://user-images.githubusercontent.com/538812/63675318-d320e800-c7e8-11e9-82f4-fcfb2a187044.png)
+
 ### Building
 
 ```
