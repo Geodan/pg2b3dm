@@ -1,6 +1,6 @@
 # Getting started 
 
-A sample dataset with some 3D buildings is provided, see sample_data/buildings.backup.
+A sample dataset with some 3D buildings is provided, see [sample_data/buildings.backup](sample_data/buildings.backup).
 
 In this document we run pg2b3dm on this dataset and visualize the buildings in Cesium and MapBox GL JS.
 
