@@ -148,7 +148,7 @@ Change some colors in the 'colors' column and run pg2b3m again. Restart Cesium a
 To visualize in MapBox GL JS we have to transform the buildings table to Spherical Mercator (3857):
 
 ```
-CREATE TABLE bertt.buildings_3857_ AS 
+CREATE TABLE bertt.buildings_3857 AS 
 SELECT ST_Transform(geom,3857) AS geom, blockid,color, colors 
 FROM bertt.buildings;
 ```
