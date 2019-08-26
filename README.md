@@ -68,6 +68,10 @@ Color column rules:
 of colors doesn't equal the number of triangles in geometry. Order of colors must be equal to order of triangles.
 
 
+## Getting started
+
+See [getting started](getting_started.md)
+
 ## Run from Docker
 
 Docker image: https://hub.docker.com/r/geodan/pg2b3dm
