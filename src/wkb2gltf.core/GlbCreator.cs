@@ -40,6 +40,8 @@ namespace Wkb2Gltf
         {
             var normal = triangle.GetNormal();
             var prim = mesh.UsePrimitive(material);
+            var vectors = triangle.ToVectors();
+
             var indices = prim.AddTriangle(
                 new VertexPositionNormal((float)triangle.GetP0().X, (float)triangle.GetP0().Y, (float)triangle.GetP0().Z, normal.X, normal.Y, normal.Z),
                 new VertexPositionNormal((float)triangle.GetP1().X, (float)triangle.GetP1().Y, (float)triangle.GetP1().Z, normal.X, normal.Y, normal.Z),

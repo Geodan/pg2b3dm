@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Wkb2Gltf.Extensions;
 using Wkx;
 
 namespace Wkb2Gltf
@@ -50,6 +51,15 @@ namespace Wkb2Gltf
 
             var isDegenerated = (v0.Equals(v1) || v1.Equals(v2)) || v2.Equals(v0);
             return isDegenerated;
+        }
+
+        public (Vector3, Vector3, Vector3) ToVectors()
+        {
+            var v0 = new Vector3((float)p0.X, (float)p0.Y, (float)p0.Z);
+            var v1 = new Vector3((float)p1.X, (float)p1.Y, (float)p1.Z);
+            var v2 = new Vector3((float)p2.X, (float)p2.Y, (float)p2.Z);
+            return (v0, v1, v2);
+
         }
     }
 }

@@ -14,7 +14,7 @@
     <PackageReference Include="CommandLineParser" Version="2.6.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
     <PackageReference Include="Npgsql" Version="4.0.9" />
-    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0011" />
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>

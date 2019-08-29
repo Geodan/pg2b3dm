@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using Wkx;
+using Wkb2Gltf.Extensions;
 
 namespace Wkb2Gltf.Tests
 {

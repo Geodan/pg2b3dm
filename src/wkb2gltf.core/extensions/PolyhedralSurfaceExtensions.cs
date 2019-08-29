@@ -1,6 +1,6 @@
 ﻿using Wkx;
 
-namespace Wkb2Gltf
+namespace Wkb2Gltf.Extensions
 {
     public static class PolyhedralSurfaceExtensions
     {

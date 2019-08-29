@@ -2,7 +2,7 @@
 using System.Numerics;
 using Wkx;
 
-namespace Wkb2Gltf
+namespace Wkb2Gltf.Extensions
 {
     public static class PointExtensions
     {
@@ -12,15 +12,6 @@ namespace Wkb2Gltf
             var y = p.Y - other.Y;
             var z = p.Z - other.Z;
             return new Vector3((float)x,(float)y,(float)z);
-        }
-
-        public static List<float> ToArray(this Point p)
-        {
-            var floats = new List<float>();
-            floats.Add((float)p.X);
-            floats.Add((float)p.Y);
-            floats.Add((float)p.Z);
-            return floats;
         }
     }
 }
