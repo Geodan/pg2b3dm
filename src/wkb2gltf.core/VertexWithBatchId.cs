@@ -8,50 +8,31 @@ namespace SharpGLTF.Geometry
     [System.Diagnostics.DebuggerDisplay("𝐂:{Color} 𝐔𝐕:{TexCoord}")]
     public struct VertexWithBatchId : IVertexMaterial
     {
-        public VertexWithBatchId(Vector4 color, Vector2 tex, Single batchId)
-        {
-            Color = color;
-            TexCoord = tex;
-            BatchId = batchId;
-        }
+        public VertexWithBatchId(float batchId) { BatchId = batchId; }
 
-        public static implicit operator VertexWithBatchId((Vector4 color, Vector2 tex, Single batchId) tuple)
+        public static implicit operator VertexWithBatchId(float batchId)
         {
-            return new VertexWithBatchId(tuple.color, tuple.tex, tuple.batchId);
+            return new VertexWithBatchId(batchId);
         }
 
         public const string CUSTOMATTRIBUTENAME = "_BATCHID";
 
         [VertexAttribute(CUSTOMATTRIBUTENAME, Schema2.EncodingType.FLOAT, false)]
-        public Single BatchId;
+        public float BatchId;
 
-        [VertexAttribute("COLOR_0", Schema2.EncodingType.UNSIGNED_BYTE, true)]
-        public Vector4 Color;
+        public int MaxColors => 0;
 
-        [VertexAttribute("TEXCOORD_0")]
-        public Vector2 TexCoord;
+        public int MaxTextCoords => 0;
 
-        public int MaxColors => 1;
+        public void SetColor(int setIndex, Vector4 color) { }
 
-        public int MaxTextCoords => 1;
+        public void SetTexCoord(int setIndex, Vector2 coord) { }
 
-        void IVertexMaterial.SetColor(int setIndex, Vector4 color) { if (setIndex == 0) this.Color = color; }
+        public Vector4 GetColor(int index) { throw new ArgumentOutOfRangeException(nameof(index)); }
 
-        void IVertexMaterial.SetTexCoord(int setIndex, Vector2 coord) { if (setIndex == 0) this.TexCoord = coord; }
+        public Vector2 GetTexCoord(int index) { throw new ArgumentOutOfRangeException(nameof(index)); }
 
-        public Vector4 GetColor(int index)
-        {
-            if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
-            return Color;
-        }
-
-        public Vector2 GetTexCoord(int index)
-        {
-            if (index != 0) throw new ArgumentOutOfRangeException(nameof(index));
-            return TexCoord;
-        }
-
-        public void Validate() { FragmentPreprocessors.ValidateVertexMaterial(this); }
+        public void Validate() { }
 
         public object GetCustomAttribute(string attributeName)
         {

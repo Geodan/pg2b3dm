@@ -26,7 +26,7 @@ namespace Wkb2Gltf.Extensions
         private static VertexBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty> GetVertexBuilder(Vector3 position, Vector3 normal, int batchid)
         {
             var vp0 = new VertexPositionNormal(position, normal);
-            var vb0 = new VertexBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty>(vp0, (Vector4.One, Vector2.Zero, batchid));
+            var vb0 = new VertexBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty>(vp0, batchid);
             return vb0;
         }
     }
