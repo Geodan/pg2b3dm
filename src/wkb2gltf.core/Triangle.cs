@@ -7,12 +7,19 @@ namespace Wkb2Gltf
     public class Triangle
     {
         private readonly Point p0, p1, p2;
+        private readonly int batchId;
 
-        public Triangle(Point p0, Point p1, Point p2)
+        public Triangle(Point p0, Point p1, Point p2, int BatchId)
         {
             this.p0 = p0;
             this.p1 = p1;
             this.p2 = p2;
+            this.batchId = BatchId;
+        }
+
+        public int GetBatchId()
+        {
+            return batchId;
         }
 
         public Point GetP0()

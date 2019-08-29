@@ -13,7 +13,7 @@ namespace Wkb2Gltf.Tests
             var p1 = new Point(4403.1283132596873, 5497.3228336591274, -451.62756593199413);
             var p2 = new Point(4392.54991199635, 5483.549242743291, -450.72132376581396);
 
-            var triangle = new Triangle(p0, p1, p2);
+            var triangle = new Triangle(p0, p1, p2, 100);
 
             // act
             var isDegenerated = triangle.IsDegenerated();
@@ -30,7 +30,7 @@ namespace Wkb2Gltf.Tests
             var p1 = new Point(4403.1283132596873, 5497.3228336591274, -451.62756593199413);
             var p2 = new Point(4392.54991199635, 5483.549242743291, -450.72132376581396);
 
-            var triangle = new Triangle(p0, p1, p2);
+            var triangle = new Triangle(p0, p1, p2, 100);
 
             // act
             var res = triangle.ToVectors();

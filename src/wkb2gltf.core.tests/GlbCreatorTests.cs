@@ -20,7 +20,7 @@ namespace Wkb2Gltf.Tests
             var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
             var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
             var polyhedralsurface = ((PolyhedralSurface)g);
-            var triangles = Triangulator.GetTriangles(polyhedralsurface, new string[0]);
+            var triangles = Triangulator.GetTriangles(polyhedralsurface, new string[0], 100);
             var bytes = GlbCreator.GetGlb(triangles);
             File.WriteAllBytes(@"d:\aaa\ams_building_default_color.glb", bytes);
         }
@@ -32,7 +32,7 @@ namespace Wkb2Gltf.Tests
             var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
             var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
             var polyhedralsurface = ((PolyhedralSurface)g);
-            var triangles = Triangulator.GetTriangles(polyhedralsurface, new string[1] { "#bb3333" });
+            var triangles = Triangulator.GetTriangles(polyhedralsurface, new string[1] { "#bb3333" }, 100);
             var bytes = GlbCreator.GetGlb(triangles);
             File.WriteAllBytes(@"d:\aaa\ams_building_single_color.glb", bytes);
         }
@@ -52,7 +52,7 @@ namespace Wkb2Gltf.Tests
                 colors.Add(color);
             }
 
-            var triangles = Triangulator.GetTriangles(polyhedralsurface, colors.ToArray());
+            var triangles = Triangulator.GetTriangles(polyhedralsurface, colors.ToArray(), 100);
             var bytes = GlbCreator.GetGlb(triangles);
             File.WriteAllBytes(@"d:\aaa\ams_building_multiple_colors.glb", bytes);
         }
@@ -71,7 +71,7 @@ namespace Wkb2Gltf.Tests
             }
 
             try {
-                var triangles = Triangulator.GetTriangles(polyhedralsurface, colors.ToArray());
+                var triangles = Triangulator.GetTriangles(polyhedralsurface, colors.ToArray(), 100);
             }
             catch(Exception ex){
                 Assert.IsTrue(ex != null);
@@ -85,13 +85,13 @@ namespace Wkb2Gltf.Tests
             var p2 = new Point(1, 1, 0);
             var p3 = new Point(1, 0, 0);
 
-            var triangle1 = new Triangle(p1, p2, p3);
+            var triangle1 = new Triangle(p1, p2, p3, 100);
 
             p1 = new Point(5, 5, 0);
             p2 = new Point(6, 6, 0);
             p3 = new Point(6, 5, 0);
 
-            var triangle2 = new Triangle(p1, p2, p3);
+            var triangle2 = new Triangle(p1, p2, p3, 100);
 
             var materialRed = new MaterialBuilder().
                 WithDoubleSide(true).

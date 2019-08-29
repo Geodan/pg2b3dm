@@ -78,12 +78,13 @@ namespace pg2b3dm
 
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
+            var batchId = 0;
             while (reader.Read()) {
                 var rownumber = reader.GetInt32(0);
                 var stream = reader.GetStream(1);
 
                 var g = Geometry.Deserialize<WkbSerializer>(stream);
-                var geometryRecord = new GeometryRecord { RowNumber = rownumber, Geometry = g };
+                var geometryRecord = new GeometryRecord (batchId) { RowNumber = rownumber, Geometry = g };
 
                 if (colorColumn != String.Empty) {
                     if (reader.GetFieldType(2).Name == "String") {
@@ -96,6 +97,7 @@ namespace pg2b3dm
                 }
 
                 geometries.Add(geometryRecord);
+                batchId++;
             }
 
             reader.Close();
