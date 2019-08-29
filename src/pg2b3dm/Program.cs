@@ -86,6 +86,19 @@ namespace pg2b3dm
 
                 var bytes = GlbCreator.GetGlb(triangleCollection);
                 var b3dm = new B3dm.Tile.B3dm(bytes);
+                var featureTable = new FeatureTable();
+                featureTable.BATCH_LENGTH = geometries.Count;
+                b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable); 
+
+                var batchTable = new BatchTable();
+
+                var r = new Random();
+                var heights = new List<float>();
+                for(var i = 0; i < geometries.Count; i++) {
+                    heights.Add(r.Next(100));
+                }
+                batchTable.Height = heights.ToArray();
+                b3dm.BatchTableJson = JsonConvert.SerializeObject(batchTable);
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{node.Id}.b3dm", b3dm);
 
             }
