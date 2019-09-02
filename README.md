@@ -46,7 +46,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -r, --roofcolorcolumn (default: '') color column name
 
-  a, --attributescolumn (default: '') attributes column name 
+  -a, --attributescolumn (default: '') attributes column name 
   
   --help                Display this help screen.
 
