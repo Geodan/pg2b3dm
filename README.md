@@ -155,6 +155,8 @@ Press F5 to start debugging.
 
 ## History
 
+2019-09-02: release 0.6 adding batching option on single column (-a option)
+
 2019-08-21: release 0.5.1 with fix for non trusted Postgres connection
 
 2019-08-20: release 0.5 adds support for multiple colors
