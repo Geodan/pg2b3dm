@@ -23,6 +23,12 @@ To run this tool there must be a PostGIS table available containing triangulated
 
 Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdirectory (or specify directory with   -o, --output).
 
+## Live Sample viewers
+
+Cesium: https://geodan.github.io/pg2b3dm/sample_data/index_cesium.html
+
+MapBox: https://geodan.github.io/pg2b3dm/sample_data/index_mapbox.html
+
 ## Command line options
 
 All parameters are optional, except the -t --table option. 
