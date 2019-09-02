@@ -26,7 +26,9 @@
   <div id="cesiumContainer" style="width: 700px; height:400px"></div>
   <script>
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiNDc1ZjQwMS1hOGI2LTQyNmUtYmYxMi1jODlhNDNlMjViZTkiLCJpZCI6NDc4OSwic2NvcGVzIjpbImFzciIsImdjIl0sImlhdCI6MTU0MTYyNTg3OX0.mNoGLdYuwqsnRRkQtdYNMbJfMBoZF2hPkbc4SRVVqNw';
-    var viewer = new Cesium.Viewer('cesiumContainer');
+    var viewer = new Cesium.Viewer('cesiumContainer', {
+    terrainProvider : Cesium.createWorldTerrain()
+    });
     viewer.scene.debugShowFramesPerSecond = true;
     var tileset = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
         url : './cesium/tileset.json'
