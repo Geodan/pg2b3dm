@@ -42,9 +42,8 @@ namespace pg2b3dm
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
 
-                // Do in try catch as may not have acces rights.
-                string output = o.Output;
-                string outputTiles = output + "/tiles";
+                var output = o.Output;
+                var outputTiles = output + "/tiles";
                 if (!Directory.Exists(output)) {
                     Directory.CreateDirectory(output);
                 }
@@ -67,7 +66,7 @@ namespace pg2b3dm
                 WiteTilesetJson(translation, tree, o.Output);
 
                 Console.WriteLine($"Writing {Counter.Instance.Count} tiles...");
-                WriteTiles(conn, geometryTable, geometryColumn, translation, tree, o.Output, o.RoofColorColumn);
+                WriteTiles(conn, geometryTable, geometryColumn, translation, tree, o.Output, o.RoofColorColumn, o.AttributesColumn);
                 conn.Close();
                 stopWatch.Stop();
                 Console.WriteLine();
@@ -75,12 +74,12 @@ namespace pg2b3dm
                 Console.WriteLine("Program finished.");
             });
         }
-        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, double[] translation, Node node, string outputPath, string colorColumn = "")
+        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, double[] translation, Node node, string outputPath, string colorColumn = "", string attributesColumn = "")
         {
             if (node.Features.Count > 0) {
                 counter++;
                 var subset = (from f in node.Features select (f.Id)).ToArray();
-                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset, colorColumn);
+                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset, colorColumn, attributesColumn);
 
                 var triangleCollection = Triangulator.GetTriangles(geometries);
 
@@ -88,25 +87,31 @@ namespace pg2b3dm
                 var b3dm = new B3dm.Tile.B3dm(bytes);
                 var featureTable = new FeatureTable();
                 featureTable.BATCH_LENGTH = geometries.Count;
-                b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable); 
+                b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable);
 
-                var batchTable = new BatchTable();
+                if (attributesColumn != string.Empty) {
+                    var batchtable = new BatchTable();
+                    var allattributes = new List<object>();
+                    foreach(var geom in geometries) {
+                        // only take the first now....
+                        allattributes.Add(geom.Attributes[0]);
+                    }
 
-                var r = new Random();
-                var heights = new List<float>();
-                for(var i = 0; i < geometries.Count; i++) {
-                    heights.Add(r.Next(100));
+                    var item = new BatchTableItem();
+                    item.Name = attributesColumn;
+                    item.Values = allattributes.ToArray();
+                    batchtable.BatchTableItems.Add(item);
+                    var json = JsonConvert.SerializeObject(batchtable, new BatchTableJsonConverter(typeof(BatchTable)));
+                    b3dm.BatchTableJson = json;
                 }
-                batchTable.Height = heights.ToArray();
-                b3dm.BatchTableJson = JsonConvert.SerializeObject(batchTable);
-                B3dmWriter.WriteB3dm($"{outputPath}/tiles/{node.Id}.b3dm", b3dm);
 
+                B3dmWriter.WriteB3dm($"{outputPath}/tiles/{node.Id}.b3dm", b3dm);
             }
             // and write children too
             foreach (var subnode in node.Children) {
                var perc = Math.Round(((double)counter / Counter.Instance.Count) * 100,2);
                 Console.Write($"\rProgress: tile {counter} - {perc.ToString("F")}%");
-                WriteTiles(conn, geometryTable, geometryColumn, translation, subnode, outputPath, colorColumn);
+                WriteTiles(conn, geometryTable, geometryColumn, translation, subnode, outputPath, colorColumn, attributesColumn);
             }
         }
 
@@ -128,6 +133,5 @@ namespace pg2b3dm
 
             return zupBoxes;
         }
-
     }
 }

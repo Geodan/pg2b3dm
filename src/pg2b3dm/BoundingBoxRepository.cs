@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using Npgsql;
 using Wkb2Gltf;
@@ -24,12 +25,12 @@ namespace pg2b3dm
             return new BoundingBox3D() { XMin = xmin, YMin = ymin, ZMin = zmin, XMax = xmax, YMax = ymax, ZMax = zmax };
         }
 
-        private static string GetGeometryTable(string geometry_table, string geometry_column, double[] translation, string colorColumn = "")
+        private static string GetGeometryTable(string geometry_table, string geometry_column, double[] translation, string colorColumn = "", string attributesColumn="")
         {
             var sqlSelect = $"select ST_RotateX(ST_Translate({geometry_column}, {translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , {translation[2].ToString(CultureInfo.InvariantCulture)}*-1), -pi() / 2) as geom1, ST_Area(ST_Force2D(geom)) AS weight ";
-            if (colorColumn != String.Empty) {
-                sqlSelect += $", {colorColumn} ";
-            }
+
+            var optionalColumns = SqlBuilder.GetOptionalColumnsSql(colorColumn, attributesColumn);
+            sqlSelect += $"{optionalColumns} ";
             var sqlFrom = $"FROM {geometry_table} ";
             var sqlWhere = $"where ST_GeometryType(geom) =  'ST_PolyhedralSurface' ORDER BY weight DESC";
             return sqlSelect+ sqlFrom + sqlWhere;
@@ -56,28 +57,37 @@ namespace pg2b3dm
             return bboxes;
         }
 
-        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, int[] row_numbers, string colorColumn = "")
+        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, int[] row_numbers, string colorColumn = "", string attributesColumn = "")
         {
             var geometries = new List<GeometryRecord>();
             var new_row_numbers= Array.ConvertAll(row_numbers, x => x+1);
             var ids = string.Join(",", new_row_numbers);
-            var geometryTable = GetGeometryTable(geometry_table, geometry_column, translation, colorColumn);
-            var sqlselect = $"select row_number, ST_AsBinary(geom1) ";
+            var geometryTable = GetGeometryTable(geometry_table, geometry_column, translation, colorColumn, attributesColumn);
+            var sqlselect = $"select row_number, ST_AsBinary(geom1)";
             if (colorColumn != String.Empty) {
-                sqlselect = $"select row_number, ST_AsBinary(geom1), {colorColumn} ";
+                sqlselect = $"{sqlselect}, {colorColumn} ";
+            }
+            if (attributesColumn != String.Empty) {
+                sqlselect = $"{sqlselect}, {attributesColumn} ";
             }
 
             var sqlFrom = $"from(SELECT row_number() over(), geom1 FROM({geometryTable}) as t) as p ";
-            if (colorColumn != String.Empty) {
-                sqlFrom = $"from(SELECT row_number() over(), geom1, {colorColumn} FROM({geometryTable}) as t) as p ";
-            }
 
+            var optionalcolumns = SqlBuilder.GetOptionalColumnsSql(colorColumn, attributesColumn);
+
+            if (colorColumn != String.Empty) {
+                sqlFrom = $"from(SELECT row_number() over(), geom1 {optionalcolumns} FROM({geometryTable}) as t) as p ";
+            }
             var sqlWhere = $"where row_number in ({ids})";
 
             var sql = sqlselect + sqlFrom + sqlWhere;
 
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
+            var attributesColumnId=int.MinValue;
+            if (attributesColumn != String.Empty) {
+                attributesColumnId = FindField(reader, attributesColumn);
+            }
             var batchId = 0;
             while (reader.Read()) {
                 var rownumber = reader.GetInt32(0);
@@ -87,13 +97,10 @@ namespace pg2b3dm
                 var geometryRecord = new GeometryRecord (batchId) { RowNumber = rownumber, Geometry = g };
 
                 if (colorColumn != String.Empty) {
-                    if (reader.GetFieldType(2).Name == "String") {
-                        var hexcolor = reader.GetString(2);
-                        geometryRecord.HexColors = new string[1] { hexcolor };
-                    }
-                    else {
-                        geometryRecord.HexColors = reader.GetFieldValue<string[]>(2);
-                    }
+                    geometryRecord.HexColors = GetColumnValuesAsList(reader, 2);
+                }
+                if (attributesColumn != String.Empty) {
+                    geometryRecord.Attributes= GetColumnValuesAsList(reader, attributesColumnId);
                 }
 
                 geometries.Add(geometryRecord);
@@ -102,6 +109,32 @@ namespace pg2b3dm
 
             reader.Close();
              return geometries;
+        }
+
+        private static string[] GetColumnValuesAsList(NpgsqlDataReader reader, int columnId)
+        {
+            var res=new string[0];
+            if (reader.GetFieldType(columnId).Name == "String") {
+                var attribute = reader.GetString(columnId);
+                res = new string[1] { attribute };
+            }
+            else {
+                res = reader.GetFieldValue<string[]>(columnId);
+            }
+            return res;
+        }
+
+        private static int FindField(NpgsqlDataReader reader, string fieldName)
+        {
+            var schema = reader.GetSchemaTable();
+            var rows = schema.Columns["ColumnName"].Table.Rows;
+            foreach(var row in rows) {
+                var columnName= (string)((DataRow)row).ItemArray[0];
+                if (columnName == fieldName) {
+                    return (int)((DataRow)row).ItemArray[1];
+                }
+            }
+            return 0;
         }
     }
 }

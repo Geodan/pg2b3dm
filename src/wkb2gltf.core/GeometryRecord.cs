@@ -9,6 +9,7 @@ namespace Wkb2Gltf
         {
             BatchId = batchId;
             HexColors = new string[0];
+            Attributes = new string[0];
         }
         public int RowNumber { get; set; }
         public Geometry Geometry { get; set; }
@@ -16,5 +17,7 @@ namespace Wkb2Gltf
         public string[] HexColors { get; set; }
 
         public int BatchId { get; set; }
+
+        public object[] Attributes { get; set; }
     }
 }

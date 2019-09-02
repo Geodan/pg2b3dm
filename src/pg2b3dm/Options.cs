@@ -20,6 +20,8 @@ namespace pg2b3dm
         public string Output { get; set; }
         [Option('r', "roofcolorcolumn", Required = false, Default = "", HelpText = "Roof color column")]
         public string RoofColorColumn { get; set; }
+        [Option('a', "attributescolumn", Required = false, Default = "", HelpText = "Attributes column")]
+        public string AttributesColumn { get; set; }
 
     }
 }

@@ -18,6 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{E84F14
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{0403ED2E-B5AA-4160-8E10-84ED0D671778}"
 	ProjectSection(SolutionItems) = preProject
+		..\getting_started.md = ..\getting_started.md
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
