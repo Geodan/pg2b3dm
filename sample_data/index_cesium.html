@@ -4,6 +4,23 @@
   <meta charset="utf-8">
   <script src="https://cesiumjs.org/releases/1.60/Build/Cesium/Cesium.js"></script>
   <link href="https://cesiumjs.org/releases/1.60/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  
+    <style>
+      html, body, #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .toolbar-left {
+            display: block;
+            position: absolute;
+            top: 5px;
+            left: 5px;
+        }
+  </style>
 </head>
 <body>
   <div id="cesiumContainer" style="width: 700px; height:400px"></div>
