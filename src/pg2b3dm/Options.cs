@@ -23,5 +23,9 @@ namespace pg2b3dm
         [Option('a', "attributescolumn", Required = false, Default = "", HelpText = "Attributes column")]
         public string AttributesColumn { get; set; }
 
+        [Option('i', "idcolumn", Required = false, Default = "id", HelpText = "Id column")]
+        public string IdColumn { get; set; }
+
+
     }
 }

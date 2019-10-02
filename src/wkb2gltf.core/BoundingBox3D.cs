@@ -26,6 +26,8 @@ namespace Wkb2Gltf
         public double ZMin { get; set; }
         public double ZMax { get; set; }
 
+        public string Id { get; set; }
+
         public Point GetCenter()
         {
             var x = (XMax + XMin) / 2;
@@ -43,6 +45,7 @@ namespace Wkb2Gltf
             res.XMax = XMax;
             res.YMax = ZMin * -1; // heuh?
             res.ZMax = YMax;
+            res.Id = Id;
             return res;
         }
 

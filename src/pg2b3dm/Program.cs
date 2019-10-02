@@ -53,20 +53,21 @@ namespace pg2b3dm
 
                 var geometryTable = o.GeometryTable;
                 var geometryColumn = o.GeometryColumn;
+                var idcolumn = o.IdColumn;
                 Console.WriteLine("Calculating bounding boxes...");
                 var conn = new NpgsqlConnection(connectionString);
                 conn.Open();
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3D(conn, geometryTable, geometryColumn);
 
                 var translation = bbox3d.GetCenter().ToVector();
-                var zupBoxes = GetZupBoxes(conn, geometryTable, geometryColumn, translation);
+                var zupBoxes = GetZupBoxes(conn, geometryTable, geometryColumn, idcolumn, translation);
                 var tree = TileCutter.ConstructTree(zupBoxes);
 
                 Console.WriteLine("Writing tileset.json...");
                 WiteTilesetJson(translation, tree, o.Output);
 
                 Console.WriteLine($"Writing {Counter.Instance.Count} tiles...");
-                WriteTiles(conn, geometryTable, geometryColumn, translation, tree, o.Output, o.RoofColorColumn, o.AttributesColumn);
+                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tree, o.Output, o.RoofColorColumn, o.AttributesColumn);
                 conn.Close();
                 stopWatch.Stop();
                 Console.WriteLine();
@@ -74,12 +75,12 @@ namespace pg2b3dm
                 Console.WriteLine("Program finished.");
             });
         }
-        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, double[] translation, Node node, string outputPath, string colorColumn = "", string attributesColumn = "")
+        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, Node node, string outputPath, string colorColumn = "", string attributesColumn = "")
         {
             if (node.Features.Count > 0) {
                 counter++;
                 var subset = (from f in node.Features select (f.Id)).ToArray();
-                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, translation, subset, colorColumn, attributesColumn);
+                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, subset, colorColumn, attributesColumn);
 
                 var triangleCollection = Triangulator.GetTriangles(geometries);
 
@@ -111,7 +112,7 @@ namespace pg2b3dm
             foreach (var subnode in node.Children) {
                var perc = Math.Round(((double)counter / Counter.Instance.Count) * 100,2);
                 Console.Write($"\rProgress: tile {counter} - {perc.ToString("F")}%");
-                WriteTiles(conn, geometryTable, geometryColumn, translation, subnode, outputPath, colorColumn, attributesColumn);
+                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, subnode, outputPath, colorColumn, attributesColumn);
             }
         }
 
@@ -122,9 +123,9 @@ namespace pg2b3dm
             File.WriteAllText($"{outputPath}/tileset.json", s);
         }
 
-        private static List<BoundingBox3D> GetZupBoxes(NpgsqlConnection conn, string GeometryTable, string GeometryColumn, double[] translation)
+        private static List<BoundingBox3D> GetZupBoxes(NpgsqlConnection conn, string GeometryTable, string GeometryColumn, string idcolumn, double[] translation)
         {
-            var bboxes = BoundingBoxRepository.GetAllBoundingBoxes(conn, GeometryTable, GeometryColumn, translation);
+            var bboxes = BoundingBoxRepository.GetAllBoundingBoxes(conn, GeometryTable, GeometryColumn, idcolumn, translation);
             var zupBoxes = new List<BoundingBox3D>();
             foreach (var bbox in bboxes) {
                 var zupBox = bbox.TransformYToZ();

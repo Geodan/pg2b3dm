@@ -11,7 +11,7 @@ namespace Wkb2Gltf
             HexColors = new string[0];
             Attributes = new string[0];
         }
-        public int RowNumber { get; set; }
+        public string Id { get; set; }
         public Geometry Geometry { get; set; }
 
         public string[] HexColors { get; set; }

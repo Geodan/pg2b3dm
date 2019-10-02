@@ -44,6 +44,8 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -c, --column          (Default: geom) Geometry column name
 
+  -i, --idcolumn		(Default: id): Identifier column
+
   -t, --table           (Required) Database table name, include database schema if needed
 
   -o, --output          (Default: ./output/tiles) Output directory, will be created if not exists
@@ -76,6 +78,8 @@ Color column rules:
 of colors doesn't equal the number of triangles in geometry. Order of colors must be equal to order of triangles.
 
 
+Indexes: The id column shuld be indexed fro better performance.
+
 ## Getting started
 
 See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and visualize in Cesium and MapBox GL JS on a sample dataset.
@@ -87,6 +91,8 @@ Docker image: https://hub.docker.com/r/geodan/pg2b3dm
 Tags used (https://hub.docker.com/r/geodan/pg2b3dm/tags): 
 
 - 0.5: 0.5 release
+
+- 0.6: 0.6 release
 
 - latest: latest release
 
@@ -160,6 +166,8 @@ Press F5 to start debugging.
 
 
 ## History
+
+2019-10-02: release 0.7 adding id column option (default 'id')
 
 2019-09-02: release 0.6 adding batching option on single column (-a option)
 

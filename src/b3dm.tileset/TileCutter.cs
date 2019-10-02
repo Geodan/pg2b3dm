@@ -29,10 +29,10 @@ namespace B3dm.Tileset
                     var features = new List<Feature>();
 
                     // loop through all zupboxes
-                    for (var t = 0; t < zupboxes.Count; t++) {
-                        var isinside = tileextent.Inside(zupboxes[t].GetCenter());
+                    foreach (var zUpBox in zupboxes) {
+                        var isinside = tileextent.Inside(zUpBox.GetCenter());
                         if (isinside) {
-                            var f = new Feature() { Id = t, BoundingBox3D = zupboxes[t] };
+                            var f = new Feature() { Id = zUpBox.Id, BoundingBox3D = zUpBox };
                             features.Add(f);
                         }
                     }
