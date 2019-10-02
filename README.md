@@ -44,7 +44,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -c, --column          (Default: geom) Geometry column name
 
-  -i, --idcolumn		(Default: id): Identifier column
+  -i, --idcolumn        (Default: id): Identifier column
 
   -t, --table           (Required) Database table name, include database schema if needed
 
