@@ -73,7 +73,7 @@ FROM bertt.buildings;
 And rerun pg2b3dm on this table:
 
 ```
-$ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom -t  bertt.buildings_3857 -d postgres -r colors -a blockid
+$ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom -t  bertt.buildings_3857 -d postgres -r colors -a blockid -i blockid
 ```
 
 The b3dm tiles can be visualized by adding Three.JS and glTF functionality to the MapBox GL JS viewer. See https://github.com/Geodan/mapbox-3dtiles for more information about this topic.

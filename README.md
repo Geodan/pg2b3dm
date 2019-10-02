@@ -78,7 +78,11 @@ Color column rules:
 of colors doesn't equal the number of triangles in geometry. Order of colors must be equal to order of triangles.
 
 
-Indexes: The id column shuld be indexed fro better performance.
+Id column rules:
+
+	- Id column must be type string;
+
+	- Id column should be indexed for better performance.
 
 ## Getting started
 
