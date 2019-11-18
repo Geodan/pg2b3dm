@@ -36,25 +36,29 @@ All parameters are optional, except the -t --table option.
 If --username and/or --dbname are not specified the current username is used as default.
 
 ```
-  -U, --username        (Default: username) Database user
+  -U, --username         (Default: username) Database user
 
-  -h, --host            (Default: localhost) Database host
+  -h, --host             (Default: localhost) Database host
 
-  -d, --dbname          (Default: username) Database name
+  -d, --dbname           (Default: username) Database name
 
-  -c, --column          (Default: geom) Geometry column name
+  -c, --column           (Default: geom) Geometry column name
 
-  -i, --idcolumn        (Default: id): Identifier column
+  -i, --idcolumn         (Default: id): Identifier column
 
-  -t, --table           (Required) Database table name, include database schema if needed
+  -t, --table            (Required) Database table name, include database schema if needed
 
-  -o, --output          (Default: ./output/tiles) Output directory, will be created if not exists
+  -o, --output           (Default: ./output/tiles) Output directory, will be created if not exists
 
-  -p, --port            (Default: 5432) Database port
+  -p, --port             (Default: 5432) Database port
 
-  -r, --roofcolorcolumn (default: '') color column name
+  -r, --roofcolorcolumn  (Default: '') color column name
 
-  -a, --attributescolumn (default: '') attributes column name 
+  -a, --attributescolumn (Default: '') attributes column name 
+
+  -f, --featurespertile  (Default: 50) Maximum features per tile
+
+  -e, --extenttile       (Default: 2000) Maximum extent per tile
   
   --help                Display this help screen.
 
@@ -94,9 +98,7 @@ Docker image: https://hub.docker.com/r/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/r/geodan/pg2b3dm/tags): 
 
-- 0.5: 0.5 release
-
-- 0.6: 0.6 release
+- 0.5, 0.6, 0.7, 0.8 release
 
 - latest: latest release
 
@@ -170,6 +172,8 @@ Press F5 to start debugging.
 
 
 ## History
+
+2019-11-18: release 0.8 adding -f, --featurespertile and -e, --extenttile options
 
 2019-10-02: release 0.7 adding id column option (default 'id')
 

@@ -61,7 +61,7 @@ namespace pg2b3dm
 
                 var translation = bbox3d.GetCenter().ToVector();
                 var zupBoxes = GetZupBoxes(conn, geometryTable, geometryColumn, idcolumn, translation);
-                var tree = TileCutter.ConstructTree(zupBoxes);
+                var tree = TileCutter.ConstructTree(zupBoxes, o.FeaturesPerTile, o.ExtentTile);
 
                 Console.WriteLine("Writing tileset.json...");
                 WiteTilesetJson(translation, tree, o.Output);

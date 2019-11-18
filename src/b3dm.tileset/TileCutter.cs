@@ -9,23 +9,20 @@ namespace B3dm.Tileset
 {
     public static class TileCutter
     {
-        public static Node ConstructTree(List<BoundingBox3D> zupboxes)
+        public static Node ConstructTree(List<BoundingBox3D> zupboxes, int FeaturesPerTile, double MaxTileSize)
         {
             // select min and max from zupboxes for x and y
             var bbox3d = BoundingBoxCalculator.GetBoundingBox(zupboxes);
             var bbox = bbox3d.ToBoundingBox();
 
-            double maxTileSize = 2000.0;
-            var featuresPerTile = 50;
-
-            var xrange = (int)Math.Ceiling(bbox3d.ExtentX() / maxTileSize);
-            var yrange = (int)Math.Ceiling(bbox3d.ExtentY() / maxTileSize);
+            var xrange = (int)Math.Ceiling(bbox3d.ExtentX() / MaxTileSize);
+            var yrange = (int)Math.Ceiling(bbox3d.ExtentY() / MaxTileSize);
 
             var tree = new Node();
 
             for (var x = 0; x < xrange; x++) {
                 for (var y = 0; y < yrange; y++) {
-                    var tileextent = B3dmTile.GetExtent(bbox, maxTileSize, x, y);
+                    var tileextent = B3dmTile.GetExtent(bbox, MaxTileSize, x, y);
                     var features = new List<Feature>();
 
                     // loop through all zupboxes
@@ -41,13 +38,13 @@ namespace B3dm.Tileset
                         continue;
                     }
                     var node = new Node();
-                    if (features.Count > featuresPerTile) {
-                        node.Features = features.Take(featuresPerTile).ToList();
-                        var new_features = features.GetRange(featuresPerTile, features.Count - featuresPerTile).ToList();
+                    if (features.Count > FeaturesPerTile) {
+                        node.Features = features.Take(FeaturesPerTile).ToList();
+                        var new_features = features.GetRange(FeaturesPerTile, features.Count - FeaturesPerTile).ToList();
                         var new_x = x * 2;
                         var new_y = y * 2;
-                        var new_maxTileSize = maxTileSize / 2;
-                        Divide(tileextent, new_features, new_x, new_y, new_maxTileSize, featuresPerTile, node);
+                        var new_maxTileSize = MaxTileSize / 2;
+                        Divide(tileextent, new_features, new_x, new_y, new_maxTileSize, FeaturesPerTile, node);
                     }
                     else {
                         node.Features = features;
