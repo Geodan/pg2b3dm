@@ -142,7 +142,7 @@ Build app:
 
 ```
 $ git clone https://github.com/Geodan/pg2b3dm.git
-$ cd src/pg2b3dm
+$ cd pg2b3dm/src
 $ dotnet build
 $ dotnet run
 ```
