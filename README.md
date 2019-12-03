@@ -150,7 +150,8 @@ $ dotnet run
 To create an executable './pg2b3dm':
 
 ```
-$ dotnet publish -c Release -o .
+$ dotnet publish -r linux-x64 -c Release
+$ ./pg2b3dm/bin/Release/netcoreapp3.0/linux-x64/publish/pg2b3dm
 ```
 
 ## Debugging in Visual Studio Code
