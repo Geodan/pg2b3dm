@@ -132,23 +132,19 @@ https://dotnet.microsoft.com/download/dotnet-core/3.0
 TL;DR:
 
 ```
-sudo apt-get update
-sudo apt-get install apt-transport-https
-sudo apt-get update
-sudo apt-get install dotnet-sdk-3.0
+$ sudo apt-get update
+$ sudo apt-get install apt-transport-https
+$ sudo apt-get update
+$ sudo apt-get install dotnet-sdk-3.0
 ```
 
 Build app:
 
 ```
 $ git clone https://github.com/Geodan/pg2b3dm.git
-
 $ cd src/pg2b3dm
-
 $ dotnet build
-
 $ dotnet run
-
 ```
 
 To create an executable './pg2b3dm':
