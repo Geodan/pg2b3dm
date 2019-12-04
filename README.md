@@ -147,7 +147,7 @@ $ dotnet build
 $ dotnet run
 ```
 
-To create an slef-contained executable '~/bin/pg2b3dm':
+To create an self-contained executable '~/bin/pg2b3dm':
 
 ```
 $ git clone https://github.com/Geodan/pg2b3dm.git
