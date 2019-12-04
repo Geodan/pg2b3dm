@@ -147,11 +147,14 @@ $ dotnet build
 $ dotnet run
 ```
 
-To create an executable './pg2b3dm':
+To create an slef-contained executable '~/bin/pg2b3dm':
 
 ```
+$ git clone https://github.com/Geodan/pg2b3dm.git
+$ cd pg2b3dm/src
 $ dotnet publish -c Release
-$ ./bin/Release/netcoreapp3.0/linux-x64/publish/pg2b3dm
+$ cp ./pg2b3dm/bin/Release/netcoreapp3.0/linux-x64/publish/pg2b3dm ~/bin
+$ ~/bin/pg2b3dm
 ```
 
 ## Debugging in Visual Studio Code
