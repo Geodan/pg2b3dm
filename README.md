@@ -125,19 +125,33 @@ $ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_us
 
 ## Run from source
 
-Requirement: Install .NET Core 3.0 SDK 
+Requirement: Install .NET Core 3.0 SDK
 
 https://dotnet.microsoft.com/download/dotnet-core/3.0
 
+TL;DR:
+
+```
+$ sudo apt-get update
+$ sudo apt-get install apt-transport-https
+$ sudo apt-get update
+$ sudo apt-get install dotnet-sdk-3.0
+```
+
+Build app:
+
 ```
 $ git clone https://github.com/Geodan/pg2b3dm.git
-
-$ cd src/pg2b3dm
-
+$ cd pg2b3dm/src
 $ dotnet build
-
 $ dotnet run
+```
 
+To create an executable './pg2b3dm':
+
+```
+$ dotnet publish -c Release
+$ ./bin/Release/netcoreapp3.0/linux-x64/publish/pg2b3dm
 ```
 
 ## Debugging in Visual Studio Code
