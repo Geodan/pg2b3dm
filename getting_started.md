@@ -2,49 +2,129 @@
 
 ## Introduction
 
-A sample dataset with some 3D buildings is provided, see [sample_data/buildings.backup](sample_data/buildings.backup). The coordinate system of these buildings is earth centred, earth fixed (EPSG:4978). 
+In this document we run pg2b3dm on a sample dataset, a shapefile from New York containing building footpints with a height attribute. The generated 3D tiles are visualized in Cesium viewer.
 
-In this document we run pg2b3dm on this dataset and visualize the buildings in Cesium and MapBox GL JS.
+## Download data
 
-## Run pg2b3dm
+We download a dataset from the US Building Footprints.
 
-Steps to get pg2b3dm running on this sample dataset:
+https://wiki.openstreetmap.org/wiki/Microsoft_Building_Footprint_Data
 
-0] Create Docker network
+Download dataset: 
+
+Delaware - Dover (22,532 buildings available)
+
+https://1drv.ms/u/s!AqWv0F0N63JkgQqO6E9e2kI28R16
+
+Donwload zip, unzip. It contains a 'bldg_footprints.shp' shapefile.
+
+## Setup PostGIS
+
+1] Create Docker network
 
 In this tutorial, we'll start 2 containers: PostGIS database and tiling tool pg2b3dm. Because those containers need to communicate
 they must be in the same network. So we'll create a network first and add the 2 containers later.
+
+If you have already installed a PostGIS server you can skip this step.
 
 ```
 $ docker network create  mynetwork
 ```
 
-1] Start PostGIS database
+2] Start PostGIS database
 
 ```
 $ docker run --name some-postgis -e POSTGRES_PASSWORD=postgres -p 5432:5432 -it --network mynetwork mdillon/postgis
 ```
 
-2] Connect to database using pgAdmin or similar db management tool
+## Import buildings to PostGIS
 
-3] Create schema 'bertt'
-
-4] Select PostgreSQL database and restore file buildings.backup
-
-A table bertt.buildings will be created, contains 100 sample buildings in Amsterdam.
-
-5] Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 9 b3dm's will be created in the output directory.
+Import the buildings to database using ogr2ogr.
 
 ```
-λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom -t  bertt.buildings -d postgres -r colors -a blockid
-tool: pg2b3dm 0.5.1.0
+$ ogr2ogr -f "PostgreSQL" PG:"host=localhost user=postgres password=postgres dbname=postgres" bldg_footprints.shp -nlt POLYGON -nln delaware_buildings
+```
+
+In PostGIS, a spatial table 'delaware_buildings' is created.
+
+## PSQL into PostGIS
+
+PSQL into PostGIS and do a count on the buildings:
+
+```
+$ psql -U postgres
+Password for user postgres:
+psql (11.5, server 11.2 (Debian 11.2-1.pgdg90+1))
+WARNING: Console code page (850) differs from Windows code page (1252)
+         8-bit characters might not work correctly. See psql reference
+         page "Notes for Windows users" for details.
+Type "help" for help.
+
+postgres=# select count(*) from delaware_buildings;
+ count
+--------
+ 22532
+(1 row)
+```
+
+## Install extension postgis_sfcgal
+
+Extension  postgis_sfcgal is needed for running ST_Extrude function.
+
+```
+postgres=# CREATE EXTENSION postgis_sfcgal;
+```
+
+## Clean data
+
+Maybe there are some invalid polygons, let's remove them first.
+
+```
+postgres=# DELETE from delaware_buildings where ST_IsValid(wkb_geometry)=false;
+```
+
+## Add id field with text type
+
+```
+postgres=# ALTER TABLE delaware_buildings ADD COLUMN id varchar;
+postgres=# UPDATE delaware_buildings SET id = ogc_fid::text;
+```
+
+## Calculate input geometries
+
+The next statement does the following:
+
+- Reproject to 4978 
+
+- Extrude with values in height column;
+
+- Tesselate.
+
+Result (1 PolyhedralSurface Z per building) is written in the 'geom' column.
+
+Warning: The query can takes a while to execute.
+
+Question: Is the next sql correct?
+
+```
+postgres=# ALTER TABLE delaware_buildings ADD COLUMN geom geometry;
+postgres=# UPDATE delaware_buildings SET geom = ST_GeometryN (ST_Extrude(ST_Tesselate(st_extrude(ST_Transform(wkb_geometry, 4978) , 0, 0, height)), 0, 0, 0), 1) ;
+```
+
+## Run pg2b3dm
+
+Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
+
+```
+λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom -t delaware_buildings -d postgres -i id
+tool: pg2b3dm 0.8.0.0
 Password for user postgres:
 Start processing....
 Calculating bounding boxes...
 Writing tileset.json...
-Writing 9 tiles...
-Progress: tile 9 - 100.00%
-Elapsed: 2 seconds
+Writing 927 tiles...
+Progress: tile 927 - 100.00%
+Elapsed: 93 seconds
 Program finished.
 ```
 
@@ -54,37 +134,10 @@ Copy the generated tiles to sample_data\cesium (overwrite the sample tiles there
 
 Put [sample_data/index_cesium.html](sample_data/index_cesium.html) on a webserver (for example https://caddyserver.com/).
 
-Open a browser and if all goes well In Amsterdam you can find some 3D Tiles buildings:
+Open a browser and if all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 
-![Hello World Buildings](https://user-images.githubusercontent.com/538812/63441248-6517a200-c431-11e9-96c5-d1d38d2513a6.png)
+Final result in Cesium:
 
-Right click on a building and check browser console to see the batching option on column 'blockid' at work.
+TODO
 
-## Visualize in MapBox GL JS
-
-To visualize in MapBox GL JS we have to transform the buildings table to Spherical Mercator (3857):
-
-```
-CREATE TABLE bertt.buildings_3857 AS 
-SELECT ST_Transform(geom,3857) AS geom, blockid,color, colors 
-FROM bertt.buildings;
-```
-
-And rerun pg2b3dm on this table:
-
-```
-$ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom -t  bertt.buildings_3857 -d postgres -r colors -a blockid -i blockid
-```
-
-The b3dm tiles can be visualized by adding Three.JS and glTF functionality to the MapBox GL JS viewer. See https://github.com/Geodan/mapbox-3dtiles for more information about this topic.
-
-Put sample html page [sample_data/index_mapbox.html](sample_data/index_mapbox.html) on a webserver next to the generated tileset.json, and copy https://github.com/Geodan/mapbox-3dtiles/blob/master/Mapbox3DTiles.js to this folder.
-
-Final result in MapBox GL JS:
-
-![hoofden](https://user-images.githubusercontent.com/538812/63675318-d320e800-c7e8-11e9-82f4-fcfb2a187044.png)
-
-## Customize building colors
-
-Change some colors in the 'colors' column and run pg2b3m again. Restart Cesium and the new colors should be visible.
-
+Issue: Some tiles do show up at first, but gets some drawing over. Also location seems somewhere at equator.

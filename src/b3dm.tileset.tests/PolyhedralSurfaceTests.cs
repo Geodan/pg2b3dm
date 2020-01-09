@@ -2,9 +2,9 @@
 using System;
 using System.IO;
 using Wkx;
-using Wkb2Gltf.Extensions;
+using B3dm.Tileset.Extensions;
 
-namespace Wkb2Gltf.Tests
+namespace B3dm.Tileset.Tests
 {
     public class PolyhedralSurfaceTests
     {

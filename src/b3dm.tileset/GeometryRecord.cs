@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using Wkx;
+﻿using Wkx;
 
-namespace Wkb2Gltf
+namespace B3dm.Tileset
 {
     public class GeometryRecord
     {

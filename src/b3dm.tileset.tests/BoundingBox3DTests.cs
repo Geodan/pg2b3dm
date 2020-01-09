@@ -1,7 +1,6 @@
-﻿using System.Globalization;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
-namespace Wkb2Gltf.Tests
+namespace B3dm.Tileset
 {
     public class BoundingBox3DTests
     {

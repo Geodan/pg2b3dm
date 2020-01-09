@@ -10,7 +10,7 @@ namespace Wkb2Gltf
             var material = new MaterialBuilder().
                 WithDoubleSide(true).
                 WithMetallicRoughnessShader().
-                WithChannelParam(KnownChannels.BaseColor, ColorToVector4(r, g, b));
+                WithChannelParam(KnownChannel.BaseColor, ColorToVector4(r, g, b));
             return material;
         }
 

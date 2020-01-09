@@ -1,4 +1,4 @@
-﻿namespace Wkb2Gltf
+﻿namespace B3dm.Tileset
 {
     public static class Comparer
     {

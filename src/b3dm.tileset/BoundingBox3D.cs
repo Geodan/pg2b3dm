@@ -1,8 +1,7 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Wkx;
 
-namespace Wkb2Gltf
+namespace B3dm.Tileset
 {
     public class BoundingBox3D
     {

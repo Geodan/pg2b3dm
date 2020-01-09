@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using B3dm.Tileset;
 using Npgsql;
-using Wkb2Gltf;
 using Wkx;
 
 namespace pg2b3dm

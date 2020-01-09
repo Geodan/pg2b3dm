@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
 
-namespace Wkb2Gltf.Tests
+namespace B3dm.Tileset.Tests
 {
     public class BoundingBoxCalculatorTests
     {

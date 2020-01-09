@@ -1,24 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using Wkx;
 
 namespace Wkb2Gltf
 {
     public static class Triangulator
     {
-        public static TriangleCollection GetTriangles(List<GeometryRecord> geomrecords)
-        {
-            var triangleCollection = new TriangleCollection();
-            foreach (var g in geomrecords) {
-                var surface = (PolyhedralSurface)g.Geometry;
-                var colors = g.HexColors;
-                var triangles = Triangulator.GetTriangles(surface, colors, g.BatchId);
-                triangleCollection.AddRange(triangles);
-            }
-
-            return triangleCollection;
-        }
-
         public static TriangleCollection GetTriangles(PolyhedralSurface polyhedralsurface, string[] hexColors, int batchId)
         {
             var degenerated_triangles = 0;

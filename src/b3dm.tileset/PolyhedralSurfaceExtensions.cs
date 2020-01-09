@@ -1,6 +1,6 @@
 ﻿using Wkx;
 
-namespace Wkb2Gltf.Extensions
+namespace B3dm.Tileset.Extensions
 {
     public static class PolyhedralSurfaceExtensions
     {

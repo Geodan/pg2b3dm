@@ -10,9 +10,12 @@
 
   <ItemGroup>
     <PackageReference Include="nunit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
-    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0012" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0014" />
     <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
     <PackageReference Include="Wkx" Version="0.5.1" />
   </ItemGroup>

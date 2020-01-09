@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Wkb2Gltf
+namespace B3dm.Tileset
 {
     public class SqlBuilder
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Wkb2Gltf
+namespace B3dm.Tileset
 {
     public class BoundingBoxCalculator
     {

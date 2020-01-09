@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using SharpGLTF.Materials;
+﻿using SharpGLTF.Materials;
 
 namespace Wkb2Gltf
 {

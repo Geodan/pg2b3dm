@@ -10,6 +10,7 @@ using CommandLine;
 using Newtonsoft.Json;
 using Npgsql;
 using Wkb2Gltf;
+using Wkx;
 
 namespace pg2b3dm
 {
@@ -82,7 +83,7 @@ namespace pg2b3dm
                 var subset = (from f in node.Features select (f.Id)).ToArray();
                 var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, subset, colorColumn, attributesColumn);
 
-                var triangleCollection = Triangulator.GetTriangles(geometries);
+                var triangleCollection = GetTriangles(geometries);
 
                 var bytes = GlbCreator.GetGlb(triangleCollection);
                 var b3dm = new B3dm.Tile.B3dm(bytes);
@@ -134,5 +135,19 @@ namespace pg2b3dm
 
             return zupBoxes;
         }
+
+        public static TriangleCollection GetTriangles(List<GeometryRecord> geomrecords)
+        {
+            var triangleCollection = new TriangleCollection();
+            foreach (var g in geomrecords) {
+                var surface = (PolyhedralSurface)g.Geometry;
+                var colors = g.HexColors;
+                var triangles = Triangulator.GetTriangles(surface, colors, g.BatchId);
+                triangleCollection.AddRange(triangles);
+            }
+
+            return triangleCollection;
+        }
+
     }
 }
