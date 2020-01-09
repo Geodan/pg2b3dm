@@ -12,7 +12,7 @@ namespace pg2b3dm
     {
         public static BoundingBox3D GetBoundingBox3D(NpgsqlConnection conn, string geometry_table, string geometry_column)
         {
-            var cmd = new NpgsqlCommand($"SELECT st_xmin(geom1), st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType(geom) =  'ST_PolyhedralSurface') as t", conn);
+            var cmd = new NpgsqlCommand($"SELECT st_xmin(geom1), st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface') as t", conn);
             var reader = cmd.ExecuteReader();
             reader.Read();
             var xmin = reader.GetDouble(0);
@@ -33,12 +33,12 @@ namespace pg2b3dm
         private static string GetGeometryTable(string geometry_table, string geometry_column, string idcolumn, double[] translation, string colorColumn = "", string attributesColumn="")
         {
             var g = GetGeometryColumn(geometry_column, translation);
-            var sqlSelect = $"select {g} as geom1, {idcolumn}, ST_Area(ST_Force2D(geom)) AS weight ";
+            var sqlSelect = $"select {g} as geom1, {idcolumn}, ST_Area(ST_Force2D({geometry_column})) AS weight ";
 
             var optionalColumns = SqlBuilder.GetOptionalColumnsSql(colorColumn, attributesColumn);
             sqlSelect += $"{optionalColumns} ";
             var sqlFrom = $"FROM {geometry_table} ";
-            var sqlWhere = $"where ST_GeometryType(geom) =  'ST_PolyhedralSurface' ORDER BY weight DESC";
+            var sqlWhere = $"where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' ORDER BY weight DESC";
             return sqlSelect+ sqlFrom + sqlWhere;
         }
 

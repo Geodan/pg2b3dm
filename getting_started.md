@@ -90,33 +90,29 @@ postgres=# ALTER TABLE delaware_buildings ADD COLUMN id varchar;
 postgres=# UPDATE delaware_buildings SET id = ogc_fid::text;
 ```
 
-## Calculate input geometries
-
-The next statement does the following:
-
-- Reproject to 4978 
-
-- Extrude with values in height column;
-
-- Tesselate.
-
-Result (1 PolyhedralSurface Z per building) is written in the 'geom' column.
-
-Warning: The query can takes a while to execute.
-
-Question: Is the next sql correct?
+## Reproject geometry to 4978
 
 ```
-postgres=# ALTER TABLE delaware_buildings ADD COLUMN geom geometry;
-postgres=# UPDATE delaware_buildings SET geom = ST_GeometryN (ST_Extrude(ST_Tesselate(st_extrude(ST_Transform(wkb_geometry, 4978) , 0, 0, height)), 0, 0, 0), 1) ;
+postgres=# ALTER TABLE delaware_buildings ADD COLUMN geom_4978 geometry;
+postgres=# update delaware_buildings set geom_4978=ST_Transform(wkb_geometry, 4978);
 ```
+
+## Add column for triangulated geometry
+
+```
+postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_4978_triangle geometry;
+```
+
+## Fill column with triangulated geometry
+
+Todo
 
 ## Run pg2b3dm
 
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom -t delaware_buildings -d postgres -i id
+λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom_4978_triangle -t delaware_buildings -d postgres -i id
 tool: pg2b3dm 0.8.0.0
 Password for user postgres:
 Start processing....
@@ -135,9 +131,3 @@ Copy the generated tiles to sample_data\cesium (overwrite the sample tiles there
 Put [sample_data/index_cesium.html](sample_data/index_cesium.html) on a webserver (for example https://caddyserver.com/).
 
 Open a browser and if all goes well in Delaware - Dover you can find some 3D Tiles buildings.
-
-Final result in Cesium:
-
-TODO
-
-Issue: Some tiles do show up at first, but gets some drawing over. Also location seems somewhere at equator.

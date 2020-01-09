@@ -14,15 +14,16 @@ namespace Wkb2Gltf.Tests
     public class GlbCreatorTests
     {
         [Test]
-        public void CreateGlbWithDefaultColor()
-        {
+        public void CreateGlbWithDefaultColor() { 
+
             // arrange
             var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
             var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
             var polyhedralsurface = ((PolyhedralSurface)g);
             var triangles = Triangulator.GetTriangles(polyhedralsurface, new string[0], 100);
+
             var bytes = GlbCreator.GetGlb(triangles);
-            File.WriteAllBytes(@"d:\aaa\ams_building_default_color.glb", bytes);
+            File.WriteAllBytes(@"d:\aaa\yoyo10.glb", bytes);
         }
 
         [Test]
