@@ -151,9 +151,9 @@ To create an self-contained executable '~/bin/pg2b3dm':
 
 ```
 $ git clone https://github.com/Geodan/pg2b3dm.git
-$ cd pg2b3dm/src
+$ cd pg2b3dm/src/pg2b3dm
 $ dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true
-$ cp ./pg2b3dm/bin/Release/netcoreapp3.0/linux-x64/publish/pg2b3dm ~/bin
+$ cp ./bin/Release/netcoreapp3.1/linux-x64/publish/pg2b3dm ~/bin
 $ ~/bin/pg2b3dm
 ```
 
