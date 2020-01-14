@@ -29,7 +29,7 @@ namespace Wkb2Gltf
                 DrawTriangle(triangle, material, mesh);
             }
             var scene = new SceneBuilder();
-            scene.AddMesh(mesh, Matrix4x4.Identity);
+            scene.AddRigidMesh(mesh, Matrix4x4.Identity);
             var model = scene.ToSchema2();
             var bytes = model.WriteGLB().Array;
 
