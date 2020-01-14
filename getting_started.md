@@ -131,7 +131,7 @@ Program finished.
 
 Copy the generated tiles to sample_data\mapbox (overwrite the sample tiles there).
 
-Put [sample_data/index_mapboc.html](sample_data/index_mapbox.html) on a webserver (for example https://caddyserver.com/).
+Put [sample_data/index_mapbox.html](sample_data/index_mapbox.html) on a webserver (for example https://caddyserver.com/).
 
 Open a browser and if all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 
