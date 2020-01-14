@@ -17,7 +17,7 @@ Delaware - Dover (22,532 buildings available)
 
 https://1drv.ms/u/s!AqWv0F0N63JkgQqO6E9e2kI28R16
 
-Donwload zip, unzip. It contains a 'bldg_footprints.shp' shapefile.
+Donwload zip, unzip. It contains a 'bldg_footprints.shp' shapefile containing a 'height' column.  
 
 ## Setup PostGIS
 
