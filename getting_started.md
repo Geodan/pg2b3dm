@@ -2,7 +2,7 @@
 
 ## Introduction
 
-In this document we run pg2b3dm on a sample dataset, a shapefile from Delaware containing building footpints with a height attribute. 
+In this document we run pg2b3dm on a sample dataset, a shapefile from Delaware containing building footprints with a height attribute. 
 The generated 3D tiles are visualized in a MapBox viewer.
 
 ## Download data
