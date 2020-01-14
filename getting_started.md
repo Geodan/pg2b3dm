@@ -94,7 +94,7 @@ postgres=# UPDATE delaware_buildings SET id = ogc_fid::text;
 
 ```
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN geom_4978 geometry;
-postgres=# update delaware_buildings set geom_4978=ST_Transform(wkb_geometry, 4978);
+postgres=# update delaware_buildings set geom_4978=ST_Transform(ST_Force3D(wkb_geometry), 4978);
 ```
 
 ## Add column for triangulated geometry
@@ -120,7 +120,7 @@ Calculating bounding boxes...
 Writing tileset.json...
 Writing 927 tiles...
 Progress: tile 927 - 100.00%
-Elapsed: 93 seconds
+Elapsed: 39 seconds
 Program finished.
 ```
 
