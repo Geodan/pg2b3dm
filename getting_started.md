@@ -2,7 +2,8 @@
 
 ## Introduction
 
-In this document we run pg2b3dm on a sample dataset, a shapefile from New York containing building footpints with a height attribute. The generated 3D tiles are visualized in Cesium viewer.
+In this document we run pg2b3dm on a sample dataset, a shapefile from New York containing building footpints with a height attribute. 
+The generated 3D tiles are visualized in a MapBox viewer.
 
 ## Download data
 
@@ -90,29 +91,31 @@ postgres=# ALTER TABLE delaware_buildings ADD COLUMN id varchar;
 postgres=# UPDATE delaware_buildings SET id = ogc_fid::text;
 ```
 
-## Reproject geometry to 4978
-
-```
-postgres=# ALTER TABLE delaware_buildings ADD COLUMN geom_4978 geometry;
-postgres=# update delaware_buildings set geom_4978=ST_Transform(ST_Force3D(wkb_geometry), 4978);
-```
-
 ## Add column for triangulated geometry
 
 ```
-postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_4978_triangle geometry;
+postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_triangle_3857 geometry;
+```
+
+## Reproject triangulated geometry to 3857
+
+```
+postgres=# ALTER TABLE delaware_buildings ADD COLUMN geom_3857 geometry;
+postgres=# update delaware_buildings set geom_3857=ST_Transform(ST_Force3D(wkb_geometry), 3857);
 ```
 
 ## Fill column with triangulated geometry
 
-Todo
+Download and run program https://github.com/bertt/tesselate_building (note: work in progress).
+
+It reads the footprint heights and geometries (from geom_3857), triangulates them and writes to column geom_triangle_3857 (as polyhedrealsurface geometries).
 
 ## Run pg2b3dm
 
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom_4978_triangle -t delaware_buildings -d postgres -i id
+λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom_triangle_3857 -t delaware_buildings -d postgres -i id
 tool: pg2b3dm 0.8.0.0
 Password for user postgres:
 Start processing....
@@ -124,10 +127,12 @@ Elapsed: 39 seconds
 Program finished.
 ```
 
-## Visualize in Cesium
+## Visualize in MapBox
 
-Copy the generated tiles to sample_data\cesium (overwrite the sample tiles there).
+Copy the generated tiles to sample_data\mapbox (overwrite the sample tiles there).
 
-Put [sample_data/index_cesium.html](sample_data/index_cesium.html) on a webserver (for example https://caddyserver.com/).
+Put [sample_data/index_mapboc.html](sample_data/index_mapbox.html) on a webserver (for example https://caddyserver.com/).
 
 Open a browser and if all goes well in Delaware - Dover you can find some 3D Tiles buildings.
+
+![alt text](delaware.png "Delaware")
