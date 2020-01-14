@@ -94,9 +94,9 @@ See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and 
 
 ## Run from Docker
 
-Docker image: https://hub.docker.com/r/geodan/pg2b3dm
+Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
-Tags used (https://hub.docker.com/r/geodan/pg2b3dm/tags): 
+Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
 - 0.5, 0.6, 0.7, 0.8 release
 
