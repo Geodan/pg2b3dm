@@ -97,7 +97,7 @@ postgres=# UPDATE delaware_buildings SET id = ogc_fid::text;
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_triangle_3857 geometry;
 ```
 
-## Reproject triangulated geometry to 3857
+## Reproject geometry to 3857
 
 ```
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN geom_3857 geometry;
