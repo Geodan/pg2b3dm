@@ -68,14 +68,6 @@ postgres=# select count(*) from delaware_buildings;
 (1 row)
 ```
 
-## Install extension postgis_sfcgal
-
-Extension  postgis_sfcgal is needed for running ST_Extrude function.
-
-```
-postgres=# CREATE EXTENSION postgis_sfcgal;
-```
-
 ## Clean data
 
 Maybe there are some invalid polygons, let's remove them first.
