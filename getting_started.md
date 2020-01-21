@@ -35,7 +35,7 @@ $ docker network create  mynetwork
 2] Start PostGIS database
 
 ```
-$ docker run --name some-postgis -e POSTGRES_PASSWORD=postgres -p 5432:5432 -it --network mynetwork mdillon/postgis
+$ docker run -d --name some-postgis -e POSTGRES_PASSWORD=postgres -p 5432:5432 -it --network mynetwork mdillon/postgis
 ```
 
 ## Import buildings to PostGIS
@@ -83,12 +83,6 @@ postgres=# ALTER TABLE delaware_buildings ADD COLUMN id varchar;
 postgres=# UPDATE delaware_buildings SET id = ogc_fid::text;
 ```
 
-## Add column for triangulated geometry
-
-```
-postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_triangle_3857 geometry;
-```
-
 ## Reproject geometry to 3857
 
 ```
@@ -96,11 +90,30 @@ postgres=# ALTER TABLE delaware_buildings ADD COLUMN geom_3857 geometry;
 postgres=# update delaware_buildings set geom_3857=ST_Transform(ST_Force3D(wkb_geometry), 3857);
 ```
 
+## Add column for triangulated geometry
+
+```
+postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_triangle_3857 geometry;
+```
+
+and exit psql:
+
+```
+postgres=# exit
+```
+
 ## Fill column with triangulated geometry
 
-Download and run program https://github.com/bertt/tesselate_building (note: work in progress).
+Run bertt/tesselate_building. It reads the footprint heights and geometries (from geom_3857), triangulates them and writes to column geom_triangle_3857 (as polyhedrealsurface geometries).
 
-It reads the footprint heights and geometries (from geom_3857), triangulates them and writes to column geom_triangle_3857 (as polyhedrealsurface geometries).
+```
+$ docker run -it --network mynetwork bertt/tesselate_building -h some-postgis -U postgres -d postgres -t delaware_buildings -i geom_3857 -o geom_triangle_3857 --idcolumn ogc_fid
+Tool: Tesselate buildings 1.0.0.0
+Password for user postgres:
+Progress: 100.00%
+Elapsed: 74 seconds
+Program finished.
+```
 
 ## Run pg2b3dm
 
