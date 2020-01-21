@@ -96,12 +96,6 @@ postgres=# update delaware_buildings set geom_3857=ST_Transform(ST_Force3D(wkb_g
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_triangle_3857 geometry;
 ```
 
-and exit psql:
-
-```
-postgres=# exit
-```
-
 ## Colors and styling
 
 Add two more columns to the delaware_buildings table:
@@ -117,19 +111,25 @@ postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#00ff00", "roof":
 
 The 'colors' column will be filled in next step
 
+now exit psql:
+
+```
+postgres=# exit
+```
+
 ## Run bertt/tesselate_building
 
 Run bertt/tesselate_building. It does the following:
 
-- reads the footprint heights and geometries (from geom_3857)
+- reads the footprint heights and geometries (from geom_3857);
 
-- extrudes the buildings with height value 
+- extrudes the buildings with height value; 
 
-- triangulate the building
+- triangulate the building and gets the colors per triangle;
 
-- writes geometries to column geom_triangle_3857 (as polyhedralsurface geometries)
+- writes geometries to column geom_triangle_3857 (as polyhedralsurface geometries);
 
-- writes colors info (color code per triangle) into colors column
+- writes colors info (color code per triangle) into colors column;
 
 ```
 $ docker run -it --network mynetwork bertt/tesselate_building -h some-postgis -U postgres -d postgres -t delaware_buildings -i geom_3857 -o geom_triangle_3857 --idcolumn ogc_fid --stylecolumn style --colorscolumn colors
