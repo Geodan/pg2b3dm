@@ -104,7 +104,7 @@ postgres=# exit
 
 ## Fill column with triangulated geometry
 
-Run bertt/tesselate_building. It reads the footprint heights and geometries (from geom_3857), triangulates them and writes to column geom_triangle_3857 (as polyhedralsurface geometries).
+Run bertt/tesselate_building. It reads the footprint heights and geometries (from geom_3857), extrudes the buildings with height value, triangulate the building and writes result to column geom_triangle_3857 (as polyhedralsurface geometries).
 
 ```
 $ docker run -it --network mynetwork bertt/tesselate_building -h some-postgis -U postgres -d postgres -t delaware_buildings -i geom_3857 -o geom_triangle_3857 --idcolumn ogc_fid
