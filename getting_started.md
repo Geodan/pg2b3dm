@@ -102,12 +102,37 @@ and exit psql:
 postgres=# exit
 ```
 
-## Fill column with triangulated geometry
+## Colors and styling
 
-Run bertt/tesselate_building. It reads the footprint heights and geometries (from geom_3857), extrudes the buildings with height value, triangulate the building and writes result to column geom_triangle_3857 (as polyhedralsurface geometries).
+Add two more columns to the delaware_buildings table:
 
 ```
-$ docker run -it --network mynetwork bertt/tesselate_building -h some-postgis -U postgres -d postgres -t delaware_buildings -i geom_3857 -o geom_triangle_3857 --idcolumn ogc_fid
+postgres=# ALTER TABLE delaware_buildings ADD COLUMN style json;
+postgres=# ALTER TABLE delaware_buildings ADD COLUMN colors text[];
+```
+
+Update the style column with a JSON file containing walls, roof, floor colors:
+
+postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#00ff00", "roof":" #ff0000", "floor":"#D3D3D3"}');
+
+The 'colors' column will be filled in next step
+
+## Run bertt/tesselate_building
+
+Run bertt/tesselate_building. It does the following:
+
+- reads the footprint heights and geometries (from geom_3857)
+
+- extrudes the buildings with height value 
+
+- triangulate the building
+
+- writes geometries to column geom_triangle_3857 (as polyhedralsurface geometries)
+
+- writes colors info (color code per triangle) into colors column
+
+```
+$ docker run -it --network mynetwork bertt/tesselate_building -h some-postgis -U postgres -d postgres -t delaware_buildings -i geom_3857 -o geom_triangle_3857 --idcolumn ogc_fid --stylecolumn style --colorscolumn colors
 Tool: Tesselate buildings 1.0.0.0
 Password for user postgres:
 Progress: 100.00%
@@ -120,7 +145,7 @@ Program finished.
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom_triangle_3857 -t delaware_buildings -d postgres -i id
+λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom_triangle_3857 -t delaware_buildings -d postgres -i id -r colors
 tool: pg2b3dm 0.8.0.0
 Password for user postgres:
 Start processing....
