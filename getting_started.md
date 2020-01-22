@@ -107,8 +107,9 @@ postgres=# ALTER TABLE delaware_buildings ADD COLUMN colors text[];
 
 Update the style column with a JSON file containing walls, roof, floor colors:
 
+```
 postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#00ff00", "roof":" #ff0000", "floor":"#D3D3D3"}');
-
+```
 The 'colors' column will be filled in next step
 
 now exit psql:
