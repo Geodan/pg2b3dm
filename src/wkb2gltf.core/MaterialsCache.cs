@@ -7,7 +7,7 @@ namespace Wkb2Gltf
 {
     public class MaterialsCache
     {
-        private List<MaterialAndColor> materials;
+        private readonly List<MaterialAndColor> materials;
         public MaterialsCache()
         {
             materials = new List<MaterialAndColor>();
