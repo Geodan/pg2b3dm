@@ -69,6 +69,7 @@ Geometry rules:
 
 - All geometries must be type polyhedralsurface consisting of triangles with 4 vertices each. If not 4 vertices exception is thrown.
 
+
 Color column rules:
 
 - Colors must be specified as hex colors, like '#ff5555';
@@ -81,6 +82,11 @@ Color column rules:
 
 of colors doesn't equal the number of triangles in geometry. Order of colors must be equal to order of triangles.
 
+- Transparency (alpha channel) can be used, possible values:
+
+100% — FF 95% — F2 90% — E6 85% — D9 80% — CC 75% — BF 70% — B3 65% — A6 60% — 99 55% — 8C 50% — 80 45% — 73 40% — 66 35% — 59 30% — 4D 25% — 40 20% — 33 15% — 26 10% — 1A 5% — 0D 0% — 00
+
+100% means opaque, 0% means transparent
 
 Id column rules:
 
