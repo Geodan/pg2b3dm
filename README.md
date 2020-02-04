@@ -25,9 +25,11 @@ Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdire
 
 ## Live Sample viewers
 
-Cesium: https://geodan.github.io/pg2b3dm/sample_data/index_cesium.html
+- Subsurface in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/index_geotop.html
 
-MapBox: https://geodan.github.io/pg2b3dm/sample_data/index_mapbox.html
+- Buildings in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/index_mapbox.html
+
+- Buildings in Cesium: https://geodan.github.io/pg2b3dm/sample_data/index_cesium.html
 
 ## Command line options
 
