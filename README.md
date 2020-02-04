@@ -84,9 +84,9 @@ of colors doesn't equal the number of triangles in geometry. Order of colors mus
 
 Id column rules:
 
-	- Id column must be type string;
+- Id column must be type string;
 
-	- Id column should be indexed for better performance.
+- Id column should be indexed for better performance.
 
 ## Getting started
 
