@@ -9,11 +9,12 @@
             body { margin:0; padding:0; }
             #map { position:absolute; top:0; bottom:0; width:100%; }
             #controls { position:absolute; top:0; left:0; }
+            #legend { position: absolute; top:50px; left:50px; z-index: 9; background-color: #ffffffbf; border-radius: 5px;}
         </style>
     </head>
     <body>
             <div id='map'></div>
-
+            <div id='legend'><img src="geotop/geotop.png" alt="geotop legend" style="float:left;width:auto;height:150px;"> </div>
             <script>
             mapboxgl.accessToken = 'pk.eyJ1IjoiYmVydHQiLCJhIjoiaWFvN1Z4USJ9.k04Q6CVms4Gx7KDZxvAx2A';
 
