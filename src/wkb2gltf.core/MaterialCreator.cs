@@ -1,22 +1,25 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 using SharpGLTF.Materials;
 
 namespace Wkb2Gltf
 {
     public class MaterialCreator
     {
-        public static MaterialBuilder CreateMaterial(float r, float g, float b)
+        public static MaterialBuilder CreateMaterial(Color c)
         {
             var material = new MaterialBuilder().
                 WithDoubleSide(true).
                 WithMetallicRoughnessShader().
-                WithChannelParam(KnownChannel.BaseColor, ColorToVector4(r, g, b));
+                WithAlpha(AlphaMode.BLEND,0).
+                WithChannelParam(KnownChannel.BaseColor, ColorToVector4(c));
             return material;
         }
 
-        private static Vector4 ColorToVector4(float r, float g, float b)
+        private static Vector4 ColorToVector4(Color c)
         {
-            return new Vector4(r / 255, g / 255, b / 255, 1);
+            var v = new Vector4((float)c.R / 255, (float)c.G / 255, (float)c.B / 255, (float)c.A/255);
+            return v;
         }
     }
 }

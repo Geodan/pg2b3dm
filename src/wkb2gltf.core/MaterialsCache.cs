@@ -19,7 +19,7 @@ namespace Wkb2Gltf
             if (res == null) {
                 // create and add it to List
                 var rgb = ColorTranslator.FromHtml(color);
-                var materialBuilder = MaterialCreator.CreateMaterial(rgb.R, rgb.G, rgb.B);
+                var materialBuilder = MaterialCreator.CreateMaterial(rgb);
 
                 res = new MaterialAndColor{ Color = color, MaterialBuilder = materialBuilder };
                 materials.Add(res);
