@@ -9,7 +9,7 @@
             body { margin:0; padding:0; }
             #map { position:absolute; top:0; bottom:0; width:100%; }
             #controls { position:absolute; top:0; left:0; }
-            #legend { position: absolute; top:50px; left:50px; z-index: 9; background-color: #ffffffbf; border-radius: 5px;}
+            #legend { position: absolute; top:50px; left:50px; z-index: 9; background-color: #ffffffbf; border-radius: 5px; padding-top: 5px;}
         </style>
     </head>
     <body>
@@ -27,7 +27,7 @@
                 pitch: 45,
                 hash: true
             });
-             map.on('style.load', function() {
+            map.on('style.load', function() {
                 let tileslayer = new Mapbox3DTiles.Layer( { 
                     id: 'test', 
                     url: './geotop/tileset.json'
