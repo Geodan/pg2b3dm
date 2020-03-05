@@ -157,10 +157,21 @@ Program finished.
 
 ## Visualize in MapBox
 
-Copy the generated tiles to sample_data\mapbox (overwrite the sample tiles there).
+Copy the generated tiles to sample_data\delaware\mapbox\index.html (overwrite the sample tiles there).
 
-Put [sample_data/index_mapbox.html](sample_data/index_mapbox.html) on a webserver (for example https://caddyserver.com/).
+In case of Cesium see sample_data\delaware\cesium\index.html
+
+Put [sample_data\delaware\mapbox\index.html](sample_data\delaware\mapbox\index.html) on a webserver (for example https://caddyserver.com/).
 
 Open a browser and if all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 
 ![alt text](delaware.png "Delaware")
+
+## Result
+
+For live sample results see:
+
+- Dover - Delaware buildings in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/delaware/mapbox/
+
+- Dover - Delaware buildings in Cesium: https://geodan.github.io/pg2b3dm/sample_data/delaware/cesium/
+

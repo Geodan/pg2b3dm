@@ -25,11 +25,15 @@ Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdire
 
 ## Live Sample viewers
 
-- Subsurface in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/index_geotop.html
+- GeoTop Subsurface in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/index_geotop.html
 
-- Buildings in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/index_mapbox.html
+- Amsterdam Buildings in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/amsterdam/mapbox/
 
-- Buildings in Cesium: https://geodan.github.io/pg2b3dm/sample_data/index_cesium.html
+- Amsterdam Buildings in Cesium: https://geodan.github.io/pg2b3dm/sample_data/amsterdam/cesium/
+
+- Dover - Delaware buildings in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/delaware/mapbox/
+
+- Dover - Delaware buildings in Cesium: https://geodan.github.io/pg2b3dm/sample_data/delaware/cesium/
 
 ## Command line options
 
