@@ -74,6 +74,7 @@ Maybe there are some invalid polygons, let's remove them first.
 
 ```
 postgres=# DELETE from delaware_buildings where ST_IsValid(wkb_geometry)=false;
+DELETE 0
 ```
 
 ## Add id field with text type
