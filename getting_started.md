@@ -74,6 +74,7 @@ Maybe there are some invalid polygons, let's remove them first.
 
 ```
 postgres=# DELETE from delaware_buildings where ST_IsValid(wkb_geometry)=false;
+DELETE 0
 ```
 
 ## Add id field with text type
@@ -103,7 +104,6 @@ Update the style column with a JSON file containing walls, roof, floor colors:
 ```
 postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#00ff00", "roof":" #ff0000", "floor":"#D3D3D3"}');
 ```
-
 The 'colors' column will be filled in next 'bertt/tesselate_building' step.
 
 now exit psql:
