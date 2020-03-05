@@ -1,0 +1,289 @@
+{
+  "root": {
+    "children": [
+      {
+        "children": [],
+        "geometricError": 250.0,
+        "refine": "ADD",
+        "boundingVolume": {
+          "box": [
+            -536.324,
+            -1459.798,
+            469.166,
+            860.117,
+            0.0,
+            0.0,
+            0.0,
+            998.686,
+            0.0,
+            0.0,
+            0.0,
+            672.539
+          ]
+        },
+        "content": {
+          "uri": "tiles/1.b3dm"
+        }
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "geometricError": 125.0,
+            "refine": "ADD",
+            "boundingVolume": {
+              "box": [
+                -1069.164,
+                -230.923,
+                820.999,
+                184.67,
+                0.0,
+                0.0,
+                0.0,
+                128.993,
+                0.0,
+                0.0,
+                0.0,
+                141.204
+              ]
+            },
+            "content": {
+              "uri": "tiles/3.b3dm"
+            }
+          },
+          {
+            "children": [],
+            "geometricError": 125.0,
+            "refine": "ADD",
+            "boundingVolume": {
+              "box": [
+                -1465.899,
+                822.575,
+                1052.957,
+                153.365,
+                0.0,
+                0.0,
+                0.0,
+                188.579,
+                0.0,
+                0.0,
+                0.0,
+                105.676
+              ]
+            },
+            "content": {
+              "uri": "tiles/4.b3dm"
+            }
+          },
+          {
+            "children": [
+              {
+                "children": [],
+                "geometricError": 62.5,
+                "refine": "ADD",
+                "boundingVolume": {
+                  "box": [
+                    146.307,
+                    -383.089,
+                    -96.778,
+                    115.531,
+                    0.0,
+                    0.0,
+                    0.0,
+                    69.492,
+                    0.0,
+                    0.0,
+                    0.0,
+                    86.811
+                  ]
+                },
+                "content": {
+                  "uri": "tiles/6.b3dm"
+                }
+              }
+            ],
+            "geometricError": 125.0,
+            "refine": "ADD",
+            "boundingVolume": {
+              "box": [
+                -43.507,
+                40.37,
+                -1.454,
+                359.334,
+                0.0,
+                0.0,
+                0.0,
+                492.951,
+                0.0,
+                0.0,
+                0.0,
+                262.546
+              ]
+            },
+            "content": {
+              "uri": "tiles/5.b3dm"
+            }
+          },
+          {
+            "children": [],
+            "geometricError": 125.0,
+            "refine": "ADD",
+            "boundingVolume": {
+              "box": [
+                -441.139,
+                1245.769,
+                245.017,
+                175.186,
+                0.0,
+                0.0,
+                0.0,
+                217.807,
+                0.0,
+                0.0,
+                0.0,
+                150.143
+              ]
+            },
+            "content": {
+              "uri": "tiles/7.b3dm"
+            }
+          }
+        ],
+        "geometricError": 250.0,
+        "refine": "ADD",
+        "boundingVolume": {
+          "box": [
+            -651.718,
+            505.497,
+            447.316,
+            967.545,
+            0.0,
+            0.0,
+            0.0,
+            958.079,
+            0.0,
+            0.0,
+            0.0,
+            711.316
+          ]
+        },
+        "content": {
+          "uri": "tiles/2.b3dm"
+        }
+      },
+      {
+        "children": [],
+        "geometricError": 250.0,
+        "refine": "ADD",
+        "boundingVolume": {
+          "box": [
+            -26.12,
+            2091.642,
+            -118.58,
+            137.82,
+            0.0,
+            0.0,
+            0.0,
+            376.419,
+            0.0,
+            0.0,
+            0.0,
+            94.656
+          ]
+        },
+        "content": {
+          "uri": "tiles/8.b3dm"
+        }
+      },
+      {
+        "children": [],
+        "geometricError": 250.0,
+        "refine": "ADD",
+        "boundingVolume": {
+          "box": [
+            1224.021,
+            -1850.241,
+            -825.279,
+            395.243,
+            0.0,
+            0.0,
+            0.0,
+            527.357,
+            0.0,
+            0.0,
+            0.0,
+            333.354
+          ]
+        },
+        "content": {
+          "uri": "tiles/9.b3dm"
+        }
+      },
+      {
+        "children": [],
+        "geometricError": 250.0,
+        "refine": "ADD",
+        "boundingVolume": {
+          "box": [
+            569.463,
+            49.313,
+            -438.857,
+            217.739,
+            0.0,
+            0.0,
+            0.0,
+            234.709,
+            0.0,
+            0.0,
+            0.0,
+            168.696
+          ]
+        },
+        "content": {
+          "uri": "tiles/10.b3dm"
+        }
+      }
+    ],
+    "transform": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      3886500.1023452925,
+      334846.6165463292,
+      5029300.512229475,
+      1.0
+    ],
+    "geometricError": 500.0,
+    "refine": "ADD",
+    "boundingVolume": {
+      "box": [
+        0.0,
+        4.788,
+        0.0,
+        1619.263,
+        0.0,
+        0.0,
+        0.0,
+        2463.272,
+        0.0,
+        0.0,
+        0.0,
+        1158.633
+      ]
+    }
+  },
+  "geometricError": 500.0,
+  "asset": {
+    "generator": "pg2b3dm",
+    "version": "1.0"
+  }
+}
