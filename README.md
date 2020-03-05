@@ -102,7 +102,7 @@ Id column rules:
 
 ## Getting started
 
-See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and visualize buildings in MapBox GL JS.
+See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and visualize buildings in MapBox GL JS or Cesium.
 
 ## Run from Docker
 
