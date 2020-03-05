@@ -83,17 +83,10 @@ postgres=# ALTER TABLE delaware_buildings ADD COLUMN id varchar;
 postgres=# UPDATE delaware_buildings SET id = ogc_fid::text;
 ```
 
-## Reproject geometry to 3857
+## Add column for output triangulated geometry
 
 ```
-postgres=# ALTER TABLE delaware_buildings ADD COLUMN geom_3857 geometry;
-postgres=# update delaware_buildings set geom_3857=ST_Transform(ST_Force3D(wkb_geometry), 3857);
-```
-
-## Add column for triangulated geometry
-
-```
-postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_triangle_3857 geometry;
+postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_triangle geometry;
 ```
 
 ## Colors and styling
@@ -111,13 +104,7 @@ Update the style column with a JSON file containing walls, roof, floor colors:
 postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#00ff00", "roof":" #ff0000", "floor":"#D3D3D3"}');
 ```
 
-Advanced option: add a color per storey:
-
-```
-postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#00ff00", "roof":" #ff0000", "floor":"#D3D3D3", "storeys":[{"from":0, "to":4, "color":"#ffff00"},{"from":4, "to":8, "color":"#00ff00"}]}')
-```
-
-The 'colors' column will be filled in next step
+The 'colors' column will be filled in next 'bertt/tesselate_building' step.
 
 now exit psql:
 
@@ -135,12 +122,15 @@ Run bertt/tesselate_building. It does the following:
 
 - triangulate the building and gets the colors per triangle;
 
-- writes geometries to column geom_triangle_3857 (as polyhedralsurface geometries);
+- writes geometries to column geom_triangle (as polyhedralsurface geometries);
 
 - writes colors info (color code per triangle) into colors column;
 
+- format option -f mapbox/cesium: in the next sample the default output format is used: '-f mapbox'. 
+When building for Cesium use '-f cesium'. 
+
 ```
-$ docker run -it --network mynetwork bertt/tesselate_building -h some-postgis -U postgres -d postgres -t delaware_buildings -i geom_3857 -o geom_triangle_3857 --idcolumn ogc_fid --stylecolumn style --colorscolumn colors
+$ docker run -it --network mynetwork bertt/tesselate_building -h some-postgis -U postgres -d postgres -f mapbox -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --colorscolumn colors
 Tool: Tesselate buildings 1.0.0.0
 Password for user postgres:
 Progress: 100.00%
@@ -153,7 +143,7 @@ Program finished.
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom_triangle_3857 -t delaware_buildings -d postgres -i id -r colors
+λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id -r colors
 tool: pg2b3dm 0.8.0.0
 Password for user postgres:
 Start processing....
