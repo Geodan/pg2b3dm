@@ -115,7 +115,7 @@ postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#00ff00", "roof":
 Advanced option: add a color per storey:
 
 ```
-postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#00ff00", "roof":" #ff0000", "floor":"#D3D3D3", "storeys":[{"from":0, "to":4, "color":"#ffff00"},{"from":4, "to":8, "color":"#00ff00"}]}')
+postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#00ff00", "roof":" #ff0000", "floor":"#D3D3D3", "storeys":[{"from":0, "to":4, "color":"#ffff00"},{"from":4, "to":8, "color":"#00ff00"}]}');
 ```
 
 The 'colors' column will be filled in next step
