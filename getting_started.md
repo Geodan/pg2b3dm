@@ -116,7 +116,7 @@ postgres=# exit
 
 Run bertt/tesselate_building. It does the following:
 
-- reads the footprint heights and geometries (from geom_3857);
+- reads the footprint heights and geometries (from wkb_geometry);
 
 - extrudes the buildings with height value; 
 
@@ -161,7 +161,7 @@ Copy the generated tiles to sample_data\delaware\mapbox\index.html (overwrite th
 
 In case of Cesium see sample_data\delaware\cesium\index.html
 
-Put [sample_data\delaware\mapbox\index.html](sample_data\delaware\mapbox\index.html) on a webserver (for example https://caddyserver.com/).
+Put sample_data\delaware\mapbox\index.html on a webserver (for example https://caddyserver.com/).
 
 Open a browser and if all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 
