@@ -101,8 +101,17 @@ postgres=# ALTER TABLE delaware_buildings ADD COLUMN colors text[];
 
 Update the style column with a JSON file containing walls, roof, floor colors:
 
+Colors used:
+
+#008000: green (floor)
+
+#FF0000: rood (rood)
+
+#EEC900: wall (geel)
+
+
 ```
-postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#00ff00", "roof":" #ff0000", "floor":"#D3D3D3"}');
+postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#EEC900", "roof":"#FF0000", "floor":"#008000"}');
 ```
 The 'colors' column will be filled in next 'bertt/tesselate_building' step.
 
