@@ -166,21 +166,29 @@ Program finished.
 
 ## Visualize in MapBox
 
-Copy the generated tiles to sample_data\delaware\mapbox\index.html (overwrite the sample tiles there).
+Required: Use -f mapbox (default option) in previous step bertt/tesselate_building.
 
-In case of Cesium see sample_data\delaware\cesium\index.html
+Copy the generated tiles to sample_data\delaware\mapbox\ (overwrite the tileset.json and sample tiles in tiles directory there).
 
-Put sample_data\delaware\mapbox\index.html on a webserver (for example https://caddyserver.com/).
+Put folder 'sample_data' on a webserver (for example https://caddyserver.com/) and navigate to /delaware/mapbox/index.html
 
-Open a browser and if all goes well in Delaware - Dover you can find some 3D Tiles buildings.
+If all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 
-![alt text](delaware.png "Delaware")
+![alt text](delaware_mapbox.png "Delaware MapBox")
 
-## Result
+Sample live demo in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/delaware/mapbox/
 
-For live sample results see:
 
-- Dover - Delaware buildings in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/delaware/mapbox/
+## Visualize in Cesium
 
-- Dover - Delaware buildings in Cesium: https://geodan.github.io/pg2b3dm/sample_data/delaware/cesium/
+Required: Use -f cesium in previous step bertt/tesselate_building.
 
+Copy the generated tiles to sample_data\delaware\cesium\ (overwrite the tileset.json and sample tiles in tiles directory there).
+
+Put folder 'sample_data' on a webserver (for example https://caddyserver.com/) and navigate to /delaware/cesium/index.html
+
+If all goes well in Delaware - Dover you can find some 3D Tiles buildings.
+
+![alt text](delaware_cesium.png "Delaware Cesium")
+
+Sample live demo in Cesium: https://geodan.github.io/pg2b3dm/sample_data/delaware/cesium/
