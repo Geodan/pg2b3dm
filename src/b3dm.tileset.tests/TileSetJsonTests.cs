@@ -12,7 +12,7 @@ namespace B3dm.Tileset.Tests
         {
             // arrange
             var zUpBoxes = BBTestDataReader.GetTestData("testfixtures/zupboxes_actual.txt");
-            var tree = TileCutter.ConstructTree(zUpBoxes, 50, 2000.0);
+            var tree = TileCutter.GetTiles(zUpBoxes, 2000.0);
             var translation = new double[] { 141584.2745, 471164.637, 15.81555842685751 };
             var s = File.ReadAllText(@"./testfixtures/tileset_json_expected.json");
             var tileset_json_expected = JsonConvert.DeserializeObject<TileSet>(s);
