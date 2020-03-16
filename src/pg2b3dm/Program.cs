@@ -66,7 +66,7 @@ namespace pg2b3dm
                 Console.WriteLine("Writing tileset.json...");
                 WiteTilesetJson(translation, tiles, o.Output);
 
-                Console.WriteLine($"Writing {Counter.Instance.Count} tiles...");
+                Console.WriteLine($"Writing {tiles.Count} tiles...");
                 WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles, o.Output, o.RoofColorColumn, o.AttributesColumn);
                 conn.Close();
                 stopWatch.Stop();
@@ -81,6 +81,9 @@ namespace pg2b3dm
             foreach (var t in tiles) {
                 if (t.Count > 0) {
                     counter++;
+                    var perc = Math.Round(((double)counter / tiles.Count) * 100, 2);
+                    Console.Write($"\rProgress: tile {counter} - {perc:F}%");
+
                     var subset = (from f in t select (f.Id)).ToArray();
                     var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, subset, colorColumn, attributesColumn);
 

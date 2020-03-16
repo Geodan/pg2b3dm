@@ -6,7 +6,6 @@ namespace B3dm.Tileset
     {
         public static TileSet ToTileset(List<List<Feature>> tiles, double[] transform)
         {
-            Counter.Instance.Count = 0;
             double geometricError = 500.0;
             var tileset = new TileSet();
             tileset.asset = new Asset() { version = "1.0", generator="pg2b3dm" };
