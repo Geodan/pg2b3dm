@@ -60,7 +60,7 @@ namespace pg2b3dm
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3D(conn, geometryTable, geometryColumn);
 
                 var translation = bbox3d.GetCenter().ToVector();
-                var tiles = TileCutter.GetTiles(o.ExtentTile, geometryTable, geometryColumn, idcolumn, conn, bbox3d, translation);
+                var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, translation);
 
                 Console.WriteLine("Writing tileset.json...");
                 WiteTilesetJson(translation, tiles, o.Output);
@@ -91,8 +91,9 @@ namespace pg2b3dm
 
                     var bytes = GlbCreator.GetGlb(triangleCollection);
                     var b3dm = new B3dm.Tile.B3dm(bytes);
-                    var featureTable = new FeatureTable();
-                    featureTable.BATCH_LENGTH = geometries.Count;
+                    var featureTable = new FeatureTable {
+                        BATCH_LENGTH = geometries.Count
+                    };
                     b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable);
 
                     if (attributesColumn != string.Empty) {
@@ -103,9 +104,10 @@ namespace pg2b3dm
                             allattributes.Add(geom.Attributes[0]);
                         }
 
-                        var item = new BatchTableItem();
-                        item.Name = attributesColumn;
-                        item.Values = allattributes.ToArray();
+                        var item = new BatchTableItem {
+                            Name = attributesColumn,
+                            Values = allattributes.ToArray()
+                        };
                         batchtable.BatchTableItems.Add(item);
                         var json = JsonConvert.SerializeObject(batchtable, new BatchTableJsonConverter(typeof(BatchTable)));
                         b3dm.BatchTableJson = json;

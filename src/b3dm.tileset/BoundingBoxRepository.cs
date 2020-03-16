@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Globalization;
 using B3dm.Tileset;
 using Npgsql;
@@ -57,8 +58,9 @@ namespace B3dm.Tileset
                 var xmax = reader.GetDouble(4);
                 var ymax = reader.GetDouble(5);
                 var zmax = reader.GetDouble(6);
-                var bbox = new BoundingBox3D(xmin,ymin,zmin,xmax,ymax,zmax);
-                bbox.Id = id;
+                var bbox = new BoundingBox3D(xmin, ymin, zmin, xmax, ymax, zmax) {
+                    Id = id
+                };
                 bboxes.Add(bbox);
             }
             reader.Close();
@@ -120,7 +122,7 @@ namespace B3dm.Tileset
 
         private static string[] GetColumnValuesAsList(NpgsqlDataReader reader, int columnId)
         {
-            var res=new string[0];
+            string[] res;
             if (reader.GetFieldType(columnId).Name == "String") {
                 var attribute = reader.GetString(columnId);
                 res = new string[1] { attribute };

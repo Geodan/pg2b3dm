@@ -19,7 +19,7 @@ namespace B3dm.Tileset
         }
 
 
-        public static List<List<Feature>> GetTiles(double extentTile, string geometryTable, string geometryColumn, string idcolumn, NpgsqlConnection conn, BoundingBox3D bbox3d, double[] translation)
+        public static List<List<Feature>> GetTiles(NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, string idcolumn, double[] translation)
         {
             var zupBoxes = GetZupBoxes(conn, geometryTable, geometryColumn, idcolumn, translation);
             var tiles = TileCutter.GetTiles(zupBoxes, extentTile);
