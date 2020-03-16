@@ -6,7 +6,7 @@ using B3dm.Tileset;
 using Npgsql;
 using Wkx;
 
-namespace pg2b3dm
+namespace B3dm.Tileset
 {
     public static class BoundingBoxRepository
     {

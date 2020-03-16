@@ -1,10 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using Npgsql;
 
 namespace B3dm.Tileset
 {
     public static class TileCutter
     {
+        public static List<BoundingBox3D> GetZupBoxes(NpgsqlConnection conn, string GeometryTable, string GeometryColumn, string idcolumn, double[] translation)
+        {
+            var bboxes = BoundingBoxRepository.GetAllBoundingBoxes(conn, GeometryTable, GeometryColumn, idcolumn, translation);
+            var zupBoxes = new List<BoundingBox3D>();
+            foreach (var bbox in bboxes) {
+                var zupBox = bbox.TransformYToZ();
+                zupBoxes.Add(zupBox);
+            }
+
+            return zupBoxes;
+        }
+
+
+        public static List<List<Feature>> GetTiles(double extentTile, string geometryTable, string geometryColumn, string idcolumn, NpgsqlConnection conn, BoundingBox3D bbox3d, double[] translation)
+        {
+            var zupBoxes = GetZupBoxes(conn, geometryTable, geometryColumn, idcolumn, translation);
+            var tiles = TileCutter.GetTiles(zupBoxes, extentTile);
+            return tiles;
+        }
+
         public static List<List<Feature>> GetTiles(List<BoundingBox3D> zupboxes, double MaxTileSize)
         {
             // select min and max from zupboxes for x and y
