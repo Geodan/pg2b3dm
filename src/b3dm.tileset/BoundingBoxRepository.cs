@@ -9,12 +9,19 @@ namespace B3dm.Tileset
 {
     public static class BoundingBoxRepository
     {
-        public static Int64 GetFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, int epsg)
+        public static List<string> GetFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, Point from, Point to, int epsg)
         {
-            var sql = $"select count({geometry_column}) from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' and ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({from.X}, {from.Y}, {to.X}, {to.Y}, {epsg}))";
+            var res = new List<string>();
+            var sql = $"select {idcolumn} from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({from.X}, {from.Y}, {to.X}, {to.Y}, {epsg})) and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface'";
             var cmd = new NpgsqlCommand(sql, conn);
-            var count = (Int64)cmd.ExecuteScalar();
-            return count;
+            var reader= cmd.ExecuteReader();
+            while (reader.Read()) {
+                var id = reader.GetString(0);
+                res.Add(id);
+            }
+
+            reader.Close();
+            return res;
 
         }
         public static BoundingBox3D GetBoundingBox3D(NpgsqlConnection conn, string geometry_table, string geometry_column)

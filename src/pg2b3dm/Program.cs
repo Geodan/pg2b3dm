@@ -20,6 +20,7 @@ namespace pg2b3dm
 
         static void Main(string[] args)
         {
+            var epsg = 4978; // todo: make dynamic
             var version = Assembly.GetEntryAssembly().GetName().Version;
             Console.WriteLine($"tool: pg2b3dm {version}");
 
@@ -64,7 +65,7 @@ namespace pg2b3dm
                 var boundingAllActualNew = BoundingBoxCalculatorNew.GetBoundingAllNew(bbox3d, translation);
                 var box = boundingAllActualNew.GetBox();
 
-                var tilesNew = TileCutter.GetTilesNew(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d);
+                var tilesNew = TileCutter.GetTilesNew(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, epsg);
 
                 var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, translation);
 

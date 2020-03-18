@@ -19,9 +19,8 @@ namespace B3dm.Tileset
             return zupBoxes;
         }
 
-        public static List<Tile> GetTilesNew(NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, string idcolumn, BoundingBox3D box3d)
+        public static List<Tile> GetTilesNew(NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, string idcolumn, BoundingBox3D box3d ,int epsg)
         {
-            var epsg = 4978; // todo: make dynamic
             var tiles = new List<Tile>();
             var translation = box3d.GetCenter().ToVector();
 
@@ -34,9 +33,9 @@ namespace B3dm.Tileset
                     // check if there are features in this tile...
                     var from = new Point(box3d.XMin + extentTile*x, box3d.YMin + extentTile*y);
                     var to = new Point(box3d.XMin + extentTile * (x+1), box3d.YMin + extentTile * (y+1));
-                    var featuresInBox = BoundingBoxRepository.GetFeaturesInBox(conn, geometryTable, geometryColumn,from, to, epsg);
-                    if(featuresInBox > 0) {
-                        var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y), featuresInBox);
+                    var ids = BoundingBoxRepository.GetFeaturesInBox(conn, geometryTable, geometryColumn,idcolumn, from, to, epsg);
+                    if(ids.Count > 0) {
+                        var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y), ids);
                         tiles.Add(tile);
                         tileId++;
                     }

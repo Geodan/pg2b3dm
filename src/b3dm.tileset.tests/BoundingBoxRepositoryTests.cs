@@ -34,16 +34,18 @@ namespace B3dm.Tileset.Tests
             bbox3d.Equals(new BoundingBox3D(-6813.593873352278, -4566.305836349726, -6077.698247526307, 6813.593873352278, 4585.98895232752, 6077.698247525841));
             var bbox = bbox3d.ToBoundingBox();
 
-            var tilesNew = TileCutter.GetTilesNew(conn, 2000, geometryTable, geometryColumn, idcolumn, bbActual);
+            var tilesNew = TileCutter.GetTilesNew(conn, 2000, geometryTable, geometryColumn, idcolumn, bbActual, 4978);
             Assert.IsTrue(tilesNew.Count == 25);
-            Assert.IsTrue(tilesNew[0].Features == 31);
-            // todo: check bbox
+            Assert.IsTrue(tilesNew[0].Ids.Count == 31);
+            Assert.IsTrue(tilesNew[0].Ids.Contains("11580"));
+            // todo: write tileset.sjon according to new method
 
             var tiles = TileCutter.GetTiles(conn, 2000, geometryTable, geometryColumn, idcolumn, actualTranslation);
             conn.Close();
             Assert.IsTrue(tiles.Count == 25);
             Assert.IsTrue(tiles[0].Count == 31);
-            Assert.IsTrue(tiles[0][0].BoundingBox3D.Equals(new BoundingBox3D(-4882.578986671288, 726.3967969436197, 1159.3346086232923, -4860.819284174591, 726.3967969436197, 1184.0800365605392)));
+            Assert.IsTrue(tiles[0][0].BoundingBox3D.Equals(new BoundingBox3D(-5114.497815014096, 833.6676024738698, 1350.150991555769, -5096.113102232106, 833.6676024738698, 1379.722703391686)));
+            // 18/3: new change somehow, was: -4882.578986671288, 726.3967969436197, 1159.3346086232923, -4860.819284174591, 726.3967969436197, 1184.0800365605392
             // was before area weights removed: Assert.IsTrue(tiles[0][0].BoundingBox3D.Equals(new BoundingBox3D(-5074.687212716788, 956.3603996178134, 1482.4032165384851, -5039.462368243374, 956.3603996178134, 1512.4349554707296)));
 
             var boundingAllActual = TreeSerializer.GetBoundingvolume(tiles);

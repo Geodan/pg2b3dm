@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Wkx;
 
 namespace B3dm.Tileset
@@ -7,13 +8,13 @@ namespace B3dm.Tileset
     {
         private int id;
         private BoundingBox bb;
-        private Int64 features;
+        private List<string> ids;
         
-        public Tile(int id, BoundingBox bb, Int64 features)
+        public Tile(int id, BoundingBox bb, List<string> ids)
         {
             this.id = id;
             this.bb = bb;
-            this.features = features;
+            this.ids = ids;
         }
 
         public int Id {
@@ -24,11 +25,8 @@ namespace B3dm.Tileset
             get { return bb; }
         }
 
-        public Int64 Features {
-            get { return features; }
+        public List<string> Ids {
+            get { return ids; }
         }
-
-
-
     }
 }
