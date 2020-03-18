@@ -56,7 +56,7 @@ namespace B3dm.Tileset
             return child;
         }
 
-        private static Boundingvolume GetBoundingvolume(List<Feature> features)
+        public static Boundingvolume GetBoundingvolume(List<Feature> features)
         {
             var bboxes = new List<BoundingBox3D>();
             foreach (var f in features) {
@@ -70,7 +70,7 @@ namespace B3dm.Tileset
         }
 
 
-        private static Boundingvolume GetBoundingvolume(List<List<Feature>> tiles)
+        public static Boundingvolume GetBoundingvolume(List<List<Feature>> tiles)
         {
             var bboxes = new List<BoundingBox3D>();
             foreach(var t in tiles) {

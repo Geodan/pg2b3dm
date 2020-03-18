@@ -18,6 +18,16 @@ namespace B3dm.Tileset
             this.ZMax = ZMax;
 
         }
+
+        public Point FromPoint()
+        {
+            return new Point(XMin, YMin, ZMin);
+        }
+        public Point ToPoint()
+        {
+            return new Point(XMax, YMax, ZMax);
+        }
+
         public double XMin { get; set; }
         public double XMax { get; set; }
         public double YMin { get; set; }
@@ -47,6 +57,20 @@ namespace B3dm.Tileset
             res.Id = Id;
             return res;
         }
+
+        public BoundingBox3D TransformYToZNew()
+        {
+            var res = new BoundingBox3D();
+            res.XMin = XMin;
+            res.YMin = ZMin;
+            res.ZMin = YMin*-1;
+            res.XMax = XMax;
+            res.YMax = ZMax;
+            res.ZMax = YMax*-1;
+            res.Id = Id;
+            return res;
+        }
+
 
         public override string ToString()
         {
