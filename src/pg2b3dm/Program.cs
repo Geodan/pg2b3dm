@@ -58,9 +58,16 @@ namespace pg2b3dm
                 var conn = new NpgsqlConnection(connectionString);
                 conn.Open();
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3D(conn, geometryTable, geometryColumn);
-
                 var translation = bbox3d.GetCenter().ToVector();
+
+                // new method...
+                var boundingAllActualNew = BoundingBoxCalculatorNew.GetBoundingAllNew(bbox3d, translation);
+                var box = boundingAllActualNew.GetBox();
+
+                var tilesNew = TileCutter.GetTilesNew(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d);
+
                 var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, translation);
+
 
                 Console.WriteLine("Writing tileset.json...");
                 WiteTilesetJson(translation, tiles, o.Output);

@@ -34,6 +34,11 @@ namespace B3dm.Tileset.Tests
             bbox3d.Equals(new BoundingBox3D(-6813.593873352278, -4566.305836349726, -6077.698247526307, 6813.593873352278, 4585.98895232752, 6077.698247525841));
             var bbox = bbox3d.ToBoundingBox();
 
+            var tilesNew = TileCutter.GetTilesNew(conn, 2000, geometryTable, geometryColumn, idcolumn, bbActual);
+            Assert.IsTrue(tilesNew.Count == 25);
+            Assert.IsTrue(tilesNew[0].Features == 31);
+            // todo: check bbox
+
             var tiles = TileCutter.GetTiles(conn, 2000, geometryTable, geometryColumn, idcolumn, actualTranslation);
             conn.Close();
             Assert.IsTrue(tiles.Count == 25);
@@ -43,6 +48,7 @@ namespace B3dm.Tileset.Tests
 
             var boundingAllActual = TreeSerializer.GetBoundingvolume(tiles);
             var boundingAllActualNew = BoundingBoxCalculatorNew.GetBoundingAllNew(bbActual, actualTranslation);
+            // question: why is there 9.842 in next statement?
             var boundingAllExpected = new double[] { 0.0, 9.842, -0.0, 6813.594, 0.0, 0.0, 0.0, 4576.147, 0.0, 0.0, 0.0, 6077.698 };
             Assert.IsTrue(boundingAllActual.box.SequenceEqual(boundingAllExpected));
 

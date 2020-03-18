@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Npgsql;
+using Wkx;
 
 namespace B3dm.Tileset
 {
@@ -16,6 +17,33 @@ namespace B3dm.Tileset
             }
 
             return zupBoxes;
+        }
+
+        public static List<Tile> GetTilesNew(NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, string idcolumn, BoundingBox3D box3d)
+        {
+            var epsg = 4978; // todo: make dynamic
+            var tiles = new List<Tile>();
+            var translation = box3d.GetCenter().ToVector();
+
+            var xrange = (int)Math.Ceiling(box3d.ExtentX() / extentTile);
+            var yrange = (int)Math.Ceiling(box3d.ExtentY() / extentTile);
+            var tileId = 1;
+            for (var x = 0; x < xrange; x++) {
+                for (var y = 0; y < yrange; y++) {
+
+                    // check if there are features in this tile...
+                    var from = new Point(box3d.XMin + extentTile*x, box3d.YMin + extentTile*y);
+                    var to = new Point(box3d.XMin + extentTile * (x+1), box3d.YMin + extentTile * (y+1));
+                    var featuresInBox = BoundingBoxRepository.GetFeaturesInBox(conn, geometryTable, geometryColumn,from, to, epsg);
+                    if(featuresInBox > 0) {
+                        var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y), featuresInBox);
+                        tiles.Add(tile);
+                        tileId++;
+                    }
+                }
+            }
+
+            return tiles;
         }
 
 

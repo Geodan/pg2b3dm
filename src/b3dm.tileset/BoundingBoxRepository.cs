@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Globalization;
-using B3dm.Tileset;
 using Npgsql;
 using Wkx;
 
@@ -11,6 +9,14 @@ namespace B3dm.Tileset
 {
     public static class BoundingBoxRepository
     {
+        public static Int64 GetFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, int epsg)
+        {
+            var sql = $"select count({geometry_column}) from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' and ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({from.X}, {from.Y}, {to.X}, {to.Y}, {epsg}))";
+            var cmd = new NpgsqlCommand(sql, conn);
+            var count = (Int64)cmd.ExecuteScalar();
+            return count;
+
+        }
         public static BoundingBox3D GetBoundingBox3D(NpgsqlConnection conn, string geometry_table, string geometry_column)
         {
             var cmd = new NpgsqlCommand($"SELECT st_xmin(geom1), st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface') as t", conn);
