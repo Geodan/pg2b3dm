@@ -34,13 +34,13 @@ namespace B3dm.Tileset
         private static string GetGeometryTable(string geometry_table, string geometry_column, string idcolumn, double[] translation, string colorColumn = "", string attributesColumn="")
         {
             var g = GetGeometryColumn(geometry_column, translation);
-            var sqlSelect = $"select {g} as geom1, {idcolumn}, ST_Area(ST_Force2D({geometry_column})) AS weight ";
+            var sqlSelect = $"select {g} as geom1, {idcolumn} ";
 
             var optionalColumns = SqlBuilder.GetOptionalColumnsSql(colorColumn, attributesColumn);
             sqlSelect += $"{optionalColumns} ";
             var sqlFrom = $"FROM {geometry_table} ";
-            var sqlWhere = $"where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' ORDER BY weight DESC";
-            return sqlSelect+ sqlFrom + sqlWhere;
+            var sqlWhere = $"where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface'";
+            return sqlSelect + sqlFrom + sqlWhere;
         }
 
         public static List<BoundingBox3D> GetAllBoundingBoxes(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation)
@@ -58,9 +58,8 @@ namespace B3dm.Tileset
                 var xmax = reader.GetDouble(4);
                 var ymax = reader.GetDouble(5);
                 var zmax = reader.GetDouble(6);
-                var bbox = new BoundingBox3D(xmin, ymin, zmin, xmax, ymax, zmax) {
-                    Id = id
-                };
+                var bbox = new BoundingBox3D(xmin,ymin,zmin,xmax,ymax,zmax);
+                bbox.Id = id;
                 bboxes.Add(bbox);
             }
             reader.Close();
