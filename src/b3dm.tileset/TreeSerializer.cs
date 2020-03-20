@@ -4,7 +4,8 @@ namespace B3dm.Tileset
 {
     public static class TreeSerializer
     {
-        public static TileSet ToTileset(List<List<Feature>> tiles, double[] transform)
+
+        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] box)
         {
             var geometricError = 500.0;
             var tileset = new TileSet {
@@ -12,38 +13,42 @@ namespace B3dm.Tileset
             };
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
             tileset.geometricError = geometricError;
-            var root = GetRoot(tiles, geometricError, t);
+            var root = GetRoot(tiles, geometricError, t, box);
             tileset.root = root;
             return tileset;
         }
 
-        private static Root GetRoot(List<List<Feature>> tiles, double geometricError, double[] t)
+        private static Root GetRoot(List<Tile> tiles, double geometricError, double[] translation, double[] box)
         {
+            var boundingVolume = new Boundingvolume {
+                box = box
+            };
+
             var root = new Root {
                 geometricError = geometricError,
                 refine = "REPLACE",
-                transform = t,
-                boundingVolume = GetBoundingvolume(tiles)
+                transform = translation,
+                boundingVolume = boundingVolume
             };
-            var children = GetChildren(tiles);
+            var children = GetChildren(tiles, translation);
             root.children = children;
             return root;
         }
 
-        private static List<Child> GetChildren(List<List<Feature>> tiles)
+        private static List<Child> GetChildren(List<Tile> tiles, double[] translation)
         {
             var counter = 0;
             var children = new List<Child>();
             foreach (var tile in tiles) {
                 counter++;
-                var child = GetChild(tile, counter, 0);
+                var child = GetChild(tile, counter, 0, translation);
                 children.Add(child);
             }
 
             return children;
         }
 
-        public static Child GetChild(List<Feature> tile, int id, double geometricError)
+        public static Child GetChild(Tile tile, int id, double geometricError, double[] translation)
         {
             var child = new Child {
                 geometricError = geometricError,
@@ -51,39 +56,9 @@ namespace B3dm.Tileset
                 content = new Content()
             };
             child.content.uri = $"tiles/{id}.b3dm";
-            child.boundingVolume = GetBoundingvolume(tile);
+            child.boundingVolume = tile.Boundingvolume;
             // child.children = GetChildren(node,geometricError);
             return child;
         }
-
-        public static Boundingvolume GetBoundingvolume(List<Feature> features)
-        {
-            var bboxes = new List<BoundingBox3D>();
-            foreach (var f in features) {
-                bboxes.Add(f.BoundingBox3D);
-            }
-            var bbox = BoundingBoxCalculator.GetBoundingBox(bboxes);
-            var boundingVolume = new Boundingvolume {
-                box = bbox.GetBox()
-            };
-            return boundingVolume;
-        }
-
-
-        public static Boundingvolume GetBoundingvolume(List<List<Feature>> tiles)
-        {
-            var bboxes = new List<BoundingBox3D>();
-            foreach(var t in tiles) {
-                foreach (var f in t) {
-                    bboxes.Add(f.BoundingBox3D);
-                }
-            }
-            var bbox = BoundingBoxCalculator.GetBoundingBox(bboxes);
-            var boundingVolume = new Boundingvolume {
-                box = bbox.GetBox()
-            };
-            return boundingVolume;
-        }
-
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using B3dm.Tile;
 using B3dm.Tileset;
@@ -60,21 +59,27 @@ namespace pg2b3dm
                 conn.Open();
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3D(conn, geometryTable, geometryColumn);
                 var translation = bbox3d.GetCenter().ToVector();
-
-                // new method...
-                var boundingAllActualNew = BoundingBoxCalculatorNew.GetBoundingAllNew(bbox3d, translation);
+                var zupBoxes = TileCutter.GetZupBoxes(conn, geometryTable, geometryColumn, idcolumn, translation);
+                var boundingAllActualNew = BoundingBoxCalculator.GetBoundingAll(bbox3d, translation);
                 var box = boundingAllActualNew.GetBox();
-
-                var tilesNew = TileCutter.GetTilesNew(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, epsg);
-
-                var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, translation);
-
-
                 Console.WriteLine("Writing tileset.json...");
-                WiteTilesetJson(translation, tiles, o.Output);
+                var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, epsg);
 
+                foreach(var t in tiles) {
+                    var tileZupBoxes = new List<BoundingBox3D>();
+                    foreach (var bb in zupBoxes) {
+                        if (t.Ids.Contains(bb.Id)) {
+                            tileZupBoxes.Add(bb);
+                        }
+                    }
+                    var bvol = GetBoundingvolume(tileZupBoxes);
+                    t.Boundingvolume = bvol;
+                }
+
+                WiteTilesetJson(translation, tiles, o.Output, box);
                 Console.WriteLine($"Writing {tiles.Count} tiles...");
                 WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles, o.Output, o.RoofColorColumn, o.AttributesColumn);
+
                 conn.Close();
                 stopWatch.Stop();
                 Console.WriteLine();
@@ -83,53 +88,62 @@ namespace pg2b3dm
             });
         }
 
-        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<List<Feature>> tiles, string outputPath, string colorColumn = "", string attributesColumn = "")
+
+        public static Boundingvolume GetBoundingvolume(List<BoundingBox3D> bbs)
         {
-            var counter=0;
+            var bbox = BoundingBoxCalculator.GetBoundingBox(bbs);
+            var boundingVolume = new Boundingvolume {
+                box = bbox.GetBox()
+            };
+            return boundingVolume;
+        }
+
+        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, string outputPath, string colorColumn = "", string attributesColumn = "")
+        {
+            var counter = 0;
             foreach (var t in tiles) {
-                if (t.Count > 0) {
-                    counter++;
-                    var perc = Math.Round(((double)counter / tiles.Count) * 100, 2);
-                    Console.Write($"\rProgress: tile {counter} - {perc:F}%");
+                counter++;
+                var perc = Math.Round(((double)counter / tiles.Count) * 100, 2);
+                Console.Write($"\rProgress: tile {counter} - {perc:F}%");
 
-                    var subset = (from f in t select (f.Id)).ToArray();
-                    var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, subset, colorColumn, attributesColumn);
+                var subset = t.Ids.ToArray();
+                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, subset, colorColumn, attributesColumn);
 
-                    var triangleCollection = GetTriangles(geometries);
+                var triangleCollection = GetTriangles(geometries);
 
-                    var bytes = GlbCreator.GetGlb(triangleCollection);
-                    var b3dm = new B3dm.Tile.B3dm(bytes);
-                    var featureTable = new FeatureTable {
-                        BATCH_LENGTH = geometries.Count
-                    };
-                    b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable);
+                var bytes = GlbCreator.GetGlb(triangleCollection);
+                var b3dm = new B3dm.Tile.B3dm(bytes);
+                var featureTable = new FeatureTable {
+                    BATCH_LENGTH = geometries.Count
+                };
+                b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable);
 
-                    if (attributesColumn != string.Empty) {
-                        var batchtable = new BatchTable();
-                        var allattributes = new List<object>();
-                        foreach (var geom in geometries) {
-                            // only take the first now....
-                            allattributes.Add(geom.Attributes[0]);
-                        }
-
-                        var item = new BatchTableItem {
-                            Name = attributesColumn,
-                            Values = allattributes.ToArray()
-                        };
-                        batchtable.BatchTableItems.Add(item);
-                        var json = JsonConvert.SerializeObject(batchtable, new BatchTableJsonConverter(typeof(BatchTable)));
-                        b3dm.BatchTableJson = json;
+                if (attributesColumn != string.Empty) {
+                    var batchtable = new BatchTable();
+                    var allattributes = new List<object>();
+                    foreach (var geom in geometries) {
+                        // only take the first now....
+                        allattributes.Add(geom.Attributes[0]);
                     }
 
-                    B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
+                    var item = new BatchTableItem {
+                        Name = attributesColumn,
+                        Values = allattributes.ToArray()
+                    };
+                    batchtable.BatchTableItems.Add(item);
+                    var json = JsonConvert.SerializeObject(batchtable, new BatchTableJsonConverter(typeof(BatchTable)));
+                    b3dm.BatchTableJson = json;
                 }
+
+                B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
 
             }
         }
 
-        private static void WiteTilesetJson(double[] translation, List<List<Feature>> tiles, string outputPath)
+
+        private static void WiteTilesetJson(double[] translation, List<Tile> tiles, string outputPath, double[] box)
         {
-            var tileset = TreeSerializer.ToTileset(tiles, translation);
+            var tileset = TreeSerializer.ToTileset(tiles, translation, box);
             var s = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
             File.WriteAllText($"{outputPath}/tileset.json", s);
         }

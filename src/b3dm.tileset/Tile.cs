@@ -9,7 +9,7 @@ namespace B3dm.Tileset
         private int id;
         private BoundingBox bb;
         private List<string> ids;
-        
+
         public Tile(int id, BoundingBox bb, List<string> ids)
         {
             this.id = id;
@@ -28,5 +28,7 @@ namespace B3dm.Tileset
         public List<string> Ids {
             get { return ids; }
         }
+
+        public Boundingvolume Boundingvolume {get;set;}
     }
 }
