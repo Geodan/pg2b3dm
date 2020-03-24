@@ -59,20 +59,13 @@ namespace pg2b3dm
                 conn.Open();
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3D(conn, geometryTable, geometryColumn);
                 var translation = bbox3d.GetCenter().ToVector();
-                var zupBoxes = TileCutter.GetZupBoxes(conn, geometryTable, geometryColumn, idcolumn, translation);
                 var boundingAllActualNew = BoundingBoxCalculator.GetBoundingAll(bbox3d, translation);
                 var box = boundingAllActualNew.GetBox();
                 Console.WriteLine("Writing tileset.json...");
                 var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, epsg);
 
                 foreach(var t in tiles) {
-                    var tileZupBoxes = new List<BoundingBox3D>();
-                    foreach (var bb in zupBoxes) {
-                        if (t.Ids.Contains(bb.Id)) {
-                            tileZupBoxes.Add(bb);
-                        }
-                    }
-                    var bvol = GetBoundingvolume(tileZupBoxes);
+                    var bvol = TileCutter.GetTileBoundingBoxNew(conn, geometryTable, geometryColumn, idcolumn, translation, t.Ids.ToArray());
                     t.Boundingvolume = bvol;
                 }
 
@@ -111,35 +104,41 @@ namespace pg2b3dm
 
                 var triangleCollection = GetTriangles(geometries);
 
-                var bytes = GlbCreator.GetGlb(triangleCollection);
-                var b3dm = new B3dm.Tile.B3dm(bytes);
-                var featureTable = new FeatureTable {
-                    BATCH_LENGTH = geometries.Count
-                };
-                b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable);
-
-                if (attributesColumn != string.Empty) {
-                    var batchtable = new BatchTable();
-                    var allattributes = new List<object>();
-                    foreach (var geom in geometries) {
-                        // only take the first now....
-                        allattributes.Add(geom.Attributes[0]);
-                    }
-
-                    var item = new BatchTableItem {
-                        Name = attributesColumn,
-                        Values = allattributes.ToArray()
-                    };
-                    batchtable.BatchTableItems.Add(item);
-                    var json = JsonConvert.SerializeObject(batchtable, new BatchTableJsonConverter(typeof(BatchTable)));
-                    b3dm.BatchTableJson = json;
-                }
+                B3dm.Tile.B3dm b3dm = GetB3dm(attributesColumn, geometries, triangleCollection);
 
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
 
             }
         }
 
+        private static B3dm.Tile.B3dm GetB3dm(string attributesColumn, List<GeometryRecord> geometries, TriangleCollection triangleCollection)
+        {
+            var bytes = GlbCreator.GetGlb(triangleCollection);
+            var b3dm = new B3dm.Tile.B3dm(bytes);
+            var featureTable = new FeatureTable {
+                BATCH_LENGTH = geometries.Count
+            };
+            b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable);
+
+            if (attributesColumn != string.Empty) {
+                var batchtable = new BatchTable();
+                var allattributes = new List<object>();
+                foreach (var geom in geometries) {
+                    // only take the first now....
+                    allattributes.Add(geom.Attributes[0]);
+                }
+
+                var item = new BatchTableItem {
+                    Name = attributesColumn,
+                    Values = allattributes.ToArray()
+                };
+                batchtable.BatchTableItems.Add(item);
+                var json = JsonConvert.SerializeObject(batchtable, new BatchTableJsonConverter(typeof(BatchTable)));
+                b3dm.BatchTableJson = json;
+            }
+
+            return b3dm;
+        }
 
         private static void WiteTilesetJson(double[] translation, List<Tile> tiles, string outputPath, double[] box)
         {

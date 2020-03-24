@@ -34,7 +34,7 @@
         url : './test/tileset.json'
     }));
 
-    // viewer.scene.globe.depthTestAgainstTerrain = true;
+    viewer.scene.globe.depthTestAgainstTerrain = true;
     viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, 0));
     viewer.scene.primitives.add(tileset);
     var handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
