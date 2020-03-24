@@ -19,7 +19,6 @@ namespace pg2b3dm
 
         static void Main(string[] args)
         {
-            var epsg = 4978; // todo: make dynamic
             var version = Assembly.GetEntryAssembly().GetName().Version;
             Console.WriteLine($"tool: pg2b3dm {version}");
 
@@ -54,21 +53,32 @@ namespace pg2b3dm
                 var geometryTable = o.GeometryTable;
                 var geometryColumn = o.GeometryColumn;
                 var idcolumn = o.IdColumn;
-                Console.WriteLine("Calculating bounding boxes...");
+                Console.WriteLine("Calculating dataset translation...");
                 var conn = new NpgsqlConnection(connectionString);
                 conn.Open();
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3D(conn, geometryTable, geometryColumn);
                 var translation = bbox3d.GetCenter().ToVector();
                 var boundingAllActualNew = BoundingBoxCalculator.GetBoundingAll(bbox3d, translation);
                 var box = boundingAllActualNew.GetBox();
-                Console.WriteLine("Writing tileset.json...");
-                var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, epsg);
+                Console.WriteLine("Calculating features per tile...");
+                var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
 
-                foreach(var t in tiles) {
+                var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, sr);
+
+                Console.WriteLine("Calculating boundingbox per tile...");
+                var counter = 0;
+
+                foreach (var t in tiles) {
+                    counter++;
+
+                    var perc = Math.Round(((double)counter / tiles.Count) * 100, 2);
+                    Console.Write($"\rProgress: tile {counter} - {perc:F}%");
+
                     var bvol = TileCutter.GetTileBoundingBoxNew(conn, geometryTable, geometryColumn, idcolumn, translation, t.Ids.ToArray());
                     t.Boundingvolume = bvol;
                 }
-
+                 Console.WriteLine();
+                Console.WriteLine("Writing tileset.json...");
                 WiteTilesetJson(translation, tiles, o.Output, box);
                 Console.WriteLine($"Writing {tiles.Count} tiles...");
                 WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles, o.Output, o.RoofColorColumn, o.AttributesColumn);
