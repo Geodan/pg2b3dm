@@ -25,6 +25,10 @@ Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdire
 
 ## Live Sample viewers
 
+- Texel - Terrain, subsurface in MapBox GL JS: http://beta.geodan.nl/mapbox3d
+
+![texel](https://user-images.githubusercontent.com/538812/77527675-dec2b300-6e8c-11ea-98bf-cc6dc3e5fb34.png)
+
 - GeoTop Subsurface in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/index_geotop.html
 
 - Amsterdam Buildings in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/amsterdam/mapbox/
