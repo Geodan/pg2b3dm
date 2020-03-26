@@ -36,19 +36,22 @@ namespace pg2b3dm
                     Console.WriteLine();
                 }
 
+
                 Console.WriteLine($"Start processing....");
 
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
 
                 var output = o.Output;
-                var outputTiles = output + "/tiles";
+                var outputTiles = $"{output}{Path.DirectorySeparatorChar}tiles";
                 if (!Directory.Exists(output)) {
                     Directory.CreateDirectory(output);
                 }
                 if (!Directory.Exists(outputTiles)) {
                     Directory.CreateDirectory(outputTiles);
                 }
+
+                Console.WriteLine($"Output directory:  {outputTiles}");
 
                 var geometryTable = o.GeometryTable;
                 var geometryColumn = o.GeometryColumn;
@@ -64,7 +67,7 @@ namespace pg2b3dm
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
 
                 var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, sr);
-
+                Console.WriteLine($"Number of non-empty tiles: {tiles.Count} ");
                 Console.WriteLine("Calculating boundingbox per tile...");
                 var counter = 0;
 
@@ -114,9 +117,16 @@ namespace pg2b3dm
 
                 var triangleCollection = GetTriangles(geometries);
 
-                B3dm.Tile.B3dm b3dm = GetB3dm(attributesColumn, geometries, triangleCollection);
+                var b3dm = GetB3dm(attributesColumn, geometries, triangleCollection);
 
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
+
+                foreach (var triangle in triangleCollection) {
+                    triangle.Color = "#0000FF";
+                }
+                var b3dm1 = GetB3dm(attributesColumn, geometries, triangleCollection);
+
+                B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}_1.b3dm", b3dm1);
 
             }
         }
