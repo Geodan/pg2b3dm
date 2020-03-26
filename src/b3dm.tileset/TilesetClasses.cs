@@ -11,7 +11,7 @@ namespace B3dm.Tileset
         public Asset asset { get; set; }
     }
 
-    public class Child
+    public class Child : ICloneable
     {
         public List<Child> children { get; set; }
         public double[] transform { get; set; }
@@ -19,6 +19,12 @@ namespace B3dm.Tileset
         public string refine { get; set; }
         public Boundingvolume boundingVolume { get; set; }
         public Content content { get; set; }
+        public object Clone()
+        {
+            var c = (Child)MemberwiseClone();
+            c.content = (Content)content.Clone();
+            return c;
+        }
 
     }
 
@@ -39,9 +45,15 @@ namespace B3dm.Tileset
         }
     }
 
-    public class Content
+    public class Content: ICloneable
     {
         public string uri { get; set; }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
+
     }
 
     public class Asset

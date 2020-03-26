@@ -163,6 +163,15 @@ namespace pg2b3dm
         private static void WiteTilesetJson(double[] translation, List<Tile> tiles, string outputPath, double[] box)
         {
             var tileset = TreeSerializer.ToTileset(tiles, translation, box);
+            var i = 1;
+            foreach(var c in tileset.root.children) {
+                c.geometricError = 250;
+                var clone = (Child)c.Clone();
+                clone.geometricError = 0;
+                clone.content.uri = $"tiles/{i}_1.b3dm";
+                c.children = new List<Child> { clone };
+                i++;
+            }
             var s = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
             File.WriteAllText($"{outputPath}/tileset.json", s);
         }
