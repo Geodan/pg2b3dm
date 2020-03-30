@@ -108,6 +108,8 @@ Id column rules:
 
 See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and visualize buildings in MapBox GL JS or Cesium.
 
+For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing_citygml](dataprocessing_citygml.md).
+
 ## Run from Docker
 
 Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
