@@ -34,11 +34,10 @@ todo
 psql> SELECT * FROM duisburg.lod2 WHERE (ST_Npoints(wkb_geometry)::float/ST_NumGeometries(wkb_geometry)::float) = 4
 ```
 
-### Create PolyHedralZ with ogr2og3
+### Create PolyHedralZ with ogr2ogr
 
 ```
-$ ogr2ogr
-ogr2ogr -f "PostgreSQL" "PG:host=leda user=brianv dbname=research" $f -append -nln duisburg.lod2 -dim 3 -nlt POLYHEDRALSURFACEZ
+$ ogr2ogr -f "PostgreSQL" "PG:host=leda user=brianv dbname=research" $f -append -nln duisburg.lod2 -dim 3 -nlt POLYHEDRALSURFACEZ
 ```
 
 
