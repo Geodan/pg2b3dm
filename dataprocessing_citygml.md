@@ -7,7 +7,7 @@ Sample input files: https://www.opengeodata.nrw.de/produkte/geobasis/3dg/lod2_gm
 
 ### FME
 ![FME_CityGML_Shp](https://user-images.githubusercontent.com/9533288/77912263-83c8fb80-7292-11ea-8b20-31b775ccc545.PNG)
-In FME the *CityGML* file is imported and the bulidings are exported as triangulated *shapefiles* using the following steps:
+In FME the *CityGML* file is imported and the buildings are exported as triangulated *shapefiles* using the following steps:
 
 1. *Import CityGML* open the file using the CityGML reader and select the parts from the CityGML you want to use.
 2.  *Select the Solids* using the GeometryFilter. 
