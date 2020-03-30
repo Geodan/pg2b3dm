@@ -33,4 +33,6 @@ $ ogr2ogr -f "PostgreSQL" "PG:host=leda user=brianv dbname=research" $f -append 
 
 Now it's possible to run pg2b3dm on duisburg.lod2 column.
 
+Result looks like: todo
+
 
