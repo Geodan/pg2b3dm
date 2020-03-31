@@ -30,5 +30,9 @@ namespace B3dm.Tileset
         }
 
         public Boundingvolume Boundingvolume {get;set;}
+
+        public int Lod { get; set; }
+
+        public Tile Child { get; set; }
     }
 }

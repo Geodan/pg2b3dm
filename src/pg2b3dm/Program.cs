@@ -56,9 +56,14 @@ namespace pg2b3dm
                 var geometryTable = o.GeometryTable;
                 var geometryColumn = o.GeometryColumn;
                 var idcolumn = o.IdColumn;
+                var lodcolumn = o.LodColumn;
+
                 Console.WriteLine("Calculating dataset translation...");
                 var conn = new NpgsqlConnection(connectionString);
                 conn.Open();
+
+                var lods = (lodcolumn != string.Empty ? GetLods(conn, geometryTable, lodcolumn) : new List<int> { 0 });
+
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3D(conn, geometryTable, geometryColumn);
                 var translation = bbox3d.GetCenter().ToVector();
                 var boundingAllActualNew = BoundingBoxCalculator.GetBoundingAll(bbox3d, translation);
@@ -66,7 +71,7 @@ namespace pg2b3dm
                 Console.WriteLine("Calculating features per tile...");
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
 
-                var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, sr);
+                var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, sr, lods, lodcolumn);
                 Console.WriteLine($"Number of non-empty tiles: {tiles.Count} ");
                 Console.WriteLine("Calculating boundingbox per tile...");
                 var counter = 0;
@@ -93,6 +98,23 @@ namespace pg2b3dm
                 Console.WriteLine("Program finished.");
             });
         }
+
+        private static List<int> GetLods(NpgsqlConnection conn, string geometryTable, string lodcolumn)
+        {
+            var res = new List<int>();
+            var sql = $"select distinct({lodcolumn}) from {geometryTable}";
+
+            var cmd = new NpgsqlCommand(sql, conn);
+            var reader = cmd.ExecuteReader();
+            while (reader.Read()) {
+                var id = reader.GetInt32(0);
+                res.Add(id);
+            }
+
+            reader.Close();
+            return res;
+        }
+
 
 
         public static Boundingvolume GetBoundingvolume(List<BoundingBox3D> bbs)

@@ -28,6 +28,9 @@ namespace pg2b3dm
 
         [Option('e', "extenttile", Required = false, Default = 2000.0, HelpText = "Maximum extent per tile")]
         public double ExtentTile{ get; set; }
+        [Option('l', "lodcolumn", Required = false, Default = "", HelpText = "LOD column")]
+        public string LodColumn { get; set; }
+
 
 
 

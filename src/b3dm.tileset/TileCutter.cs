@@ -31,7 +31,7 @@ namespace B3dm.Tileset
             return boundingVolume;
         }
 
-        public static List<Tile> GetTiles(NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, string idcolumn, BoundingBox3D box3d ,int epsg)
+        public static List<Tile> GetTiles(NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, string idcolumn, BoundingBox3D box3d ,int epsg, List<int> lods, string lodcolumn = "")
         {
             var tiles = new List<Tile>();
 
@@ -40,16 +40,31 @@ namespace B3dm.Tileset
             var tileId = 1;
             for (var x = 0; x < xrange; x++) {
                 for (var y = 0; y < yrange; y++) {
+                    Tile parent = null;
+                    foreach(var lod in lods) {
 
-                    // check if there are features in this tile...
-                    var from = new Point(box3d.XMin + extentTile*x, box3d.YMin + extentTile*y);
-                    var to = new Point(box3d.XMin + extentTile * (x+1), box3d.YMin + extentTile * (y+1));
-                    var ids = BoundingBoxRepository.GetFeaturesInBox(conn, geometryTable, geometryColumn,idcolumn, from, to, epsg);
-                    if(ids.Count > 0) {
-                        var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y), ids);
-                        tiles.Add(tile);
-                        tileId++;
+                        var lodQuery = "";
+                        if (lodcolumn != String.Empty) {
+                            lodQuery = $"and {lodcolumn}={lod}";
+                        }
+
+                        var from = new Point(box3d.XMin + extentTile * x, box3d.YMin + extentTile * y);
+                        var to = new Point(box3d.XMin + extentTile * (x + 1), box3d.YMin + extentTile * (y + 1));
+                        var ids = BoundingBoxRepository.GetFeaturesInBox(conn, geometryTable, geometryColumn, idcolumn, from, to, epsg, lodQuery);
+                        if (ids.Count > 0) {
+                            var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y), ids);
+                            tile.Lod = lod;
+                            if (parent != null) {
+                                parent.Child = tile;
+                            }
+                            else {
+                                tiles.Add(tile);
+                            }
+                            parent = tile;
+                            tileId++;
+                        }
                     }
+                    parent = null;
                 }
             }
 
