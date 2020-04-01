@@ -51,6 +51,7 @@ namespace pg2b3dm
                     Directory.CreateDirectory(outputTiles);
                 }
 
+                Console.WriteLine($"Input table:  {o.GeometryTable}");
                 Console.WriteLine($"Output directory:  {outputTiles}");
 
                 var geometryTable = o.GeometryTable;
@@ -58,34 +59,30 @@ namespace pg2b3dm
                 var idcolumn = o.IdColumn;
                 var lodcolumn = o.LodColumn;
 
-                Console.WriteLine("Calculating dataset translation...");
                 var conn = new NpgsqlConnection(connectionString);
                 conn.Open();
 
                 var lods = (lodcolumn != string.Empty ? GetLods(conn, geometryTable, lodcolumn) : new List<int> { 0 });
 
+                if (lodcolumn != String.Empty){
+                    Console.WriteLine($"Detected {lods.Count} lod levels: [{String.Join(',', lods)}]");
+                };
+
+                Console.WriteLine($"Calculating dataset translation for {geometryTable}...");
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3D(conn, geometryTable, geometryColumn);
                 var translation = bbox3d.GetCenter().ToVector();
+                Console.WriteLine($"Translation: [{String.Join(',', translation) }]");
                 var boundingAllActualNew = BoundingBoxCalculator.GetBoundingAll(bbox3d, translation);
                 var box = boundingAllActualNew.GetBox();
-                Console.WriteLine("Calculating features per tile...");
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
-
+                Console.WriteLine($"Spatial reference: {sr}");
+                Console.WriteLine("Calculating features per tile...");
                 var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, sr, lods, lodcolumn);
-                Console.WriteLine($"Number of non-empty tiles: {tiles.Count} ");
+                var nrOfTiles = RecursiveTileCounter.CountTiles(tiles, 0);
+                Console.WriteLine($"Number of tiles: {nrOfTiles} ");
                 Console.WriteLine("Calculating boundingbox per tile...");
-                var counter = 0;
-
-                foreach (var t in tiles) {
-                    counter++;
-
-                    var perc = Math.Round(((double)counter / tiles.Count) * 100, 2);
-                    Console.Write($"\rProgress: tile {counter} - {perc:F}%");
-
-                    var bvol = TileCutter.GetTileBoundingBoxNew(conn, geometryTable, geometryColumn, idcolumn, translation, t.Ids.ToArray());
-                    t.Boundingvolume = bvol;
-                }
-                 Console.WriteLine();
+                CalculateBoundingBoxes(geometryTable, geometryColumn, idcolumn, conn, translation, tiles, 0, nrOfTiles);
+                Console.WriteLine();
                 Console.WriteLine("Writing tileset.json...");
                 WiteTilesetJson(translation, tiles, o.Output, box);
                 Console.WriteLine($"Writing {tiles.Count} tiles...");
@@ -97,6 +94,25 @@ namespace pg2b3dm
                 Console.WriteLine($"Elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");
                 Console.WriteLine("Program finished.");
             });
+        }
+
+        private static int CalculateBoundingBoxes(string geometryTable, string geometryColumn, string idcolumn, NpgsqlConnection conn, double[] translation, List<Tile> tiles, int counter, int totalcount)
+        {
+            foreach (var t in tiles) {
+                counter++;
+
+                var perc = Math.Round(((double)counter / totalcount) * 100, 2);
+                Console.Write($"\rProgress: tile {counter} - {perc:F}%");
+
+                var bvol = TileCutter.GetTileBoundingBoxNew(conn, geometryTable, geometryColumn, idcolumn, translation, t.Ids.ToArray());
+
+                if (t.Child != null) {
+
+                    counter= CalculateBoundingBoxes(geometryTable, geometryColumn, idcolumn, conn, translation, new List<Tile> { t.Child }, counter, totalcount);
+                }
+                t.Boundingvolume = bvol;
+            }
+            return counter;
         }
 
         private static List<int> GetLods(NpgsqlConnection conn, string geometryTable, string lodcolumn)
@@ -143,9 +159,6 @@ namespace pg2b3dm
 
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
 
-                foreach (var triangle in triangleCollection) {
-                    triangle.Color = "#0000FF";
-                }
                 var b3dm1 = GetB3dm(attributesColumn, geometries, triangleCollection);
 
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}_1.b3dm", b3dm1);
