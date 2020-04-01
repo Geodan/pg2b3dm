@@ -120,7 +120,7 @@ namespace pg2b3dm
         private static List<int> GetLods(NpgsqlConnection conn, string geometryTable, string lodcolumn)
         {
             var res = new List<int>();
-            var sql = $"select distinct({lodcolumn}) from {geometryTable}";
+            var sql = $"select distinct({lodcolumn}) from {geometryTable} order by {lodcolumn}";
 
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
