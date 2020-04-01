@@ -30,7 +30,7 @@ namespace Wkb2Gltf
             }
             var scene = new SceneBuilder();
             scene.AddRigidMesh(mesh, Matrix4x4.Identity);
-            var model = scene.ToSchema2();
+            var model = scene.ToGltf2();
             var bytes = model.WriteGLB().Array;
 
             return bytes;
