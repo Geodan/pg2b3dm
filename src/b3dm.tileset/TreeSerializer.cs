@@ -5,9 +5,9 @@ namespace B3dm.Tileset
     public static class TreeSerializer
     {
 
-        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] box)
+        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError)
         {
-            var geometricError = 500.0;
+            var geometricError = maxGeometricError;
             var tileset = new TileSet {
                 asset = new Asset() { version = "1.0", generator = "pg2b3dm" }
             };
@@ -37,27 +37,27 @@ namespace B3dm.Tileset
 
         private static List<Child> GetChildren(List<Tile> tiles, double[] translation)
         {
-            var counter = 0;
             var children = new List<Child>();
             foreach (var tile in tiles) {
-                counter++;
-                var child = GetChild(tile, counter, 0, translation);
+                var child = GetChild(tile, translation);
+
+                if (tile.Child != null) {
+                    child.children = GetChildren(new List<Tile> { tile.Child }, translation);
+                }
                 children.Add(child);
             }
 
             return children;
         }
 
-        public static Child GetChild(Tile tile, int id, double geometricError, double[] translation)
+        public static Child GetChild(Tile tile, double[] translation)
         {
             var child = new Child {
-                geometricError = geometricError,
-                // child.refine = "REPLACE";
+                geometricError = tile.GeometricError,
                 content = new Content()
             };
-            child.content.uri = $"tiles/{id}.b3dm";
+            child.content.uri = $"tiles/{tile.Id}.b3dm";
             child.boundingVolume = tile.Boundingvolume;
-            // child.children = GetChildren(node,geometricError);
             return child;
         }
     }

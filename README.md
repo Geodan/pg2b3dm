@@ -65,6 +65,8 @@ If --username and/or --dbname are not specified the current username is used as 
   -f, --featurespertile  (Default: 50) Maximum features per tile
 
   -e, --extenttile       (Default: 2000) Maximum extent per tile
+
+  -g, --geometricerror   (Default: 500) Maximum geometric error
   
   --help                Display this help screen.
 

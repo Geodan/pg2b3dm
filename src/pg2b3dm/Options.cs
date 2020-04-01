@@ -31,6 +31,10 @@ namespace pg2b3dm
         [Option('l', "lodcolumn", Required = false, Default = "", HelpText = "LOD column")]
         public string LodColumn { get; set; }
 
+        [Option('g', "geometricerror", Required = false, Default = 500, HelpText = "Maximum geometric error")]
+        public int GeometricError { get; set; }
+
+
 
 
 

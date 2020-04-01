@@ -31,7 +31,7 @@ namespace B3dm.Tileset
             return boundingVolume;
         }
 
-        public static List<Tile> GetTiles(NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, string idcolumn, BoundingBox3D box3d ,int epsg, List<int> lods, string lodcolumn = "")
+        public static List<Tile> GetTiles(NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, string idcolumn, BoundingBox3D box3d ,int epsg, List<int> lods, double[] geometricErrors, string lodcolumn = "")
         {
             var tiles = new List<Tile>();
 
@@ -54,6 +54,7 @@ namespace B3dm.Tileset
                         if (ids.Count > 0) {
                             var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y), ids);
                             tile.Lod = lod;
+                            tile.GeometricError = geometricErrors[lod];
                             if (parent != null) {
                                 parent.Child = tile;
                             }
