@@ -112,6 +112,8 @@ Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
+- 0.9.0
+
 - 0.5, 0.6, 0.7, 0.8 release
 
 - latest: latest release

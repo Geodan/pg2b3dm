@@ -115,7 +115,7 @@ namespace Wkb2Gltf.Tests
             DrawTriangle(triangle2, materialGreen, mesh);
             var scene = new SceneBuilder();
             scene.AddRigidMesh(mesh, Matrix4x4.Identity);
-            var model = scene.ToSchema2();
+            var model = scene.ToGltf2();
         }
 
         private static void DrawTriangle(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal> mesh)

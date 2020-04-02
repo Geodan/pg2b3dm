@@ -153,7 +153,7 @@ Run pg2b3dm, the program will make a connection to the database and 1 tileset.js
 
 ```
 λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id -r colors
-tool: pg2b3dm 0.8.0.0
+tool: pg2b3dm 0.9.0.0
 Password for user postgres:
 Start processing....
 Calculating bounding boxes...
