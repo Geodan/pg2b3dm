@@ -45,13 +45,10 @@ namespace B3dm.Tileset
             return $"ST_RotateX(ST_Translate({ geometry_column}, { translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{ translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , { translation[2].ToString(CultureInfo.InvariantCulture)}*-1), -pi() / 2)";
         }
         
-        private static string GetGeometryTable(string geometry_table, string geometry_column, string idcolumn, double[] translation, string ids1, string colorColumn = "", string attributesColumn = "")
+        private static string GetGeometryTable(string geometry_table, string geometry_column, string idcolumn, double[] translation, string ids1)
         {
             var g = GetGeometryColumn(geometry_column, translation);
             var sqlSelect = $"select {g} as geom1, {idcolumn} ";
-
-            var optionalColumns = SqlBuilder.GetOptionalColumnsSql(colorColumn, attributesColumn);
-            sqlSelect += $"{optionalColumns} ";
             var sqlFrom = $"FROM {geometry_table} ";
             var sqlWhere = $"where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' and {idcolumn} in ({ids1})";
             return sqlSelect + sqlFrom + sqlWhere;

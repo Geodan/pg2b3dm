@@ -73,7 +73,7 @@ namespace pg2b3dm
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3D(conn, geometryTable, geometryColumn);
                 var translation = bbox3d.GetCenter().ToVector();
                 Console.WriteLine($"Translation: [{string.Join(',', translation) }]");
-                var boundingAllActualNew = BoundingBoxCalculator.RotateAndTranslate(bbox3d, translation);
+                var boundingAllActualNew = BoundingBoxCalculator.RotateTranslateTransform(bbox3d, translation);
                 var box = boundingAllActualNew.GetBox();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
@@ -112,7 +112,7 @@ namespace pg2b3dm
 
                     counter= CalculateBoundingBoxes(geometryTable, geometryColumn, idcolumn, conn, translation, new List<Tile> { t.Child }, counter, totalcount);
                 }
-                t.Boundingvolume = bvol;
+                t.Boundingvolume = TileCutter.GetBoundingvolume(bvol);
             }
             return counter;
         }

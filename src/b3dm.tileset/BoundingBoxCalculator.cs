@@ -6,7 +6,7 @@ namespace B3dm.Tileset
 {
     public class BoundingBoxCalculator
     {
-        public static BoundingBox3D RotateAndTranslate(BoundingBox3D bb, double[] translation)
+        public static BoundingBox3D RotateTranslateTransform(BoundingBox3D bb, double[] translation)
         {
             var from = RotateXAndTranslate(bb.FromPoint(), translation);
             var to = RotateXAndTranslate(bb.ToPoint(), translation);

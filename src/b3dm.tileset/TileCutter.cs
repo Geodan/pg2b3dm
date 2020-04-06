@@ -8,7 +8,7 @@ namespace B3dm.Tileset
     public static class TileCutter
     {
 
-        public static Boundingvolume GetTileBoundingBoxNew(NpgsqlConnection conn, string GeometryTable, string GeometryColumn, string idcolumn, double[] translation, string[] ids)
+        public static BoundingBox3D GetTileBoundingBoxNew(NpgsqlConnection conn, string GeometryTable, string GeometryColumn, string idcolumn, double[] translation, string[] ids)
         {
             var bboxes = BoundingBoxRepository.GetAllBoundingBoxesForTile(conn, GeometryTable, GeometryColumn, idcolumn, translation, ids);
             var zupBoxes = new List<BoundingBox3D>();
@@ -17,16 +17,14 @@ namespace B3dm.Tileset
                 zupBoxes.Add(zupBox);
             }
 
-            var bvol = GetBoundingvolume(zupBoxes);
-            return bvol;
-
+            var boundingBox3D = BoundingBoxCalculator.GetBoundingBox(zupBoxes);
+            return boundingBox3D;
         }
 
-        public static Boundingvolume GetBoundingvolume(List<BoundingBox3D> bbs)
+        public static Boundingvolume GetBoundingvolume(BoundingBox3D bbox3d)
         {
-            var bbox = BoundingBoxCalculator.GetBoundingBox(bbs);
             var boundingVolume = new Boundingvolume {
-                box = bbox.GetBox()
+                box = bbox3d.GetBox()
             };
             return boundingVolume;
         }
