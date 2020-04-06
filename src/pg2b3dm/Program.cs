@@ -70,7 +70,7 @@ namespace pg2b3dm
                 };
 
                 Console.WriteLine($"Calculating dataset translation for {geometryTable}...");
-                var bbox3d = BoundingBoxRepository.GetBoundingBox3D(conn, geometryTable, geometryColumn);
+                var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn);
                 var translation = bbox3d.GetCenter().ToVector();
                 Console.WriteLine($"Translation: [{string.Join(',', translation) }]");
                 var boundingAllActualNew = BoundingBoxCalculator.RotateTranslateTransform(bbox3d, translation);
@@ -106,13 +106,15 @@ namespace pg2b3dm
                 var perc = Math.Round(((double)counter / totalcount) * 100, 2);
                 Console.Write($"\rProgress: tile {counter} - {perc:F}%");
 
-                var bvol = TileCutter.GetTileBoundingBoxNew(conn, geometryTable, geometryColumn, idcolumn, translation, t.Ids.ToArray());
+                // var bvol = TileCutter.GetTileBoundingBoxNew(conn, geometryTable, geometryColumn, idcolumn, translation, t.Ids.ToArray());
+                var bvol = BoundingBoxRepository.Get3DExtent(conn, geometryTable, geometryColumn, idcolumn, t.Ids.ToArray());
+                var bvolRotated = BoundingBoxCalculator.RotateTranslateTransform(bvol, translation);
 
                 if (t.Child != null) {
 
                     counter= CalculateBoundingBoxes(geometryTable, geometryColumn, idcolumn, conn, translation, new List<Tile> { t.Child }, counter, totalcount);
                 }
-                t.Boundingvolume = TileCutter.GetBoundingvolume(bvol);
+                t.Boundingvolume = TileCutter.GetBoundingvolume(bvolRotated);
             }
             return counter;
         }
@@ -133,16 +135,6 @@ namespace pg2b3dm
             return res;
         }
 
-
-
-        public static Boundingvolume GetBoundingvolume(List<BoundingBox3D> bbs)
-        {
-            var bbox = BoundingBoxCalculator.GetBoundingBox(bbs);
-            var boundingVolume = new Boundingvolume {
-                box = bbox.GetBox()
-            };
-            return boundingVolume;
-        }
 
         private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumn = "")
         {

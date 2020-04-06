@@ -24,7 +24,7 @@ namespace B3dm.Tileset
             return res;
         }
 
-        public static BoundingBox3D GetBoundingBox3D(NpgsqlConnection conn, string geometry_table, string geometry_column)
+        public static BoundingBox3D GetBoundingBox3DForTable(NpgsqlConnection conn, string geometry_table, string geometry_column)
         {
             var sql = $"SELECT st_xmin(geom1), st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface') as t";
             var cmd = new NpgsqlCommand(sql, conn);
@@ -45,17 +45,7 @@ namespace B3dm.Tileset
             return $"ST_RotateX(ST_Translate({ geometry_column}, { translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{ translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , { translation[2].ToString(CultureInfo.InvariantCulture)}*-1), -pi() / 2)";
         }
         
-        private static string GetGeometryTable(string geometry_table, string geometry_column, string idcolumn, double[] translation, string ids1)
-        {
-            var g = GetGeometryColumn(geometry_column, translation);
-            var sqlSelect = $"select {g} as geom1, {idcolumn} ";
-            var sqlFrom = $"FROM {geometry_table} ";
-            var sqlWhere = $"where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' and {idcolumn} in ({ids1})";
-            return sqlSelect + sqlFrom + sqlWhere;
-        }
-
-
-        public static List<BoundingBox3D> GetAllBoundingBoxesForTile(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, string[] ids)
+        public static BoundingBox3D Get3DExtent(NpgsqlConnection conn, string GeometryTable, string geometryColumn, string idcolumn, string[] ids)
         {
             var res = new List<string>();
             foreach (var id in ids) {
@@ -64,25 +54,19 @@ namespace B3dm.Tileset
 
             var ids1 = string.Join(",", res);
 
-            var geometryTable = GetGeometryTable(geometry_table, geometry_column, idcolumn, translation, ids1);
-            var sql = $"SELECT {idcolumn}, ST_XMIN(geom1),ST_YMIN(geom1),ST_ZMIN(geom1), ST_XMAX(geom1),ST_YMAX(geom1),ST_ZMAX(geom1) FROM ({geometryTable}) as t";
+            var sql = $"select st_xmin(t.geom), st_ymin(t.geom), st_zmin(t.geom), st_xmax(t.geom), st_ymax(t.geom), st_zmax(t.geom) from (select st_3dextent({geometryColumn}) as geom from {GeometryTable} where {idcolumn} in ({ids1})) as t";
             var cmd = new NpgsqlCommand(sql, conn);
-            var bboxes = new List<BoundingBox3D>();
             var reader = cmd.ExecuteReader();
-            while (reader.Read()) {
-                var id = reader.GetString(0);
-                var xmin = reader.GetDouble(1);
-                var ymin = reader.GetDouble(2);
-                var zmin = reader.GetDouble(3);
-                var xmax = reader.GetDouble(4);
-                var ymax = reader.GetDouble(5);
-                var zmax = reader.GetDouble(6);
-                var bbox = new BoundingBox3D(xmin, ymin, zmin, xmax, ymax, zmax);
-                bbox.Id = id;
-                bboxes.Add(bbox);
-            }
+            reader.Read();
+            var xmin = reader.GetDouble(0);
+            var ymin = reader.GetDouble(1);
+            var zmin = reader.GetDouble(2);
+            var xmax = reader.GetDouble(3);
+            var ymax = reader.GetDouble(4);
+            var zmax = reader.GetDouble(5);
+            var bbox3d = new BoundingBox3D(xmin, ymin, zmin, xmax, ymax, zmax);
             reader.Close();
-            return bboxes;
+            return bbox3d;
         }
 
         public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, string[] ids, string colorColumn = "", string attributesColumn = "")
