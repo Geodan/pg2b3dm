@@ -82,8 +82,7 @@ namespace pg2b3dm
                 var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, sr, lods, geometricErrors, lodcolumn);
                 var nrOfTiles = RecursiveTileCounter.CountTiles(tiles, 0);
                 Console.WriteLine($"Number of tiles: {nrOfTiles} ");
-                Console.WriteLine("Calculating boundingbox per tile...");
-                CalculateBoundingBoxes(geometryTable, geometryColumn, idcolumn, conn, translation, tiles, 0, nrOfTiles);
+                CalculateBoundingBoxes(translation, tiles, 0, nrOfTiles, boundingAllActualNew.ZMin, boundingAllActualNew.ZMax);
                 Console.WriteLine();
                 Console.WriteLine("Writing tileset.json...");
                 WiteTilesetJson(translation, tiles, o.Output, box, maxGeometricError);
@@ -98,7 +97,9 @@ namespace pg2b3dm
             });
         }
 
-        private static int CalculateBoundingBoxes(string geometryTable, string geometryColumn, string idcolumn, NpgsqlConnection conn, double[] translation, List<Tile> tiles, int counter, int totalcount)
+
+
+        private static int CalculateBoundingBoxes(double[] translation, List<Tile> tiles, int counter, int totalcount, double minZ, double maxZ)
         {
             foreach (var t in tiles) {
                 counter++;
@@ -106,18 +107,19 @@ namespace pg2b3dm
                 var perc = Math.Round(((double)counter / totalcount) * 100, 2);
                 Console.Write($"\rProgress: tile {counter} - {perc:F}%");
 
-                // var bvol = TileCutter.GetTileBoundingBoxNew(conn, geometryTable, geometryColumn, idcolumn, translation, t.Ids.ToArray());
-                var bvol = BoundingBoxRepository.Get3DExtent(conn, geometryTable, geometryColumn, idcolumn, t.Ids.ToArray());
+                var bb = t.BoundingBox;
+                var bvol = new BoundingBox3D(bb.XMin, bb.YMin, minZ, bb.XMax, bb.YMax, maxZ);
                 var bvolRotated = BoundingBoxCalculator.RotateTranslateTransform(bvol, translation);
 
                 if (t.Child != null) {
 
-                    counter= CalculateBoundingBoxes(geometryTable, geometryColumn, idcolumn, conn, translation, new List<Tile> { t.Child }, counter, totalcount);
+                    counter = CalculateBoundingBoxes(translation, new List<Tile> { t.Child }, counter, totalcount, minZ, maxZ);
                 }
                 t.Boundingvolume = TileCutter.GetBoundingvolume(bvolRotated);
             }
             return counter;
         }
+
 
         private static List<int> GetLods(NpgsqlConnection conn, string geometryTable, string lodcolumn)
         {
