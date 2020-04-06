@@ -65,10 +65,10 @@ Result should look like https://bertt.github.io/mapbox_3dtiles_samples/index.htm
 
 ## Discussions / Known issues
 
-- Performance: Step 'Calculating features per tile' with database queries is perhaps unnecessary (because extent tile is already known), to be investigated;
+- Performance: Step 'Calculating boundingbox per tile' with database queries is perhaps unnecessary (because extent tile is already known), to be investigated;
 
-- LOD Functionality: Consider replacing a tile with 4 tiles on other LOD instead of replacing with 1 tile. The more detailed tile can grow too large when detailed 
-geometries are used (depending on value pf extenttile of course);
+- LOD Functionality: Consider replacing a tile with 4 tiles on other LOD levels instead of replacing with 1 tile. The higher level lod tile can grow too large when detailed 
+geometries are used (depending on value of extenttile of course);
 
 - GeometricError: There is an extra option for maximal Geometric Error (-g), default 500
 
