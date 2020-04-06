@@ -73,8 +73,8 @@ namespace pg2b3dm
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn);
                 var translation = bbox3d.GetCenter().ToVector();
                 Console.WriteLine($"Translation: [{string.Join(',', translation) }]");
-                var boundingAllActualNew = BoundingBoxCalculator.RotateTranslateTransform(bbox3d, translation);
-                var box = boundingAllActualNew.GetBox();
+                var boundingboxAllFeatures = BoundingBoxCalculator.RotateTranslateTransform(bbox3d, translation);
+                var box = boundingboxAllFeatures.GetBox();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
                 Console.WriteLine("Calculating features per tile...");
@@ -82,12 +82,11 @@ namespace pg2b3dm
                 var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, sr, lods, geometricErrors, lodcolumn);
                 var nrOfTiles = RecursiveTileCounter.CountTiles(tiles, 0);
                 Console.WriteLine($"Number of tiles: {nrOfTiles} ");
-                CalculateBoundingBoxes(translation, tiles, 0, nrOfTiles, boundingAllActualNew.ZMin, boundingAllActualNew.ZMax);
-                Console.WriteLine();
+                CalculateBoundingBoxes(translation, tiles, boundingboxAllFeatures.ZMin, boundingboxAllFeatures.ZMax);
                 Console.WriteLine("Writing tileset.json...");
                 WiteTilesetJson(translation, tiles, o.Output, box, maxGeometricError);
                 Console.WriteLine($"Writing {nrOfTiles} tiles...");
-                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn);
+                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn);
 
                 conn.Close();
                 stopWatch.Stop();
@@ -99,13 +98,9 @@ namespace pg2b3dm
 
 
 
-        private static int CalculateBoundingBoxes(double[] translation, List<Tile> tiles, int counter, int totalcount, double minZ, double maxZ)
+        private static void CalculateBoundingBoxes(double[] translation, List<Tile> tiles, double minZ, double maxZ)
         {
             foreach (var t in tiles) {
-                counter++;
-
-                var perc = Math.Round(((double)counter / totalcount) * 100, 2);
-                Console.Write($"\rProgress: tile {counter} - {perc:F}%");
 
                 var bb = t.BoundingBox;
                 var bvol = new BoundingBox3D(bb.XMin, bb.YMin, minZ, bb.XMax, bb.YMax, maxZ);
@@ -113,11 +108,10 @@ namespace pg2b3dm
 
                 if (t.Child != null) {
 
-                    counter = CalculateBoundingBoxes(translation, new List<Tile> { t.Child }, counter, totalcount, minZ, maxZ);
+                    CalculateBoundingBoxes(translation, new List<Tile> { t.Child }, minZ, maxZ);
                 }
                 t.Boundingvolume = TileCutter.GetBoundingvolume(bvolRotated);
             }
-            return counter;
         }
 
 
@@ -138,15 +132,14 @@ namespace pg2b3dm
         }
 
 
-        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumn = "")
+        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumn = "", string lodColumn="")
         {
             foreach (var t in tiles) {
                 counter++;
                 var perc = Math.Round(((double)counter / maxcount) * 100, 2);
                 Console.Write($"\rProgress: tile {counter} - {perc:F}%");
 
-                var subset = t.Ids.ToArray();
-                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, subset, colorColumn, attributesColumn);
+                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, t, epsg, colorColumn, attributesColumn, lodColumn);
 
                 var triangleCollection = GetTriangles(geometries);
 
@@ -155,7 +148,7 @@ namespace pg2b3dm
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
 
                 if (t.Child != null) {
-                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, new List<Tile> { t.Child }, outputPath, counter, maxcount, colorColumn, attributesColumn);
+                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, new List<Tile> { t.Child }, epsg, outputPath, counter, maxcount, colorColumn, attributesColumn, lodColumn);
                 }
 
             }

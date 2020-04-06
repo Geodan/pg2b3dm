@@ -11,11 +11,11 @@ namespace B3dm.Tileset.Tests
             // arrange
 
             var tiles = new List<Tile>();
-            var t0 = new Tile(0, null, null);
-            var t0_child = new Tile(100, null, null);
+            var t0 = new Tile(0, null);
+            var t0_child = new Tile(100, null);
             t0.Child = t0_child;
             tiles.Add(t0);
-            tiles.Add(new Tile(1, null, null));
+            tiles.Add(new Tile(1, null));
 
 
             // act

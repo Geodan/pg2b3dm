@@ -26,7 +26,7 @@ namespace pg2b3dm
         [Option('i', "idcolumn", Required = false, Default = "id", HelpText = "Id column")]
         public string IdColumn { get; set; }
 
-        [Option('e', "extenttile", Required = false, Default = 1000.0, HelpText = "Maximum extent per tile")]
+        [Option('e', "extenttile", Required = false, Default = 2000.0, HelpText = "Maximum extent per tile")]
         public double ExtentTile{ get; set; }
         [Option('l', "lodcolumn", Required = false, Default = "", HelpText = "LOD column")]
         public string LodColumn { get; set; }

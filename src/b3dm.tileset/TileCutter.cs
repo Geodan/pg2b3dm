@@ -26,17 +26,13 @@ namespace B3dm.Tileset
                 for (var y = 0; y < yrange; y++) {
                     Tile parent = null;
                     foreach(var lod in lods) {
-
-                        var lodQuery = "";
-                        if (lodcolumn != String.Empty) {
-                            lodQuery = $"and {lodcolumn}={lod}";
-                        }
+                        var lodQuery = LodQuery.GetLodQuery(lodcolumn, lod);
 
                         var from = new Point(box3d.XMin + extentTile * x, box3d.YMin + extentTile * y);
                         var to = new Point(box3d.XMin + extentTile * (x + 1), box3d.YMin + extentTile * (y + 1));
-                        var ids = BoundingBoxRepository.GetFeaturesInBox(conn, geometryTable, geometryColumn, idcolumn, from, to, epsg, lodQuery);
-                        if (ids.Count > 0) {
-                            var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y), ids);
+                        var count = BoundingBoxRepository.CountFeaturesInBox(conn, geometryTable, geometryColumn, idcolumn, from, to, epsg, lodQuery);
+                        if (count > 0) {
+                            var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y));
                             tile.Lod = lod;
                             tile.GeometricError = geometricErrors[lod];
                             if (parent != null) {
@@ -55,5 +51,6 @@ namespace B3dm.Tileset
 
             return tiles;
         }
+
     }
 }
