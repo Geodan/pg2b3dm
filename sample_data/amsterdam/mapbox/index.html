@@ -1,18 +1,34 @@
 <html>
     <head>
-        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.2.1/mapbox-gl.js'></script>
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/107/three.min.js'></script>
-        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.2.1/mapbox-gl.css' rel='stylesheet' />
+        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.9.0/mapbox-gl.js'></script>
+        <script src='../../three.min.js'></script>
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.9.0/mapbox-gl.css' rel='stylesheet' />
         <script src="../../GLTFLoader.js"></script>
         <script src="../../Mapbox3DTiles.js"></script>
         <style>
             body { margin:0; padding:0; }
             #map { position:absolute; top:0; bottom:0; width:100%; }
+            .container {
+                position: absolute;
+                left: 5px;
+                padding: 5px;
+                border: 1px solid gray;
+                border-radius: 2px;
+                background-color: black;
+                color: white;
+                min-width: 200px;
+            }
+            
             #controls { position:absolute; top:0; left:0; }
+            #info { 
+			    top:75px; 
+			    min-height: 75px;
+		    }
         </style>
     </head>
     <body>
             <div id='map'></div>
+            <div id="info" class="container"></div>
 
             <script>
             mapboxgl.accessToken = 'pk.eyJ1IjoiYmVydHQiLCJhIjoiaWFvN1Z4USJ9.k04Q6CVms4Gx7KDZxvAx2A';
@@ -28,11 +44,25 @@
             });
              map.on('style.load', function() {
                 let tileslayer = new Mapbox3DTiles.Layer( { 
-                    id: 'utrecht', 
+                    id: 'amsterdam', 
                     url: 'tileset.json'
                 } );
                 map.addLayer(tileslayer, 'waterway-label');
             });
+
+            map.on('mousemove', (event)=>{
+                let infoElement = document.querySelector('#info');
+                let features = map.queryRenderedFeatures(event.point, {outline: true, outlineColor: 0xff0000});
+                if (features.length) {
+                    infoElement.innerHTML = 
+                        features.map(feature=>
+                            `Layer: ${feature.layer.id}<br>
+                                ${Object.entries(feature.properties).map(entry=>`<b>${entry[0]}:</b>${entry[1]}`).join('<br>\n')}
+                        `).join('<hr>\n')
+                } else {
+                    infoElement.innerHTML = "Hover map objects for info";
+                }
+            })
             </script>
     </body>
 </html>
