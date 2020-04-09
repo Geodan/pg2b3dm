@@ -4,11 +4,11 @@ namespace B3dm.Tileset
 {
     public class GeometricErrorCalculator
     {
-        public static double[] GetGeometricErrors(int maxGeometricError, List<int> lods)
+        public static double[] GetGeometricErrors(double maxGeometricError, List<int> lods)
         {
             var nrOfLods = lods.Count;
 
-            var res = new List<double>();
+            var res = new List<double>() { maxGeometricError };
 
             if (lods.Count > 1) {
                 var step = maxGeometricError / nrOfLods;

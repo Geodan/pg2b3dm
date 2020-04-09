@@ -64,7 +64,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -e, --extenttile       (Default: 1000) Maximum extent per tile
 
-  -g, --geometricerror   (Default: 500) Maximum geometric error
+  -g, --geometricerrors   (Default: 500, 0) Geometric errors
   
   --help                Display this help screen.
 
@@ -110,7 +110,7 @@ Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
-- 0.9.0
+- 0.9.0, 0.9.1
 
 - 0.5, 0.6, 0.7, 0.8 release
 

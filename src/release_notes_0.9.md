@@ -1,4 +1,4 @@
-# Release notes 0.9.0
+# Release notes 0.9
 
 Release 0.9 has some major changes:
 
@@ -10,11 +10,15 @@ Release 0.9 has some major changes:
 
 all features are placed into tiles regardless of area (tilesize: extenttile). When LOD functionality is used the whole tile is replaced with (1) other level tile.
 
-- Option  -f, --featurespertile is removed
+- Option -f, --featurespertile is removed
 
-- Option -g, --geometricerror is added (default 500)
+- Option -g, --geometricerrors is added (default 500,0)
+
+Example for 2 lods: -g 1000,750,0
 
 - More feedback messages to console
+
+- Tile generation performance +  memory usage improvements
 
 ## Testing
 
@@ -23,10 +27,10 @@ all features are placed into tiles regardless of area (tilesize: extenttile). Wh
 https://hub.docker.com/layers/geodan/pg2b3dm/0.9.0/images/sha256-c9b7478dec60f75e72d91d0f241b280b70e899995e989b74af05644594fb078c?context=explore
 
 ```
-$ docker pull geodan/pg2b3dm:0.9.0
-$ docker run geodan/pg2b3dm:0.9.0
-tool: pg2b3dm 0.9.0.0
-pg2b3dm 0.9.0
+$ docker pull geodan/pg2b3dm:0.9.1
+$ docker run geodan/pg2b3dm:0.9.1
+tool: pg2b3dm 0.9.1.0
+pg2b3dm 0.9.1
 Copyright (C) 2020 pg2b3dm
 ```
 
@@ -65,19 +69,5 @@ Result should look like https://bertt.github.io/mapbox_3dtiles_samples/index.htm
 
 ## Discussions / Known issues
 
-- Performance: Step 'Calculating boundingbox per tile' with database queries is perhaps unnecessary (because extent tile is already known), to be investigated;
-
 - LOD Functionality: Consider replacing a tile with 4 tiles on other LOD levels instead of replacing with 1 tile. The higher level lod tile can grow too large when detailed 
 geometries are used (depending on value of extenttile of course);
-
-- GeometricError: There is an extra option for maximal Geometric Error (-g), default 500
-
-When 2 lods (0,1) are used the used geometric errors (in tileset.json) are:
-
-- root.GeometricError: 500
-
-- lod tiles level 0: 250
-
-- lod tiles level 1: 0
-
-So an equal interval method is used. Is this workable? Consider adding optional geometric errors parameters.

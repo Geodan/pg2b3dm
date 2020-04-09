@@ -11,8 +11,11 @@ namespace B3dm.Tileset.Tests
             var lods = new List<int> { 0, 1 };
             var geometricErrors = GeometricErrorCalculator.GetGeometricErrors(500, lods);
 
-            Assert.IsTrue(geometricErrors.Length== 2);
-            Assert.IsTrue(geometricErrors[0] == 250);
+            Assert.IsTrue(geometricErrors.Length== 3);
+            Assert.IsTrue(geometricErrors[0] == 500);
+            Assert.IsTrue(geometricErrors[1] == 250);
+            Assert.IsTrue(geometricErrors[2] == 0);
+
         }
 
 
@@ -22,8 +25,10 @@ namespace B3dm.Tileset.Tests
             var lods = new List<int> { 0 };
             var geometricErrors = GeometricErrorCalculator.GetGeometricErrors(500, lods);
 
-            Assert.IsTrue(geometricErrors.Length == 1);
-            Assert.IsTrue(geometricErrors[0] == 0);
+            Assert.IsTrue(geometricErrors.Length == 2);
+            Assert.IsTrue(geometricErrors[0] == 500);
+            Assert.IsTrue(geometricErrors[1] == 0);
+
         }
 
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using B3dm.Tile;
 using B3dm.Tileset;
@@ -58,17 +59,23 @@ namespace pg2b3dm
                 var geometryColumn = o.GeometryColumn;
                 var idcolumn = o.IdColumn;
                 var lodcolumn = o.LodColumn;
-                var maxGeometricError = o.GeometricError;
+                var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse); ;
 
                 var conn = new NpgsqlConnection(connectionString);
                 conn.Open();
 
                 var lods = (lodcolumn != string.Empty ? GetLods(conn, geometryTable, lodcolumn) : new List<int> { 0 });
-
+                if(geometricErrors.Length > lods.Count + 1) {
+                    Console.WriteLine("Error: parameter -g --geometric is wrongly specified: " + o.GeometricErrors);
+                }
                 if (lodcolumn != String.Empty){
                     Console.WriteLine($"Detected {lods.Count} lod levels: [{String.Join(',', lods)}]");
-                };
 
+                    if (lods.Count >= geometricErrors.Length) {
+                        geometricErrors = GeometricErrorCalculator.GetGeometricErrors(geometricErrors[0], lods);
+                    }
+                };
+                Console.WriteLine("Geometric errors used: " + String.Join(',', geometricErrors));
                 Console.WriteLine($"Calculating dataset translation for {geometryTable}...");
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn);
                 var translation = bbox3d.GetCenter().ToVector();
@@ -78,13 +85,12 @@ namespace pg2b3dm
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
                 Console.WriteLine("Preparing tiles...");
-                var geometricErrors = GeometricErrorCalculator.GetGeometricErrors(maxGeometricError, lods);
-                var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, sr, lods, geometricErrors, lodcolumn);
+                var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, sr, lods, geometricErrors.Skip(1).ToArray(), lodcolumn);
                 var nrOfTiles = RecursiveTileCounter.CountTiles(tiles, 0);
                 Console.WriteLine($"Number of tiles: {nrOfTiles} ");
                 CalculateBoundingBoxes(translation, tiles, boundingboxAllFeatures.ZMin, boundingboxAllFeatures.ZMax);
                 Console.WriteLine("Writing tileset.json...");
-                WiteTilesetJson(translation, tiles, o.Output, box, maxGeometricError);
+                WiteTilesetJson(translation, tiles, o.Output, box, geometricErrors[0]);
                 Console.WriteLine($"Writing {nrOfTiles} tiles...");
                 WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn);
 
@@ -184,7 +190,7 @@ namespace pg2b3dm
             return b3dm;
         }
 
-        private static void WiteTilesetJson(double[] translation, List<Tile> tiles, string outputPath, double[] box, int maxGeometricError)
+        private static void WiteTilesetJson(double[] translation, List<Tile> tiles, string outputPath, double[] box, double maxGeometricError)
         {
             var tileset = TreeSerializer.ToTileset(tiles, translation, box, maxGeometricError);
             var s = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
