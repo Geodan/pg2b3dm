@@ -9,8 +9,8 @@ namespace B3dm.Tileset.Tests
         public void SerializeTree()
         {
             // arrange
-            var t0=new Tile(0, new Wkx.BoundingBox(),new List<string> { "0","1","2"});
-            var t1 = new Tile(1, new Wkx.BoundingBox(), new List<string> { "3", "4", "5" });
+            var t0=new Tile(0, new Wkx.BoundingBox());
+            var t1 = new Tile(1, new Wkx.BoundingBox());
             var tiles = new List<Tile> { t0, t1 };
 
             // act
@@ -28,11 +28,11 @@ namespace B3dm.Tileset.Tests
         public void SerializeTreeWithLods()
         {
             // arrange
-            var t0 = new Tile(0, new Wkx.BoundingBox(), new List<string> { "0", "1", "2" });
-            var t0_1 = new Tile(2, new Wkx.BoundingBox(), new List<string> { "0", "1", "2" });
+            var t0 = new Tile(0, new Wkx.BoundingBox());
+            var t0_1 = new Tile(2, new Wkx.BoundingBox());
             t0.Child = t0_1;
 
-            var t1 = new Tile(1, new Wkx.BoundingBox(), new List<string> { "3", "4", "5" });
+            var t1 = new Tile(1, new Wkx.BoundingBox());
             var tiles = new List<Tile> { t0, t1 };
 
             // act
