@@ -84,14 +84,13 @@ namespace pg2b3dm
                 var box = boundingboxAllFeatures.GetBox();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
-                Console.WriteLine("Preparing tiles...");
                 var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, sr, lods, geometricErrors.Skip(1).ToArray(), lodcolumn);
+                Console.WriteLine();
                 var nrOfTiles = RecursiveTileCounter.CountTiles(tiles, 0);
-                Console.WriteLine($"Number of tiles: {nrOfTiles} ");
+                Console.WriteLine($"Tiles with features: {nrOfTiles} ");
                 CalculateBoundingBoxes(translation, tiles, boundingboxAllFeatures.ZMin, boundingboxAllFeatures.ZMax);
                 Console.WriteLine("Writing tileset.json...");
                 WiteTilesetJson(translation, tiles, o.Output, box, geometricErrors[0]);
-                Console.WriteLine($"Writing {nrOfTiles} tiles...");
                 WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn);
 
                 conn.Close();
@@ -143,7 +142,7 @@ namespace pg2b3dm
             foreach (var t in tiles) {
                 counter++;
                 var perc = Math.Round(((double)counter / maxcount) * 100, 2);
-                Console.Write($"\rProgress: tile {counter} - {perc:F}%");
+                Console.Write($"\rCreating tile phase: tile {counter}/{maxcount} - {perc:F}%");
 
                 var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, t, epsg, colorColumn, attributesColumn, lodColumn);
 
