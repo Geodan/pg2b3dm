@@ -5,7 +5,7 @@ namespace B3dm.Tileset.Tests
 {
     public class GeometricErrorCalculatorTests
     {
-        [Test]:
+        [Test]
         public void CalculateGeometricErrorFirstTest()
         {
             var lods = new List<int> { 0, 1 };
