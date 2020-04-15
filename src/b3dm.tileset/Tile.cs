@@ -28,7 +28,7 @@ namespace B3dm.Tileset
 
         public int Lod { get; set; }
 
-        public Tile Child { get; set; }
+        public List<Tile> Children { get; set; }
 
         public double GeometricError { get; set; }
     }

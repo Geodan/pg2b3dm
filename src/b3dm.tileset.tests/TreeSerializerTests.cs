@@ -29,7 +29,7 @@ namespace B3dm.Tileset.Tests
             // arrange
             var t0 = new Tile(0, new Wkx.BoundingBox());
             var t0_1 = new Tile(2, new Wkx.BoundingBox());
-            t0.Child = t0_1;
+            t0.Children = new List<Tile> { t0_1 };
 
             var t1 = new Tile(1, new Wkx.BoundingBox());
             var tiles = new List<Tile> { t0, t1 };

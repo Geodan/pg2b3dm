@@ -38,7 +38,7 @@ namespace B3dm.Tileset
                             tile.Lod = lod;
                             tile.GeometricError = geometricErrors[lod];
                             if (parent != null) {
-                                parent.Child = tile;
+                                parent.Children = new List<Tile> { tile };
                             }
                             else {
                                 tiles.Add(tile);

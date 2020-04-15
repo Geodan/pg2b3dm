@@ -111,9 +111,9 @@ namespace pg2b3dm
                 var bvol = new BoundingBox3D(bb.XMin, bb.YMin, minZ, bb.XMax, bb.YMax, maxZ);
                 var bvolRotated = BoundingBoxCalculator.RotateTranslateTransform(bvol, translation);
 
-                if (t.Child != null) {
+                if (t.Children != null) {
 
-                    CalculateBoundingBoxes(translation, new List<Tile> { t.Child }, minZ, maxZ);
+                    CalculateBoundingBoxes(translation, t.Children, minZ, maxZ);
                 }
                 t.Boundingvolume = TileCutter.GetBoundingvolume(bvolRotated);
             }
@@ -152,8 +152,8 @@ namespace pg2b3dm
 
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
 
-                if (t.Child != null) {
-                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, new List<Tile> { t.Child }, epsg, outputPath, counter, maxcount, colorColumn, attributesColumn, lodColumn);
+                if (t.Children != null) {
+                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, t.Children, epsg, outputPath, counter, maxcount, colorColumn, attributesColumn, lodColumn);
                 }
 
             }

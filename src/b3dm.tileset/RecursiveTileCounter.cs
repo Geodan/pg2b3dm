@@ -8,8 +8,8 @@ namespace B3dm.Tileset
         {
             foreach (var tile in tiles) {
                 startValue++;
-                if (tile.Child != null) {
-                    startValue = CountTiles(new List<Tile> { tile.Child }, startValue);
+                if (tile.Children != null) {
+                    startValue = CountTiles(tile.Children, startValue);
                 }
             }
             return startValue;

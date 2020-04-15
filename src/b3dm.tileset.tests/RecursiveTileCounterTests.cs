@@ -13,7 +13,7 @@ namespace B3dm.Tileset.Tests
             var tiles = new List<Tile>();
             var t0 = new Tile(0, null);
             var t0_child = new Tile(100, null);
-            t0.Child = t0_child;
+            t0.Children = new List<Tile> { t0_child };
             tiles.Add(t0);
             tiles.Add(new Tile(1, null));
 

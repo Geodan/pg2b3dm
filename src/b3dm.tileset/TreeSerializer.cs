@@ -41,8 +41,8 @@ namespace B3dm.Tileset
             foreach (var tile in tiles) {
                 var child = GetChild(tile, translation);
 
-                if (tile.Child != null) {
-                    child.children = GetChildren(new List<Tile> { tile.Child }, translation);
+                if (tile.Children != null) {
+                    child.children = GetChildren(tile.Children, translation);
                 }
                 children.Add(child);
             }
