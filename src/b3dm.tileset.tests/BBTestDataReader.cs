@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Wkb2Gltf;
 
 namespace B3dm.Tileset.Tests
 {

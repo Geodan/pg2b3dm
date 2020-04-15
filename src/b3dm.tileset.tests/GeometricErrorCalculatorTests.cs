@@ -5,7 +5,7 @@ namespace B3dm.Tileset.Tests
 {
     public class GeometricErrorCalculatorTests
     {
-        [Test]
+        [Test]:
         public void CalculateGeometricErrorFirstTest()
         {
             var lods = new List<int> { 0, 1 };
@@ -15,9 +15,7 @@ namespace B3dm.Tileset.Tests
             Assert.IsTrue(geometricErrors[0] == 500);
             Assert.IsTrue(geometricErrors[1] == 250);
             Assert.IsTrue(geometricErrors[2] == 0);
-
         }
-
 
         [Test]
         public void CalculateGeometricErrorForOnly1Level()
@@ -28,8 +26,6 @@ namespace B3dm.Tileset.Tests
             Assert.IsTrue(geometricErrors.Length == 2);
             Assert.IsTrue(geometricErrors[0] == 500);
             Assert.IsTrue(geometricErrors[1] == 0);
-
         }
-
     }
 }

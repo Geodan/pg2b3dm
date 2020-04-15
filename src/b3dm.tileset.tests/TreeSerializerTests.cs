@@ -20,7 +20,6 @@ namespace B3dm.Tileset.Tests
             // assert
             var tileset = TreeSerializer.ToTileset(tiles, translation, bbox, 500);
             Assert.IsTrue(tileset.root.children.Count == 2);
-
         }
 
 

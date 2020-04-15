@@ -5,6 +5,7 @@ using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Schema2;
 using SharpGLTF.Materials;
 using Wkb2Gltf.Extensions;
+using System.IO;
 
 namespace Wkb2Gltf.Tests
 {
@@ -30,7 +31,9 @@ namespace Wkb2Gltf.Tests
             var dstMesh = model.CreateMesh(mesh);
 
             model.UseScene("Default").CreateNode().WithMesh(model.LogicalMeshes[0]);
-            model.SaveGLB(@"d:\aaa\building_sharp1.glb");
+
+            var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "building_sharp1.glb");
+            model.SaveGLB(fileName);
 
             var batchId = dstMesh.Primitives[0].GetVertexAccessor(VertexWithBatchId.CUSTOMATTRIBUTENAME).AsScalarArray();
 
