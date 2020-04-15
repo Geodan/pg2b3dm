@@ -15,7 +15,7 @@ namespace B3dm.Tileset
             return boundingVolume;
         }
 
-        public static List<Tile> GetTiles(NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, string idcolumn, BoundingBox3D box3d ,int epsg, List<int> lods, double[] geometricErrors, string lodcolumn = "")
+        public static List<Tile> GetTiles(NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, BoundingBox3D box3d ,int epsg, List<int> lods, double[] geometricErrors, string lodcolumn = "")
         {
             var counter = 0;
             var tiles = new List<Tile>();
@@ -51,7 +51,6 @@ namespace B3dm.Tileset
                         Console.Write($"\rPreparing phase: tile {counter}/{potentialTiles} - {perc:F}%");
 
                     }
-                    parent = null;
                 }
             }
 

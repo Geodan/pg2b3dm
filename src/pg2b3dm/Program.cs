@@ -84,7 +84,7 @@ namespace pg2b3dm
                 var box = boundingboxAllFeatures.GetBox();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
-                var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, idcolumn, bbox3d, sr, lods, geometricErrors.Skip(1).ToArray(), lodcolumn);
+                var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, lods, geometricErrors.Skip(1).ToArray(), lodcolumn);
                 Console.WriteLine();
                 var nrOfTiles = RecursiveTileCounter.CountTiles(tiles, 0);
                 Console.WriteLine($"Tiles with features: {nrOfTiles} ");
