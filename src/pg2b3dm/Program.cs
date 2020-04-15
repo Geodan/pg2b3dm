@@ -84,14 +84,14 @@ namespace pg2b3dm
                 var box = boundingboxAllFeatures.GetBox();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
-                var tiles = TileCutter.GetTiles(conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, lods, geometricErrors.Skip(1).ToArray(), lodcolumn);
+                var tiles = TileCutter.GetTiles(0, conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, 0, lods, geometricErrors.Skip(1).ToArray(), lodcolumn);
                 Console.WriteLine();
-                var nrOfTiles = RecursiveTileCounter.CountTiles(tiles, 0);
+                var nrOfTiles = RecursiveTileCounter.CountTiles(tiles.tiles, 0);
                 Console.WriteLine($"Tiles with features: {nrOfTiles} ");
-                CalculateBoundingBoxes(translation, tiles, boundingboxAllFeatures.ZMin, boundingboxAllFeatures.ZMax);
+                CalculateBoundingBoxes(translation, tiles.tiles, boundingboxAllFeatures.ZMin, boundingboxAllFeatures.ZMax);
                 Console.WriteLine("Writing tileset.json...");
-                WiteTilesetJson(translation, tiles, o.Output, box, geometricErrors[0]);
-                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn);
+                WiteTilesetJson(translation, tiles.tiles, o.Output, box, geometricErrors[0]);
+                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn);
 
                 conn.Close();
                 stopWatch.Stop();
