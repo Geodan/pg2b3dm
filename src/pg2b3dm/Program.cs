@@ -66,12 +66,16 @@ namespace pg2b3dm
 
                 var lods = (lodcolumn != string.Empty ? GetLods(conn, geometryTable, lodcolumn) : new List<int> { 0 });
                 if(geometricErrors.Length > lods.Count + 1) {
-                    Console.WriteLine("Error: parameter -g --geometric is wrongly specified: " + o.GeometricErrors);
+                    Console.WriteLine($"lod levels: [{ String.Join(',', lods)}]");
+                    Console.WriteLine("Error: parameter -g --geometricerrors is wrongly specified: " + o.GeometricErrors);
+                    Console.WriteLine("End of program...");
+                    Environment.Exit(0);
                 }
                 if (lodcolumn != String.Empty){
                     Console.WriteLine($"Detected {lods.Count} lod levels: [{String.Join(',', lods)}]");
 
                     if (lods.Count >= geometricErrors.Length) {
+                        Console.WriteLine($"Calculating geometric errors starting from {geometricErrors[0]}");
                         geometricErrors = GeometricErrorCalculator.GetGeometricErrors(geometricErrors[0], lods);
                     }
                 };
@@ -84,8 +88,8 @@ namespace pg2b3dm
                 var box = boundingboxAllFeatures.GetBox();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
+                Console.WriteLine("Calculating tile quadtree...");
                 var tiles = TileCutter.GetTiles(0, conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, 0, lods, geometricErrors.Skip(1).ToArray(), lodcolumn);
-                Console.WriteLine();
                 var nrOfTiles = RecursiveTileCounter.CountTiles(tiles.tiles, 0);
                 Console.WriteLine($"Tiles with features: {nrOfTiles} ");
                 CalculateBoundingBoxes(translation, tiles.tiles, boundingboxAllFeatures.ZMin, boundingboxAllFeatures.ZMax);

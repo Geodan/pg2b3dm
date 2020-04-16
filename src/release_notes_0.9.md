@@ -8,7 +8,8 @@ Release 0.9 has some major changes:
 
 - Functionality with building quadtree with features ordered on area size is replaced with a simpler system:
 
-all features are placed into tiles regardless of area (tilesize: extenttile). When LOD functionality is used the whole tile is replaced with (1) other level tile.
+all features are placed into quadtree tiles regardless of area (tilesize: extenttile). NB: Tiles without features are removed 
+from the quadtree (including children).
 
 - Option -f, --featurespertile is removed
 
@@ -24,13 +25,13 @@ Example for 2 lods: -g 1000,750,0
 
 ### Docker
 
-https://hub.docker.com/layers/geodan/pg2b3dm/0.9.0/images/sha256-c9b7478dec60f75e72d91d0f241b280b70e899995e989b74af05644594fb078c?context=explore
+https://hub.docker.com/layers/geodan/pg2b3dm/0.9.2/images/sha256-c9b7478dec60f75e72d91d0f241b280b70e899995e989b74af05644594fb078c?context=explore
 
 ```
-$ docker pull geodan/pg2b3dm:0.9.1
-$ docker run geodan/pg2b3dm:0.9.1
-tool: pg2b3dm 0.9.1.0
-pg2b3dm 0.9.1
+$ docker pull geodan/pg2b3dm:0.9.2
+$ docker run geodan/pg2b3dm:0.9.2
+tool: pg2b3dm 0.9.2.0
+pg2b3dm 0.9.2
 Copyright (C) 2020 pg2b3dm
 ```
 
@@ -66,8 +67,12 @@ Warning: tile creation will take more time when LOD's are used.
 
 Result should look like https://bertt.github.io/mapbox_3dtiles_samples/index.html (see blue or red buildings depending on distance to camera)
 
+# 
 
-## Discussions / Known issues
+History
 
-- LOD Functionality: Consider replacing a tile with 4 tiles on other LOD levels instead of replacing with 1 tile. The higher level lod tile can grow too large when detailed 
-geometries are used (depending on value of extenttile of course);
+- 0.9.2: create a real quadtree for lods instead of single subchild
+
+- 0.9.1: goption -g geometric errors introduced
+
+- 0.9.0: initial version of refinement=replace 
