@@ -5,8 +5,11 @@ workflow is described for processing CityGML files using FME, GDAL and PostGIS.
 
 Sample input files: https://www.opengeodata.nrw.de/produkte/geobasis/3dg/lod2_gml/
 
+For example, download https://www.opengeodata.nrw.de/produkte/geobasis/3dg/lod2_gml/lod2_gml/LoD2_280_5657_1_NW.gml
+
 ### FME
 ![fme_workbench](https://user-images.githubusercontent.com/538812/79754422-d0df4100-8317-11ea-9f58-ed4524a53a1f.png)
+
 In FME the *CityGML* file is imported and the buildings are exported as triangulated *shapefiles* using the following steps:
 
 1. *Import CityGML* open the file using the CityGML reader and select the parts from the CityGML you want to use.
@@ -14,12 +17,25 @@ In FME the *CityGML* file is imported and the buildings are exported as triangul
 3.  *Triangulate* the solids using the Triangulator, pg2b3dm needs PolyhedralSurfaceZ with 4 coordinates. 
 4.  *Export as SHP* using the Esri shapefile writer.
 
+A sample workbench is included, see dataprocessing/dataprocessing_citygml.fmw
+
+The model can run from command line:
+
+```
+$  "D:\Program Files\FME\fme.exe" citygml2esrishape.fmw --DestDataset_ESRISHAPE "multipatch.shp" --SourceDataset_CITYGML_3 "LoD2_280_5657_1_NW.gml" --FEATURE_TYPES ""
+Reading.......200....400.....600....800.....1000....1200...
+Emptying factory pipeline...
+Translation was SUCCESSFUL
+````
+
+Output is multipatch.shp
+
 ### GDAL
 5. Import SHP as PolyhedralSurface using ogr2ogr. 
 	`-dim 3` makes sure to use the x, y and z information
 	 `-nlt POLYHEDRALSURFACEZ` sets the correct geometry
 ```
-$ ogr2ogr -f "PostgreSQL" "PG:host=server user=username dbname=database" $f -nln schema.tablename -dim 3 -nlt POLYHEDRALSURFACEZ
+$ ogr2ogr -f "PostgreSQL" "PG:host=server user=username dbname=database" multipatch.shp -nln schema.tablename -dim 3 -nlt POLYHEDRALSURFACEZ
 ```
 
 ### PostGIS
