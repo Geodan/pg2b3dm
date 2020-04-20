@@ -6,7 +6,7 @@ workflow is described for processing CityGML files using FME, GDAL and PostGIS.
 Sample input files: https://www.opengeodata.nrw.de/produkte/geobasis/3dg/lod2_gml/
 
 ### FME
-![FME_CityGML_Shp](https://user-images.githubusercontent.com/9533288/77912263-83c8fb80-7292-11ea-8b20-31b775ccc545.PNG)
+![fme_workbench](https://user-images.githubusercontent.com/538812/79754422-d0df4100-8317-11ea-9f58-ed4524a53a1f.png)
 In FME the *CityGML* file is imported and the buildings are exported as triangulated *shapefiles* using the following steps:
 
 1. *Import CityGML* open the file using the CityGML reader and select the parts from the CityGML you want to use.
