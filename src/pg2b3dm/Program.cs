@@ -65,7 +65,7 @@ namespace pg2b3dm
                 conn.Open();
 
                 var lods = (lodcolumn != string.Empty ? GetLods(conn, geometryTable, lodcolumn) : new List<int> { 0 });
-                if(geometricErrors.Length != lods.Count + 1) {
+                if((geometricErrors.Length != lods.Count + 1) && lodcolumn==string.Empty) {
                     Console.WriteLine($"lod levels: [{ String.Join(',', lods)}]");
                     Console.WriteLine($"geometric errors: {o.GeometricErrors}");
 
