@@ -333,3 +333,4 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 /sample_data/delaware/mapbox/test/tiles
+/sample_data

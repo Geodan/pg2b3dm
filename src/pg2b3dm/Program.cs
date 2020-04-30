@@ -65,9 +65,11 @@ namespace pg2b3dm
                 conn.Open();
 
                 var lods = (lodcolumn != string.Empty ? GetLods(conn, geometryTable, lodcolumn) : new List<int> { 0 });
-                if(geometricErrors.Length > lods.Count + 1) {
+                if(geometricErrors.Length != lods.Count + 1) {
                     Console.WriteLine($"lod levels: [{ String.Join(',', lods)}]");
-                    Console.WriteLine("Error: parameter -g --geometricerrors is wrongly specified: " + o.GeometricErrors);
+                    Console.WriteLine($"geometric errors: {o.GeometricErrors}");
+
+                    Console.WriteLine("Error: parameter -g --geometricerrors is wrongly specified...");
                     Console.WriteLine("End of program...");
                     Environment.Exit(0);
                 }
