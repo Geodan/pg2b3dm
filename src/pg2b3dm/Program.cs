@@ -53,6 +53,8 @@ namespace pg2b3dm
                 }
 
                 Console.WriteLine($"Input table:  {o.GeometryTable}");
+                Console.WriteLine($"Input geometry column:  {o.GeometryColumn}");
+
                 Console.WriteLine($"Output directory:  {outputTiles}");
 
                 var geometryTable = o.GeometryTable;
@@ -82,11 +84,13 @@ namespace pg2b3dm
                     }
                 };
                 Console.WriteLine("Geometric errors used: " + String.Join(',', geometricErrors));
-                Console.WriteLine($"Calculating dataset translation for {geometryTable}...");
+
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn);
+                Console.WriteLine($"3D Boundingbox {geometryTable}.{geometryColumn}: [{bbox3d.XMin}, {bbox3d.YMin}, {bbox3d.ZMin},{bbox3d.XMax},{bbox3d.YMax}, {bbox3d.ZMax}]");
                 var translation = bbox3d.GetCenter().ToVector();
-                Console.WriteLine($"Translation: [{string.Join(',', translation) }]");
-                var boundingboxAllFeatures = BoundingBoxCalculator.RotateTranslateTransform(bbox3d, translation);
+                Console.WriteLine($"Translation {geometryTable}.{geometryColumn}: [{string.Join(',', translation) }]");
+                // translation = new double[] { translation[0] * -1, translation[1] * -1, translation[2] * -1 };
+                var boundingboxAllFeatures = BoundingBoxCalculator.RotateTranslateTransform(bbox3d, translation, Math.PI / 2);
                 var box = boundingboxAllFeatures.GetBox();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
@@ -94,7 +98,7 @@ namespace pg2b3dm
                 var tiles = TileCutter.GetTiles(0, conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, 0, lods, geometricErrors.Skip(1).ToArray(), lodcolumn);
                 var nrOfTiles = RecursiveTileCounter.CountTiles(tiles.tiles, 0);
                 Console.WriteLine($"Tiles with features: {nrOfTiles} ");
-                CalculateBoundingBoxes(translation, tiles.tiles, boundingboxAllFeatures.ZMin, boundingboxAllFeatures.ZMax);
+                CalculateBoundingBoxes(translation, tiles.tiles, bbox3d.ZMin, bbox3d.ZMax);
                 Console.WriteLine("Writing tileset.json...");
                 WiteTilesetJson(translation, tiles.tiles, o.Output, box, geometricErrors[0]);
                 WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn);
@@ -115,7 +119,7 @@ namespace pg2b3dm
 
                 var bb = t.BoundingBox;
                 var bvol = new BoundingBox3D(bb.XMin, bb.YMin, minZ, bb.XMax, bb.YMax, maxZ);
-                var bvolRotated = BoundingBoxCalculator.RotateTranslateTransform(bvol, translation);
+                var bvolRotated = BoundingBoxCalculator.RotateTranslateTransform(bvol, translation, Math.PI / 2);
 
                 if (t.Children != null) {
 
@@ -207,14 +211,19 @@ namespace pg2b3dm
         {
             var triangleCollection = new TriangleCollection();
             foreach (var g in geomrecords) {
-                var surface = (PolyhedralSurface)g.Geometry;
-                var colors = g.HexColors;
-                var triangles = Triangulator.GetTriangles(surface, colors, g.BatchId);
+                var triangles = GetTriangles(g);
                 triangleCollection.AddRange(triangles);
             }
 
             return triangleCollection;
         }
 
+        private static TriangleCollection GetTriangles(GeometryRecord g)
+        {
+            var surface = (PolyhedralSurface)g.Geometry;
+            var colors = g.HexColors;
+            var triangles = Triangulator.GetTriangles(surface, colors, g.BatchId);
+            return triangles;
+        }
     }
 }
