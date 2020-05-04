@@ -25,20 +25,20 @@ namespace B3dm.Tileset
 
             for (var x = 0; x < xrange; x++) {
                 for (var y = 0; y < yrange; y++) {
-                    if (currentLod == lods[0]) {
+                    if (currentLod == 0) {
                         counter++;
                         var perc = Math.Round((double)counter / (xrange*yrange) * 100, 2);
                         Console.Write($"\rcreating quadtree: {counter}/{xrange * yrange} - {perc:F}%");
                     }
 
-                    var lodQuery = LodQuery.GetLodQuery(lodcolumn, currentLod);
+                    var lodQuery = LodQuery.GetLodQuery(lodcolumn, lods[currentLod]);
                     var from = new Point(box3d.XMin + extentTile * x, box3d.YMin + extentTile * y);
                     var to = new Point(box3d.XMin + extentTile * (x + 1), box3d.YMin + extentTile * (y + 1));
                     var hasFeatures = BoundingBoxRepository.HasFeaturesInBox(conn, geometryTable, geometryColumn, from, to, epsg, lodQuery);
                     if (hasFeatures) {
                         tileId++;
                         var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y));
-                        tile.Lod = currentLod;
+                        tile.Lod = lods[currentLod];
                         tile.GeometricError = geometricErrors[currentLod];
                         if (currentLod < lods.Count - 1) {
                             var newBox3d = new BoundingBox3D((double)from.X, (double)from.Y, (double)box3d.FromPoint().Z, (double)to.X, (double)to.Y, (double)box3d.ToPoint().Z);
