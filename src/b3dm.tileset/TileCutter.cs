@@ -7,6 +7,7 @@ namespace B3dm.Tileset
 {
     public static class TileCutter
     {
+        private static int counter = 0;
         public static Boundingvolume GetBoundingvolume(BoundingBox3D bbox3d)
         {
             var boundingVolume = new Boundingvolume {
@@ -21,8 +22,15 @@ namespace B3dm.Tileset
 
             var xrange = (int)Math.Ceiling(box3d.ExtentX() / extentTile);
             var yrange = (int)Math.Ceiling(box3d.ExtentY() / extentTile);
+
             for (var x = 0; x < xrange; x++) {
                 for (var y = 0; y < yrange; y++) {
+                    if (currentLod == lods[0]) {
+                        counter++;
+                        var perc = Math.Round((double)counter / (xrange*yrange) * 100, 2);
+                        Console.Write($"\rcreating quadtree: {counter}/{xrange * yrange} - {perc:F}%");
+                    }
+
                     var lodQuery = LodQuery.GetLodQuery(lodcolumn, currentLod);
                     var from = new Point(box3d.XMin + extentTile * x, box3d.YMin + extentTile * y);
                     var to = new Point(box3d.XMin + extentTile * (x + 1), box3d.YMin + extentTile * (y + 1));
