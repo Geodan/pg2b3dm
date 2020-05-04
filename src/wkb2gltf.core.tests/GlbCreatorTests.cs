@@ -10,6 +10,7 @@ using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
 using Wkb2Gltf.Extensions;
 using Wkx;
+using System.Linq;
 
 namespace Wkb2Gltf.Tests
 {
@@ -62,12 +63,10 @@ namespace Wkb2Gltf.Tests
             var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
             var polyhedralsurface = ((PolyhedralSurface)g);
 
-            var colors = new List<string>();
-            foreach(var geo in polyhedralsurface.Geometries) {
-                var random = new Random();
-                var color = String.Format("#{0:X6}", random.Next(0x1000000));
-                colors.Add(color);
-            }
+            var colors = (from geo in polyhedralsurface.Geometries
+                          let random = new Random()
+                          let color = String.Format("#{0:X6}", random.Next(0x1000000))
+                          select color).ToList();
 
             // act
             var triangles = Triangulator.GetTriangles(polyhedralsurface, colors.ToArray(), 100);

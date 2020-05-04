@@ -17,8 +17,6 @@ namespace B3dm.Tileset.Tests
             for(var i = 0; i < box.Length; i++) {
                 Assert.IsTrue(box[i].Equals(expectedBox[i]));
             }
-
-
         }
 
         [Test]
@@ -29,6 +27,7 @@ namespace B3dm.Tileset.Tests
 
             var actualVolumeBox = GetVolumeBox(actualTilesetBox, actualTransform);
             var tofillin = string.Join(',', actualVolumeBox);
+            Assert.IsTrue(tofillin == "-8406745.007853176,4744614.257728589,38.29,8071.867000000551,0,0,0,10129.713000000454,0,0,0,38.29");
         }
 
         [Test]

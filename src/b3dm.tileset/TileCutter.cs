@@ -37,9 +37,10 @@ namespace B3dm.Tileset
                     var hasFeatures = BoundingBoxRepository.HasFeaturesInBox(conn, geometryTable, geometryColumn, from, to, epsg, lodQuery);
                     if (hasFeatures) {
                         tileId++;
-                        var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y));
-                        tile.Lod = lods[currentLod];
-                        tile.GeometricError = geometricErrors[currentLod];
+                        var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y)) {
+                            Lod = lods[currentLod],
+                            GeometricError = geometricErrors[currentLod]
+                        };
                         if (currentLod < lods.Count - 1) {
                             var newBox3d = new BoundingBox3D((double)from.X, (double)from.Y, (double)box3d.FromPoint().Z, (double)to.X, (double)to.Y, (double)box3d.ToPoint().Z);
                             var new_tiles = GetTiles(tileId, conn, extentTile / 2, geometryTable, geometryColumn, newBox3d, epsg, currentLod + 1, lods, geometricErrors, lodcolumn);
