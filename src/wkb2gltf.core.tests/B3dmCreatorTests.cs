@@ -15,7 +15,7 @@ namespace Wkb2Gltf.Tests
             var p2 = new Point(1, 0, 0);
             
             var triangle1 = new Triangle(p0, p1, p2,0);
-            var triangles = new TriangleCollection() { triangle1 };
+            var triangles = new List<Triangle>() { triangle1 };
 
             // act
             var b3dm = B3dmCreator.GetB3dm("id", new List<object>() { "1" }, triangles);

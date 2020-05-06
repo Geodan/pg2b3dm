@@ -37,7 +37,6 @@ namespace Wkb2Gltf.Tests
 
             // assert
             Assert.IsTrue(res.Item1.X == 4403.12842f);
-
         }
     }
 }

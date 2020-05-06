@@ -1,14 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using Wkx;
 
 namespace Wkb2Gltf
 {
     public static class Triangulator
     {
-        public static TriangleCollection GetTriangles(PolyhedralSurface polyhedralsurface, string[] hexColors, int batchId)
+        public static List<Triangle> GetTriangles(PolyhedralSurface polyhedralsurface, string[] hexColors, int batchId)
         {
             var degenerated_triangles = 0;
-            var allTriangles = new TriangleCollection();
+            var allTriangles = new List<Triangle>();
             for(var i=0;i<polyhedralsurface.Geometries.Count;i++) {
                 var geometry = polyhedralsurface.Geometries[i];
                 Triangle triangle;

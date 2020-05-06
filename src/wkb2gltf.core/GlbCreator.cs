@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
@@ -9,7 +10,7 @@ namespace Wkb2Gltf
 {
     public static class GlbCreator
     {
-        public static byte[] GetGlb(TriangleCollection triangles)
+        public static byte[] GetGlb(List<Triangle> triangles)
         {
             var materialCache = new MaterialsCache();
             var default_hex_color = "#bb3333";

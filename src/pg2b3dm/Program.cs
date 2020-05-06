@@ -167,9 +167,9 @@ namespace pg2b3dm
             return allattributes;
         }
 
-        public static TriangleCollection GetTriangles(List<GeometryRecord> geomrecords)
+        public static List<Wkb2Gltf.Triangle> GetTriangles(List<GeometryRecord> geomrecords)
         {
-            var triangleCollection = new TriangleCollection();
+            var triangleCollection = new List<Wkb2Gltf.Triangle>();
             foreach (var g in geomrecords) {
                 var triangles = GetTriangles(g);
                 triangleCollection.AddRange(triangles);
@@ -178,7 +178,7 @@ namespace pg2b3dm
             return triangleCollection;
         }
 
-        private static TriangleCollection GetTriangles(GeometryRecord g)
+        private static List<Wkb2Gltf.Triangle> GetTriangles(GeometryRecord g)
         {
             var surface = (PolyhedralSurface)g.Geometry;
             var colors = g.HexColors;
