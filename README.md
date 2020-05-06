@@ -1,25 +1,28 @@
 ﻿# pg2b3dm
 
-Tool for converting from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software is a partial port of py3dtiles (https://github.com/Oslandia/py3dtiles) 
+Tool for converting from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software started as a port of py3dtiles (https://github.com/Oslandia/py3dtiles) 
 for generating b3dm tiles.
 
 ![mokum](https://user-images.githubusercontent.com/538812/63088752-24fa8000-bf56-11e9-9ba8-3273a21dfda0.png)
 
 Differences to py3dtiles:
 
-- 2* performance improvement;
+- performance improvements;
 
 - loading geometries in batches in memory instead of full datataset;
 
 - fixed glTF warnings;
 
-- added styling options like roof color column per geometry/triangle;
+- added color option;
+
+- added LOD support;
 
 - added output directory option;
 
 - Docker support.
 
-To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries.
+To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries. Those geometries can be created 
+by FME (using Triangulator transformer - https://www.safe.com/transformers/triangulator/) or custom tesselation tools.
 
 Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdirectory (or specify directory with   -o, --output).
 
@@ -71,12 +74,13 @@ If --username and/or --dbname are not specified the current username is used as 
   --version             Display version information.  
 ```
 
-Geometry rules:
+## Remarks
+
+## Geometries
 
 - All geometries must be type polyhedralsurface consisting of triangles with 4 vertices each. If not 4 vertices exception is thrown.
 
-
-Color column rules:
+### Colors
 
 - Colors must be specified as hex colors, like '#ff5555';
 
@@ -100,17 +104,21 @@ Id column rules:
 
 - Id column should be indexed for better performance.
 
+## LOD
+
+- if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
+
 ## Getting started
 
 See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and visualize buildings in MapBox GL JS or Cesium.
 
-## Run from Docker
+## Docker
 
 Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
-- 0.9.0, 0.9.1
+- 0.9.0, 0.9.1, 0.9.2
 
 - 0.5, 0.6, 0.7, 0.8 release
 
@@ -203,6 +211,8 @@ Press F5 to start debugging.
 
 
 ## History
+
+2020-05-07: release 0.9, rewriting tiling method 
 
 2019-11-18: release 0.8 adding -f, --featurespertile and -e, --extenttile options
 

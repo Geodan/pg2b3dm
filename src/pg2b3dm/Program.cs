@@ -36,7 +36,6 @@ namespace pg2b3dm
                     Console.WriteLine();
                 }
 
-
                 Console.WriteLine($"start processing....");
 
                 var stopWatch = new Stopwatch();
