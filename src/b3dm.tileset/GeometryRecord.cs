@@ -18,5 +18,6 @@ namespace B3dm.Tileset
         public int BatchId { get; set; }
 
         public object[] Attributes { get; set; }
+
     }
 }

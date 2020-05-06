@@ -7,7 +7,6 @@ using System.Reflection;
 using B3dm.Tile;
 using B3dm.Tileset;
 using CommandLine;
-using Newtonsoft.Json;
 using Npgsql;
 using Wkb2Gltf;
 using Wkx;
@@ -66,7 +65,7 @@ namespace pg2b3dm
                 var conn = new NpgsqlConnection(connectionString);
                 conn.Open();
 
-                var lods = (lodcolumn != string.Empty ? GetLods(conn, geometryTable, lodcolumn) : new List<int> { 0 });
+                var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, geometryTable, lodcolumn) : new List<int> { 0 });
                 if((geometricErrors.Length != lods.Count + 1) && lodcolumn==string.Empty) {
                     Console.WriteLine($"lod levels: [{ String.Join(',', lods)}]");
                     Console.WriteLine($"geometric errors: {o.GeometricErrors}");
@@ -99,7 +98,9 @@ namespace pg2b3dm
                 Console.WriteLine($"tiles with features: {nrOfTiles} ");
                 CalculateBoundingBoxes(translation, tiles.tiles, bbox3d.ZMin, bbox3d.ZMax);
                 Console.WriteLine("writing tileset.json...");
-                WiteTilesetJson(translation, tiles.tiles, o.Output, box, geometricErrors[0]);
+                var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0]);
+                File.WriteAllText($"{o.Output}/tileset.json", json);
+
                 WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn);
 
                 conn.Close();
@@ -114,9 +115,7 @@ namespace pg2b3dm
         {
             var res = new double[] { translation[0] * -1, translation[1] * -1, translation[2] * -1 };
             return res;
-
         }
-
 
         private static void CalculateBoundingBoxes(double[] translation, List<Tile> tiles, double minZ, double maxZ)
         {
@@ -134,24 +133,6 @@ namespace pg2b3dm
             }
         }
 
-
-        private static List<int> GetLods(NpgsqlConnection conn, string geometryTable, string lodcolumn)
-        {
-            var res = new List<int>();
-            var sql = $"select distinct({lodcolumn}) from {geometryTable} order by {lodcolumn}";
-
-            var cmd = new NpgsqlCommand(sql, conn);
-            var reader = cmd.ExecuteReader();
-            while (reader.Read()) {
-                var id = reader.GetInt32(0);
-                res.Add(id);
-            }
-
-            reader.Close();
-            return res;
-        }
-
-
         private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumn = "", string lodColumn="")
         {
             foreach (var t in tiles) {
@@ -163,7 +144,9 @@ namespace pg2b3dm
 
                 var triangleCollection = GetTriangles(geometries);
 
-                var b3dm = GetB3dm(attributesColumn, geometries, triangleCollection);
+                var attributes = GetAttributes(geometries);
+
+                var b3dm = B3dmCreator.GetB3dm(attributesColumn, attributes, triangleCollection);
 
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
 
@@ -175,42 +158,15 @@ namespace pg2b3dm
             return counter;
         }
 
-        private static B3dm.Tile.B3dm GetB3dm(string attributesColumn, List<GeometryRecord> geometries, TriangleCollection triangleCollection)
+        private static List<object> GetAttributes(List<GeometryRecord> geometries)
         {
-            var bytes = GlbCreator.GetGlb(triangleCollection);
-            var b3dm = new B3dm.Tile.B3dm(bytes);
-            var featureTable = new FeatureTable {
-                BATCH_LENGTH = geometries.Count
-            };
-            b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable);
-
-            if (attributesColumn != string.Empty) {
-                var batchtable = new BatchTable();
-                var allattributes = new List<object>();
-                foreach (var geom in geometries) {
-                    // only take the first now....
-                    allattributes.Add(geom.Attributes[0]);
-                }
-
-                var item = new BatchTableItem {
-                    Name = attributesColumn,
-                    Values = allattributes.ToArray()
-                };
-                batchtable.BatchTableItems.Add(item);
-                var json = JsonConvert.SerializeObject(batchtable, new BatchTableJsonConverter(typeof(BatchTable)));
-                b3dm.BatchTableJson = json;
+            var allattributes = new List<object>();
+            foreach (var geom in geometries) {
+                // only take the first now....
+                allattributes.Add(geom.Attributes[0]);
             }
-
-            return b3dm;
+            return allattributes;
         }
-
-        private static void WiteTilesetJson(double[] translation, List<Tile> tiles, string outputPath, double[] box, double maxGeometricError)
-        {
-            var tileset = TreeSerializer.ToTileset(tiles, translation, box, maxGeometricError);
-            var s = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-            File.WriteAllText($"{outputPath}/tileset.json", s);
-        }
-
 
         public static TriangleCollection GetTriangles(List<GeometryRecord> geomrecords)
         {

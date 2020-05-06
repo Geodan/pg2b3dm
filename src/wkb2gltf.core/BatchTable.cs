@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace B3dm.Tileset
+namespace Wkb2Gltf
 {
     public class BatchTable
     {

@@ -1,9 +1,17 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace B3dm.Tileset
 {
     public static class TreeSerializer
     {
+
+        public static string ToJson(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError)
+        {
+            var tileset = ToTileset(tiles, transform, box, maxGeometricError);
+            var json = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            return json; ;
+        }
 
         public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError)
         {
@@ -30,19 +38,19 @@ namespace B3dm.Tileset
                 transform = translation,
                 boundingVolume = boundingVolume
             };
-            var children = GetChildren(tiles, translation);
+            var children = GetChildren(tiles);
             root.children = children;
             return root;
         }
 
-        private static List<Child> GetChildren(List<Tile> tiles, double[] translation)
+        private static List<Child> GetChildren(List<Tile> tiles)
         {
             var children = new List<Child>();
             foreach (var tile in tiles) {
-                var child = GetChild(tile, translation);
+                var child = GetChild(tile);
 
                 if (tile.Children != null) {
-                    child.children = GetChildren(tile.Children, translation);
+                    child.children = GetChildren(tile.Children);
                 }
                 children.Add(child);
             }
@@ -50,7 +58,7 @@ namespace B3dm.Tileset
             return children;
         }
 
-        public static Child GetChild(Tile tile, double[] translation)
+        public static Child GetChild(Tile tile)
         {
             var child = new Child {
                 geometricError = tile.GeometricError,

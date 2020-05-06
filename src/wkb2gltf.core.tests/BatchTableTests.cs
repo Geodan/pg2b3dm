@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace B3dm.Tileset.Tests
+namespace Wkb2Gltf.Tests
 {
     public class BatchTableTests
     {

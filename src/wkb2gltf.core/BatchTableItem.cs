@@ -1,4 +1,4 @@
-﻿namespace B3dm.Tileset
+﻿namespace Wkb2Gltf
 {
     public class BatchTableItem
     {

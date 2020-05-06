@@ -1,5 +1,4 @@
-﻿
-namespace pg2b3dm
+﻿namespace Wkb2Gltf
 {
 
     public class FeatureTable

@@ -3,7 +3,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace B3dm.Tileset
+namespace Wkb2Gltf
 {
     public class BatchTableJsonConverter : JsonConverter
     {
