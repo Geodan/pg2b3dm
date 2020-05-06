@@ -108,6 +108,11 @@ Id column rules:
 
 - if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
 
+## Geometric errors
+
+By default, as geometric errors [500,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in 
+the -g option. When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal interval between 500 and 0.
+
 ## Getting started
 
 See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and visualize buildings in MapBox GL JS or Cesium.
