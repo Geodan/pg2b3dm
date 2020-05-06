@@ -1,6 +1,7 @@
-﻿using Wkx;
+﻿using System.Collections.Generic;
+using Wkx;
 
-namespace B3dm.Tileset
+namespace Wkb2Gltf
 {
     public class GeometryRecord
     {
@@ -18,6 +19,14 @@ namespace B3dm.Tileset
         public int BatchId { get; set; }
 
         public object[] Attributes { get; set; }
+
+        public List<Triangle> GetTriangles()
+        {
+            var surface = (PolyhedralSurface)Geometry;
+            var colors = HexColors;
+            var triangles = Triangulator.GetTriangles(surface, colors, BatchId);
+            return triangles;
+        }
 
     }
 }

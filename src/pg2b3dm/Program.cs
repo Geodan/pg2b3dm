@@ -171,19 +171,12 @@ namespace pg2b3dm
         {
             var triangleCollection = new List<Wkb2Gltf.Triangle>();
             foreach (var g in geomrecords) {
-                var triangles = GetTriangles(g);
+                var triangles = g.GetTriangles();
                 triangleCollection.AddRange(triangles);
             }
 
             return triangleCollection;
         }
 
-        private static List<Wkb2Gltf.Triangle> GetTriangles(GeometryRecord g)
-        {
-            var surface = (PolyhedralSurface)g.Geometry;
-            var colors = g.HexColors;
-            var triangles = Triangulator.GetTriangles(surface, colors, g.BatchId);
-            return triangles;
-        }
     }
 }

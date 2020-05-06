@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using Npgsql;
+using Wkb2Gltf;
 using Wkx;
 
 namespace B3dm.Tileset
