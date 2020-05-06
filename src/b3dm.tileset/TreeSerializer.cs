@@ -6,14 +6,14 @@ namespace B3dm.Tileset
     public static class TreeSerializer
     {
 
-        public static string ToJson(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError)
+        public static string ToJson(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError, string refinement)
         {
-            var tileset = ToTileset(tiles, transform, box, maxGeometricError);
+            var tileset = ToTileset(tiles, transform, box, maxGeometricError, refinement);
             var json = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
             return json; ;
         }
 
-        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError)
+        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError, string refinement)
         {
             var geometricError = maxGeometricError;
             var tileset = new TileSet {
@@ -21,12 +21,12 @@ namespace B3dm.Tileset
             };
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
             tileset.geometricError = geometricError;
-            var root = GetRoot(tiles, geometricError, t, box);
+            var root = GetRoot(tiles, geometricError, t, box, refinement);
             tileset.root = root;
             return tileset;
         }
 
-        private static Root GetRoot(List<Tile> tiles, double geometricError, double[] translation, double[] box)
+        private static Root GetRoot(List<Tile> tiles, double geometricError, double[] translation, double[] box, string refinement)
         {
             var boundingVolume = new Boundingvolume {
                 box = box
@@ -34,7 +34,7 @@ namespace B3dm.Tileset
 
             var root = new Root {
                 geometricError = geometricError,
-                refine = "REPLACE",
+                refine = refinement,
                 transform = translation,
                 boundingVolume = boundingVolume
             };

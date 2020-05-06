@@ -67,7 +67,9 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -e, --extenttile       (Default: 1000) Maximum extent per tile
 
-  -g, --geometricerrors   (Default: 500, 0) Geometric errors
+  -g, --geometricerrors  (Default: 500, 0) Geometric errors
+
+  --refinement           (Default: REPLACE) Refinement method (REPLACE/ADD)
   
   --help                Display this help screen.
 
@@ -110,7 +112,7 @@ Id column rules:
 
 ## Geometric errors
 
-By default, as geometric errors [500,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in 
+- By default, as geometric errors [500,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in 
 the -g option. When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal interval between 500 and 0.
 
 ## Getting started

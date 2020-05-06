@@ -17,7 +17,7 @@ namespace B3dm.Tileset.Tests
             var bbox = new double[] { 0, 0, 1, 1 };
 
             // act
-            var json = TreeSerializer.ToJson(tiles, translation, bbox, 500);
+            var json = TreeSerializer.ToJson(tiles, translation, bbox, 500, "replace");
             var jsonobject = JObject.Parse(json);
             Assert.IsTrue(jsonobject != null);
         }
@@ -35,7 +35,7 @@ namespace B3dm.Tileset.Tests
             var bbox = new double[] { 0, 0, 1, 1 };
 
             // assert
-            var tileset = TreeSerializer.ToTileset(tiles, translation, bbox, 500);
+            var tileset = TreeSerializer.ToTileset(tiles, translation, bbox, 500, "replace");
             Assert.IsTrue(tileset.root.children.Count == 2);
         }
 
@@ -56,7 +56,7 @@ namespace B3dm.Tileset.Tests
             var bbox = new double[] { 0, 0, 1, 1 };
 
             // assert
-            var tileset = TreeSerializer.ToTileset(tiles, translation, bbox, 500);
+            var tileset = TreeSerializer.ToTileset(tiles, translation, bbox, 500, "replace");
             Assert.IsTrue(tileset.root.children[0].children.Count == 1);
         }
     }

@@ -9,7 +9,6 @@ using B3dm.Tileset;
 using CommandLine;
 using Npgsql;
 using Wkb2Gltf;
-using Wkx;
 
 namespace pg2b3dm
 {
@@ -97,7 +96,7 @@ namespace pg2b3dm
                 Console.WriteLine($"tiles with features: {nrOfTiles} ");
                 CalculateBoundingBoxes(translation, tiles.tiles, bbox3d.ZMin, bbox3d.ZMax);
                 Console.WriteLine("writing tileset.json...");
-                var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0]);
+                var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement);
                 File.WriteAllText($"{o.Output}/tileset.json", json);
 
                 WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn);
