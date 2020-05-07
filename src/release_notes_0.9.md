@@ -55,7 +55,7 @@ The tool should work the same as before, remember option -f is removed. Changed 
 
 - Fill column lod with values like 0, 1 (for two lods). LOD 0 for more general/simplified features (used when zoomed out), LOD 1 for more detailed tiles (used when zoomed in).
 
-There can also be more than 2 LODS.
+There can also be more than 2 LODS. LOD values can be any number, so for example lods [4, 8, 30] is allowed. 
 
 - Give unique id's to same geometry on different LOD's
 
@@ -67,9 +67,11 @@ Warning: tile creation will take more time when LOD's are used.
 
 Result should look like https://bertt.github.io/mapbox_3dtiles_samples/index.html (see blue or red buildings depending on distance to camera)
 
-# 
+## 
 
 History
+
+- 0.9.3: adding --refine, change database connection, change LOD values (can be any number)
 
 - 0.9.2: create a real quadtree for lods instead of single subchild
 
