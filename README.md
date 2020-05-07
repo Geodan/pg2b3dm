@@ -11,15 +11,17 @@ Differences to py3dtiles:
 
 - performance improvements;
 
-- loading geometries in batches in memory instead of full datataset;
+- memory usage improvements;
 
 - fixed glTF warnings;
 
-- added color option;
+- added colors option;
 
 - added LOD support;
 
 - added output directory option;
+
+- added refinement method (add or replace) support;
 
 - Docker support.
 
@@ -120,8 +122,7 @@ Id column rules:
 
 ## Geometric errors
 
-- By default, as geometric errors [500,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in 
-the -g option. When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal interval between 500 and 0.
+- By default, as geometric errors [500,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in the -g option. When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal intervals between 500 and 0.
 
 ## Getting started
 
@@ -135,7 +136,7 @@ Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
-- 0.9.:3 stable build
+- 0.9.3 stable build
 
 - latest: is build automatically after push to master
 
@@ -227,7 +228,7 @@ Press F5 to start debugging.
 
 ## History
 
-2020-05-07: release 0.9, rewriting tiling method 
+2020-05-07: release 0.9.3, rewriting tiling method 
 
 2019-11-18: release 0.8 adding -f, --featurespertile and -e, --extenttile options
 
