@@ -19,7 +19,7 @@ jobs:
     - name: Build with dotnet
       working-directory: src      
       run: dotnet build --configuration Release
-    - name: Uni testing
+    - name: Unit testing
       working-directory: src
       run: dotnet test --configuration Release
       
