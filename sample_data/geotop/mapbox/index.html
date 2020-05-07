@@ -1,11 +1,11 @@
 <html>
     <head>
-        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.2.1/mapbox-gl.js'></script>
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/107/three.min.js'></script>
-        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.2.1/mapbox-gl.css' rel='stylesheet' />
-        <script src="GLTFLoader.js"></script>
-        <script src="Mapbox3DTiles.js"></script>
-        <style>
+        <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.9.0/mapbox-gl.js'></script>
+        <script src='../../three.min.js'></script>
+        <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.9.0/mapbox-gl.css' rel='stylesheet' />
+        <script src="../../GLTFLoader.js"></script>
+        <script src="../../Mapbox3DTiles.js"></script>
+    <style>
             body { margin:0; padding:0; }
             #map { position:absolute; top:0; bottom:0; width:100%; }
             #controls { position:absolute; top:0; left:0; }
@@ -14,7 +14,7 @@
     </head>
     <body>
             <div id='map'></div>
-            <div id='legend'><img src="./geotop/geotop.png" alt="geotop legend" style="float:left;width:auto;height:150px;"> </div>
+            <div id='legend'><img src="geotop.png" alt="geotop legend" style="float:left;width:auto;height:150px;"> </div>
             <script>
             mapboxgl.accessToken = 'pk.eyJ1IjoiYmVydHQiLCJhIjoiaWFvN1Z4USJ9.k04Q6CVms4Gx7KDZxvAx2A';
 
@@ -30,7 +30,7 @@
             map.on('style.load', function() {
                 let tileslayer = new Mapbox3DTiles.Layer( { 
                     id: 'test', 
-                    url: './geotop/tileset.json'
+                    url: 'tileset.json'
                 } );
                 map.addLayer(tileslayer, 'waterway-label');
             });

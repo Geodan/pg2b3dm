@@ -1,4 +1,6 @@
-﻿# pg2b3dm
+# pg2b3dm
+ 
+ ![.NET Core](https://github.com/Geodan/pg2b3dm/workflows/.NET%20Core/badge.svg)
 
 Tool for converting from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software started as a port of py3dtiles (https://github.com/Oslandia/py3dtiles) 
 for generating b3dm tiles.
@@ -28,7 +30,11 @@ Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdire
 
 ## Live Sample viewers
 
-- GeoTop Subsurface in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/index_geotop.html
+- Texel - 3D Terrain, subsurface and buildings in MapBox GL JS: http://beta.geodan.nl/mapbox3d
+
+![texel](https://user-images.githubusercontent.com/538812/77528003-74f6d900-6e8d-11ea-968e-5c510b6a1ad3.png)
+
+- GeoTop Subsurface in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/geotop/mapbox/
 
 - Amsterdam Buildings in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/amsterdam/mapbox/
 
@@ -37,6 +43,8 @@ Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdire
 - Dover - Delaware buildings in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/delaware/mapbox/
 
 - Dover - Delaware buildings in Cesium: https://geodan.github.io/pg2b3dm/sample_data/delaware/cesium/
+
+- Duisburg buidings converted from CityGML in MapBox GL JS - https://geodan.github.io/pg2b3dm/sample_data/duisburg/mapbox/#15.62/51.430166/6.782675/0/45
 
 ## Command line options
 
@@ -119,7 +127,9 @@ the -g option. When using multiple LOD and the -g option is not specified, the g
 
 See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and visualize buildings in MapBox GL JS or Cesium.
 
-## Docker
+For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
+
+## Run from Docker
 
 Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
