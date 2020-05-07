@@ -29,7 +29,7 @@
              map.on('style.load', function() {
                 let tileslayer = new Mapbox3DTiles.Layer( { 
                     id: 'utrecht', 
-                    url: 'tileset.json'
+                    url: './test/tileset.json'
                 } );
                 map.addLayer(tileslayer, 'waterway-label');
             });

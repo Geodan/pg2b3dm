@@ -18,6 +18,27 @@ namespace B3dm.Tileset
             this.ZMax = ZMax;
 
         }
+
+        public BoundingBox3D(double[] box)
+        {
+            var center = new Point(box[0], box[1], box[2]);
+            XMin = (double)center.X - box[3];
+            YMin = (double)center.Y - box[7];
+            ZMin = (double)center.Z - box[11];
+            XMax = (double)center.X + box[3];
+            YMax = (double)center.Y + box[7];
+            ZMax = (double)center.Z + box[11];
+        }
+
+        public Point FromPoint()
+        {
+            return new Point(XMin, YMin, ZMin);
+        }
+        public Point ToPoint()
+        {
+            return new Point(XMax, YMax, ZMax);
+        }
+
         public double XMin { get; set; }
         public double XMax { get; set; }
         public double YMin { get; set; }
@@ -35,14 +56,29 @@ namespace B3dm.Tileset
             return new Point(x,y,z);
         }
 
+        // this one is used by pg2b3dm
         public BoundingBox3D TransformYToZ()
+        {
+            var res = new BoundingBox3D();
+            res.XMin = XMin;
+            res.YMin = ZMin;
+            res.ZMin = YMin*-1;
+            res.XMax = XMax;
+            res.YMax = ZMax;
+            res.ZMax = YMax*-1;
+            res.Id = Id;
+            return res;
+        }
+
+        // this one is used for tranforming for translation + bbox to bbox
+        public BoundingBox3D TransformZToY()
         {
             var res = new BoundingBox3D();
             res.XMin = XMin;
             res.YMin = ZMin * -1;
             res.ZMin = YMin;
             res.XMax = XMax;
-            res.YMax = ZMin * -1; // heuh?
+            res.YMax = ZMax * -1;
             res.ZMax = YMax;
             res.Id = Id;
             return res;

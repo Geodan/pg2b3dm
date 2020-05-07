@@ -1,96 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using B3dm.Tile;
-using Wkb2Gltf;
+using Npgsql;
 using Wkx;
 
 namespace B3dm.Tileset
 {
     public static class TileCutter
     {
-        public static Node ConstructTree(List<BoundingBox3D> zupboxes, int FeaturesPerTile, double MaxTileSize)
+        private static int counter = 0;
+        public static Boundingvolume GetBoundingvolume(BoundingBox3D bbox3d)
         {
-            // select min and max from zupboxes for x and y
-            var bbox3d = BoundingBoxCalculator.GetBoundingBox(zupboxes);
-            var bbox = bbox3d.ToBoundingBox();
+            var boundingVolume = new Boundingvolume {
+                box = bbox3d.GetBox()
+            };
+            return boundingVolume;
+        }
 
-            var xrange = (int)Math.Ceiling(bbox3d.ExtentX() / MaxTileSize);
-            var yrange = (int)Math.Ceiling(bbox3d.ExtentY() / MaxTileSize);
+        public static (int tileId, List<Tile> tiles) GetTiles(int tileId, NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, BoundingBox3D box3d, int epsg, int currentLod, List<int> lods, double[] geometricErrors, string lodcolumn = "")
+        {
+            var tiles = new List<Tile>();
 
-            var tree = new Node();
+            var xrange = (int)Math.Ceiling(box3d.ExtentX() / extentTile);
+            var yrange = (int)Math.Ceiling(box3d.ExtentY() / extentTile);
 
             for (var x = 0; x < xrange; x++) {
                 for (var y = 0; y < yrange; y++) {
-                    var tileextent = B3dmTile.GetExtent(bbox, MaxTileSize, x, y);
-                    var features = new List<Feature>();
+                    if (currentLod == 0) {
+                        counter++;
+                        var perc = Math.Round((double)counter / (xrange*yrange) * 100, 2);
+                        Console.Write($"\rcreating quadtree: {counter}/{xrange * yrange} - {perc:F}%");
+                    }
 
-                    // loop through all zupboxes
-                    foreach (var zUpBox in zupboxes) {
-                        var isinside = tileextent.Inside(zUpBox.GetCenter());
-                        if (isinside) {
-                            var f = new Feature() { Id = zUpBox.Id, BoundingBox3D = zUpBox };
-                            features.Add(f);
+                    var lodQuery = LodQuery.GetLodQuery(lodcolumn, lods[currentLod]);
+                    var from = new Point(box3d.XMin + extentTile * x, box3d.YMin + extentTile * y);
+                    var to = new Point(box3d.XMin + extentTile * (x + 1), box3d.YMin + extentTile * (y + 1));
+                    var hasFeatures = BoundingBoxRepository.HasFeaturesInBox(conn, geometryTable, geometryColumn, from, to, epsg, lodQuery);
+                    if (hasFeatures) {
+                        tileId++;
+                        var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y)) {
+                            Lod = lods[currentLod],
+                            GeometricError = geometricErrors[currentLod]
+                        };
+                        if (currentLod < lods.Count - 1) {
+                            var newBox3d = new BoundingBox3D((double)from.X, (double)from.Y, (double)box3d.FromPoint().Z, (double)to.X, (double)to.Y, (double)box3d.ToPoint().Z);
+                            var new_tiles = GetTiles(tileId, conn, extentTile / 2, geometryTable, geometryColumn, newBox3d, epsg, currentLod + 1, lods, geometricErrors, lodcolumn);
+                            tile.Children = new_tiles.tiles;
+                            tileId = new_tiles.tileId;
                         }
+                        tiles.Add(tile);
                     }
-
-                    if (features.Count == 0) {
-                        continue;
-                    }
-                    var node = new Node();
-                    if (features.Count > FeaturesPerTile) {
-                        node.Features = features.Take(FeaturesPerTile).ToList();
-                        var new_features = features.GetRange(FeaturesPerTile, features.Count - FeaturesPerTile).ToList();
-                        var new_x = x * 2;
-                        var new_y = y * 2;
-                        var new_maxTileSize = MaxTileSize / 2;
-                        Divide(tileextent, new_features, new_x, new_y, new_maxTileSize, FeaturesPerTile, node);
-                    }
-                    else {
-                        node.Features = features;
-                    }
-                    tree.Children.Add(node);
-                }
-
-            }
-            return tree;
-        }
-
-        private static void Divide(BoundingBox extent, List<Feature> features, int XOffset, int YOffset, double TileSize, int FeaturesPerTile, Node parent)
-        {
-            for (var i = 0; i < 2; i++) {
-                for (var j = 0; j < 2; j++) {
-                    var tileextent = B3dmTile.GetExtent(extent, TileSize, i, j);
-                    var insideFeatures = new List<Feature>();
-
-                    foreach (var f in features) {
-                        var center = f.BoundingBox3D.GetCenter();
-                        var isinside = tileextent.Inside(center);
-                        if (isinside) {
-                            var new_f = new Feature() { Id = f.Id, BoundingBox3D = f.BoundingBox3D };
-                            insideFeatures.Add(new_f);
-                        }
-                    }
-
-                    if (insideFeatures.Count == 0) {
-                        continue;
-                    }
-
-                    var node = new Node();
-                    if (insideFeatures.Count > FeaturesPerTile) {
-                        node.Features = insideFeatures.Take(FeaturesPerTile).ToList();
-                        var new_features = insideFeatures.GetRange(FeaturesPerTile, insideFeatures.Count - FeaturesPerTile).ToList();
-                        var new_x = (XOffset + i) * 2;
-                        var new_y = (YOffset + j) * 2;
-                        var new_maxTileSize = TileSize / 2;
-                        Divide(tileextent, new_features, new_x, new_y, new_maxTileSize, FeaturesPerTile, node);
-                    }
-                    else {
-                        node.Features = insideFeatures;
-                    }
-                    parent.Children.Add(node);
                 }
             }
+            return (tileId, tiles);
         }
+
     }
 }

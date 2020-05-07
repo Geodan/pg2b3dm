@@ -1,29 +1,40 @@
-﻿using System.Collections.Generic;
+﻿using Wkx;
 
 namespace B3dm.Tileset
 {
     public class BoundingBoxCalculator
     {
-        public static BoundingBox3D GetBoundingBox(List<BoundingBox3D> boxes)
+        public static BoundingBox3D TranslateRotateX(BoundingBox3D bb, double[] translation, double rotation)
         {
-            var xmin = double.MaxValue;
-            var ymin = double.MaxValue;
-            var zmin = double.MaxValue;
-            var xmax = double.MinValue;
-            var ymax = double.MinValue;
-            var zmax = double.MinValue;
+            var from = TranslateRotateX(bb.FromPoint(), translation, rotation);
+            var to = TranslateRotateX(bb.ToPoint(), translation, rotation);
+            var bbNew = new BoundingBox3D((double)from.X, (double)from.Y, (double)from.Z, (double)to.X, (double)to.Y, (double)to.Z);
+            var boundingBox = bbNew.TransformYToZ();
+            return boundingBox;
+        }
 
+        public static Point TranslateRotateX(Point p, double[] translation, double rotation)
+        {
+            var p1 = Translate(p, translation);
+            var p2 = RotateX(p1, rotation);
+            return p2;
+        }
 
-            foreach (var box in boxes) {
-                xmin = box.XMin < xmin ? box.XMin : xmin;
-                ymin = box.YMin < ymin ? box.YMin : ymin;
-                zmin = box.ZMin < zmin ? box.ZMin : zmin;
-                xmax = box.XMax > xmax ? box.XMax : xmax;
-                ymax = box.YMax > ymax ? box.YMax : ymax;
-                zmax = box.ZMax > zmax ? box.ZMax : zmax;
-            }
+        public static Point RotateXTranslate(Point p, double[] translation, double rotation)
+        {
+            var rotated = RotateX(p, rotation);
+            var p1 = Translate(rotated, translation);
+            return p1;
+        }
 
-            return new BoundingBox3D(xmin, ymin, zmin, xmax, ymax, zmax);
+        public static Point Translate(Point p, double[] translation)
+        {
+            return p.Translate(translation[0], translation[1], translation[2]);
+        }
+
+        public static Point RotateX(Point p, double rotation)
+        {
+            return p.RotateX(rotation);
         }
     }
 }

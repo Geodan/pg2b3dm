@@ -14,7 +14,7 @@ namespace Wkb2Gltf
             this.p0 = p0;
             this.p1 = p1;
             this.p2 = p2;
-            this.batchId = BatchId;
+            batchId = BatchId;
         }
 
         public int GetBatchId()
@@ -66,7 +66,6 @@ namespace Wkb2Gltf
             var v1 = new Vector3((float)p1.X, (float)p1.Y, (float)p1.Z);
             var v2 = new Vector3((float)p2.X, (float)p2.Y, (float)p2.Z);
             return (v0, v1, v2);
-
         }
     }
 }

@@ -7,17 +7,14 @@ using System.Reflection;
 using B3dm.Tile;
 using B3dm.Tileset;
 using CommandLine;
-using Newtonsoft.Json;
 using Npgsql;
 using Wkb2Gltf;
-using Wkx;
 
 namespace pg2b3dm
 {
     class Program
     {
         static string password = string.Empty;
-        static int counter = 1;
 
         static void Main(string[] args)
         {
@@ -32,19 +29,19 @@ namespace pg2b3dm
                 var istrusted = TrustedConnectionChecker.HasTrustedConnection(connectionString);
 
                 if (!istrusted) {
-                    Console.Write($"Password for user {o.User}: ");
+                    Console.Write($"password for user {o.User}: ");
                     password = PasswordAsker.GetPassword();
                     connectionString += $";password={password}";
                     Console.WriteLine();
                 }
 
-                Console.WriteLine($"Start processing....");
+                Console.WriteLine($"start processing....");
 
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
 
                 var output = o.Output;
-                var outputTiles = output + "/tiles";
+                var outputTiles = $"{output}{Path.DirectorySeparatorChar}tiles";
                 if (!Directory.Exists(output)) {
                     Directory.CreateDirectory(output);
                 }
@@ -52,97 +49,126 @@ namespace pg2b3dm
                     Directory.CreateDirectory(outputTiles);
                 }
 
+                Console.WriteLine($"input table:  {o.GeometryTable}");
+                Console.WriteLine($"input geometry column:  {o.GeometryColumn}");
+
+                Console.WriteLine($"output directory:  {outputTiles}");
+
                 var geometryTable = o.GeometryTable;
                 var geometryColumn = o.GeometryColumn;
                 var idcolumn = o.IdColumn;
-                Console.WriteLine("Calculating bounding boxes...");
+                var lodcolumn = o.LodColumn;
+                var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse); ;
+
                 var conn = new NpgsqlConnection(connectionString);
-                conn.Open();
-                var bbox3d = BoundingBoxRepository.GetBoundingBox3D(conn, geometryTable, geometryColumn);
 
+                var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, geometryTable, lodcolumn) : new List<int> { 0 });
+                if((geometricErrors.Length != lods.Count + 1) && lodcolumn==string.Empty) {
+                    Console.WriteLine($"lod levels: [{ String.Join(',', lods)}]");
+                    Console.WriteLine($"geometric errors: {o.GeometricErrors}");
+
+                    Console.WriteLine("error: parameter -g --geometricerrors is wrongly specified...");
+                    Console.WriteLine("end of program...");
+                    Environment.Exit(0);
+                }
+                if (lodcolumn != String.Empty){
+                    Console.WriteLine($"lod levels: {String.Join(',', lods)}");
+
+                    if (lods.Count >= geometricErrors.Length) {
+                        Console.WriteLine($"calculating geometric errors starting from {geometricErrors[0]}");
+                        geometricErrors = GeometricErrorCalculator.GetGeometricErrors(geometricErrors[0], lods);
+                    }
+                };
+                Console.WriteLine("geometric errors: " + String.Join(',', geometricErrors));
+
+                var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn);
+                // Console.WriteLine($"3D Boundingbox {geometryTable}.{geometryColumn}: [{bbox3d.XMin}, {bbox3d.YMin}, {bbox3d.ZMin},{bbox3d.XMax},{bbox3d.YMax}, {bbox3d.ZMax}]");
                 var translation = bbox3d.GetCenter().ToVector();
-                var zupBoxes = GetZupBoxes(conn, geometryTable, geometryColumn, idcolumn, translation);
-                var tree = TileCutter.ConstructTree(zupBoxes, o.FeaturesPerTile, o.ExtentTile);
+               //  Console.WriteLine($"translation {geometryTable}.{geometryColumn}: [{string.Join(',', translation) }]");
+                var boundingboxAllFeatures = BoundingBoxCalculator.TranslateRotateX(bbox3d, Reverse(translation), Math.PI / 2);
+                var box = boundingboxAllFeatures.GetBox();
+                var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
+                Console.WriteLine($"spatial reference: {sr}");
+                var tiles = TileCutter.GetTiles(0, conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, 0, lods, geometricErrors.Skip(1).ToArray(), lodcolumn);
+                Console.WriteLine();
+                var nrOfTiles = RecursiveTileCounter.CountTiles(tiles.tiles, 0);
+                Console.WriteLine($"tiles with features: {nrOfTiles} ");
+                CalculateBoundingBoxes(translation, tiles.tiles, bbox3d.ZMin, bbox3d.ZMax);
+                Console.WriteLine("writing tileset.json...");
+                var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement);
+                File.WriteAllText($"{o.Output}/tileset.json", json);
 
-                Console.WriteLine("Writing tileset.json...");
-                WiteTilesetJson(translation, tree, o.Output);
+                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn);
 
-                Console.WriteLine($"Writing {Counter.Instance.Count} tiles...");
-                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tree, o.Output, o.RoofColorColumn, o.AttributesColumn);
-                conn.Close();
                 stopWatch.Stop();
                 Console.WriteLine();
-                Console.WriteLine($"Elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");
-                Console.WriteLine("Program finished.");
+                Console.WriteLine($"elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");
+                Console.WriteLine("program finished.");
             });
         }
-        private static void WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, Node node, string outputPath, string colorColumn = "", string attributesColumn = "")
+
+        public static double[] Reverse(double[] translation)
         {
-            if (node.Features.Count > 0) {
+            var res = new double[] { translation[0] * -1, translation[1] * -1, translation[2] * -1 };
+            return res;
+        }
+
+        private static void CalculateBoundingBoxes(double[] translation, List<Tile> tiles, double minZ, double maxZ)
+        {
+            foreach (var t in tiles) {
+
+                var bb = t.BoundingBox;
+                var bvol = new BoundingBox3D(bb.XMin, bb.YMin, minZ, bb.XMax, bb.YMax, maxZ);
+                var bvolRotated = BoundingBoxCalculator.TranslateRotateX(bvol, Reverse(translation), Math.PI / 2);
+
+                if (t.Children != null) {
+
+                    CalculateBoundingBoxes(translation, t.Children, minZ, maxZ);
+                }
+                t.Boundingvolume = TileCutter.GetBoundingvolume(bvolRotated);
+            }
+        }
+
+        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumn = "", string lodColumn="")
+        {
+            foreach (var t in tiles) {
                 counter++;
-                var subset = (from f in node.Features select (f.Id)).ToArray();
-                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, subset, colorColumn, attributesColumn);
+                var perc = Math.Round(((double)counter / maxcount) * 100, 2);
+                Console.Write($"\rcreating tiles: {counter}/{maxcount} - {perc:F}%");
+
+                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, t, epsg, colorColumn, attributesColumn, lodColumn);
 
                 var triangleCollection = GetTriangles(geometries);
 
-                var bytes = GlbCreator.GetGlb(triangleCollection);
-                var b3dm = new B3dm.Tile.B3dm(bytes);
-                var featureTable = new FeatureTable();
-                featureTable.BATCH_LENGTH = geometries.Count;
-                b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable);
+                var attributes = GetAttributes(geometries);
 
-                if (attributesColumn != string.Empty) {
-                    var batchtable = new BatchTable();
-                    var allattributes = new List<object>();
-                    foreach(var geom in geometries) {
-                        // only take the first now....
-                        allattributes.Add(geom.Attributes[0]);
-                    }
+                var b3dm = B3dmCreator.GetB3dm(attributesColumn, attributes, triangleCollection);
 
-                    var item = new BatchTableItem();
-                    item.Name = attributesColumn;
-                    item.Values = allattributes.ToArray();
-                    batchtable.BatchTableItems.Add(item);
-                    var json = JsonConvert.SerializeObject(batchtable, new BatchTableJsonConverter(typeof(BatchTable)));
-                    b3dm.BatchTableJson = json;
+                B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
+
+                if (t.Children != null) {
+                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, t.Children, epsg, outputPath, counter, maxcount, colorColumn, attributesColumn, lodColumn);
                 }
 
-                B3dmWriter.WriteB3dm($"{outputPath}/tiles/{node.Id}.b3dm", b3dm);
             }
-            // and write children too
-            foreach (var subnode in node.Children) {
-               var perc = Math.Round(((double)counter / Counter.Instance.Count) * 100,2);
-                Console.Write($"\rProgress: tile {counter} - {perc.ToString("F")}%");
-                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, subnode, outputPath, colorColumn, attributesColumn);
-            }
+            return counter;
         }
 
-        private static void WiteTilesetJson(double[] translation, Node tree, string outputPath)
+        private static List<object> GetAttributes(List<GeometryRecord> geometries)
         {
-            var tileset = TreeSerializer.ToTileset(tree, translation);
-            var s = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-            File.WriteAllText($"{outputPath}/tileset.json", s);
-        }
-
-        private static List<BoundingBox3D> GetZupBoxes(NpgsqlConnection conn, string GeometryTable, string GeometryColumn, string idcolumn, double[] translation)
-        {
-            var bboxes = BoundingBoxRepository.GetAllBoundingBoxes(conn, GeometryTable, GeometryColumn, idcolumn, translation);
-            var zupBoxes = new List<BoundingBox3D>();
-            foreach (var bbox in bboxes) {
-                var zupBox = bbox.TransformYToZ();
-                zupBoxes.Add(zupBox);
+            var allattributes = new List<object>();
+            foreach (var geom in geometries) {
+                // only take the first now....
+                allattributes.Add(geom.Attributes[0]);
             }
-
-            return zupBoxes;
+            return allattributes;
         }
 
-        public static TriangleCollection GetTriangles(List<GeometryRecord> geomrecords)
+        public static List<Wkb2Gltf.Triangle> GetTriangles(List<GeometryRecord> geomrecords)
         {
-            var triangleCollection = new TriangleCollection();
+            var triangleCollection = new List<Wkb2Gltf.Triangle>();
             foreach (var g in geomrecords) {
-                var surface = (PolyhedralSurface)g.Geometry;
-                var colors = g.HexColors;
-                var triangles = Triangulator.GetTriangles(surface, colors, g.BatchId);
+                var triangles = g.GetTriangles();
                 triangleCollection.AddRange(triangles);
             }
 
