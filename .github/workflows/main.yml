@@ -17,4 +17,5 @@ jobs:
       with:
         dotnet-version: 3.1.100
     - name: Build with dotnet
+      working-directory: src      
       run: dotnet build --configuration Release
