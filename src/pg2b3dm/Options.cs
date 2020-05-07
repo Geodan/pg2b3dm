@@ -34,7 +34,7 @@ namespace pg2b3dm
         [Option('g', "geometricerrors", Required = false, Default = "500,0", HelpText = "Geometric errors")]
         public string GeometricErrors { get; set; }
 
-        [Option("refinement", Required = false, Default = "REPLACE", HelpText = "Refinement method")]
+        [Option("refine", Required = false, Default = "REPLACE", HelpText = "Refinement method (ADD/REPLACE)")]
         public string Refinement { get; set; }
     }
 }

@@ -10,7 +10,7 @@ namespace B3dm.Tileset
         {
             var res = new List<int>();
             var sql = $"select distinct({lodcolumn}) from {geometryTable} order by {lodcolumn}";
-
+            conn.Open();
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
             while (reader.Read()) {
@@ -19,6 +19,7 @@ namespace B3dm.Tileset
             }
 
             reader.Close();
+            conn.Close();
             return res;
         }
 

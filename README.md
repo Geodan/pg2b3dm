@@ -69,7 +69,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -g, --geometricerrors  (Default: 500, 0) Geometric errors
 
-  --refinement           (Default: REPLACE) Refinement method (REPLACE/ADD)
+  --refine               (Default: REPLACE) Refinement method (REPLACE/ADD)
   
   --help                Display this help screen.
 

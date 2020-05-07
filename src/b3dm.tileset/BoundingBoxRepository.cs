@@ -13,16 +13,19 @@ namespace B3dm.Tileset
         public static bool HasFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, int epsg, string lodQuery)
         {
             var sql = $"select exists(select {geometry_column} from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({from.X}, {from.Y}, {to.X}, {to.Y}, {epsg})) and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {lodQuery})";
+            conn.Open();
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
             reader.Read();
             var exists = reader.GetBoolean(0);
             reader.Close();
+            conn.Close();
             return exists;
         }
 
         public static BoundingBox3D GetBoundingBox3DForTable(NpgsqlConnection conn, string geometry_table, string geometry_column)
         {
+            conn.Open();
             var sql = $"SELECT st_xmin(geom1), st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface') as t";
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
@@ -34,6 +37,7 @@ namespace B3dm.Tileset
             var ymax = reader.GetDouble(4);
             var zmax = reader.GetDouble(5);
             reader.Close();
+            conn.Close();
             return new BoundingBox3D() { XMin = xmin, YMin = ymin, ZMin = zmin, XMax = xmax, YMax = ymax, ZMax = zmax };
         }
 
@@ -61,6 +65,7 @@ namespace B3dm.Tileset
 
             var sql = sqlselect + sqlFrom + sqlWhere;
 
+            conn.Open();
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
             var attributesColumnId = int.MinValue;
@@ -87,6 +92,7 @@ namespace B3dm.Tileset
             }
 
             reader.Close();
+            conn.Close();
             return geometries;
         }
 

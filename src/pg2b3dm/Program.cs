@@ -29,7 +29,7 @@ namespace pg2b3dm
                 var istrusted = TrustedConnectionChecker.HasTrustedConnection(connectionString);
 
                 if (!istrusted) {
-                    Console.Write($"Password for user {o.User}: ");
+                    Console.Write($"password for user {o.User}: ");
                     password = PasswordAsker.GetPassword();
                     connectionString += $";password={password}";
                     Console.WriteLine();
@@ -61,7 +61,6 @@ namespace pg2b3dm
                 var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse); ;
 
                 var conn = new NpgsqlConnection(connectionString);
-                conn.Open();
 
                 var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, geometryTable, lodcolumn) : new List<int> { 0 });
                 if((geometricErrors.Length != lods.Count + 1) && lodcolumn==string.Empty) {
@@ -73,7 +72,7 @@ namespace pg2b3dm
                     Environment.Exit(0);
                 }
                 if (lodcolumn != String.Empty){
-                    Console.WriteLine($"lod levels: [{String.Join(',', lods)}]");
+                    Console.WriteLine($"lod levels: {String.Join(',', lods)}");
 
                     if (lods.Count >= geometricErrors.Length) {
                         Console.WriteLine($"calculating geometric errors starting from {geometricErrors[0]}");
@@ -83,9 +82,9 @@ namespace pg2b3dm
                 Console.WriteLine("geometric errors: " + String.Join(',', geometricErrors));
 
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn);
-                Console.WriteLine($"3D Boundingbox {geometryTable}.{geometryColumn}: [{bbox3d.XMin}, {bbox3d.YMin}, {bbox3d.ZMin},{bbox3d.XMax},{bbox3d.YMax}, {bbox3d.ZMax}]");
+                // Console.WriteLine($"3D Boundingbox {geometryTable}.{geometryColumn}: [{bbox3d.XMin}, {bbox3d.YMin}, {bbox3d.ZMin},{bbox3d.XMax},{bbox3d.YMax}, {bbox3d.ZMax}]");
                 var translation = bbox3d.GetCenter().ToVector();
-                Console.WriteLine($"translation {geometryTable}.{geometryColumn}: [{string.Join(',', translation) }]");
+               //  Console.WriteLine($"translation {geometryTable}.{geometryColumn}: [{string.Join(',', translation) }]");
                 var boundingboxAllFeatures = BoundingBoxCalculator.TranslateRotateX(bbox3d, Reverse(translation), Math.PI / 2);
                 var box = boundingboxAllFeatures.GetBox();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
@@ -101,7 +100,6 @@ namespace pg2b3dm
 
                 WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn);
 
-                conn.Close();
                 stopWatch.Stop();
                 Console.WriteLine();
                 Console.WriteLine($"elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");

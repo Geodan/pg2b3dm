@@ -25,7 +25,6 @@ namespace B3dm.Tileset
             c.content = (Content)content.Clone();
             return c;
         }
-
     }
 
     public class Root : Child

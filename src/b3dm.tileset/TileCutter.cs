@@ -51,7 +51,6 @@ namespace B3dm.Tileset
                     }
                 }
             }
-
             return (tileId, tiles);
         }
 
