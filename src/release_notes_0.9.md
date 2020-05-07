@@ -2,9 +2,9 @@
 
 Release 0.9 has some major changes:
 
-- Tileset.json refinement method 'REPLACE' is used instead of 'ADD'
+- Tileset.json default refinement method 'REPLACE' is used instead of 'ADD'. Refinement method can be changed using --refine option
 
-- Level of detail (LOD) functionality is added (option -l --lodcolumn)
+- Level of detail (LOD) functionality is added (option -l --lodcolumn). LOD value can be any integer number.
 
 - Functionality with building quadtree with features ordered on area size is replaced with a simpler system:
 
@@ -25,13 +25,13 @@ Example for 2 lods: -g 1000,750,0
 
 ### Docker
 
-https://hub.docker.com/layers/geodan/pg2b3dm/0.9.2/images/sha256-c9b7478dec60f75e72d91d0f241b280b70e899995e989b74af05644594fb078c?context=explore
+https://hub.docker.com/r/geodan/pg2b3dm
 
 ```
-$ docker pull geodan/pg2b3dm:0.9.2
-$ docker run geodan/pg2b3dm:0.9.2
-tool: pg2b3dm 0.9.2.0
-pg2b3dm 0.9.2
+$ docker pull geodan/pg2b3dm:0.9.3
+$ docker run geodan/pg2b3dm:0.9.3
+tool: pg2b3dm 0.9.3.0
+pg2b3dm 0.9.3
 Copyright (C) 2020 pg2b3dm
 ```
 
