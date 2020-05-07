@@ -1,4 +1,6 @@
 ﻿# pg2b3dm
+ 
+ ![.NET Core](https://github.com/Geodan/pg2b3dm/workflows/.NET%20Core/badge.svg)
 
 Tool for converting from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software is a partial port of py3dtiles (https://github.com/Oslandia/py3dtiles) 
 for generating b3dm tiles.
