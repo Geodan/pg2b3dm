@@ -18,8 +18,4 @@ jobs:
         dotnet-version: 3.1.100
     - name: Build with dotnet
       working-directory: src      
-      run: dotnet build --configuration Release
-    - name: Unit testing
-      working-directory: src
-      run: dotnet test --configuration Release
-      
+      run: dotnet build --configuration Release      
