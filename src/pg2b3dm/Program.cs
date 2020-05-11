@@ -14,7 +14,7 @@ namespace pg2b3dm
 {
     class Program
     {
-        static string password = string.Empty
+        static string password = string.Empty;
 
         static void Main(string[] args)
         {
