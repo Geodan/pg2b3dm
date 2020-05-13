@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace B3dm.Tileset
 {
@@ -14,7 +15,7 @@ namespace B3dm.Tileset
                 var step = maxGeometricError / nrOfLods;
 
                 for (var i = 1; i <= lods.Count; i++) {
-                    res.Add(maxGeometricError - i * step);
+                    res.Add(Math.Round(maxGeometricError - i * step));
                 }
             }
             else {
