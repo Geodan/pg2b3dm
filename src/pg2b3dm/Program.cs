@@ -158,8 +158,10 @@ namespace pg2b3dm
         {
             var allattributes = new List<object>();
             foreach (var geom in geometries) {
-                // only take the first now....
-                allattributes.Add(geom.Attributes[0]);
+                if (geom.Attributes.Length > 0) {
+                    // only take the first now....
+                    allattributes.Add(geom.Attributes[0]);
+                }
             }
             return allattributes;
         }

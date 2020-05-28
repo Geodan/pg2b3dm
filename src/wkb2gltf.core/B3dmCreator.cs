@@ -9,24 +9,26 @@ namespace Wkb2Gltf
         {
             var bytes = GlbCreator.GetGlb(triangleCollection);
             var b3dm = new B3dm.Tile.B3dm(bytes);
-            var featureTable = new FeatureTable {
-                BATCH_LENGTH = attributes.Count
-            };
-            b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable);
 
-
-            if (attributesColumn != string.Empty) {
-                var batchtable = new BatchTable();
-
-                var item = new BatchTableItem {
-                    Name = attributesColumn,
-                    Values = attributes.ToArray()
+            if (attributes.Count > 0) {
+                var featureTable = new FeatureTable {
+                    BATCH_LENGTH = attributes.Count
                 };
-                batchtable.BatchTableItems.Add(item);
-                var json = JsonConvert.SerializeObject(batchtable, new BatchTableJsonConverter(typeof(BatchTable)));
-                b3dm.BatchTableJson = json;
-            }
+                b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable);
 
+
+                if (attributesColumn != string.Empty) {
+                    var batchtable = new BatchTable();
+
+                    var item = new BatchTableItem {
+                        Name = attributesColumn,
+                        Values = attributes.ToArray()
+                    };
+                    batchtable.BatchTableItems.Add(item);
+                    var json = JsonConvert.SerializeObject(batchtable, new BatchTableJsonConverter(typeof(BatchTable)));
+                    b3dm.BatchTableJson = json;
+                }
+            }
             return b3dm;
         }
     }
