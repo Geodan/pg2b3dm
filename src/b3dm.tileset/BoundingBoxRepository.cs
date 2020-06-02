@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using Newtonsoft.Json;
 using Npgsql;
 using Wkb2Gltf;
 using Wkx;
@@ -46,13 +47,13 @@ namespace B3dm.Tileset
             return $"ST_RotateX(ST_Translate({ geometry_column}, { translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{ translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , { translation[2].ToString(CultureInfo.InvariantCulture)}*-1), -pi() / 2)";
         }
 
-        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, string colorColumn = "", string attributesColumn = "", string lodColumn="")
+        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, ShaderMode shaderMode, string shaderColumn = "", string attributesColumn = "", string lodColumn="")
         {
             var geometries = new List<GeometryRecord>();
             var g = GetGeometryColumn(geometry_column, translation);
             var sqlselect = $"SELECT {idcolumn}, ST_AsBinary({g})";
-            if (colorColumn != String.Empty) {
-                sqlselect = $"{sqlselect}, {colorColumn} ";
+            if (shaderColumn != String.Empty) {
+                sqlselect = $"{sqlselect}, {shaderColumn} ";
             }
             if (attributesColumn != String.Empty) {
                 sqlselect = $"{sqlselect}, {attributesColumn} ";
@@ -69,8 +70,13 @@ namespace B3dm.Tileset
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
             var attributesColumnId = int.MinValue;
+            var shadersColumnId = int.MinValue;
+
             if (attributesColumn != String.Empty) {
                 attributesColumnId = FindField(reader, attributesColumn);
+            }
+            if(shaderColumn != String.Empty) {
+                shadersColumnId = FindField(reader, shaderColumn);
             }
             var batchId = 0;
             while (reader.Read()) {
@@ -80,8 +86,14 @@ namespace B3dm.Tileset
                 var geom = Geometry.Deserialize<WkbSerializer>(stream);
                 var geometryRecord = new GeometryRecord(batchId) { Id = id, Geometry = geom };
 
-                if (colorColumn != String.Empty) {
-                    geometryRecord.HexColors = GetColumnValuesAsList(reader, 2);
+                if (shaderColumn != String.Empty) {
+                    if(shaderMode == ShaderMode.Basic) {
+                        geometryRecord.HexColors = GetColumnValuesAsList(reader, shadersColumnId);
+                    }
+                    else {
+                        var json = GetJson(reader, shadersColumnId);
+                        geometryRecord.Shader = JsonConvert.DeserializeObject<Shader>(json);
+                    }
                 }
                 if (attributesColumn != String.Empty) {
                     geometryRecord.Attributes = GetColumnValuesAsList(reader, attributesColumnId);
@@ -94,6 +106,12 @@ namespace B3dm.Tileset
             reader.Close();
             conn.Close();
             return geometries;
+        }
+
+        private static string GetJson(NpgsqlDataReader reader, int columnId)
+        {
+            var json = reader.GetString(columnId);
+            return json;
         }
 
         private static string[] GetColumnValuesAsList(NpgsqlDataReader reader, int columnId)

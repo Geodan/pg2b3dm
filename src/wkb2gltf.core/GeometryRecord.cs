@@ -20,6 +20,8 @@ namespace Wkb2Gltf
 
         public object[] Attributes { get; set; }
 
+        public Shader Shader { get; set; }
+
         public List<Triangle> GetTriangles()
         {
             var surface = (PolyhedralSurface)Geometry;
