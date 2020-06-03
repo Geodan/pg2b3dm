@@ -2,9 +2,9 @@
 
 namespace Wkb2Gltf
 {
-    public class MaterialAndColor
+    public class MaterialAndShader
     {
-        public string Color { get; set; }
+        public Shader Shader { get; set; }
         public MaterialBuilder MaterialBuilder { get; set; }
     }
 }

@@ -60,9 +60,6 @@ namespace pg2b3dm
                 var lodcolumn = o.LodColumn;
                 var shaderscolumn = o.ShadersColumn;
 
-                var shaderMode = (shaderscolumn != String.Empty ? ShaderMode.Shaders : ShaderMode.Basic);
-                var colorsColumn = (shaderscolumn == String.Empty ? o.RoofColorColumn: o.ShadersColumn);
-
                 var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse); ;
 
                 var conn = new NpgsqlConnection(connectionString);
@@ -103,8 +100,8 @@ namespace pg2b3dm
                 var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement);
                 File.WriteAllText($"{o.Output}/tileset.json", json);
 
-                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, shaderMode,
-                    colorsColumn, o.AttributesColumn, o.LodColumn);
+                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, 
+                    o.ShadersColumn, o.AttributesColumn, o.LodColumn);
 
                 stopWatch.Stop();
                 Console.WriteLine();
@@ -135,14 +132,14 @@ namespace pg2b3dm
             }
         }
 
-        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, ShaderMode shaderMode, string shaderColumn = "", string attributesColumn = "", string lodColumn="")
+        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string shaderColumn = "", string attributesColumn = "", string lodColumn="")
         {
             foreach (var t in tiles) {
                 counter++;
                 var perc = Math.Round(((double)counter / maxcount) * 100, 2);
                 Console.Write($"\rcreating tiles: {counter}/{maxcount} - {perc:F}%");
 
-                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, t, epsg, shaderMode, shaderColumn, attributesColumn, lodColumn);
+                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, t, epsg, shaderColumn, attributesColumn, lodColumn);
 
                 var triangleCollection = GetTriangles(geometries);
 
@@ -153,7 +150,7 @@ namespace pg2b3dm
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
 
                 if (t.Children != null) {
-                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, t.Children, epsg, outputPath, counter, maxcount, shaderMode, shaderColumn, attributesColumn, lodColumn);
+                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, t.Children, epsg, outputPath, counter, maxcount, shaderColumn, attributesColumn, lodColumn);
                 }
 
             }

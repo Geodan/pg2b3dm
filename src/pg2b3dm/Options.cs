@@ -18,8 +18,6 @@ namespace pg2b3dm
         public string Port { get; set; }
         [Option('o', "output", Required = false, Default = "./output", HelpText = "Output path")]
         public string Output { get; set; }
-        [Option('r', "roofcolorcolumn", Required = false, Default = "", HelpText = "Roof color column")]
-        public string RoofColorColumn { get; set; }
         [Option('a', "attributescolumn", Required = false, Default = "", HelpText = "Attributes column")]
         public string AttributesColumn { get; set; }
 

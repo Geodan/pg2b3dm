@@ -47,7 +47,7 @@ namespace B3dm.Tileset
             return $"ST_RotateX(ST_Translate({ geometry_column}, { translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{ translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , { translation[2].ToString(CultureInfo.InvariantCulture)}*-1), -pi() / 2)";
         }
 
-        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, ShaderMode shaderMode, string shaderColumn = "", string attributesColumn = "", string lodColumn="")
+        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumn = "", string lodColumn="")
         {
             var geometries = new List<GeometryRecord>();
             var g = GetGeometryColumn(geometry_column, translation);
@@ -87,13 +87,8 @@ namespace B3dm.Tileset
                 var geometryRecord = new GeometryRecord(batchId) { Id = id, Geometry = geom };
 
                 if (shaderColumn != String.Empty) {
-                    if(shaderMode == ShaderMode.Basic) {
-                        geometryRecord.HexColors = GetColumnValuesAsList(reader, shadersColumnId);
-                    }
-                    else {
-                        var json = GetJson(reader, shadersColumnId);
-                        geometryRecord.Shader = JsonConvert.DeserializeObject<Shader>(json);
-                    }
+                    var json = GetJson(reader, shadersColumnId);
+                    geometryRecord.Shader = JsonConvert.DeserializeObject<ShaderColors>(json);
                 }
                 if (attributesColumn != String.Empty) {
                     geometryRecord.Attributes = GetColumnValuesAsList(reader, attributesColumnId);
@@ -116,15 +111,7 @@ namespace B3dm.Tileset
 
         private static string[] GetColumnValuesAsList(NpgsqlDataReader reader, int columnId)
         {
-            string[] res;
-            if (reader.GetFieldType(columnId).Name == "String") {
-                var attribute = reader.GetString(columnId);
-                res = new string[1] { attribute };
-            }
-            else {
-                res = reader.GetFieldValue<string[]>(columnId);
-            }
-            return res;
+            return reader.GetFieldValue<string[]>(columnId);
         }
 
         private static int FindField(NpgsqlDataReader reader, string fieldName)

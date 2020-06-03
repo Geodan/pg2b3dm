@@ -7,21 +7,19 @@ namespace Wkb2Gltf
 {
     public class MaterialsCache
     {
-        private readonly List<MaterialAndColor> materials;
+        private readonly List<MaterialAndShader> materials;
         public MaterialsCache()
         {
-            materials = new List<MaterialAndColor>();
+            materials = new List<MaterialAndShader>();
         }
 
-        public MaterialBuilder GetMaterialBuilderByColor(string color)
+        public MaterialBuilder GetMaterialBuilderByShader(Shader shader)
         {
-            var res = (from m in materials where m.Color == color select m).FirstOrDefault();
+            var res = (from m in materials where m.Shader.Equals(shader) select m).FirstOrDefault();
             if (res == null) {
-                // create and add it to List
-                var rgb = ColorTranslator.FromHtml(color);
-                var materialBuilder = MaterialCreator.CreateMaterial(rgb);
+                var materialBuilder = MaterialCreator.CreateMaterial(shader);
 
-                res = new MaterialAndColor{ Color = color, MaterialBuilder = materialBuilder };
+                res = new MaterialAndShader{ Shader = shader, MaterialBuilder = materialBuilder };
                 materials.Add(res);
 
             }

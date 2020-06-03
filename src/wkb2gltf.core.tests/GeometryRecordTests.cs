@@ -22,6 +22,9 @@ namespace Wkb2Gltf.Tests
 
             // assert
             Assert.IsTrue(g != null);
+
+            // there are 262 geometries... 
+            Assert.IsTrue(polyhedralsurface.Geometries.Count == 262);
             // there are 51 degenerated triangles in this geometry...
             Assert.IsTrue(triangles.Count == polyhedralsurface.Geometries.Count - 51);
         }
