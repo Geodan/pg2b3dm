@@ -57,7 +57,7 @@ Sample for Specular Glossiness with Diffuse and SpecularGlossiness for 2 triangl
 ```
 
 
-In the hexadecimal values there are 4 channels available. The following material channels table defines which channel should be used for the various shader properties.
+In the hexadecimal values there are 4 values (x, y, z, w) available. The following material channels table defines which values should be used for the various shader properties.
 
 ## Material channels
 
