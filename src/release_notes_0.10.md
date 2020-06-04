@@ -127,3 +127,30 @@ SpecularGlossiness is not supported (yet)
 
 - Shader 'unlit' is not supported (yet)
 
+## Testing
+
+### Docker
+
+```
+$ docker pull geodan/pg2b3dm:0.10.0_preview1
+$ docker run geodan/pg2b3dm:0.10.0_preview1
+tool: pg2b3dm 0.10.0.0
+pg2b3dm 0.10.0
+Copyright (C) 2020 pg2b3dm
+```
+
+### Source code
+
+```
+$ git clone https://github.com/Geodan/pg2b3dm.git
+$ git checkout shaders
+$ cd pg2b3dm/src
+$ dotnet build
+$ dotnet run
+```
+
+## Testing shaders
+
+- Add json column and fill with shader json documents
+
+- run pg2b3dm and inspect the results in client of choice

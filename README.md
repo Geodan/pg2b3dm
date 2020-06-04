@@ -120,6 +120,8 @@ Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
+- 0.10.0_preview1 : preview release of 0.10
+
 - 0.9.3 stable build
 
 - latest: is build automatically after push to master
