@@ -23,6 +23,8 @@ Differences to py3dtiles:
 
 - added refinement method (add or replace) support;
 
+- added glTF shader support for PbrMetallicRoughness and PbrSpecularGlossiness
+
 - Docker support.
 
 To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries. Those geometries can be created 
@@ -71,13 +73,13 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -p, --port             (Default: 5432) Database port
 
-  -r, --roofcolorcolumn  (Default: '') color column name
-
   -a, --attributescolumn (Default: '') attributes column name 
 
   -e, --extenttile       (Default: 1000) Maximum extent per tile
 
   -g, --geometricerrors  (Default: 500, 0) Geometric errors
+
+  --shaderscolumn         (Default: '') shaders column (must be type json) 
 
   --refine               (Default: REPLACE) Refinement method (REPLACE/ADD)
   
@@ -92,29 +94,11 @@ If --username and/or --dbname are not specified the current username is used as 
 
 - All geometries must be type polyhedralsurface consisting of triangles with 4 vertices each. If not 4 vertices exception is thrown.
 
-### Colors
+### Shaders
 
-- Colors must be specified as hex colors, like '#ff5555';
+In release 0.10 the shaders functionality is changed to support PbrMetallicRoughness and PbrSpecularGlossiness. 
 
-- If no color column is specified, a default color (#bb3333) is used for all buildings;
-
-- If color column is specified and database type is 'text', 1 color per building is used;
-
-- If color column is specified and database type is 'text[]', 1 color per triangle is used. Exception is thrown when number
-
-of colors doesn't equal the number of triangles in geometry. Order of colors must be equal to order of triangles.
-
-- Transparency (alpha channel) can be used, possible values:
-
-100% — FF 95% — F2 90% — E6 85% — D9 80% — CC 75% — BF 70% — B3 65% — A6 60% — 99 55% — 8C 50% — 80 45% — 73 40% — 66 35% — 59 30% — 4D 25% — 40 20% — 33 15% — 26 10% — 1A 5% — 0D 0% — 00
-
-100% means opaque, 0% means transparent
-
-Id column rules:
-
-- Id column must be type string;
-
-- Id column should be indexed for better performance.
+See document release_notes_0.10.md for details.
 
 ## LOD
 
@@ -227,6 +211,8 @@ Press F5 to start debugging.
 
 
 ## History
+
+2020-06-04: preview release 0.10, adding shader support PbrMetallicRoughness and PbrSpecularGlossiness
 
 2020-05-07: release 0.9.3, rewriting tiling method 
 
