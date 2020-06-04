@@ -4,7 +4,7 @@
 
 - Option -r, --roofcolorcolumn is removed and replaced by optional --shaderscolumn (default '')
 
-When shaderscolumn is not specified a default PbrMetallicRoughness shaders with BaseColor will 
+When shaderscolumn is not specified a default PbrMetallicRoughness shader with BaseColor will 
 be used.
 
 ## Shaders
@@ -22,11 +22,11 @@ The json must have the following structure:
     "EmissiveColors": [list_of_emissivecolors in hex]
     "PbrMetallicRoughness": {
         "BaseColors": [ list_of_basecolors in hex],
-        "MetallicRoughness": [list_of_metallic_roughness in hex]]
+        "MetallicRoughness": [list_of_metallic_roughness in hex]
     },
     "PbrSpecularGlossiness": {
         "DiffuseColors": [list_of_diffuse in hex],
-        "SpecularGlossiness": [list_of_specular_glossiness in hex]],
+        "SpecularGlossiness": [list_of_specular_glossiness in hex],
     }
 }
 ```
