@@ -1,15 +1,19 @@
-Release notes 0.10
+# Release notes 0.10
 
-Breaking changes:
+## Breaking change
 
 - Option -r, --roofcolorcolumn is removed and replaced by optional --shaderscolumn (default '')
 
 When shaderscolumn is not specified a default PbrMetallicRoughness shaders with BaseColor will 
 be used.
 
+## Shaders
+
 Shaderscolumn is a column of type json. In the json document the shaders are defined like PbrMetallicRoughness and
 PbrSpecularGlossiness. In previous releases of pg2b3dm only shader PbrMetallicRoughness with option BaseColor was 
 supported. 
+
+## JSON Structure
 
 The json must have the following structure:
 
@@ -28,6 +32,8 @@ The json must have the following structure:
 ```
 
 The amount of colors in the lists must correspond to the number of triangles in the geometry, otherwise an exception is thrown.
+
+## Samples
 
 Sample for using shader PbrMetallicRoughness with BaseColor for 2 triangles (note: this is the same method as used in previous releases):
 
