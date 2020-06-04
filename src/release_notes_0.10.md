@@ -57,8 +57,7 @@ Sample for Specular Glossiness with Diffuse and SpecularGlossiness for 2 triangl
 ```
 
 
-In the hexadecimal colors there are 4 channels available. The material channels table defines wich channel should be
-used for the various shader properties.
+In the hexadecimal values there are 4 channels available. The following material channels table defines which channel should be used for the various shader properties.
 
 ## Material channels
 
@@ -85,7 +84,7 @@ used for the various shader properties.
 </tr>
 <tr>
 <td>BaseColor</td>
-<td>Metallic Roughnesst</td>
+<td>Metallic Roughness</td>
 <td>Red</td>
 <td>Green</td>
 <td>Blue</td>
