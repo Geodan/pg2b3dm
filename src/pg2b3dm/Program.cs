@@ -50,6 +50,9 @@ namespace pg2b3dm
                 }
 
                 Console.WriteLine($"input table:  {o.GeometryTable}");
+                if (o.Query != String.Empty) {
+                    Console.WriteLine($"query:  {o.Query}");
+                }
                 Console.WriteLine($"input geometry column:  {o.GeometryColumn}");
 
                 Console.WriteLine($"output directory:  {outputTiles}");
@@ -58,11 +61,12 @@ namespace pg2b3dm
                 var geometryColumn = o.GeometryColumn;
                 var idcolumn = o.IdColumn;
                 var lodcolumn = o.LodColumn;
+                var query = o.Query;
                 var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse); ;
 
                 var conn = new NpgsqlConnection(connectionString);
 
-                var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, geometryTable, lodcolumn) : new List<int> { 0 });
+                var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, geometryTable, lodcolumn,query) : new List<int> { 0 });
                 if((geometricErrors.Length != lods.Count + 1) && lodcolumn==string.Empty) {
                     Console.WriteLine($"lod levels: [{ String.Join(',', lods)}]");
                     Console.WriteLine($"geometric errors: {o.GeometricErrors}");
@@ -81,15 +85,15 @@ namespace pg2b3dm
                 };
                 Console.WriteLine("geometric errors: " + String.Join(',', geometricErrors));
 
-                var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn);
+                var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn, query);
                 // Console.WriteLine($"3D Boundingbox {geometryTable}.{geometryColumn}: [{bbox3d.XMin}, {bbox3d.YMin}, {bbox3d.ZMin},{bbox3d.XMax},{bbox3d.YMax}, {bbox3d.ZMax}]");
                 var translation = bbox3d.GetCenter().ToVector();
                //  Console.WriteLine($"translation {geometryTable}.{geometryColumn}: [{string.Join(',', translation) }]");
                 var boundingboxAllFeatures = BoundingBoxCalculator.TranslateRotateX(bbox3d, Reverse(translation), Math.PI / 2);
                 var box = boundingboxAllFeatures.GetBox();
-                var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
+                var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn, query);
                 Console.WriteLine($"spatial reference: {sr}");
-                var tiles = TileCutter.GetTiles(0, conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, 0, lods, geometricErrors.Skip(1).ToArray(), lodcolumn);
+                var tiles = TileCutter.GetTiles(0, conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, 0, lods, geometricErrors.Skip(1).ToArray(), lodcolumn, query);
                 Console.WriteLine();
                 var nrOfTiles = RecursiveTileCounter.CountTiles(tiles.tiles, 0);
                 Console.WriteLine($"tiles with features: {nrOfTiles} ");
@@ -98,7 +102,7 @@ namespace pg2b3dm
                 var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement);
                 File.WriteAllText($"{o.Output}/tileset.json", json);
 
-                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn);
+                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn, query);
 
                 stopWatch.Stop();
                 Console.WriteLine();
@@ -129,14 +133,14 @@ namespace pg2b3dm
             }
         }
 
-        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumn = "", string lodColumn="")
+        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumn = "", string lodColumn="", string query="")
         {
             foreach (var t in tiles) {
                 counter++;
                 var perc = Math.Round(((double)counter / maxcount) * 100, 2);
                 Console.Write($"\rcreating tiles: {counter}/{maxcount} - {perc:F}%");
 
-                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, t, epsg, colorColumn, attributesColumn, lodColumn);
+                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, t, epsg, colorColumn, attributesColumn, lodColumn, query);
 
                 var triangleCollection = GetTriangles(geometries);
 
@@ -147,7 +151,7 @@ namespace pg2b3dm
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
 
                 if (t.Children != null) {
-                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, t.Children, epsg, outputPath, counter, maxcount, colorColumn, attributesColumn, lodColumn);
+                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, t.Children, epsg, outputPath, counter, maxcount, colorColumn, attributesColumn, lodColumn, query);
                 }
 
             }
