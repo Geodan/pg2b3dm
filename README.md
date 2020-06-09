@@ -78,6 +78,8 @@ If --username and/or --dbname are not specified the current username is used as 
   -e, --extenttile       (Default: 1000) Maximum extent per tile
 
   -g, --geometricerrors  (Default: 500, 0) Geometric errors
+  
+  -l, --lodcolumn        (default: '') lod column name
 
   --refine               (Default: REPLACE) Refinement method (REPLACE/ADD)
   
