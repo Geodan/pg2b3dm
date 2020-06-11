@@ -143,10 +143,21 @@ Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags):
 - latest: is build automatically after push to master
 
 
-### Building
+### Building Dockers
 
 ```
+$ git clone https://github.com/Geodan/pg2b3dm.git
+$ cd pg2b3dm/src
 $ docker build -t geodan/pg2b3dm .
+```
+
+Test feature branch:
+
+```
+$ git clone https://github.com/Geodan/pg2b3dm.git
+$ git checkout {name_of_feature_branch}
+$ cd pg2b3dm/src
+$ docker build -t geodan/pg2b3dm:{name_of_feature_branch} .
 ```
 
 ### Running
