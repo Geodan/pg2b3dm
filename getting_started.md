@@ -105,9 +105,9 @@ Colors used:
 
 #008000: green (floor)
 
-#FF0000: rood (rood)
+#FF0000: red (roof)
 
-#EEC900: wall (geel)
+#EEC900: yellow (wall)
 
 
 ```
