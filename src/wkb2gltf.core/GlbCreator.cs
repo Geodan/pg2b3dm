@@ -30,7 +30,13 @@ namespace Wkb2Gltf
                 DrawTriangle(triangle, material, mesh);
             }
             var scene = new SceneBuilder();
-            scene.AddRigidMesh(mesh, Matrix4x4.Identity);
+            var pivot = new NodeBuilder();
+            pivot.UseScale("track1")
+                .WithPoint(0, Vector3.One)
+                .WithPoint(1, new Vector3(2f));
+
+
+            scene.AddRigidMesh(mesh, pivot);
             var model = scene.ToGltf2();
             var bytes = model.WriteGLB().Array;
 
