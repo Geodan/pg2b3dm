@@ -23,6 +23,8 @@ Differences to py3dtiles:
 
 - added refinement method (add or replace) support;
 
+- added query parameter support;
+
 - Docker support.
 
 To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries. Those geometries can be created 
@@ -79,7 +81,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -g, --geometricerrors  (Default: 500, 0) Geometric errors
 
-  -q, --query            (Default: '') Query
+  -q, --query            (Default: '') Query part. Will be added to the 'where' part of queries.
 
   --refine               (Default: REPLACE) Refinement method (REPLACE/ADD)
   
@@ -90,7 +92,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
 ## Remarks
 
-## Geometries
+### Geometries
 
 - All geometries must be type polyhedralsurface consisting of triangles with 4 vertices each. If not 4 vertices exception is thrown.
 
@@ -118,13 +120,29 @@ Id column rules:
 
 - Id column should be indexed for better performance.
 
-## LOD
+### LOD
 
 - if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
 
-## Geometric errors
+### Geometric errors
 
 - By default, as geometric errors [500,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in the -g option. When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal intervals between 500 and 0.
+
+### Query parameter
+
+The -q --query will be added to the 'where' part of all queries. 
+
+Samples:
+
+Attribute query:
+
+ -q "ogc_fid=118768"
+
+Spatial query:
+
+-q "ST_Intersects(wkb_geometry, 'SRID=4326;POLYGON((-75.56996406 39.207228824,-75.56996406 39.2074420320001,-75.5696300339999 39.2074420320001,-75.5696300339999 39.207228824,-75.56996406 39.207228824))'::geometry)"
+
+Make sure to check the indexes when using large tables.
 
 ## Getting started
 
@@ -138,7 +156,7 @@ Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
-- 0.9.3 stable build
+- 0.9.4 stable build
 
 - latest: is build automatically after push to master
 
@@ -229,6 +247,8 @@ Press F5 to start debugging.
 
 
 ## History
+
+2020-06-18: release 0.9.4, adding query parameter support (-q --query)
 
 2020-05-07: release 0.9.3, rewriting tiling method 
 
