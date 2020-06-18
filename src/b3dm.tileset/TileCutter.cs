@@ -16,7 +16,7 @@ namespace B3dm.Tileset
             return boundingVolume;
         }
 
-        public static (int tileId, List<Tile> tiles) GetTiles(int tileId, NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, BoundingBox3D box3d, int epsg, int currentLod, List<int> lods, double[] geometricErrors, string lodcolumn = "")
+        public static (int tileId, List<Tile> tiles) GetTiles(int tileId, NpgsqlConnection conn, double extentTile, string geometryTable, string geometryColumn, BoundingBox3D box3d, int epsg, int currentLod, List<int> lods, double[] geometricErrors, string lodcolumn = "", string query = "")
         {
             var tiles = new List<Tile>();
 
@@ -34,7 +34,7 @@ namespace B3dm.Tileset
                     var lodQuery = LodQuery.GetLodQuery(lodcolumn, lods[currentLod]);
                     var from = new Point(box3d.XMin + extentTile * x, box3d.YMin + extentTile * y);
                     var to = new Point(box3d.XMin + extentTile * (x + 1), box3d.YMin + extentTile * (y + 1));
-                    var hasFeatures = BoundingBoxRepository.HasFeaturesInBox(conn, geometryTable, geometryColumn, from, to, epsg, lodQuery);
+                    var hasFeatures = BoundingBoxRepository.HasFeaturesInBox(conn, geometryTable, geometryColumn, from, to, epsg, lodQuery, query);
                     if (hasFeatures) {
                         tileId++;
                         var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y)) {
@@ -43,7 +43,7 @@ namespace B3dm.Tileset
                         };
                         if (currentLod < lods.Count - 1) {
                             var newBox3d = new BoundingBox3D((double)from.X, (double)from.Y, (double)box3d.FromPoint().Z, (double)to.X, (double)to.Y, (double)box3d.ToPoint().Z);
-                            var new_tiles = GetTiles(tileId, conn, extentTile / 2, geometryTable, geometryColumn, newBox3d, epsg, currentLod + 1, lods, geometricErrors, lodcolumn);
+                            var new_tiles = GetTiles(tileId, conn, extentTile / 2, geometryTable, geometryColumn, newBox3d, epsg, currentLod + 1, lods, geometricErrors, lodcolumn, query);
                             tile.Children = new_tiles.tiles;
                             tileId = new_tiles.tileId;
                         }
