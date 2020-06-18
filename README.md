@@ -136,11 +136,15 @@ Samples:
 
 Attribute query:
 
- -q "ogc_fid=118768"
+```
+-q "ogc_fid=118768"
+```
 
 Spatial query:
 
+```
 -q "ST_Intersects(wkb_geometry, 'SRID=4326;POLYGON((-75.56996406 39.207228824,-75.56996406 39.2074420320001,-75.5696300339999 39.2074420320001,-75.5696300339999 39.207228824,-75.56996406 39.207228824))'::geometry)"
+```
 
 Make sure to check the indexes when using large tables.
 
