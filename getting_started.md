@@ -53,7 +53,7 @@ In PostGIS, a spatial table 'delaware_buildings' is created.
 PSQL into PostGIS and do a count on the buildings:
 
 ```
-$ psql -U postgres
+$ psql -U postgres -h localhost
 Password for user postgres:
 psql (11.5, server 11.2 (Debian 11.2-1.pgdg90+1))
 WARNING: Console code page (850) differs from Windows code page (1252)
