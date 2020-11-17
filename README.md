@@ -98,7 +98,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
 In release 0.10 the shaders functionality is changed to support PbrMetallicRoughness and PbrSpecularGlossiness. 
 
-See document <a href= "release_notes_0.10.md">release_notes_0.10.md</a> for details.
+See document <a href= "src/release_notes_0.10.md">release_notes_0.10.md</a> for details.
 
 ### Id Column
 
