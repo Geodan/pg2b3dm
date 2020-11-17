@@ -6,26 +6,17 @@ namespace Wkb2Gltf
 {
     public static class Triangulator
     {
-        public static List<Triangle> GetTriangles(PolyhedralSurface polyhedralsurface, string[] hexColors, int batchId)
+        public static List<Triangle> GetTriangles(PolyhedralSurface polyhedralsurface, int batchId, ShaderColors shadercolors =null)
         {
             var degenerated_triangles = 0;
             var allTriangles = new List<Triangle>();
             for(var i=0;i<polyhedralsurface.Geometries.Count;i++) {
                 var geometry = polyhedralsurface.Geometries[i];
-                Triangle triangle;
-                if (hexColors.Length > 0) {
-                    if (hexColors.Length == 1) {
-                        triangle = GetTriangle(geometry, batchId, hexColors[0]);
-                    }
-                    else {
-                        if (hexColors.Length != polyhedralsurface.Geometries.Count) {
-                            throw new ArgumentOutOfRangeException($"Expected number of colors: {polyhedralsurface.Geometries.Count}, actual: {hexColors.Length}");
-                        }
-                        triangle = GetTriangle(geometry, batchId, hexColors[i]);
-                    }
-                }
-                else {
-                    triangle = GetTriangle(geometry, batchId, String.Empty);
+                var triangle = GetTriangle(geometry, batchId);
+
+                if (triangle!=null && shadercolors != null) {
+                    shadercolors.Validate(polyhedralsurface.Geometries.Count);
+                    triangle.Shader = shadercolors.ToShader(i);
                 }
 
                 if (triangle != null) {
@@ -40,7 +31,17 @@ namespace Wkb2Gltf
         }
 
 
-        public static Triangle GetTriangle(Polygon geometry, int batchId, string hexColor = "")
+        public static Triangle GetTriangle(Polygon geometry, int batchId)
+        {
+            var triangle = ToTriangle(geometry, batchId);
+
+            if (!triangle.IsDegenerated()) {
+                return triangle;
+            }
+            return null;
+        }
+
+        private static Triangle ToTriangle(Polygon geometry, int batchId)
         {
             var pnts = geometry.ExteriorRing.Points;
             if (pnts.Count != 4) {
@@ -48,14 +49,7 @@ namespace Wkb2Gltf
             }
 
             var triangle = new Triangle(pnts[0], pnts[1], pnts[2], batchId);
-            if (hexColor != string.Empty) {
-                triangle.Color = hexColor;
-            }
-
-            if (!triangle.IsDegenerated()) {
-                return triangle;
-            }
-            return null;
+            return triangle;
         }
     }
 }

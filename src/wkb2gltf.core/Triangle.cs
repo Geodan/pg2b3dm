@@ -48,7 +48,7 @@ namespace Wkb2Gltf
             return n;
         }
 
-        public string Color { get; set; }
+        public Shader Shader { get; set; }
 
         public bool IsDegenerated()
         {

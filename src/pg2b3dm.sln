@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{0403ED2E-B5A
 		C:\Users\bertt\Desktop\delaware.png = C:\Users\bertt\Desktop\delaware.png
 		..\getting_started.md = ..\getting_started.md
 		..\README.md = ..\README.md
+		release_notes_0.10.md = release_notes_0.10.md
 		release_notes_0.9.md = release_notes_0.9.md
 	EndProjectSection
 EndProject

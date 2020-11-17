@@ -23,7 +23,7 @@ namespace Wkb2Gltf.Tests
             var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
             var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
             var polyhedralsurface = ((PolyhedralSurface)g);
-            var triangles = Triangulator.GetTriangles(polyhedralsurface, new string[0], 100);
+            var triangles = Triangulator.GetTriangles(polyhedralsurface, 100);
 
             // act
             var bytes = GlbCreator.GetGlb(triangles);
@@ -42,7 +42,7 @@ namespace Wkb2Gltf.Tests
             var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
             var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
             var polyhedralsurface = ((PolyhedralSurface)g);
-            var triangles = Triangulator.GetTriangles(polyhedralsurface, new string[1] { "#bb3333" }, 100);
+            var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, null);
             
             // act
             var bytes = GlbCreator.GetGlb(triangles);
@@ -56,20 +56,23 @@ namespace Wkb2Gltf.Tests
         }
 
         [Test]
-        public void CreateGlbWithMultipleColors()
+        public void CreateGlbWithShader()
         {
             // arrange
             var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
             var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
             var polyhedralsurface = ((PolyhedralSurface)g);
+            var shaderColors = new ShaderColors();
+            var metallicRoughness = new PbrMetallicRoughnessColors();
+            metallicRoughness.BaseColors = (from geo in polyhedralsurface.Geometries
+                                            let random = new Random()
+                                            let color = string.Format("#{0:X6}", random.Next(0x1000000))
+                                            select color).ToList();
 
-            var colors = (from geo in polyhedralsurface.Geometries
-                          let random = new Random()
-                          let color = String.Format("#{0:X6}", random.Next(0x1000000))
-                          select color).ToList();
+            shaderColors.PbrMetallicRoughnessColors = metallicRoughness;
 
             // act
-            var triangles = Triangulator.GetTriangles(polyhedralsurface, colors.ToArray(), 100);
+            var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, shaderColors);
             var bytes = GlbCreator.GetGlb(triangles);
             var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ams_building_multiple_colors.glb");
             File.WriteAllBytes(fileName, bytes);
@@ -81,25 +84,38 @@ namespace Wkb2Gltf.Tests
         }
 
         [Test]
-        public void CreateGlbWithWrongNumberOfMultipleColorsGivesException()
+        public void CreateGlbWithWrongNumberOfColorsGivesArgumentOfRangeException()
         {
             // arrange
             var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
             var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
             var polyhedralsurface = ((PolyhedralSurface)g);
 
-            var colors = new List<string>();
-            for(var i= 0;i < polyhedralsurface.Geometries.Count - 2;i++) {  // wrong number two
-                colors.Add("#d117b8");
-            }
+            var shaderColors = new ShaderColors();
+            var metallicRoughness = new PbrMetallicRoughnessColors();
+            metallicRoughness.BaseColors = (from geo in polyhedralsurface.Geometries
+                                            let random = new Random()
+                                            let color = String.Format("#{0:X6}", random.Next(0x1000000))
+                                            select color).ToList();
+
+            // accidentally remove 1:
+            metallicRoughness.BaseColors.RemoveAt(metallicRoughness.BaseColors.Count-1);
+
+            var specularGlosiness = new PbrSpecularGlossinessColors();
+            specularGlosiness.DiffuseColors = metallicRoughness.BaseColors;
+
+            shaderColors.PbrMetallicRoughnessColors = metallicRoughness;
+            shaderColors.PbrSpecularGlossinessColors = specularGlosiness;
 
             // act
             try {
-                var triangles = Triangulator.GetTriangles(polyhedralsurface, colors.ToArray(), 100);
+                var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, shaderColors);
             }
             catch(Exception ex){
                 // assert
                 Assert.IsTrue(ex != null);
+                Assert.IsTrue(ex is ArgumentOutOfRangeException);
+                Assert.IsTrue(ex.Message.Contains("Diffuse, BaseColor"));
             }
         }
 
@@ -151,7 +167,12 @@ namespace Wkb2Gltf.Tests
             var g = Geometry.Deserialize<WktSerializer>(buildingDelawareWkt);
             var polyhedralsurface = ((PolyhedralSurface)g);
             var center = polyhedralsurface.GetCenter();
-            var triangles = Triangulator.GetTriangles(polyhedralsurface, colors.ToArray(), 100);
+
+            var shaderColors = new ShaderColors();
+            var metallicRoughness = new PbrMetallicRoughnessColors();
+            metallicRoughness.BaseColors = colors;
+
+            var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, shaderColors);
             CheckNormal(triangles[2], center);
             Assert.IsTrue(triangles.Count == 12);
 

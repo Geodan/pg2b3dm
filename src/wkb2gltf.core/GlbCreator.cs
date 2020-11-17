@@ -13,15 +13,15 @@ namespace Wkb2Gltf
         public static byte[] GetGlb(List<Triangle> triangles)
         {
             var materialCache = new MaterialsCache();
-            var default_hex_color = "#bb3333";
-            var defaultMaterial = materialCache.GetMaterialBuilderByColor(default_hex_color);
+            var default_hex_color = "#D94F33"; // "#bb3333";
+            var defaultMaterial = MaterialCreator.GetDefaultMaterial(default_hex_color);
 
             var mesh = new MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty>("mesh");
 
             foreach (var triangle in triangles) {
                 MaterialBuilder material;
-                if (!string.IsNullOrEmpty(triangle.Color)) {
-                    material = materialCache.GetMaterialBuilderByColor(triangle.Color);
+                if (triangle.Shader!=null) {
+                    material = materialCache.GetMaterialBuilderByShader(triangle.Shader);
                 }
                 else {
                     material = defaultMaterial;
@@ -36,7 +36,6 @@ namespace Wkb2Gltf
 
             return bytes;
         }
-
 
         private static bool DrawTriangle(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty> mesh)
         {
