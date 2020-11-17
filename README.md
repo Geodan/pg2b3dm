@@ -2,8 +2,7 @@
  
  ![.NET Core](https://github.com/Geodan/pg2b3dm/workflows/.NET%20Core/badge.svg)
 
-Tool for converting from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software started as a port of py3dtiles (https://github.com/Oslandia/py3dtiles) 
-for generating b3dm tiles.
+Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software started as a port of py3dtiles (https://github.com/Oslandia/py3dtiles) for generating b3dm tiles. The generated 3D Tiles can be visualized in Cesium JS or MapBox GL JS.
 
 ![mokum](https://user-images.githubusercontent.com/538812/63088752-24fa8000-bf56-11e9-9ba8-3273a21dfda0.png)
 
@@ -52,6 +51,8 @@ Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdire
 
 - Duisburg buidings converted from CityGML in MapBox GL JS - https://geodan.github.io/pg2b3dm/sample_data/duisburg/mapbox/#15.62/51.430166/6.782675/0/45
 
+- TU Delft  - 3D BAG v2 https://tudelft3d.github.io/3dbag-viewer
+
 ## Command line options
 
 All parameters are optional, except the -t --table option. 
@@ -81,7 +82,11 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -g, --geometricerrors  (Default: 500, 0) Geometric errors
 
-  --refine               (Default: REPLACE) Refinement method (REPLACE/ADD)
+  -q, --query            (Default: ) Query parameter
+
+   --refine              (Default: REPLACE) Refinement method (REPLACE/ADD)
+  
+  --shaderscolumn        (Default: ) shaders column
   
   --help                Display this help screen.
 
@@ -98,7 +103,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
 In release 0.10 the shaders functionality is changed to support PbrMetallicRoughness and PbrSpecularGlossiness. 
 
-See document <a href= "release_notes_0.10.md">release_notes_0.10.md</a> for details.
+See document <a href= "src/release_notes_0.10.md">release_notes_0.10.md</a> for details.
 
 ### Id Column
 
