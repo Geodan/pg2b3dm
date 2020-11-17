@@ -25,6 +25,8 @@ Differences to py3dtiles:
 
 - added glTF shader support for PbrMetallicRoughness and PbrSpecularGlossiness
 
+- added query parameter support;
+
 - Docker support.
 
 To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries. Those geometries can be created 
@@ -79,8 +81,6 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -g, --geometricerrors  (Default: 500, 0) Geometric errors
 
-  --shaderscolumn         (Default: '') shaders column (must be type json) 
-
   --refine               (Default: REPLACE) Refinement method (REPLACE/ADD)
   
   --help                Display this help screen.
@@ -90,7 +90,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
 ## Remarks
 
-## Geometries
+### Geometries
 
 - All geometries must be type polyhedralsurface consisting of triangles with 4 vertices each. If not 4 vertices exception is thrown.
 
@@ -100,13 +100,37 @@ In release 0.10 the shaders functionality is changed to support PbrMetallicRough
 
 See document release_notes_0.10.md for details.
 
+- Id column must be type string;
+
+- Id column should be indexed for better performance.
+
 ## LOD
 
 - if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
 
-## Geometric errors
+### Geometric errors
 
 - By default, as geometric errors [500,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in the -g option. When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal intervals between 500 and 0.
+
+### Query parameter
+
+The -q --query will be added to the 'where' part of all queries. 
+
+Samples:
+
+Attribute query:
+
+```
+-q "ogc_fid=118768"
+```
+
+Spatial query:
+
+```
+-q "ST_Intersects(wkb_geometry, 'SRID=4326;POLYGON((-75.56996406 39.207228824,-75.56996406 39.2074420320001,-75.5696300339999 39.2074420320001,-75.5696300339999 39.207228824,-75.56996406 39.207228824))'::geometry)"
+```
+
+Make sure to check the indexes when using large tables.
 
 ## Getting started
 
@@ -120,17 +144,26 @@ Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
-- 0.10.0_preview1 : preview release of 0.10
-
 - 0.9.3 stable build
 
 - latest: is build automatically after push to master
 
 
-### Building
+### Building Dockers
 
 ```
+$ git clone https://github.com/Geodan/pg2b3dm.git
+$ cd pg2b3dm/src
 $ docker build -t geodan/pg2b3dm .
+```
+
+Test feature branch:
+
+```
+$ git clone https://github.com/Geodan/pg2b3dm.git
+$ git checkout {name_of_feature_branch}
+$ cd pg2b3dm/src
+$ docker build -t geodan/pg2b3dm:{name_of_feature_branch} .
 ```
 
 ### Running
@@ -213,8 +246,6 @@ Press F5 to start debugging.
 
 
 ## History
-
-2020-06-04: preview release 0.10, adding shader support PbrMetallicRoughness and PbrSpecularGlossiness
 
 2020-05-07: release 0.9.3, rewriting tiling method 
 

@@ -35,8 +35,8 @@ namespace pg2b3dm
         [Option("refine", Required = false, Default = "REPLACE", HelpText = "Refinement method (ADD/REPLACE)")]
         public string Refinement { get; set; }
 
-        [Option("shaderscolumn", Required = false, Default = "", HelpText = "shaders column")]
-        public string ShadersColumn { get; set; }
+        [Option('q', "query", Required = false, Default = "", HelpText = "Query parameter")]
+        public string Query { get; set; }
 
     }
 }

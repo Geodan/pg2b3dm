@@ -11,44 +11,10 @@ namespace Wkb2Gltf
             var rgb = ColorTranslator.FromHtml(color);
 
             var material = new MaterialBuilder().
-            WithDoubleSide(true).
-            WithMetallicRoughnessShader().
-            WithAlpha(AlphaMode.OPAQUE).
-            WithChannelParam(KnownChannel.BaseColor, ColorToVector4(rgb));
-            return material;
-        }
-
-        public static MaterialBuilder CreateMaterial(Shader shader)
-        {
-            var material = new MaterialBuilder().
                 WithDoubleSide(true).
-                WithAlpha(AlphaMode.OPAQUE);
-
-            if (shader.EmissiveColor != null) {
-                material.WithEmissive(ColorToVector3(ColorTranslator.FromHtml(shader.EmissiveColor)));
-            }
-            if (shader.PbrSpecularGlossiness != null) {
-                material.WithSpecularGlossinessShader();
-
-                if (shader.PbrSpecularGlossiness.DiffuseColor != null) {
-                    material.WithChannelParam(KnownChannel.Diffuse, ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.DiffuseColor)));
-                }
-                if (shader.PbrSpecularGlossiness.SpecularGlossiness!= null) {
-                    material.WithChannelParam(KnownChannel.SpecularGlossiness, ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.SpecularGlossiness)));
-                }
-            }
-            else if(shader.PbrMetallicRoughness != null) {
-                material.WithMetallicRoughnessShader();
-                if (shader.PbrMetallicRoughness.BaseColor!= null) {
-                    material.WithChannelParam(KnownChannel.BaseColor, ColorToVector4(ColorTranslator.FromHtml(shader.PbrMetallicRoughness.BaseColor)));
-                }
-                if (shader.PbrMetallicRoughness.MetallicRoughness != null) {
-                    material.WithChannelParam(KnownChannel.MetallicRoughness, ColorToVector4(ColorTranslator.FromHtml(shader.PbrMetallicRoughness.MetallicRoughness)));
-                }
-            }
-
-            // todo: implement 'fallback' method (when both PbrSpecularGlossiness and PbrMetallicRoughness are implemented
-
+                WithMetallicRoughnessShader().
+                WithAlpha(AlphaMode.BLEND).
+                WithChannelParam(KnownChannel.BaseColor, ColorToVector4(c));
             return material;
         }
 

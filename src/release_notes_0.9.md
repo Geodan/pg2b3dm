@@ -28,10 +28,10 @@ Example for 2 lods: -g 1000,750,0
 https://hub.docker.com/r/geodan/pg2b3dm
 
 ```
-$ docker pull geodan/pg2b3dm:0.9.3
-$ docker run geodan/pg2b3dm:0.9.3
-tool: pg2b3dm 0.9.3.0
-pg2b3dm 0.9.3
+$ docker pull geodan/pg2b3dm:0.9.4
+$ docker run geodan/pg2b3dm:0.9.4
+tool: pg2b3dm 0.9.4.0
+pg2b3dm 0.9.4
 Copyright (C) 2020 pg2b3dm
 ```
 
