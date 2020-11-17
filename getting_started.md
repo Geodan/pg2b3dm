@@ -92,9 +92,9 @@ postgres=# UPDATE delaware_buildings SET id = ogc_fid::text;
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_triangle geometry;
 ```
 
-## CShaders
+## Shaders
 
-Add two more columns to the delaware_buildings table:
+Add two json columns to the delaware_buildings table:
 
 ```
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN style json;
@@ -150,6 +150,33 @@ Program finished.
 ```
 
 After running, columns 'geom_triangle' and 'shaders' should be filled with the correct information.
+
+The geom_triangle column contains PolyhedralSurfaceZ geometries consisting of triangles.
+
+The shaders column contains json information like:
+
+```
+{
+  "PbrMetallicRoughness": {
+    "BaseColors": [
+      "#008000",
+      "#008000",
+      "#FF0000",
+      "#FF0000",
+      "#EEC900",
+      "#EEC900",
+      "#EEC900",
+      "#EEC900",
+      "#EEC900",
+      "#EEC900",
+      "#EEC900",
+      "#EEC900"
+    ]
+  }
+}
+```
+
+In this case PbrMetallicRoughness shader will be used, for all the triangles there is a color code.
 
 ## Run pg2b3dm
 
