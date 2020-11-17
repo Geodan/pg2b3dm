@@ -51,6 +51,8 @@ Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdire
 
 - Duisburg buidings converted from CityGML in MapBox GL JS - https://geodan.github.io/pg2b3dm/sample_data/duisburg/mapbox/#15.62/51.430166/6.782675/0/45
 
+- TU Delft  - 3D BAG v2 https://tudelft3d.github.io/3dbag-viewer
+
 ## Command line options
 
 All parameters are optional, except the -t --table option. 
