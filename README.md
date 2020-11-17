@@ -81,7 +81,11 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -g, --geometricerrors  (Default: 500, 0) Geometric errors
 
-  --refine               (Default: REPLACE) Refinement method (REPLACE/ADD)
+  -q, --query            (Default: ) Query parameter
+
+   --refine              (Default: REPLACE) Refinement method (REPLACE/ADD)
+  
+  --shaderscolumn        (Default: ) shaders column
   
   --help                Display this help screen.
 
