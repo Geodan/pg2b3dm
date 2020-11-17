@@ -5,6 +5,9 @@
 In this document we run pg2b3dm on a sample dataset, a shapefile from Delaware containing building footprints with a height attribute. 
 The generated 3D tiles are visualized in a MapBox viewer.
 
+Note: Colors and styling has changed in pg2b3dm release 0.10, here a description of release 0.9.4 is given.
+
+
 ## Download data
 
 We download a dataset from the US Building Footprints.
@@ -152,21 +155,17 @@ Program finished.
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id
-tool: pg2b3dm 0.10.0.0
-password for user postgres:
-start processing....
-input table:  delaware_buildings
-input geometry column:  geom_triangle
-output directory:  ./output\tiles
-geometric errors: 500,0
-spatial reference: 3857
-creating quadtree: 357/357 - 100.00%
-tiles with features: 171
-writing tileset.json...
-creating tiles: 171/171 - 100.00%
-elapsed: 37 seconds
-program finished.```
+λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm:0.9.4 -h some-postgis -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id -r colors
+tool: pg2b3dm 0.9.1.0
+Password for user postgres:
+Start processing....
+Calculating bounding boxes...
+Writing tileset.json...
+Writing 927 tiles...
+Progress: tile 927 - 100.00%
+Elapsed: 39 seconds
+Program finished.
+```
 
 ## Visualize in MapBox
 
@@ -174,7 +173,7 @@ Required: Use -f mapbox (default option) in previous step bertt/tesselate_buildi
 
 Copy the generated tiles to sample_data\delaware\mapbox\ (overwrite the tileset.json and sample tiles in tiles directory there).
 
-Put folder 'sample_data' on a webserver (for example $ python3 -m http.server) and navigate to /delaware/mapbox/index.html
+Put folder 'sample_data' on a webserver (for example https://caddyserver.com/) and navigate to /delaware/mapbox/index.html
 
 If all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 
