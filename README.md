@@ -98,7 +98,9 @@ If --username and/or --dbname are not specified the current username is used as 
 
 In release 0.10 the shaders functionality is changed to support PbrMetallicRoughness and PbrSpecularGlossiness. 
 
-See document release_notes_0.10.md for details.
+See document <a href= "release_notes_0.10.md">release_notes_0.10.md</a> for details.
+
+### Id Column
 
 - Id column must be type string;
 
@@ -144,7 +146,7 @@ Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
-- 0.9.3 stable build
+- 0.10 stable build
 
 - latest: is build automatically after push to master
 
@@ -182,9 +184,9 @@ $ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_us
 
 ## Run from source
 
-Requirement: Install .NET Core 3.1 SDK
+Requirement: Install .NET 5.0 SDK
 
-https://dotnet.microsoft.com/download/dotnet-core/3.1
+https://dotnet.microsoft.com/download/dotnet/5.0
 
 TL;DR:
 
@@ -192,7 +194,7 @@ TL;DR:
 $ sudo apt-get update
 $ sudo apt-get install apt-transport-https
 $ sudo apt-get update
-$ sudo apt-get install dotnet-sdk-3.1
+$ sudo apt-get install dotnet-sdk-5.0
 ```
 
 Build app:
@@ -210,7 +212,7 @@ To create an self-contained executable '~/bin/pg2b3dm':
 $ git clone https://github.com/Geodan/pg2b3dm.git
 $ cd pg2b3dm/src/pg2b3dm
 $ dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true
-$ cp ./bin/Release/netcoreapp3.1/linux-x64/publish/pg2b3dm ~/bin
+$ cp ./bin/Release/net5.0/linux-x64/publish/pg2b3dm ~/bin
 $ ~/bin/pg2b3dm
 ```
 
@@ -247,7 +249,7 @@ Press F5 to start debugging.
 
 ## History
 
-2020-06-04: preview release 0.10, adding shader support PbrMetallicRoughness and PbrSpecularGlossiness
+2020-11-17: release 0.10, adding shader support PbrMetallicRoughness and PbrSpecularGlossiness + to .NET 5.0
 
 2020-06-18: release 0.9.4, adding query parameter support (-q --query)
 
