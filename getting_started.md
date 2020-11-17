@@ -183,7 +183,7 @@ In this case PbrMetallicRoughness shader will be used, for all the triangles the
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm:0.9.4 -h some-postgis -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id --shaderscolumn shaders
+λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id --shaderscolumn shaders
 tool: pg2b3dm 0.10.0.0
 Password for user postgres:
 Start processing....
