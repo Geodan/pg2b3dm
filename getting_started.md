@@ -5,8 +5,7 @@
 In this document we run pg2b3dm on a sample dataset, a shapefile from Delaware containing building footprints with a height attribute. 
 The generated 3D tiles are visualized in a MapBox viewer.
 
-Note: Colors and styling has changed in pg2b3dm release 0.10, here a description of release 0.9.4 is given.
-
+Note: Colors and styling has changed in pg2b3dm release 0.10, here a description of release pg2b3dm 0.10 is given.
 
 ## Download data
 
@@ -93,13 +92,13 @@ postgres=# UPDATE delaware_buildings SET id = ogc_fid::text;
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_triangle geometry;
 ```
 
-## Colors and styling
+## CShaders
 
 Add two more columns to the delaware_buildings table:
 
 ```
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN style json;
-postgres=# ALTER TABLE delaware_buildings ADD COLUMN colors text[];
+postgres=# ALTER TABLE delaware_buildings ADD COLUMN shaders json;
 ```
 
 Update the style column with a JSON file containing walls, roof, floor colors:
@@ -116,7 +115,7 @@ Colors used:
 ```
 postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#EEC900", "roof":"#FF0000", "floor":"#008000"}');
 ```
-The 'colors' column will be filled in next 'bertt/tesselate_building' step.
+The 'shaders' column will be filled in next 'bertt/tesselate_building' step.
 
 now exit psql:
 
@@ -136,13 +135,13 @@ Run bertt/tesselate_building. It does the following:
 
 - writes geometries to column geom_triangle (as polyhedralsurface geometries);
 
-- writes colors info (color code per triangle) into colors column;
+- writes shaders info (color code per triangle) into shaders column;
 
 - format option -f mapbox/cesium: in the next sample the default output format is used: '-f mapbox'. 
 When building for Cesium use '-f cesium'. 
 
 ```
-$ docker run -it --network mynetwork bertt/tesselate_building -h some-postgis -U postgres -d postgres -f mapbox -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --colorscolumn colors
+$ docker run -it --network mynetwork bertt/tesselate_building -h some-postgis -U postgres -d postgres -f mapbox -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --shaderscolumn shaders
 Tool: Tesselate buildings 1.0.0.0
 Password for user postgres:
 Progress: 100.00%
@@ -150,13 +149,15 @@ Elapsed: 74 seconds
 Program finished.
 ```
 
+After running, columns 'geom_triangle' and 'shaders' should be filled with the correct information.
+
 ## Run pg2b3dm
 
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm:0.9.4 -h some-postgis -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id -r colors
-tool: pg2b3dm 0.9.1.0
+λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm:0.9.4 -h some-postgis -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id --shaderscolumn shaders
+tool: pg2b3dm 0.10.-.0
 Password for user postgres:
 Start processing....
 Calculating bounding boxes...
