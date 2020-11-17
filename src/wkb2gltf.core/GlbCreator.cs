@@ -13,7 +13,7 @@ namespace Wkb2Gltf
         public static byte[] GetGlb(List<Triangle> triangles)
         {
             var materialCache = new MaterialsCache();
-            var default_hex_color = "#bb3333";
+            var default_hex_color = "#D94F33"; // "#bb3333";
             var defaultMaterial = MaterialCreator.GetDefaultMaterial(default_hex_color);
 
             var mesh = new MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty>("mesh");

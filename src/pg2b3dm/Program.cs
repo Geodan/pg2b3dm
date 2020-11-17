@@ -101,8 +101,8 @@ namespace pg2b3dm
                 Console.WriteLine("writing tileset.json...");
                 var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement);
                 File.WriteAllText($"{o.Output}/tileset.json", json);
-
-                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, o.RoofColorColumn, o.AttributesColumn, o.LodColumn);
+                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles,
+         o.ShadersColumn, o.AttributesColumn, o.LodColumn);
 
                 stopWatch.Stop();
                 Console.WriteLine();

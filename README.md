@@ -247,6 +247,10 @@ Press F5 to start debugging.
 
 ## History
 
+2020-06-04: preview release 0.10, adding shader support PbrMetallicRoughness and PbrSpecularGlossiness
+
+2020-06-18: release 0.9.4, adding query parameter support (-q --query)
+
 2020-05-07: release 0.9.3, rewriting tiling method 
 
 2019-11-18: release 0.8 adding -f, --featurespertile and -e, --extenttile options
