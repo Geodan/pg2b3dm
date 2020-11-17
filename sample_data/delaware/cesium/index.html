@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script src="https://cesiumjs.org/releases/1.67/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesiumjs.org/releases/1.67/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <script src="https://cesiumjs.org/releases/1.75/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesiumjs.org/releases/1.75/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   
     <style>
       html, body, #cesiumContainer {
@@ -31,7 +31,7 @@
     });
     viewer.scene.debugShowFramesPerSecond = true;
     var tileset = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
-        url : './test/tileset.json'
+        url : 'tileset.json'
     }));
 
     viewer.scene.globe.depthTestAgainstTerrain = true;
