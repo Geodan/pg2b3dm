@@ -2,7 +2,7 @@
  
  ![.NET Core](https://github.com/Geodan/pg2b3dm/workflows/.NET%20Core/badge.svg)
 
-Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software started as a port of py3dtiles (https://github.com/Oslandia/py3dtiles) for generating b3dm tiles.
+Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software started as a port of py3dtiles (https://github.com/Oslandia/py3dtiles) for generating b3dm tiles. The generated 3D Tiles can be visualized in Cesium JS or MapBox GL JS.
 
 ![mokum](https://user-images.githubusercontent.com/538812/63088752-24fa8000-bf56-11e9-9ba8-3273a21dfda0.png)
 
