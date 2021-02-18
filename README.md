@@ -82,7 +82,9 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -q, --query            (Default: ) Query parameter
 
-   --refine              (Default: REPLACE) Refinement method (REPLACE/ADD)
+  --compress             (Default: false) Compress glb data using gltf-pipeline
+
+  --refine              (Default: REPLACE) Refinement method (REPLACE/ADD)
   
   --shaderscolumn        (Default: ) shaders column
   
@@ -186,6 +188,17 @@ $ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_us
 ```
 
 ## Run from source
+
+If you want to use compression (experimental):
+Install nodejs
+```
+https://nodejs.org/en/download/
+```
+
+Install gltf-pipeline
+```
+npm install -g gltf-pipeline
+```
 
 Requirement: Install .NET 5.0 SDK
 

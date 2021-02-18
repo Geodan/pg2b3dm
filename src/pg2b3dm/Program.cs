@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using B3dm.Tile;
 using B3dm.Tileset;
 using CommandLine;
@@ -18,6 +19,8 @@ namespace pg2b3dm
 
         static void Main(string[] args)
         {
+            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+
             var version = Assembly.GetEntryAssembly().GetName().Version;
             Console.WriteLine($"tool: pg2b3dm {version}");
 
@@ -101,8 +104,7 @@ namespace pg2b3dm
                 Console.WriteLine("writing tileset.json...");
                 var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement);
                 File.WriteAllText($"{o.Output}/tileset.json", json);
-                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles,
-         o.ShadersColumn, o.AttributesColumn, o.LodColumn);
+                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, o.ShadersColumn, o.AttributesColumn, o.LodColumn, o.Compress);
 
                 stopWatch.Stop();
                 Console.WriteLine();
@@ -133,7 +135,7 @@ namespace pg2b3dm
             }
         }
 
-        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumn = "", string lodColumn="")
+        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumn = "", string lodColumn="", bool compress=false)
         {
             foreach (var t in tiles) {
                 counter++;
@@ -146,7 +148,7 @@ namespace pg2b3dm
 
                 var attributes = GetAttributes(geometries);
 
-                var b3dm = B3dmCreator.GetB3dm(attributesColumn, attributes, triangleCollection);
+                var b3dm = B3dmCreator.GetB3dm(attributesColumn, attributes, triangleCollection, compress);
 
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
 

@@ -41,5 +41,7 @@ namespace pg2b3dm
         [Option('q', "query", Required = false, Default = "", HelpText = "Query parameter")]
         public string Query { get; set; }
 
+        [Option("compress", Required = false, Default = false, HelpText = "Compress glb data")]
+        public bool Compress { get; set; }
     }
 }

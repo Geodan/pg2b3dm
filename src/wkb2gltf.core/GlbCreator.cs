@@ -5,12 +5,17 @@ using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
 using Wkb2Gltf.Extensions;
+using System.IO;
+using System;
+using System.Diagnostics;
+using SharpGLTF.Schema2;
+using System.Runtime.InteropServices;
 
 namespace Wkb2Gltf
 {
     public static class GlbCreator
     {
-        public static byte[] GetGlb(List<Triangle> triangles)
+        public static byte[] GetGlb(List<Triangle> triangles, bool compress = false)
         {
             var materialCache = new MaterialsCache();
             var default_hex_color = "#D94F33"; // "#bb3333";
@@ -34,7 +39,55 @@ namespace Wkb2Gltf
             var model = scene.ToGltf2();
             var bytes = model.WriteGLB().Array;
 
+            if(compress) {
+                bytes = Compress(bytes);
+            }
+
             return bytes;
+        }
+
+        // Experimental
+        private static byte[] Compress(byte[] glb) {
+            bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+
+            var tempDirectory = Path.Combine(Directory.GetCurrentDirectory(), "temp");
+            var uncompressed = Path.Combine(tempDirectory,  "uncompressed.glb");
+            var compressed = Path.Combine(tempDirectory, "compressed.glb");
+
+            Directory.CreateDirectory(tempDirectory);
+            File.WriteAllBytes(uncompressed, glb);
+
+            var fileName = IsWindows ? "cmd.exe" : IsLinux ? "/bin/bash" : throw new NotImplementedException("Compress not implemented for platform");
+            var arguments = IsWindows ? $@"/C gltf-pipeline -i {uncompressed} -d -o {compressed}" : $"-c \"gltf-pipeline -i {uncompressed} -d -o {compressed}\"";
+
+            var process = new Process()
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    WorkingDirectory = tempDirectory,
+                    Arguments = arguments,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = false,
+                }
+            };
+            process.Start();
+            while (!process.StandardOutput.EndOfStream)
+            {
+                string line = process.StandardOutput.ReadLine();
+            }
+
+            process.Close();
+            process.Dispose();
+
+            var byteData = File.ReadAllBytes(compressed);
+            
+            File.Delete(uncompressed);
+            File.Delete(compressed);
+
+            return byteData;
         }
 
         private static bool DrawTriangle(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty> mesh)
