@@ -148,7 +148,7 @@ namespace pg2b3dm
 
                 var attributes = GetAttributes(geometries);
 
-                var b3dm = B3dmCreator.GetB3dm(attributesColumn, attributes, triangleCollection, compress);
+                var b3dm = B3dmCreator.GetB3dm(attributesColumn, attributes, triangleCollection, outputPath, compress);
 
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
 

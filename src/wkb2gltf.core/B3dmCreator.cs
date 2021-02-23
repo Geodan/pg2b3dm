@@ -5,9 +5,9 @@ namespace Wkb2Gltf
 {
     public static class B3dmCreator
     {
-        public static B3dm.Tile.B3dm GetB3dm(string attributesColumn, List<object> attributes, List<Triangle> triangleCollection, bool compress = false)
+        public static B3dm.Tile.B3dm GetB3dm(string attributesColumn, List<object> attributes, List<Triangle> triangleCollection, string outputPath, bool compress = false)
         {
-            var bytes = GlbCreator.GetGlb(triangleCollection, compress);
+            var bytes = GlbCreator.GetGlb(triangleCollection, outputPath, compress);
             var b3dm = new B3dm.Tile.B3dm(bytes);
 
             if (attributes.Count > 0) {
