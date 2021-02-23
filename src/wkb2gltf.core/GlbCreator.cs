@@ -25,7 +25,7 @@ namespace Wkb2Gltf
 
             foreach (var triangle in triangles) {
                 MaterialBuilder material;
-                if (triangle.Shader!=null) {
+                if (triangle.Shader != null) {
                     material = materialCache.GetMaterialBuilderByShader(triangle.Shader);
                 }
                 else {
@@ -40,31 +40,30 @@ namespace Wkb2Gltf
             var bytes = model.WriteGLB().Array;
 
             //if(compress) {
-                bytes = Compress(bytes);
+            bytes = Compress(bytes);
             //}
 
             return bytes;
         }
 
         // Experimental
-        private static byte[] Compress(byte[] glb) {
+        private static byte[] Compress(byte[] glb)
+        {
             bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
             var tempDirectory = Path.Combine(Directory.GetCurrentDirectory(), "temp");
-            var uncompressed = Path.Combine(tempDirectory,  "uncompressed.glb");
+            var uncompressed = Path.Combine(tempDirectory, "uncompressed.glb");
             var compressed = Path.Combine(tempDirectory, "compressed.glb");
 
             Directory.CreateDirectory(tempDirectory);
             File.WriteAllBytes(uncompressed, glb);
 
             var fileName = IsWindows ? "cmd.exe" : IsLinux ? "/bin/bash" : throw new NotImplementedException("Compress not implemented for platform");
-            var arguments = IsWindows ? $@"/C gltf-pipeline -i {uncompressed} -d -o {compressed}" : $"-c \"gltf-pipeline -i {uncompressed} -d -o {compressed} --draco.compressionLevel 10 --draco.quantizePositionBits 8 --draco.quantizeNormalBits=8 --draco.unifiedQuantization\"";
+            var arguments = IsWindows ? $@"/C gltf-pipeline -i {uncompressed} -d -o {compressed}" : $"-c \"gltf-pipeline -i {uncompressed} -d -o {compressed} --draco.compressionLevel 8 --draco.quantizePositionBits 12 --draco.quantizeTexcoordBits 8\"";
 
-            var process = new Process()
-            {
-                StartInfo = new ProcessStartInfo
-                {
+            var process = new Process() {
+                StartInfo = new ProcessStartInfo {
                     FileName = fileName,
                     WorkingDirectory = tempDirectory,
                     Arguments = arguments,
@@ -74,8 +73,7 @@ namespace Wkb2Gltf
                 }
             };
             process.Start();
-            while (!process.StandardOutput.EndOfStream)
-            {
+            while (!process.StandardOutput.EndOfStream) {
                 string line = process.StandardOutput.ReadLine();
             }
 
@@ -83,7 +81,7 @@ namespace Wkb2Gltf
             process.Dispose();
 
             var byteData = File.ReadAllBytes(compressed);
-            
+
             File.Delete(uncompressed);
             File.Delete(compressed);
 
