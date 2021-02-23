@@ -15,7 +15,7 @@ namespace Wkb2Gltf
 {
     public static class GlbCreator
     {
-        public static byte[] GetGlb(List<Triangle> triangles, bool compress = false)
+        public static byte[] GetGlb(List<Triangle> triangles, string outputPath, bool compress = false)
         {
             var materialCache = new MaterialsCache();
             var default_hex_color = "#D94F33"; // "#bb3333";
@@ -40,23 +40,23 @@ namespace Wkb2Gltf
             var bytes = model.WriteGLB().Array;
 
             //if(compress) {
-            bytes = Compress(bytes);
+            bytes = Compress(bytes, outputPath);
             //}
 
             return bytes;
         }
 
         // Experimental
-        private static byte[] Compress(byte[] glb)
+        private static byte[] Compress(byte[] glb, string outputPath)
         {
             bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
-            var tempDirectory = Path.Combine(Directory.GetCurrentDirectory(), "temp");
-            var uncompressed = Path.Combine(tempDirectory, "uncompressed.glb");
-            var compressed = Path.Combine(tempDirectory, "compressed.glb");
+            //var tempDirectory = Path.Combine(Directory.GetCurrentDirectory(), "temp");
+            var uncompressed = Path.Combine(outputPath, "uncompressed.glb");
+            var compressed = Path.Combine(outputPath, "compressed.glb");
 
-            Directory.CreateDirectory(tempDirectory);
+            //Directory.CreateDirectory(tempDirectory);
             File.WriteAllBytes(uncompressed, glb);
 
             var fileName = IsWindows ? "cmd.exe" : IsLinux ? "/bin/bash" : throw new NotImplementedException("Compress not implemented for platform");
@@ -65,7 +65,7 @@ namespace Wkb2Gltf
             var process = new Process() {
                 StartInfo = new ProcessStartInfo {
                     FileName = fileName,
-                    WorkingDirectory = tempDirectory,
+                    WorkingDirectory = outputPath,
                     Arguments = arguments,
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
