@@ -39,9 +39,9 @@ namespace Wkb2Gltf
             var model = scene.ToGltf2();
             var bytes = model.WriteGLB().Array;
 
-            if(compress) {
+            //if(compress) {
                 bytes = Compress(bytes);
-            }
+            //}
 
             return bytes;
         }
@@ -59,7 +59,7 @@ namespace Wkb2Gltf
             File.WriteAllBytes(uncompressed, glb);
 
             var fileName = IsWindows ? "cmd.exe" : IsLinux ? "/bin/bash" : throw new NotImplementedException("Compress not implemented for platform");
-            var arguments = IsWindows ? $@"/C gltf-pipeline -i {uncompressed} -d -o {compressed}" : $"-c \"gltf-pipeline -i {uncompressed} -d -o {compressed}\"";
+            var arguments = IsWindows ? $@"/C gltf-pipeline -i {uncompressed} -d -o {compressed}" : $"-c \"gltf-pipeline -i {uncompressed} -d -o {compressed} --draco.compressionLevel 10 --draco.quantizePositionBits 8 --draco.quantizeNormalBits=8 --draco.unifiedQuantization\"";
 
             var process = new Process()
             {
