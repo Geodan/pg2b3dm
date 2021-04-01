@@ -15,7 +15,7 @@ namespace Wkb2Gltf
 {
     public static class GlbCreator
     {
-        public static byte[] GetGlb(List<Triangle> triangles, string outputPath, bool compress = false)
+        public static byte[] GetGlb(List<Triangle> triangles, string outputPath, bool compress = false, int? precision = null)
         {
             var materialCache = new MaterialsCache();
             var default_hex_color = "#D94F33"; // "#bb3333";
@@ -32,16 +32,16 @@ namespace Wkb2Gltf
                     material = defaultMaterial;
                 }
 
-                DrawTriangle(triangle, material, mesh);
+                DrawTriangle(triangle, material, mesh, precision);
             }
             var scene = new SceneBuilder();
             scene.AddRigidMesh(mesh, Matrix4x4.Identity);
             var model = scene.ToGltf2();
             var bytes = model.WriteGLB().Array;
 
-            //if(compress) {
-            bytes = Compress(bytes, outputPath);
-            //}
+            if(compress) {
+                bytes = Compress(bytes, outputPath);
+            }
 
             return bytes;
         }
@@ -52,11 +52,9 @@ namespace Wkb2Gltf
             bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
-            //var tempDirectory = Path.Combine(Directory.GetCurrentDirectory(), "temp");
             var uncompressed = Path.Combine(outputPath, "uncompressed.glb");
             var compressed = Path.Combine(outputPath, "compressed.glb");
 
-            //Directory.CreateDirectory(tempDirectory);
             File.WriteAllBytes(uncompressed, glb);
 
             var fileName = IsWindows ? "cmd.exe" : IsLinux ? "/bin/bash" : throw new NotImplementedException("Compress not implemented for platform");
@@ -79,7 +77,6 @@ namespace Wkb2Gltf
 
             process.Close();
             process.Dispose();
-
             var byteData = File.ReadAllBytes(compressed);
 
             File.Delete(uncompressed);
@@ -88,13 +85,28 @@ namespace Wkb2Gltf
             return byteData;
         }
 
-        private static bool DrawTriangle(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty> mesh)
+        private static bool DrawTriangle(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty> mesh, int? precision = null)
         {
             var normal = triangle.GetNormal();
             var prim = mesh.UsePrimitive(material);
             var vectors = triangle.ToVectors();
+            if(precision.HasValue)
+            {
+                vectors.Item1 = UpdateVector3Precision(vectors.Item1, precision.Value);
+                vectors.Item2 = UpdateVector3Precision(vectors.Item2, precision.Value);
+                vectors.Item3 = UpdateVector3Precision(vectors.Item3, precision.Value);
+            }
+
             var indices = prim.AddTriangleWithBatchId(vectors, normal, triangle.GetBatchId());
             return indices.Item1 > 0;
+        }
+
+        private static Vector3 UpdateVector3Precision(Vector3 vec, int precision) 
+        {
+            var x = Math.Round(Convert.ToDecimal(vec.X), precision);
+            var y = Math.Round(Convert.ToDecimal(vec.X), precision);
+            var z = Math.Round(Convert.ToDecimal(vec.X), precision);
+            return new Vector3((float)x, (float)y, (float)z);
         }
     }
 }

@@ -11,7 +11,7 @@
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/pg2b3dm/bin/Debug/net5.0/pg2b3dm.dll",
-            "args": ["-h" ,"localhost", "-U" ,"marvin", "-d", "postgres", "-t", "delaware_buildings", "-c", "geom_triangle", "-i", "id", "-o", "C:\\temp", "--shaderscolumn", "shaders", "--compress", "true"],            
+            "args": ["-h" ,"localhost", "-U" ,"marvin", "-d", "postgres", "-t", "buildings", "-c", "geom", "-i", "id", "-o", "/home/time/Downloads/output", "--compress", "true", "--precision", "1"],            
             "cwd": "${workspaceFolder}/pg2b3dm",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "externalTerminal",

@@ -102,9 +102,9 @@ namespace pg2b3dm
                 Console.WriteLine($"tiles with features: {nrOfTiles} ");
                 CalculateBoundingBoxes(translation, tiles.tiles, bbox3d.ZMin, bbox3d.ZMax);
                 Console.WriteLine("writing tileset.json...");
-                var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement);
+                var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement, o.Precision);
                 File.WriteAllText($"{o.Output}/tileset.json", json);
-                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, o.ShadersColumn, o.AttributesColumn, o.LodColumn, o.Compress);
+                WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles, o.ShadersColumn, o.AttributesColumn, o.LodColumn, o.Compress, o.Precision);
 
                 stopWatch.Stop();
                 Console.WriteLine();
@@ -135,7 +135,7 @@ namespace pg2b3dm
             }
         }
 
-        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumn = "", string lodColumn="", bool compress=false)
+        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumn = "", string lodColumn="", bool compress=false, int? precision = null)
         {
             foreach (var t in tiles) {
                 counter++;
@@ -145,10 +145,9 @@ namespace pg2b3dm
                 var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, t, epsg, colorColumn, attributesColumn, lodColumn);
 
                 var triangleCollection = GetTriangles(geometries);
-
                 var attributes = GetAttributes(geometries);
 
-                var b3dm = B3dmCreator.GetB3dm(attributesColumn, attributes, triangleCollection, outputPath, compress);
+                var b3dm = B3dmCreator.GetB3dm(attributesColumn, attributes, triangleCollection, outputPath, compress, precision);
 
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
 

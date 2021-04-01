@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace B3dm.Tileset
@@ -6,19 +7,26 @@ namespace B3dm.Tileset
     public static class TreeSerializer
     {
 
-        public static string ToJson(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError, string refinement)
+        public static string ToJson(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError, string refinement, int? precision = null)
         {
-            var tileset = ToTileset(tiles, transform, box, maxGeometricError, refinement);
+            var tileset = ToTileset(tiles, transform, box, maxGeometricError, refinement, precision);
             var json = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
             return json; ;
         }
 
-        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError, string refinement)
+        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError, string refinement, int? precision = null)
         {
             var geometricError = maxGeometricError;
             var tileset = new TileSet {
                 asset = new Asset() { version = "1.0", generator = "pg2b3dm" }
             };
+
+            if(precision.HasValue){
+                transform[0] = Math.Round(transform[0], precision.Value);
+                transform[1] = Math.Round(transform[1], precision.Value);
+                transform[2] = Math.Round(transform[2], precision.Value);
+            }
+
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
             tileset.geometricError = geometricError;
             var root = GetRoot(tiles, geometricError, t, box, refinement);

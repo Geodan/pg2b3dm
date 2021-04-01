@@ -41,7 +41,10 @@ namespace pg2b3dm
         [Option('q', "query", Required = false, Default = "", HelpText = "Query parameter")]
         public string Query { get; set; }
 
-        [Option("compress", Required = false, Default = false, HelpText = "Compress glb data")]
+        [Option("precision", Required = false, Default = null, HelpText = "Coordinate precision, amount of decimal values")]
+        public int? Precision { get; set; }
+
+        [Option("compress", Required = false, Default = null, HelpText = "Compress glb data")]
         public bool Compress { get; set; }
     }
 }
