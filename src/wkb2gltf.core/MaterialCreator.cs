@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Numerics;
 using SharpGLTF.Materials;
 
@@ -62,5 +63,24 @@ namespace Wkb2Gltf
             var v = new Vector3((float)c.R / 255, (float)c.G / 255, (float)c.B / 255);
             return v;
         }
+
+/*         private static Vector3 CreateMaterialColor3(string color)
+        {
+            var c = ColorTranslator.FromHtml(color);
+            var v = new Vector3(SRGBToLinear((float)c.R / 255), SRGBToLinear((float)c.G / 255), SRGBToLinear((float)c.B / 255));
+            return v;
+        }
+
+        private static Vector4 CreateMaterialColor4(string color)
+        {
+            var c = ColorTranslator.FromHtml(color);
+            var v = new Vector4(SRGBToLinear((float)c.R / 255), SRGBToLinear((float)c.G / 255), SRGBToLinear((float)c.B / 255), (float)c.A / 255);
+            return v;
+        }
+
+        private static float SRGBToLinear(float c)
+        {
+            return (c < 0.04045) ? (float)(c * 0.0773993808) : (float)(Math.Pow(c * 0.9478672986 + 0.0521327014, 2.4));
+        } */
     }
 }

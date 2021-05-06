@@ -34,7 +34,7 @@ namespace B3dm.Tileset
                     var lodQuery = LodQuery.GetLodQuery(lodcolumn, lods[currentLod]);
                     var from = new Point(box3d.XMin + extentTile * x, box3d.YMin + extentTile * y);
                     var to = new Point(box3d.XMin + extentTile * (x + 1), box3d.YMin + extentTile * (y + 1));
-                    var hasFeatures = BoundingBoxRepository.HasFeaturesInBox(conn, geometryTable, geometryColumn, from, to, epsg, lodQuery);
+                    var hasFeatures = BoundingBoxRepository.HasFeaturesInBox(conn, geometryTable, geometryColumn, from, to, epsg, lodQuery, query);
                     if (hasFeatures) {
                         tileId++;
                         var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y)) {
