@@ -58,7 +58,7 @@ namespace Wkb2Gltf
             File.WriteAllBytes(uncompressed, glb);
 
             var fileName = IsWindows ? "cmd.exe" : IsLinux ? "/bin/bash" : throw new NotImplementedException("Compress not implemented for platform");
-            var arguments = IsWindows ? $@"/C gltf-pipeline -i {uncompressed} -d -o {compressed}" : $"-c \"gltf-pipeline -i {uncompressed} -d -o {compressed} --draco.compressionLevel 8 --draco.quantizePositionBits 12 --draco.quantizeTexcoordBits 8\"";
+            var arguments = IsWindows ? $@"/C gltf-pipeline -i {uncompressed} -d -o {compressed}" : $"-c \"gltf-pipeline -i {uncompressed} -d -o {compressed} --draco.compressionLevel 7 --draco.quantizePositionBits 14 --draco.quantizeTexcoordBits 8\"";
 
             var process = new Process() {
                 StartInfo = new ProcessStartInfo {
