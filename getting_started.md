@@ -21,24 +21,13 @@ https://1drv.ms/u/s!AqWv0F0N63JkgQqO6E9e2kI28R16
 
 Donwload zip, unzip. It contains a 'bldg_footprints.shp' shapefile with building height column.
 
-## Setup PostGIS
+## Prerequisites
 
-1] Create Docker network
+- PostGIS database
 
-In this tutorial, we'll start 2 containers: PostGIS database and tiling tool pg2b3dm. Because those containers need to communicate
-they must be in the same network. So we'll create a network first and add the 2 containers later.
+- .NET 5.0 SDK https://dotnet.microsoft.com/download/dotnet/5.0
 
-If you have already installed a PostGIS server you can skip this step.
-
-```
-$ docker network create  mynetwork
-```
-
-2] Start PostGIS database
-
-```
-$ docker run -d --name some-postgis -e POSTGRES_PASSWORD=postgres -p 5432:5432 -it --network mynetwork mdillon/postgis
-```
+- GDAL (ogr2ogr)
 
 ## Import buildings to PostGIS
 
@@ -55,14 +44,6 @@ In PostGIS, a spatial table 'delaware_buildings' is created.
 PSQL into PostGIS and do a count on the buildings:
 
 ```
-$ psql -U postgres -h localhost
-Password for user postgres:
-psql (11.5, server 11.2 (Debian 11.2-1.pgdg90+1))
-WARNING: Console code page (850) differs from Windows code page (1252)
-         8-bit characters might not work correctly. See psql reference
-         page "Notes for Windows users" for details.
-Type "help" for help.
-
 postgres=# select count(*) from delaware_buildings;
  count
 --------
@@ -125,7 +106,13 @@ postgres=# exit
 
 ## Run bertt/tesselate_building
 
-Run bertt/tesselate_building. It does the following:
+Install tool tesselate_building
+
+```
+$ dotnet tool install --global tesselate_building
+```
+
+Tool tesselate_building does the following:
 
 - reads the footprint heights and geometries (from wkb_geometry);
 
@@ -141,8 +128,8 @@ Run bertt/tesselate_building. It does the following:
 When building for Cesium use '-f cesium'. 
 
 ```
-$ docker run -it --network mynetwork bertt/tesselate_building -h some-postgis -U postgres -d postgres -f mapbox -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --shaderscolumn shaders
-Tool: Tesselate buildings 1.0.0.0
+$ tesselate_building -h some-postgis -U postgres -d postgres -f mapbox -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --shaderscolumn shaders
+Tool: Tesselate buildings 0.1.1.0
 Password for user postgres:
 Progress: 100.00%
 Elapsed: 74 seconds
@@ -180,11 +167,17 @@ In this case PbrMetallicRoughness shader will be used, for all the triangles the
 
 ## Run pg2b3dm
 
+Install pg2b3dm:
+
+```
+$ dotnet tool install --global pg2b3dm
+```
+
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-λ docker run -v $(pwd)/output:/app/output -it --network mynetwork geodan/pg2b3dm -h some-postgis -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id --shaderscolumn shaders
-tool: pg2b3dm 0.10.0.0
+$ pg2b3dm -h some-postgis -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id --shaderscolumn shaders
+tool: pg2b3dm 0.11.0.0
 Password for user postgres:
 Start processing....
 Calculating bounding boxes...
