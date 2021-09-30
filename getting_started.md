@@ -104,7 +104,7 @@ now exit psql:
 postgres=# exit
 ```
 
-## Run bertt/tesselate_building
+## Run tesselate_building
 
 Install tool tesselate_building
 
@@ -190,7 +190,7 @@ Program finished.
 
 ## Visualize in MapBox
 
-Required: Use -f mapbox (default option) in previous step bertt/tesselate_building.
+Required: Use -f mapbox (default option) in previous step tesselate_building.
 
 Copy the generated tiles to sample_data\delaware\mapbox\ (overwrite the tileset.json and sample tiles in tiles directory there).
 
@@ -205,7 +205,7 @@ Sample live demo in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/d
 
 ## Visualize in Cesium
 
-Required: Use -f cesium in previous step bertt/tesselate_building.
+Required: Use -f cesium in previous step tesselate_building.
 
 Copy the generated tiles to sample_data\delaware\cesium\ (overwrite the tileset.json and sample tiles in tiles directory there).
 
