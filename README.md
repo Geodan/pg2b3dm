@@ -93,6 +93,21 @@ If --username and/or --dbname are not specified the current username is used as 
   --version             Display version information.  
 ```
 
+## Installation
+
+
+Prerequisite: .NET 5.0 SDK is installed https://dotnet.microsoft.com/download/dotnet/5.0
+
+```
+$ dotnet tool install -g pg2b3dm
+```
+
+Or update
+
+```
+$ dotnet tool update -g pg2b3dm
+```
+
 ## Remarks
 
 ### Geometries
@@ -145,6 +160,8 @@ With the -a attributecolumns parameter multiple columns with attributes can be s
 Multiple columns must be comma separated:
 
 Sample:  --attributescolumns col1,col2
+
+Attribute columns can be of any type.
 
 ## Getting started
 
@@ -260,6 +277,8 @@ Press F5 to start debugging.
 
 
 ## History
+
+2021-09-30: release 0.11, adding multiple attribute columns support 
 
 2020-11-17: release 0.10, adding shader support PbrMetallicRoughness and PbrSpecularGlossiness + to .NET 5.0
 

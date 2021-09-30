@@ -3,12 +3,23 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>0.10.0</Version>
-    <Description>Tool for converting PostGIS geometries to B3dm tiles</Description>
+	<PackAsTool>true</PackAsTool>
+	<PackageOutputPath>./nupkg</PackageOutputPath>
+	<ToolCommandName>pg2b3dm</ToolCommandName>
+	<Version>0.11.0</Version>
+    <Description>Console tool for converting PostGIS geometries to B3dm tiles (3D Tiles)</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>0.10.0.0</AssemblyVersion>
-    <FileVersion>0.10.0.0</FileVersion>
+    <AssemblyVersion>0.11.0.0</AssemblyVersion>
+    <FileVersion>0.11.0.0</FileVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Company>Geodan</Company>
+    <Authors>Bert Temme</Authors>
+    <PackageProjectUrl>https://github.com/geodan/pg2b3dm</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/geodan/pg2b3dm</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>add multiple attributes columns</PackageReleaseNotes>
+    <PackageTags>3dtiles b3dm cesium mapbox</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
