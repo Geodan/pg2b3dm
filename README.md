@@ -108,6 +108,18 @@ Or update
 $ dotnet tool update -g pg2b3dm
 ```
 
+To run:
+
+```
+$ pg2b3dm
+```
+
+## Getting started
+
+See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and visualize buildings in MapBox GL JS or Cesium.
+
+For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
+
 ## Remarks
 
 ### Geometries
@@ -162,12 +174,6 @@ Multiple columns must be comma separated:
 Sample:  --attributescolumns col1,col2
 
 Attribute columns can be of any type.
-
-## Getting started
-
-See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and visualize buildings in MapBox GL JS or Cesium.
-
-For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
 
 ## Run from Docker
 
