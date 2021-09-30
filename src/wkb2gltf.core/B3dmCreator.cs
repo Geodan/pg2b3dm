@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Wkb2Gltf
@@ -12,10 +13,9 @@ namespace Wkb2Gltf
 
             if (attributes.Count > 0) {
                 var featureTable = new FeatureTable {
-                    BATCH_LENGTH = attributes.Count
+                    BATCH_LENGTH = attributes.First().Value.Count
                 };
                 b3dm.FeatureTableJson = JsonConvert.SerializeObject(featureTable);
-
 
                 if (attributes.Count>0) {
                     var batchtable = new BatchTable();
