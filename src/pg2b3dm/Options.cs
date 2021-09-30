@@ -18,8 +18,8 @@ namespace pg2b3dm
         public string Port { get; set; }
         [Option('o', "output", Required = false, Default = "./output", HelpText = "Output path")]
         public string Output { get; set; }
-        [Option('a', "attributescolumns", Required = false, Default = "", HelpText = "Attributes columns")]
-        public string AttributesColumns { get; set; }
+        [Option('a', "attributecolumns", Required = false, Default = "", HelpText = "Attribute columns")]
+        public string AttributeColumns { get; set; }
 
         [Option('i', "idcolumn", Required = false, Default = "id", HelpText = "Id column")]
         public string IdColumn { get; set; }

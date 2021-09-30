@@ -114,11 +114,11 @@ namespace B3dm.Tileset
             return json;
         }
 
-        private static Dictionary<string, string> GetColumnValuesAsList(NpgsqlDataReader reader, Dictionary<string, int> columnIds)
+        private static Dictionary<string, object> GetColumnValuesAsList(NpgsqlDataReader reader, Dictionary<string, int> columnIds)
         {
-            var attributes = new Dictionary<string,string>();
+            var attributes = new Dictionary<string, object>();
             foreach (var colId in columnIds) {
-                var attr = reader.GetFieldValue<string>(colId.Value);
+                var attr = reader.GetFieldValue<object>(colId.Value);
                 attributes.Add(colId.Key,attr);
             }
             return attributes;

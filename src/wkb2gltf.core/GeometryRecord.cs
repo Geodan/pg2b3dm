@@ -8,14 +8,14 @@ namespace Wkb2Gltf
         public GeometryRecord(int batchId)
         {
             BatchId = batchId;
-            Attributes = new Dictionary<string, string>();
+            Attributes = new Dictionary<string, object>();
         }
         public string Id { get; set; }
         public Geometry Geometry { get; set; }
 
         public int BatchId { get; set; }
 
-        public Dictionary<string,string> Attributes { get; set; }
+        public Dictionary<string,object> Attributes { get; set; }
 
         public ShaderColors Shader { get; set; }
 

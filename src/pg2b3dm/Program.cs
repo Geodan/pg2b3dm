@@ -93,7 +93,7 @@ namespace pg2b3dm
                 var box = boundingboxAllFeatures.GetBox();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn, query);
                 Console.WriteLine($"spatial reference: {sr}");
-                Console.WriteLine($"attributes columns: {o.AttributesColumns}");
+                Console.WriteLine($"attributes columns: {o.AttributeColumns}");
                 var tiles = TileCutter.GetTiles(0, conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, 0, lods, geometricErrors.Skip(1).ToArray(), lodcolumn, query);
                 Console.WriteLine();
                 var nrOfTiles = RecursiveTileCounter.CountTiles(tiles.tiles, 0);
@@ -103,7 +103,7 @@ namespace pg2b3dm
                 var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement);
                 File.WriteAllText($"{o.Output}/tileset.json", json);
                 WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles,
-         o.ShadersColumn, o.AttributesColumns, o.LodColumn);
+         o.ShadersColumn, o.AttributeColumns, o.LodColumn);
 
                 stopWatch.Stop();
                 Console.WriteLine();
