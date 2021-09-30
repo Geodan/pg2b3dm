@@ -93,6 +93,7 @@ namespace pg2b3dm
                 var box = boundingboxAllFeatures.GetBox();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn, query);
                 Console.WriteLine($"spatial reference: {sr}");
+                Console.WriteLine($"attributes columns: {o.AttributeColumns}");
                 var tiles = TileCutter.GetTiles(0, conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, 0, lods, geometricErrors.Skip(1).ToArray(), lodcolumn, query);
                 Console.WriteLine();
                 var nrOfTiles = RecursiveTileCounter.CountTiles(tiles.tiles, 0);
@@ -102,7 +103,7 @@ namespace pg2b3dm
                 var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement);
                 File.WriteAllText($"{o.Output}/tileset.json", json);
                 WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles,
-         o.ShadersColumn, o.AttributesColumn, o.LodColumn);
+         o.ShadersColumn, o.AttributeColumns, o.LodColumn);
 
                 stopWatch.Stop();
                 Console.WriteLine();
@@ -133,41 +134,46 @@ namespace pg2b3dm
             }
         }
 
-        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumn = "", string lodColumn="")
+        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumns = "", string lodColumn="")
         {
             foreach (var t in tiles) {
                 counter++;
                 var perc = Math.Round(((double)counter / maxcount) * 100, 2);
                 Console.Write($"\rcreating tiles: {counter}/{maxcount} - {perc:F}%");
 
-                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, t, epsg, colorColumn, attributesColumn, lodColumn);
+                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, t, epsg, colorColumn, attributesColumns, lodColumn);
 
                 var triangleCollection = GetTriangles(geometries);
 
                 var attributes = GetAttributes(geometries);
 
-                var b3dm = B3dmCreator.GetB3dm(attributesColumn, attributes, triangleCollection);
+                var b3dm = B3dmCreator.GetB3dm(attributes, triangleCollection);
 
                 B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
 
                 if (t.Children != null) {
-                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, t.Children, epsg, outputPath, counter, maxcount, colorColumn, attributesColumn, lodColumn);
+                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, t.Children, epsg, outputPath, counter, maxcount, colorColumn, attributesColumns, lodColumn);
                 }
 
             }
             return counter;
         }
 
-        private static List<object> GetAttributes(List<GeometryRecord> geometries)
+        private static Dictionary<string, List<object>> GetAttributes(List<GeometryRecord> geometries)
         {
-            var allattributes = new List<object>();
+            var res = new Dictionary<string, List<object>>();
+
             foreach (var geom in geometries) {
-                if (geom.Attributes.Length > 0) {
-                    // only take the first now....
-                    allattributes.Add(geom.Attributes[0]);
+                foreach(var attr in geom.Attributes) {
+                    if (!res.ContainsKey(attr.Key)) {
+                        res.Add(attr.Key, new List<object> { attr.Value });
+                    }
+                    else {
+                        res[attr.Key].Add(attr.Value);
+                    }
                 }
             }
-            return allattributes;
+            return res;
         }
 
         public static List<Triangle> GetTriangles(List<GeometryRecord> geomrecords)

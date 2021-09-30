@@ -17,8 +17,10 @@ namespace Wkb2Gltf.Tests
             var triangle1 = new Triangle(p0, p1, p2,0);
             var triangles = new List<Triangle>() { triangle1 };
 
+            var attributes = new Dictionary<string, List<object>>();
+            attributes.Add("id", new List<object>() { "1" });
             // act
-            var b3dm = B3dmCreator.GetB3dm("id", new List<object>() { "1" }, triangles);
+            var b3dm = B3dmCreator.GetB3dm(attributes, triangles);
 
             // assert
             Assert.IsTrue(b3dm.B3dmHeader.Version == 1);

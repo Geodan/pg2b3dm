@@ -76,7 +76,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -p, --port             (Default: 5432) Database port
 
-  -a, --attributescolumn (Default: '') attributes column name 
+  -a, --attributecolumns (Default: '') attributes column names (comma separated)
 
   -e, --extenttile       (Default: 1000) Maximum extent per tile
 
@@ -111,7 +111,7 @@ See document <a href= "src/release_notes_0.10.md">release_notes_0.10.md</a> for 
 
 - Id column should be indexed for better performance.
 
-## LOD
+### LOD
 
 - if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
 
@@ -138,6 +138,13 @@ Spatial query:
 ```
 
 Make sure to check the indexes when using large tables.
+
+### Attributes
+
+With the -a attributecolumns parameter multiple columns with attributes can be specified. The attribute information is stored in the b3dm batch table. 
+Multiple columns must be comma separated:
+
+Sample:  --attributescolumns col1,col2
 
 ## Getting started
 

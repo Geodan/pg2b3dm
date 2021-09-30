@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.Linq;
 using Newtonsoft.Json;
 using Npgsql;
 using Wkb2Gltf;
@@ -49,7 +50,7 @@ namespace B3dm.Tileset
             return $"ST_RotateX(ST_Translate({ geometry_column}, { translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{ translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , { translation[2].ToString(CultureInfo.InvariantCulture)}*-1), -pi() / 2)";
         }
 
-        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumn = "", string lodColumn = "")
+        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "")
         {
             var geometries = new List<GeometryRecord>();
             var g = GetGeometryColumn(geometry_column, translation);
@@ -57,8 +58,8 @@ namespace B3dm.Tileset
             if (shaderColumn != String.Empty) {
                 sqlselect = $"{sqlselect}, {shaderColumn} ";
             }
-            if (attributesColumn != String.Empty) {
-                sqlselect = $"{sqlselect}, {attributesColumn} ";
+            if (attributesColumns != String.Empty) {
+                sqlselect = $"{sqlselect}, {attributesColumns} ";
             }
 
             var sqlFrom = "FROM " + geometry_table;
@@ -71,11 +72,12 @@ namespace B3dm.Tileset
             conn.Open();
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
-            var attributesColumnId = int.MinValue;
+            var attributesColumnIds = new Dictionary<string, int>();
             var shadersColumnId = int.MinValue;
 
-            if (attributesColumn != String.Empty) {
-                attributesColumnId = FindField(reader, attributesColumn);
+            if (attributesColumns != String.Empty) {
+                var attributesColumnsList = attributesColumns.Split(',').ToList();
+                attributesColumnIds = FindFields(reader, attributesColumnsList);
             }
             if (shaderColumn != String.Empty) {
                 shadersColumnId = FindField(reader, shaderColumn);
@@ -92,8 +94,9 @@ namespace B3dm.Tileset
                     var json = GetJson(reader, shadersColumnId);
                     geometryRecord.Shader = JsonConvert.DeserializeObject<ShaderColors>(json);
                 }
-                if (attributesColumn != String.Empty) {
-                    geometryRecord.Attributes = GetColumnValuesAsList(reader, attributesColumnId);
+                if (attributesColumns != String.Empty) {
+                    var attributes = GetColumnValuesAsList(reader, attributesColumnIds);
+                    geometryRecord.Attributes = attributes;
                 }
 
                 geometries.Add(geometryRecord);
@@ -111,9 +114,14 @@ namespace B3dm.Tileset
             return json;
         }
 
-        private static string[] GetColumnValuesAsList(NpgsqlDataReader reader, int columnId)
+        private static Dictionary<string, object> GetColumnValuesAsList(NpgsqlDataReader reader, Dictionary<string, int> columnIds)
         {
-            return reader.GetFieldValue<string[]>(columnId);
+            var attributes = new Dictionary<string, object>();
+            foreach (var colId in columnIds) {
+                var attr = reader.GetFieldValue<object>(colId.Value);
+                attributes.Add(colId.Key,attr);
+            }
+            return attributes;
         }
 
         private static int FindField(NpgsqlDataReader reader, string fieldName)
@@ -127,6 +135,16 @@ namespace B3dm.Tileset
                 }
             }
             return 0;
+        }
+
+        private static Dictionary<string, int> FindFields(NpgsqlDataReader reader, List<string> fieldNames)
+        {
+            var res = new Dictionary<string, int>();
+            foreach(var field in fieldNames) {
+                var fieldId = FindField(reader, field.Trim());
+                res.Add(field, fieldId);
+            }
+            return res;
         }
     }
 }
