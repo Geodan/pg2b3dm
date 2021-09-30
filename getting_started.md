@@ -3,9 +3,7 @@
 ## Introduction
 
 In this document we run pg2b3dm on a sample dataset, a shapefile from Delaware containing building footprints with a height attribute. 
-The generated 3D tiles are visualized in a MapBox viewer.
-
-Note: Colors and styling has changed in pg2b3dm release 0.10, here a description of release pg2b3dm 0.10 is given.
+The generated 3D tiles are visualized in a Cesium and MapBox viewer.
 
 ## Download data
 
@@ -128,7 +126,7 @@ Tool tesselate_building does the following:
 When building for Cesium use '-f cesium'. 
 
 ```
-$ tesselate_building -h some-postgis -U postgres -d postgres -f mapbox -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --shaderscolumn shaders
+$ tesselate_building -h localhost -U postgres -d postgres -f mapbox -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --shaderscolumn shaders
 Tool: Tesselate buildings 0.1.1.0
 Password for user postgres:
 Progress: 100.00%
@@ -176,7 +174,7 @@ $ dotnet tool install --global pg2b3dm
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-$ pg2b3dm -h some-postgis -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id --shaderscolumn shaders
+$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id --shaderscolumn shaders
 tool: pg2b3dm 0.11.0.0
 Password for user postgres:
 Start processing....
@@ -194,7 +192,7 @@ Required: Use -f mapbox (default option) in previous step tesselate_building.
 
 Copy the generated tiles to sample_data\delaware\mapbox\ (overwrite the tileset.json and sample tiles in tiles directory there).
 
-Put folder 'sample_data' on a webserver (for example https://caddyserver.com/) and navigate to /delaware/mapbox/index.html
+Put folder 'sample_data' on a webserver (for example $ python3 -m http.server) and navigate to /delaware/mapbox/index.html
 
 If all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 
@@ -209,7 +207,7 @@ Required: Use -f cesium in previous step tesselate_building.
 
 Copy the generated tiles to sample_data\delaware\cesium\ (overwrite the tileset.json and sample tiles in tiles directory there).
 
-Put folder 'sample_data' on a webserver (for example https://caddyserver.com/) and navigate to /delaware/cesium/index.html
+Put folder 'sample_data' on a webserver (for example $ python3 -m http.server) and navigate to /delaware/cesium/index.html
 
 If all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 
