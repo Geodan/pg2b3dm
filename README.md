@@ -126,7 +126,7 @@ For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and F
 
 - All geometries must be type polyhedralsurface consisting of triangles with 4 vertices each. If not 4 vertices exception is thrown.
 
-For large datasets create an index on the geometry column:
+For large datasets create a spatial index on the geometry column:
 
 CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle)));
 
