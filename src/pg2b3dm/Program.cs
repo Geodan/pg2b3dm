@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using B3dm.Tile;
 using B3dm.Tileset;
 using CommandLine;
 using Npgsql;
@@ -149,7 +148,9 @@ namespace pg2b3dm
 
                 var b3dm = B3dmCreator.GetB3dm(attributes, triangleCollection);
 
-                B3dmWriter.WriteB3dm($"{outputPath}/tiles/{counter}.b3dm", b3dm);
+                var bytes = b3dm.ToBytes();
+                
+                File.WriteAllBytes($"{outputPath}/tiles/{counter}.b3dm", bytes);
 
                 if (t.Children != null) {
                     counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, t.Children, epsg, outputPath, counter, maxcount, colorColumn, attributesColumns, lodColumn);

@@ -288,6 +288,8 @@ Press F5 to start debugging.
 
 ## History
 
+2021-10-27: release 0.11.2, fixing non latin characters issue in batch table
+
 2021-09-30: release 0.11, adding multiple attribute columns support. 0.11.1 contains bug fix for batch table length 
 
 2020-11-17: release 0.10, adding shader support PbrMetallicRoughness and PbrSpecularGlossiness + to .NET 5.0
