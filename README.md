@@ -41,8 +41,6 @@ Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdire
 
 Presentation at FOSS4G 2021: A fast web 3D viewer for 11 million buildings https://www.youtube.com/watch?v=1_JM2Xf5mDk
 
-Presentation at FOSS4G 2020: 3D tiles in MapBox GL JS https://av.tib.eu/media/43497
-
 Presentation at FOSS4G 2019: 3D geodata in the MapBox GL JS viewer with 3D Tiles https://www.youtube.com/watch?v=HXQJbyEnC9w
 
 - Texel - 3D Terrain, subsurface and buildings in MapBox GL JS: http://beta.geodan.nl/mapbox3d
