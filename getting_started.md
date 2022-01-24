@@ -127,7 +127,7 @@ When building for Cesium use '-f cesium'.
 
 ```
 $ tesselate_building -h localhost -U postgres -d postgres -f mapbox -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --shaderscolumn shaders
-Tool: Tesselate buildings 0.1.1.0
+Tool: Tesselate buildings 0.2.0.0
 Password for user postgres:
 Progress: 100.00%
 Elapsed: 74 seconds
