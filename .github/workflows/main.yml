@@ -1,4 +1,4 @@
-name: .NET Core
+name: Build server status
  
 on: 
     push:
