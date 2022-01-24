@@ -133,11 +133,6 @@ For large datasets create a spatial index on the geometry column:
 ```
 psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle)));
 ```
-### Shaders
-
-In release 0.10 the shaders functionality is changed to support PbrMetallicRoughness and PbrSpecularGlossiness. 
-
-See document <a href= "src/release_notes_0.10.md">release_notes_0.10.md</a> for details.
 
 ### Id Column
 
