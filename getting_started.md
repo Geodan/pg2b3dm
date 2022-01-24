@@ -175,7 +175,7 @@ Run pg2b3dm, the program will make a connection to the database and 1 tileset.js
 
 ```
 $ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id --shaderscolumn shaders
-tool: pg2b3dm 0.11.0.0
+tool: pg2b3dm 0.12.0.0
 Password for user postgres:
 Start processing....
 Calculating bounding boxes...
