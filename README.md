@@ -98,7 +98,7 @@ If --username and/or --dbname are not specified the current username is used as 
 ## Installation
 
 
-Prerequisite: .NET 5.0 SDK is installed https://dotnet.microsoft.com/download/dotnet/5.0
+Prerequisite: .NET 6.0 SDK is installed https://dotnet.microsoft.com/download/dotnet/6.0
 
 ```
 $ dotnet tool install -g pg2b3dm
@@ -225,9 +225,9 @@ $ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_us
 
 ## Run from source
 
-Requirement: Install .NET 5.0 SDK
+Requirement: Install .NET 6.0 SDK
 
-https://dotnet.microsoft.com/download/dotnet/5.0
+https://dotnet.microsoft.com/download/dotnet/6.0
 
 TL;DR:
 
@@ -235,7 +235,7 @@ TL;DR:
 $ sudo apt-get update
 $ sudo apt-get install apt-transport-https
 $ sudo apt-get update
-$ sudo apt-get install dotnet-sdk-5.0
+$ sudo apt-get install dotnet-sdk-6.0
 ```
 
 Build app:
@@ -253,7 +253,7 @@ To create an self-contained executable '~/bin/pg2b3dm':
 $ git clone https://github.com/Geodan/pg2b3dm.git
 $ cd pg2b3dm/src/pg2b3dm
 $ dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true
-$ cp ./bin/Release/net5.0/linux-x64/publish/pg2b3dm ~/bin
+$ cp ./bin/Release/net6.0/linux-x64/publish/pg2b3dm ~/bin
 $ ~/bin/pg2b3dm
 ```
 
@@ -289,6 +289,8 @@ Press F5 to start debugging.
 
 
 ## History
+
+2022-01-24: release 0.12, to .NET 6, fixing decimal symbols regional settings on Windows
 
 2021-10-27: release 0.11.2, fixing non latin characters issue in batch table
 
