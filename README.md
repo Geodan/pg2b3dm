@@ -1,6 +1,6 @@
 # pg2b3dm
  
- ![.NET Core](https://github.com/Geodan/pg2b3dm/workflows/.NET%20Core/badge.svg)
+ ![Build status](https://github.com/Geodan/pg2b3dm/workflows/.NET%20Core/badge.svg)
 
 Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software started as a port of py3dtiles (https://github.com/Oslandia/py3dtiles) for generating b3dm tiles. The generated 3D Tiles can be visualized in Cesium JS or MapBox GL JS.
 
