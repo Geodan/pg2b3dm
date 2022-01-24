@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
+using B3dm.Tileset;
 
-namespace B3dm.Tileset
+namespace B3dm.Tileset.Tests
 {
     public class BoundingBox3DTests
     {

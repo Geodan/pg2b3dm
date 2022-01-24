@@ -26,8 +26,12 @@ namespace B3dm.Tileset.Tests
             var actualTilesetBox = new double[] { 0.0, 0.0, 0.0, 8071.867, 0.0, 0.0, 0.0, 10129.713, 0.0, 0.0, 0.0, 38.29 };
 
             var actualVolumeBox = GetVolumeBox(actualTilesetBox, actualTransform);
-            var tofillin = string.Join(',', actualVolumeBox);
-            Assert.IsTrue(tofillin == "-8406745.007853176,4744614.257728589,38.29,8071.867000000551,0,0,0,10129.713000000454,0,0,0,38.29");
+            Assert.IsTrue(actualVolumeBox[0] == -8406745.007853176);
+            Assert.IsTrue(actualVolumeBox[1] == 4744614.257728589);
+            Assert.IsTrue(actualVolumeBox[2] == 38.29);
+            Assert.IsTrue(actualVolumeBox[3] == 8071.867000000551);
+            Assert.IsTrue(actualVolumeBox[7] == 10129.713000000454);
+            Assert.IsTrue(actualVolumeBox[11] == 38.29);
         }
 
         [Test]
@@ -46,7 +50,6 @@ namespace B3dm.Tileset.Tests
             for (var i = 0; i < actualVolumeBox.Length; i++) {
                 Assert.IsTrue(Math.Round(actualVolumeBox[i],2).Equals(Math.Round(expectedVolumeBox[i],2)));
             }
-
         }
 
         private double[] GetVolumeBox(double[] actualTilesetBox, double[] actualTransform)
