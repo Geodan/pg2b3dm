@@ -6,7 +6,7 @@
 	<PackAsTool>true</PackAsTool>
 	<PackageOutputPath>./nupkg</PackageOutputPath>
 	<ToolCommandName>pg2b3dm</ToolCommandName>
-	<Version>0.12</Version>
+	<Version>0.13</Version>
     <Description>Console tool for converting PostGIS geometries to B3dm tiles (3D Tiles)</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AssemblyVersion>0.13</AssemblyVersion>
