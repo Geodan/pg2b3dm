@@ -10,7 +10,7 @@ namespace Wkb2Gltf
 {
     public static class GlbCreator
     {
-        public static byte[] GetGlb(List<Triangle> triangles)
+        public static byte[] GetGlb(List<Triangle> triangles, string copyright = "")
         {
             var materialCache = new MaterialsCache();
             var default_hex_color = "#D94F33"; // "#bb3333";
@@ -32,6 +32,7 @@ namespace Wkb2Gltf
             var scene = new SceneBuilder();
             scene.AddRigidMesh(mesh, Matrix4x4.Identity);
             var model = scene.ToGltf2();
+            model.Asset.Copyright = copyright;
             var bytes = model.WriteGLB().Array;
 
             return bytes;

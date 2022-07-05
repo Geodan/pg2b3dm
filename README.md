@@ -88,11 +88,13 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -g, --geometricerrors  (Default: 500, 0) Geometric errors
 
-  -q, --query            (Default: ) Query parameter
+  -q, --query            (Default: '') Query parameter
+
+   --copyright           (Default: '') glTF copyright 
 
    --refine              (Default: REPLACE) Refinement method (REPLACE/ADD)
   
-  --shaderscolumn        (Default: ) shaders column
+  --shaderscolumn        (Default: '') shaders column
   
   --help                Display this help screen.
 
@@ -408,6 +410,8 @@ Press F5 to start debugging.
 
 
 ## History
+
+2022-07-05: release 0.13, adding glTF asset copyright
 
 2022-01-24: release 0.12, to .NET 6, fixing decimal symbols regional settings on Windows
 

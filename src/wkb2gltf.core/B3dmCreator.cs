@@ -6,9 +6,9 @@ namespace Wkb2Gltf
 {
     public static class B3dmCreator
     {
-        public static B3dm.Tile.B3dm GetB3dm(Dictionary<string, List<object>> attributes, List<Triangle> triangleCollection)
+        public static B3dm.Tile.B3dm GetB3dm(Dictionary<string, List<object>> attributes, List<Triangle> triangleCollection, string copyright="")
         {
-            var bytes = GlbCreator.GetGlb(triangleCollection);
+            var bytes = GlbCreator.GetGlb(triangleCollection, copyright);
             var b3dm = new B3dm.Tile.B3dm(bytes);
 
             if (attributes.Count > 0) {
