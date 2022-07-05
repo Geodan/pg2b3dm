@@ -41,5 +41,7 @@ namespace pg2b3dm
         [Option('q', "query", Required = false, Default = "", HelpText = "Query parameter")]
         public string Query { get; set; }
 
+        [Option("copyright", Required = false, Default = "", HelpText = "glTF asset copyright")]
+        public string Copyright { get; set; }
     }
 }
