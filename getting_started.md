@@ -227,6 +227,8 @@ Required:
 
 Copy the generated tiles to webserver (for example $ python3 -m http.server)
 
+- In Unreal create a new blank project
+
 - In Unreal press '+' next to 'Blank 3D Tiles Tileset' in the Cesium panel
 
 ![CesiumUnrealAdd3dTiles](https://user-images.githubusercontent.com/538812/177511768-d35d5090-d7f5-4849-b9c6-4a53987f0379.png)
