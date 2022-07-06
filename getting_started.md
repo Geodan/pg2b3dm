@@ -3,7 +3,7 @@
 ## Introduction
 
 In this document we run pg2b3dm on a sample dataset, a shapefile from Delaware containing building footprints with a height attribute. 
-The generated 3D tiles are visualized in a Cesium and MapBox viewer.
+The generated 3D tiles are visualized in a CesiumJS/Cesium for Unreal and MapBox GL JS viewer.
 
 ## Download data
 
@@ -201,7 +201,7 @@ If all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 Sample live demo in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/delaware/mapbox/
 
 
-## Visualize in Cesium
+## Visualize in CesiumJS
 
 Required: Use -f cesium in previous step tesselate_building.
 
@@ -214,3 +214,34 @@ If all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 ![alt text](delaware_cesium.png "Delaware Cesium")
 
 Sample live demo in Cesium: https://geodan.github.io/pg2b3dm/sample_data/delaware/cesium/
+
+## Visualize in Cesium for Unreal
+
+Required: 
+
+- Installation Unreal Engine with plugin 'Cesium for Unreal' - version 1.15.1 and above
+
+![image](https://user-images.githubusercontent.com/538812/177510890-3731788f-1518-437b-a66d-88e8735a9c22.png)
+
+- Use -f cesium in previous step tesselate_building.
+
+Copy the tile generated tiles to webserver (for example $ python3 -m http.server)
+
+- In Unreal press '+' next to 'Blank 3D Tiles Tileset' in the Cesium panel
+
+![CesiumUnrealAdd3dTiles](https://user-images.githubusercontent.com/538812/177511768-d35d5090-d7f5-4849-b9c6-4a53987f0379.png)
+
+- In the Outliner - Cesium3DTileset properties change property Source from  'From Cesium Ion' to 'From Url'
+
+- In the Outliner - Cesium3DTileset properties change property Url from  to the url (inclusing tileset.json - for example http://localhost:8000/tileset.json)
+
+![Unrealproperties](https://user-images.githubusercontent.com/538812/177513352-ef7c592a-ba99-41b5-b1a3-019fc76c2835.png)
+
+- Double click left mouse button on Item 'Cesium3DTileset' to zoom to the 3D Tiles.
+
+If all goes well the 3D Tiles the 3D Tile building should be visualized.
+
+![image](https://user-images.githubusercontent.com/538812/177512459-286e9731-f0db-4160-b208-956fd003d896.png)
+
+
+
