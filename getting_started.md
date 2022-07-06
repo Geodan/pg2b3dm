@@ -225,7 +225,7 @@ Required:
 
 - Use -f cesium in previous step tesselate_building.
 
-Copy the tile generated tiles to webserver (for example $ python3 -m http.server)
+Copy the generated tiles to webserver (for example $ python3 -m http.server)
 
 - In Unreal press '+' next to 'Blank 3D Tiles Tileset' in the Cesium panel
 
