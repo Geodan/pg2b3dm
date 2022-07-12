@@ -245,7 +245,7 @@ Copy the generated tiles to webserver (for example $ python3 -m http.server)
 
 ![image](https://user-images.githubusercontent.com/538812/178458069-da0aa441-9cd9-456d-acbf-41b5f26930b3.png)
 
-- Change camera speed
+- Change camera speed for better navigation (using right mouse click - wasd keys)
 
 . Camera speed to 8 
 
