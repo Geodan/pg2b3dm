@@ -241,9 +241,23 @@ Copy the generated tiles to webserver (for example $ python3 -m http.server)
 
 - Double click left mouse button on Item 'Cesium3DTileset' to zoom to the 3D Tiles.
 
+- Disable Outliner - Lighting - ExponentialHeight Fog
+
+- Change camera speed
+
+. Camera speed to 8 
+
+. Camera speed scalar to 2
+
+![image](https://user-images.githubusercontent.com/538812/178458696-8224e77e-9145-496f-a317-b025eb24daf9.png)
+
+- Deselect buildinging by click in the view 
+
+![image](https://user-images.githubusercontent.com/538812/178458069-da0aa441-9cd9-456d-acbf-41b5f26930b3.png)
+
 If all goes well the 3D Tiles the 3D Tile building should be visualized.
 
-![image](https://user-images.githubusercontent.com/538812/177512459-286e9731-f0db-4160-b208-956fd003d896.png)
+![image](https://user-images.githubusercontent.com/538812/178459291-c7814d69-2db6-406e-b330-0708465641cf.png)
 
 
 
