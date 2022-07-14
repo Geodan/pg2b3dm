@@ -38,9 +38,7 @@ namespace Wkb2Gltf.Tests
 
             var batchId = dstMesh.Primitives[0].GetVertexAccessor(VertexWithBatchId.CUSTOMATTRIBUTENAME).AsScalarArray();
 
-            // CollectionAssert.AreEqual(new float[] { 101, 101, 101 }, batchId);
-            //CollectionAssert.AreEqual(new ScalarArray[] { 101, 101f, 101 }, batchId);
-            Assert.IsTrue(batchId[0] == (float)101);
+            CollectionAssert.AreEqual(new float[] { 101, 101, 101 }, batchId);
         }
     }
 }
