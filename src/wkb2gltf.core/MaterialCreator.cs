@@ -14,7 +14,7 @@ namespace Wkb2Gltf
             WithDoubleSide(true).
             WithMetallicRoughnessShader().
             WithAlpha(AlphaMode.BLEND).
-            WithChannelParam(KnownChannel.BaseColor, ColorToVector4(rgb));
+            WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, ColorToVector4(rgb));
             return material;
         }
 
@@ -31,19 +31,19 @@ namespace Wkb2Gltf
                 material.WithSpecularGlossinessShader();
 
                 if (shader.PbrSpecularGlossiness.DiffuseColor != null) {
-                    material.WithChannelParam(KnownChannel.Diffuse, ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.DiffuseColor)));
+                    material.WithChannelParam(KnownChannel.Diffuse, KnownProperty.RGBA, ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.DiffuseColor)));
                 }
                 if (shader.PbrSpecularGlossiness.SpecularGlossiness != null) {
-                    material.WithChannelParam(KnownChannel.SpecularGlossiness, ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.SpecularGlossiness)));
+                    material.WithChannelParam(KnownChannel.SpecularGlossiness, KnownProperty.SpecularFactor, ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.SpecularGlossiness)));
                 }
             }
             else if (shader.PbrMetallicRoughness != null) {
                 material.WithMetallicRoughnessShader();
                 if (shader.PbrMetallicRoughness.BaseColor != null) {
-                    material.WithChannelParam(KnownChannel.BaseColor, ColorToVector4(ColorTranslator.FromHtml(shader.PbrMetallicRoughness.BaseColor)));
+                    material.WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, ColorToVector4(ColorTranslator.FromHtml(shader.PbrMetallicRoughness.BaseColor)));
                 }
                 if (shader.PbrMetallicRoughness.MetallicRoughness != null) {
-                    material.WithChannelParam(KnownChannel.MetallicRoughness, ColorToVector4(ColorTranslator.FromHtml(shader.PbrMetallicRoughness.MetallicRoughness)));
+                    material.WithChannelParam(KnownChannel.MetallicRoughness, KnownProperty.MetallicFactor, ColorToVector4(ColorTranslator.FromHtml(shader.PbrMetallicRoughness.MetallicRoughness)));
                 }
             }
 
