@@ -137,12 +137,12 @@ namespace Wkb2Gltf.Tests
             var materialGreen = new MaterialBuilder().
                 WithDoubleSide(true).
                 WithMetallicRoughnessShader().
-                WithChannelParam("BaseColor", new Vector4(0, 1, 0, 1));
+                WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(0, 1, 0, 1));
 
             var materialWhite = new MaterialBuilder().
                 WithDoubleSide(true).
                 WithMetallicRoughnessShader().
-                WithChannelParam("BaseColor", new Vector4(1, 1, 1, 1));
+                WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1, 1));
 
             var mesh = new MeshBuilder<VertexPositionNormal>("mesh");
             DrawTriangle(triangle1, materialWhite, mesh);

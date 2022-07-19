@@ -6,6 +6,7 @@ using SharpGLTF.Schema2;
 using SharpGLTF.Materials;
 using Wkb2Gltf.Extensions;
 using System.IO;
+using SharpGLTF.Memory;
 
 namespace Wkb2Gltf.Tests
 {
