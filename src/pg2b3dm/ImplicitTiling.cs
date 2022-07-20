@@ -60,7 +60,7 @@ namespace pg2b3dm
             }
             else {
                 var file = $"{outputFolder}{Path.DirectorySeparatorChar}{tile.Z}_{tile.X}_{tile.Y}.b3dm";
-                Console.Write($"\rCreating tile: {file}");
+                Console.Write($"\rCreating tile: {file}  ");
 
                 var geometries = BoundingBoxRepository.GetGeometrySubsetForImplicitTiling(conn, table, geometry_column, bbox, id_column, translation, epsg, colorColumn, attributesColumn, query);
                 var bytes = B3dmWriter.ToB3dm(geometries, copyright);
