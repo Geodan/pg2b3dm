@@ -12,6 +12,24 @@ namespace B3dm.Tileset
 {
     public static class BoundingBoxRepository
     {
+        public static int CountFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, int epsg, string query)
+        {
+            var fromX = from.X.Value.ToString(CultureInfo.InvariantCulture);
+            var fromY = from.Y.Value.ToString(CultureInfo.InvariantCulture);
+            var toX = to.X.Value.ToString(CultureInfo.InvariantCulture);
+            var toY = to.Y.Value.ToString(CultureInfo.InvariantCulture);
+
+            var sql = $"select count({geometry_column}) from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, {epsg})) and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {query}";
+            conn.Open();
+            var cmd = new NpgsqlCommand(sql, conn);
+            var reader = cmd.ExecuteReader();
+            reader.Read();
+            var count = reader.GetInt32(0);
+            reader.Close();
+            conn.Close();
+            return count;
+        }
+
         public static bool HasFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, int epsg, string lodQuery)
         {
             var fromX = from.X.Value.ToString(CultureInfo.InvariantCulture);
@@ -57,16 +75,7 @@ namespace B3dm.Tileset
 
         public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "")
         {
-            var geometries = new List<GeometryRecord>();
-            var g = GetGeometryColumn(geometry_column, translation);
-            var sqlselect = $"SELECT {idcolumn}, ST_AsBinary({g})";
-            if (shaderColumn != String.Empty) {
-                sqlselect = $"{sqlselect}, {shaderColumn} ";
-            }
-            if (attributesColumns != String.Empty) {
-                sqlselect = $"{sqlselect}, {attributesColumns} ";
-            }
-
+            var sqlselect = GetSqlSelect(geometry_column, idcolumn, translation, shaderColumn, attributesColumns);
             var sqlFrom = "FROM " + geometry_table;
 
             var lodQuery = LodQuery.GetLodQuery(lodColumn, t.Lod);
@@ -75,10 +84,40 @@ namespace B3dm.Tileset
             var xmax = t.BoundingBox.XMax.ToString(CultureInfo.InvariantCulture);
             var ymax = t.BoundingBox.YMax.ToString(CultureInfo.InvariantCulture);
 
-            var sqlWhere = $" WHERE ST_Intersects(ST_Centroid(ST_Envelope({ geometry_column})), ST_MakeEnvelope({ xmin}, { ymin}, { xmax}, { ymax}, { epsg})) and ST_GeometryType({ geometry_column}) = 'ST_PolyhedralSurface' { lodQuery}";
+            var sqlWhere = GetWhere(geometry_column, epsg, xmin, ymin, xmax, ymax, lodQuery);
 
             var sql = sqlselect + sqlFrom + sqlWhere;
 
+            var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql);
+            return geometries;
+        }
+
+        public static List<GeometryRecord> GetGeometrySubsetForImplicitTiling(NpgsqlConnection conn, string geometry_table, string geometry_column, BoundingBox bbox, string idcolumn, double[] translation, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "")
+        {
+            var sqlselect = GetSqlSelect(geometry_column, idcolumn, translation, shaderColumn, attributesColumns);
+            var sqlFrom = "FROM " + geometry_table;
+
+            var xmin = bbox.XMin.ToString(CultureInfo.InvariantCulture);
+            var ymin = bbox.YMin.ToString(CultureInfo.InvariantCulture);
+            var xmax = bbox.XMax.ToString(CultureInfo.InvariantCulture);
+            var ymax = bbox.YMax.ToString(CultureInfo.InvariantCulture);
+
+            var sqlWhere = GetWhere(geometry_column, epsg, xmin, ymin, xmax, ymax);
+
+            var sql = sqlselect + sqlFrom + sqlWhere;
+
+            var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql);
+            return geometries;
+        }
+
+        private static string GetWhere(string geometry_column, int epsg, string xmin, string ymin, string xmax, string ymax, string lodQuery="")
+        {
+            return $" WHERE ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, {epsg})) and ST_GeometryType({geometry_column}) = 'ST_PolyhedralSurface' {lodQuery}";
+        }
+
+        private static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql)
+        {
+            var geometries = new List<GeometryRecord>();
             conn.Open();
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
@@ -100,11 +139,11 @@ namespace B3dm.Tileset
                 var geom = Geometry.Deserialize<WkbSerializer>(stream);
                 var geometryRecord = new GeometryRecord(batchId) { Id = id, Geometry = geom };
 
-                if (shaderColumn != String.Empty) {
+                if (shaderColumn != string.Empty) {
                     var json = GetJson(reader, shadersColumnId);
                     geometryRecord.Shader = JsonConvert.DeserializeObject<ShaderColors>(json);
                 }
-                if (attributesColumns != String.Empty) {
+                if (attributesColumns != string.Empty) {
                     var attributes = GetColumnValuesAsList(reader, attributesColumnIds);
                     geometryRecord.Attributes = attributes;
                 }
@@ -116,6 +155,20 @@ namespace B3dm.Tileset
             reader.Close();
             conn.Close();
             return geometries;
+        }
+
+        private static string GetSqlSelect(string geometry_column, string idcolumn, double[] translation, string shaderColumn, string attributesColumns)
+        {
+            var g = GetGeometryColumn(geometry_column, translation);
+            var sqlselect = $"SELECT {idcolumn}, ST_AsBinary({g})";
+            if (shaderColumn != String.Empty) {
+                sqlselect = $"{sqlselect}, {shaderColumn} ";
+            }
+            if (attributesColumns != String.Empty) {
+                sqlselect = $"{sqlselect}, {attributesColumns} ";
+            }
+
+            return sqlselect;
         }
 
         private static string GetJson(NpgsqlDataReader reader, int columnId)

@@ -25,7 +25,23 @@ namespace B3dm.Tileset
             c.content = (Content)content.Clone();
             return c;
         }
+
+        public Implicittiling implicitTiling { get; set; }
     }
+
+    public class Implicittiling
+    {
+        public string subdivisionScheme { get; set; }
+        public int subtreeLevels { get; set; }
+        public Subtrees subtrees { get; set; }
+    }
+
+    public class Subtrees
+    {
+        public string uri { get; set; }
+    }
+
+
 
     public class Root : Child
     {
@@ -39,12 +55,12 @@ namespace B3dm.Tileset
                 return this._box;
             }
             set {
-                _box = value.Select(d => Math.Round(d,3)).ToArray();
+                _box = value.Select(d => Math.Round(d, 3)).ToArray();
             }
         }
     }
 
-    public class Content: ICloneable
+    public class Content : ICloneable
     {
         public string uri { get; set; }
 
