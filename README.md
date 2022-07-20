@@ -151,32 +151,6 @@ psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle
 
 - Id column should be indexed for better performance.
 
-## Tiling method
-
-By default, tiles are created with a size of parameter 'extenttile' (default value 1000 meter). In pg2b3dm version 0.14 support for 3D Tiles
-1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'false'). When Impliciting Tiling 
-is used a quadtree of b3dm tiles is created, option 'implicit_tiling_max_features' (default value 1000) is used for creating the quadtree.
-
-At the moment, Implicit tiling is only supported in the CesiumJS client.
-
-Some remarks about implicit tiling:
-
-- There is no support (yet) for creating octree instead of quadtree;
-
-- There is no support (yet) for multiple contents per tile;
-
-- There is no support (yet) for creating child subtrees, only root subtree file 0_0_0.subtree is created;
-
-- There is no support (yet) for implicit tiling metadata;
-
-- Tileset.json Parameter 'refine' method is hardcoded on 'ADD';
-
-- Parameter 'LodColumn' is not used when using impliciting tiling;
-
-- Only the first value of parameter 'geometricerrors' is used in tileset.json.
-
-For more information about Implicit Tiling see https://github.com/CesiumGS/3d-tiles/tree/draft-1.1/specification/ImplicitTiling
-
 ### LOD
 
 - if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
@@ -215,6 +189,32 @@ Multiple columns must be comma separated:
 Sample:  --attributescolumns col1,col2
 
 Attribute columns can be of any type.
+
+## Tiling method
+
+By default, tiles are created with a size of parameter 'extenttile' (default value 1000 meter). In pg2b3dm version 0.14 support for 3D Tiles
+1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'false'). When Impliciting Tiling 
+is used a quadtree of b3dm tiles is created, option 'implicit_tiling_max_features' (default value 1000) is used for creating the quadtree.
+
+At the moment, Implicit tiling is only supported in the CesiumJS client.
+
+Some remarks about implicit tiling:
+
+- There is no support (yet) for creating octree instead of quadtree;
+
+- There is no support (yet) for multiple contents per tile;
+
+- There is no support (yet) for creating child subtrees, only root subtree file 0_0_0.subtree is created;
+
+- There is no support (yet) for implicit tiling metadata;
+
+- Tileset.json Parameter 'refine' method is hardcoded on 'ADD';
+
+- Parameter 'LodColumn' is not used when using impliciting tiling;
+
+- Only the first value of parameter 'geometricerrors' is used in tileset.json.
+
+For more information about Implicit Tiling see https://github.com/CesiumGS/3d-tiles/tree/draft-1.1/specification/ImplicitTiling
 
 ## Shaders
 
