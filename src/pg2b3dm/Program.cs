@@ -186,7 +186,7 @@ namespace pg2b3dm
                 File.WriteAllBytes($"{outputPath}/tiles/{counter}.b3dm", bytes);
 
                 if (t.Children != null) {
-                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, t.Children, epsg, outputPath, counter, maxcount, colorColumn, attributesColumns, lodColumn);
+                    counter = WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, t.Children, epsg, outputPath, counter, maxcount, colorColumn, attributesColumns, lodColumn, query);
                 }
 
             }
