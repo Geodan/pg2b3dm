@@ -163,9 +163,11 @@ Some remarks about implicit tiling:
 
 - There is no support (yet) for creating octree instead of quadtree;
 
-- There is no support (yet) for multiple content per tile;
+- There is no support (yet) for multiple contents per tile;
 
 - There is no support (yet) for creating child subtrees, only root subtree file 0_0_0.subtree is created;
+
+- There is no support (yet) for implicit tiling metadata;
 
 - Tileset.json Parameter 'refine' method is hardcoded on 'ADD';
 
