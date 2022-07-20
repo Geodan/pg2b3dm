@@ -157,17 +157,21 @@ By default, tiles are created with a size of parameter 'extenttile' (default val
 1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'false'). When Impliciting Tiling 
 is used a quadtree of b3dm tiles is created, option 'implicit_tiling_max_features' (default value 1000) is used for creating the quadtree.
 
-At the moment, Implicit tiling is only supported in the CesiumGS client.
+At the moment, Implicit tiling is only supported in the CesiumJS client.
 
 Some remarks about implicit tiling:
 
 - There is no support (yet) for creating octree instead of quadtree;
 
-- There is no support (yet) for creating child subtree, only root subtree file 0_0_0.subtree is created;
+- There is no support (yet) for multiple content per tile;
+
+- There is no support (yet) for creating child subtrees, only root subtree file 0_0_0.subtree is created;
 
 - Tileset.json Parameter 'refine' method is hardcoded on 'ADD';
 
-- Parameter 'LodColumn' is not used when using impliciting tiling.
+- Parameter 'LodColumn' is not used when using impliciting tiling;
+
+- Only the first value of parameter 'geometricerrors' is used in tileset.json.
 
 For more information about Implicit Tiling see https://github.com/CesiumGS/3d-tiles/tree/draft-1.1/specification/ImplicitTiling
 
