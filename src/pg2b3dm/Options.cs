@@ -16,7 +16,7 @@ namespace pg2b3dm
         public string GeometryTable { get; set; }
         [Option('p', "port", Required = false, Default = "5432", HelpText = "Database port")]
         public string Port { get; set; }
-        [Option('o', "output", Required = false, Default = "./output", HelpText = "Output path")]
+        [Option('o', "output", Required = false, Default = "output", HelpText = "Output path")]
         public string Output { get; set; }
         [Option('a', "attributecolumns", Required = false, Default = "", HelpText = "Attribute columns")]
         public string AttributeColumns { get; set; }
@@ -29,7 +29,7 @@ namespace pg2b3dm
         [Option('l', "lodcolumn", Required = false, Default = "", HelpText = "LOD column")]
         public string LodColumn { get; set; }
 
-        [Option('g', "geometricerrors", Required = false, Default = "500,0", HelpText = "Geometric errors")]
+        [Option('g', "geometricerrors", Required = false, Default = "2024,0", HelpText = "Geometric errors")]
         public string GeometricErrors { get; set; }
 
         [Option("refine", Required = false, Default = "REPLACE", HelpText = "Refinement method (ADD/REPLACE)")]
@@ -43,5 +43,12 @@ namespace pg2b3dm
 
         [Option("copyright", Required = false, Default = "", HelpText = "glTF asset copyright")]
         public string Copyright { get; set; }
+
+        [Option("use_implicit_tiling", Required = false, Default = false, HelpText = "use 1.1 implicit tiling")]
+        public bool UseImplicitTiling { get; set; }
+
+        [Option("implicit_tiling_max_features", Required = false, Default = 1000, HelpText = "1.1 implicit tiling maximum features per tile")]
+        public int ImplicitTilingMaxFeatures { get; set; }
+
     }
 }

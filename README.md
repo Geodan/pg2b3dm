@@ -95,6 +95,8 @@ If --username and/or --dbname are not specified the current username is used as 
    --refine              (Default: REPLACE) Refinement method (REPLACE/ADD)
   
   --shaderscolumn        (Default: '') shaders column
+
+  --use_implicit_tiling  (default: False) Use 3D Tiles 1.1 Implicit tiling
   
   --help                Display this help screen.
 
@@ -146,13 +148,35 @@ psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle
 
 - Id column should be indexed for better performance.
 
+## Tiling method
+
+By default, tiles are created with a size of parameter 'extenttile' (default value 1000 meter). In pg2b3dm version 0.14 support for 3D Tiles
+1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'false'). When Impliciting Tiling 
+is used a quadtree of b3dm tiles is created, option 'implicit_tiling_max_features' (default value 1000) is used for creating the quadtree.
+
+At the moment, Implicit tiling is only supported in the CesiumGS client.
+
+Some remarks about implicit tiling:
+
+- There is no support (yet) for creating octree instead of quadtree;
+
+- There is no support (yet) for creating child subtree, only root subtree file 0_0_0.subtree is created;
+
+- Tileset.json Parameter 'refine' method is hardcoded on 'ADD';
+
+- Parameter 'LodColumn' is not used when using impliciting tiling.
+
+For more information about Implicit Tiling see https://github.com/CesiumGS/3d-tiles/tree/draft-1.1/specification/ImplicitTiling
+
 ### LOD
 
 - if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
 
 ### Geometric errors
 
-- By default, as geometric errors [500,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in the -g option. When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal intervals between 500 and 0.
+- By default, as geometric errors [500,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in the -g option. 
+When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal intervals 
+between 500 and 0.
 
 ### Query parameter
 
@@ -308,7 +332,7 @@ Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
-- 0.13 stable build
+- 0.14 stable build
 
 - latest: is build automatically after push to master
 
@@ -410,6 +434,8 @@ Press F5 to start debugging.
 
 
 ## History
+
+2022-07-20: release 0.14, adding 3D Tiles 1.1 implicit tiling option
 
 2022-07-05: release 0.13, adding glTF asset copyright
 

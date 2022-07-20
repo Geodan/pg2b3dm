@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
@@ -6,6 +7,24 @@ namespace B3dm.Tileset.Tests
 {
     public class TreeSerializerTests
     {
+        [Test]
+        public void SerializeToImplicitTilingTest()
+        {
+            // arrange
+            var t0 = new Tile(0, new Wkx.BoundingBox());
+            var t1 = new Tile(1, new Wkx.BoundingBox());
+            var translation = new double[] { -8406745.0078531764, 4744614.2577285888, 38.29 };
+            var bbox = new double[] { 0, 0, 1, 1 };
+
+            // act
+            var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 5);
+            File.WriteAllText(@"d:\aaa\subtree\test.json", json);
+            var jsonobject = JObject.Parse(json);
+
+            // assert
+            Assert.IsTrue(jsonobject != null);
+        }
+
         [Test]
         public void SerializeToJsonTest()
         {
@@ -19,7 +38,11 @@ namespace B3dm.Tileset.Tests
             // act
             var json = TreeSerializer.ToJson(tiles, translation, bbox, 500, "replace");
             var jsonobject = JObject.Parse(json);
+            
+            // assert
             Assert.IsTrue(jsonobject != null);
+
+
         }
 
         [Test]
