@@ -87,9 +87,9 @@ namespace pg2b3dm
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn, query);
                 Console.WriteLine($"spatial reference: {sr}");
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
-                Console.WriteLine($"attributes columns: {o.AttributeColumns}");
+                Console.WriteLine($"Attributes columns: {o.AttributeColumns}");
+                Console.WriteLine($"Query: {query}");
 
-                
                 var boundingboxAllFeatures = BoundingBoxCalculator.TranslateRotateX(bbox3d, Reverse(translation), Math.PI / 2);
                 var box = boundingboxAllFeatures.GetBox();
 
