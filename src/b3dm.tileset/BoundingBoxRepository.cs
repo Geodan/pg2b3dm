@@ -73,7 +73,7 @@ namespace B3dm.Tileset
             return $"ST_RotateX(ST_Translate({ geometry_column}, { translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{ translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , { translation[2].ToString(CultureInfo.InvariantCulture)}*-1), -pi() / 2)";
         }
 
-        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "")
+        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "", string query="")
         {
             var sqlselect = GetSqlSelect(geometry_column, idcolumn, translation, shaderColumn, attributesColumns);
             var sqlFrom = "FROM " + geometry_table;
@@ -85,14 +85,15 @@ namespace B3dm.Tileset
             var ymax = t.BoundingBox.YMax.ToString(CultureInfo.InvariantCulture);
 
             var sqlWhere = GetWhere(geometry_column, epsg, xmin, ymin, xmax, ymax, lodQuery);
+            var queryWhere = (query != string.Empty ? $" and {query}" : String.Empty);
 
-            var sql = sqlselect + sqlFrom + sqlWhere;
+            var sql = sqlselect + sqlFrom + sqlWhere + queryWhere;
 
             var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql);
             return geometries;
         }
 
-        public static List<GeometryRecord> GetGeometrySubsetForImplicitTiling(NpgsqlConnection conn, string geometry_table, string geometry_column, BoundingBox bbox, string idcolumn, double[] translation, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "")
+        public static List<GeometryRecord> GetGeometrySubsetForImplicitTiling(NpgsqlConnection conn, string geometry_table, string geometry_column, BoundingBox bbox, string idcolumn, double[] translation, int epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
         {
             var sqlselect = GetSqlSelect(geometry_column, idcolumn, translation, shaderColumn, attributesColumns);
             var sqlFrom = "FROM " + geometry_table;
@@ -103,8 +104,8 @@ namespace B3dm.Tileset
             var ymax = bbox.YMax.ToString(CultureInfo.InvariantCulture);
 
             var sqlWhere = GetWhere(geometry_column, epsg, xmin, ymin, xmax, ymax);
-
-            var sql = sqlselect + sqlFrom + sqlWhere;
+            var queryWhere = (query != string.Empty ? $" and {query}" : String.Empty);
+            var sql = sqlselect + sqlFrom + sqlWhere + queryWhere;
 
             var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql);
             return geometries;

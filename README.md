@@ -151,8 +151,10 @@ psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle
 ## Tiling method
 
 By default, tiles are created with a size of parameter 'extenttile' (default value 1000 meter). In pg2b3dm version 0.14 support for 3D Tiles
-1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value ''false'). When Impliciting Tiling 
-is used a quadtree of b3dm tiles is created, option 'implicit_tiling_max_features' (default value 1000) is used for creating the quadtree. 
+1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'false'). When Impliciting Tiling 
+is used a quadtree of b3dm tiles is created, option 'implicit_tiling_max_features' (default value 1000) is used for creating the quadtree.
+
+At the moment, Implicit tiling is only supported in the CesiumGS client.
 
 Some remarks about implicit tiling:
 
@@ -172,7 +174,9 @@ For more information about Implicit Tiling see https://github.com/CesiumGS/3d-ti
 
 ### Geometric errors
 
-- By default, as geometric errors [500,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in the -g option. When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal intervals between 500 and 0.
+- By default, as geometric errors [500,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in the -g option. 
+When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal intervals 
+between 500 and 0.
 
 ### Query parameter
 

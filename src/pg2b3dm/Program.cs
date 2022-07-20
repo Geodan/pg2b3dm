@@ -138,7 +138,7 @@ namespace pg2b3dm
                     Console.WriteLine("SubtreeLevels: " + subtreeLevels);
                     Console.WriteLine("SubdivisionScheme: QUADTREE");
                     Console.WriteLine("Refine method: ADD");
-                    Console.WriteLine($"Geometric errors: {geometricErrors[0]}, {geometricErrors[0]/2}");
+                    Console.WriteLine($"Geometric errors: {geometricErrors[0]}, {geometricErrors[0]}");
                     Console.WriteLine($"Writing {file}...");
                     File.WriteAllText(file, tilesetjson);
                 }
@@ -172,14 +172,14 @@ namespace pg2b3dm
             }
         }
 
-        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumns = "", string lodColumn="", string copyright = "")
+        private static int WriteTiles(NpgsqlConnection conn, string geometryTable, string geometryColumn, string idcolumn, double[] translation, List<Tile> tiles, int epsg, string outputPath, int counter, int maxcount, string colorColumn = "", string attributesColumns = "", string lodColumn="", string copyright = "", string query="")
         {
             foreach (var t in tiles) {
                 counter++;
                 var perc = Math.Round(((double)counter / maxcount) * 100, 2);
                 Console.Write($"\rcreating tiles: {counter}/{maxcount} - {perc:F}%");
 
-                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, t, epsg, colorColumn, attributesColumns, lodColumn);
+                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, geometryTable, geometryColumn, idcolumn, translation, t, epsg, colorColumn, attributesColumns, lodColumn, query);
 
                 var bytes = B3dmWriter.ToB3dm(geometries, copyright);
 

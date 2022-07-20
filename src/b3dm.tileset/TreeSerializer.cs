@@ -20,7 +20,7 @@ namespace B3dm.Tileset
             };
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
             tileset.geometricError = geometricError;
-            var root = GetRoot(geometricError/2, t, box, "ADD");
+            var root = GetRoot(geometricError, t, box, "ADD");
             var content = new Content() { uri = "content/{level}_{x}_{y}.b3dm" };
             root.content = content;
             var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };
