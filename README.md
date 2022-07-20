@@ -222,7 +222,7 @@ Shaderscolumn is a column of type json. In the json document the shaders are def
 PbrSpecularGlossiness. In previous releases of pg2b3dm only shader PbrMetallicRoughness with option BaseColor was 
 supported. 
 
-## JSON Structure
+### JSON Structure
 
 The json must have the following structure:
 
@@ -242,7 +242,7 @@ The json must have the following structure:
 
 The amount of colors in the lists must correspond to the number of triangles in the geometry, otherwise an exception is thrown.
 
-## Samples
+### Samples
 
 Sample for using shader PbrMetallicRoughness with BaseColor for 2 triangles (note: this is the same method as used in previous releases):
 
@@ -268,7 +268,7 @@ Sample for Specular Glossiness with Diffuse and SpecularGlossiness for 2 triangl
 
 In the hexadecimal values there are 4 numbers (x, y, z, w) available. The following material channels table defines which number should be used for the various shader properties.
 
-## Material channels
+### Material channels
 
 <table>
 <thead>
@@ -326,7 +326,7 @@ In the hexadecimal values there are 4 numbers (x, y, z, w) available. The follow
 </tbody>
 </table>
 
-## Remarks
+### Remarks
 
 - Fallback scenario from SpecularGlossiness to MetallicRoughness shader for clients that do not support 
 SpecularGlossiness is not supported (yet)
