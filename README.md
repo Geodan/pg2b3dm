@@ -151,26 +151,6 @@ psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle
 
 - Id column should be indexed for better performance.
 
-## Tiling method
-
-By default, tiles are created with a size of parameter 'extenttile' (default value 1000 meter). In pg2b3dm version 0.14 support for 3D Tiles
-1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'false'). When Impliciting Tiling 
-is used a quadtree of b3dm tiles is created, option 'implicit_tiling_max_features' (default value 1000) is used for creating the quadtree.
-
-At the moment, Implicit tiling is only supported in the CesiumGS client.
-
-Some remarks about implicit tiling:
-
-- There is no support (yet) for creating octree instead of quadtree;
-
-- There is no support (yet) for creating child subtree, only root subtree file 0_0_0.subtree is created;
-
-- Tileset.json Parameter 'refine' method is hardcoded on 'ADD';
-
-- Parameter 'LodColumn' is not used when using impliciting tiling.
-
-For more information about Implicit Tiling see https://github.com/CesiumGS/3d-tiles/tree/draft-1.1/specification/ImplicitTiling
-
 ### LOD
 
 - if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
@@ -210,13 +190,39 @@ Sample:  --attributescolumns col1,col2
 
 Attribute columns can be of any type.
 
+## Tiling method
+
+By default, tiles are created with a size of parameter 'extenttile' (default value 1000 meter). In pg2b3dm version 0.14 support for 3D Tiles
+1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'false'). When Impliciting Tiling 
+is used a quadtree of b3dm tiles is created, option 'implicit_tiling_max_features' (default value 1000) is used for creating the quadtree.
+
+At the moment, Implicit tiling is only supported in the CesiumJS client.
+
+Some remarks about implicit tiling:
+
+- There is no support (yet) for creating octree instead of quadtree;
+
+- There is no support (yet) for multiple contents per tile;
+
+- There is no support (yet) for creating child subtrees, only root subtree file 0_0_0.subtree is created;
+
+- There is no support (yet) for implicit tiling metadata;
+
+- Tileset.json Parameter 'refine' method is hardcoded on 'ADD';
+
+- Parameter 'LodColumn' is not used when using impliciting tiling;
+
+- Only the first value of parameter 'geometricerrors' is used in tileset.json.
+
+For more information about Implicit Tiling see https://github.com/CesiumGS/3d-tiles/tree/draft-1.1/specification/ImplicitTiling
+
 ## Shaders
 
 Shaderscolumn is a column of type json. In the json document the shaders are defined like PbrMetallicRoughness and
 PbrSpecularGlossiness. In previous releases of pg2b3dm only shader PbrMetallicRoughness with option BaseColor was 
 supported. 
 
-## JSON Structure
+### JSON Structure
 
 The json must have the following structure:
 
@@ -236,7 +242,7 @@ The json must have the following structure:
 
 The amount of colors in the lists must correspond to the number of triangles in the geometry, otherwise an exception is thrown.
 
-## Samples
+### Samples
 
 Sample for using shader PbrMetallicRoughness with BaseColor for 2 triangles (note: this is the same method as used in previous releases):
 
@@ -262,7 +268,7 @@ Sample for Specular Glossiness with Diffuse and SpecularGlossiness for 2 triangl
 
 In the hexadecimal values there are 4 numbers (x, y, z, w) available. The following material channels table defines which number should be used for the various shader properties.
 
-## Material channels
+### Material channels
 
 <table>
 <thead>
@@ -320,7 +326,7 @@ In the hexadecimal values there are 4 numbers (x, y, z, w) available. The follow
 </tbody>
 </table>
 
-## Remarks
+### Remarks
 
 - Fallback scenario from SpecularGlossiness to MetallicRoughness shader for clients that do not support 
 SpecularGlossiness is not supported (yet)
