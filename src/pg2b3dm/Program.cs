@@ -40,12 +40,8 @@ namespace pg2b3dm
                 stopWatch.Start();
 
                 var output = o.Output;
-                var outputTiles = $"{output}{Path.DirectorySeparatorChar}tiles";
                 if (!Directory.Exists(output)) {
                     Directory.CreateDirectory(output);
-                }
-                if (!Directory.Exists(outputTiles)) {
-                    Directory.CreateDirectory(outputTiles);
                 }
 
                 Console.WriteLine($"input table:  {o.GeometryTable}");
@@ -94,6 +90,11 @@ namespace pg2b3dm
                 var box = boundingboxAllFeatures.GetBox();
 
                 if (!o.UseImplicitTiling) {
+                    var outputTiles = $"{output}{Path.DirectorySeparatorChar}tiles";
+                    if (!Directory.Exists(outputTiles)) {
+                        Directory.CreateDirectory(outputTiles);
+                    }
+
                     // do not use implicit tiling
                     var tiles = TileCutter.GetTiles(0, conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, 0, lods, geometricErrors.Skip(1).ToArray(), lodcolumn, query);
                     Console.WriteLine();
