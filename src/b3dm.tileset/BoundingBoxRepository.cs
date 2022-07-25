@@ -48,13 +48,14 @@ namespace B3dm.Tileset
             return exists;
         }
 
-        public static BoundingBox3D GetBoundingBox3DForTable(NpgsqlConnection conn, string geometry_table, string geometry_column, string query = "")
+        public static BoundingBox3D GetBoundingBox3DForTable(IDbConnection conn, string geometry_table, string geometry_column, string query = "")
         {
             var where = (query != string.Empty ? $"and {query}" : String.Empty);
 
             conn.Open();
-            var sql = $"SELECT st_xmin(geom1), st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {where})  as t";
-            var cmd = new NpgsqlCommand(sql, conn);
+            var sql = $"SELECT st_xmin(geom1), st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {where}) as t";
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = sql;
             var reader = cmd.ExecuteReader();
             reader.Read();
             var xmin = reader.GetDouble(0);
