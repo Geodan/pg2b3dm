@@ -21,7 +21,7 @@ namespace pg2b3dm.tests
             var sql = "select ST_ASBinary(GEOMETRY)as geometry from bldg_footprints";
             var polygon = GetGeometry(connection, sql);
             connection.Close();
-            Assert.IsTrue(polygon.GeometryType == GeometryType.Polygon);
+            Assert.That(polygon.GeometryType == GeometryType.Polygon, Is.True);
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace pg2b3dm.tests
             var sql = "SELECT count(*) FROM bldg_footprints";
             var res = DatabaseReader.ReadScalar(connection, sql);
             connection.Close();
-            Assert.AreEqual(res, 22532);
+            Assert.That(res, Is.EqualTo(22532));
         }
 
         private void SpatialLoader(SqliteConnection connection)
@@ -54,8 +54,6 @@ namespace pg2b3dm.tests
             var reader = command.ExecuteReader();
             reader.Read();
             var res = (byte[])reader.GetValue(0);
-            Assert.IsTrue(res.Count() == 109);
-
             var geom = Geometry.Deserialize<WkbSerializer>(new MemoryStream(res));
             return geom;
         }
