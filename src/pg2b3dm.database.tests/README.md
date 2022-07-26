@@ -11,5 +11,5 @@ $ docker build -t delaware .
 Run:
 
 ```
-$ docker run -e POSTGRES_PASSWORD=postgres -p 5432:5432 delaware
+$ docker run -e POSTGRES_PASSWORD=postgres -p 5433:5432 delaware
 ```
