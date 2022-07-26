@@ -90,7 +90,7 @@ namespace pg2b3dm
                 var box = boundingboxAllFeatures.GetBox();
 
                 if (!o.UseImplicitTiling) {
-                    var outputTiles = $"{output}{Path.DirectorySeparatorChar}tiles";
+                    var outputTiles = $"{output}{Path.AltDirectorySeparatorChar}tiles";
                     if (!Directory.Exists(outputTiles)) {
                         Directory.CreateDirectory(outputTiles);
                     }
@@ -104,14 +104,14 @@ namespace pg2b3dm
                     Console.WriteLine("writing tileset.json...");
 
                     var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement);
-                    File.WriteAllText($"{o.Output}{Path.DirectorySeparatorChar}tileset.json", json);
+                    File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
                     WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles,
              o.ShadersColumn, o.AttributeColumns, o.LodColumn, o.Copyright);
                 }
                 else {
                     // use implictit tiling
-                    var contentDirectory = $"{output}{Path.DirectorySeparatorChar}content";
-                    var subtreesDirectory = $"{output}{Path.DirectorySeparatorChar}subtrees";
+                    var contentDirectory = $"{output}{Path.AltDirectorySeparatorChar}content";
+                    var subtreesDirectory = $"{output}{Path.AltDirectorySeparatorChar}subtrees";
 
                     if (!Directory.Exists(contentDirectory)) {
                         Directory.CreateDirectory(contentDirectory);
@@ -129,13 +129,13 @@ namespace pg2b3dm
                     var mortonIndex = subtree.MortonIndex.GetMortonIndex(tiles);
                     var subtreebytes = ImplicitTiling.GetSubtreeBytes(mortonIndex);
 
-                    var subtreeFile = $"{subtreesDirectory}{Path.DirectorySeparatorChar}0_0_0.subtree";
+                    var subtreeFile = $"{subtreesDirectory}{Path.AltDirectorySeparatorChar}0_0_0.subtree";
                     Console.WriteLine($"Writing {subtreeFile}...");
                     File.WriteAllBytes(subtreeFile, subtreebytes);
 
                     var subtreeLevels = tiles.Max(t => t.Z) + 1;
                     var tilesetjson = TreeSerializer.ToImplicitTileset(translation, box, geometricErrors[0], subtreeLevels);
-                    var file = $"{o.Output}{Path.DirectorySeparatorChar}tileset.json";
+                    var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
                     Console.WriteLine("SubtreeLevels: " + subtreeLevels);
                     Console.WriteLine("SubdivisionScheme: QUADTREE");
                     Console.WriteLine("Refine method: ADD");
