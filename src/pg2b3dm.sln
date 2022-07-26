@@ -28,7 +28,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{0403ED2E-B5A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pg2b3dm", "pg2b3dm\pg2b3dm.csproj", "{4907EB97-E29A-4BA1-BC0C-BEBD2E3419AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pg2b3dm.tests", "pg2b3dm.tests\pg2b3dm.tests.csproj", "{97942C44-A7E0-43D5-A241-5BFA633B2B42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pg2b3dm.tests", "pg2b3dm.database.tests\pg2b3dm.database.tests.csproj", "{97942C44-A7E0-43D5-A241-5BFA633B2B42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
