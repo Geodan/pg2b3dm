@@ -228,7 +228,7 @@ The json must have the following structure:
 
 ```
 {
-    "EmissiveColors": [list_of_emissivecolors in hex]
+    "EmissiveColors": [list_of_emissivecolors in hex],
     "PbrMetallicRoughness": {
         "BaseColors": [ list_of_basecolors in hex],
         "MetallicRoughness": [list_of_metallic_roughness in hex]
