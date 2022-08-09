@@ -130,7 +130,7 @@ namespace Wkb2Gltf.Tests
             scene.AddRigidMesh(mesh, Matrix4x4.Identity);
 
             var model = scene.ToGltf2();
-            model.SaveGLB(@$"d:\aaa\{name}.glb");
+            model.SaveGLB(@$"{name}.glb");
         }
     }
 }

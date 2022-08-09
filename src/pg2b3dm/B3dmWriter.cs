@@ -34,9 +34,9 @@ namespace pg2b3dm
             return res;
         }
 
-        public static List<Wkb2Gltf.Triangle> GetTriangles(List<GeometryRecord> geomrecords)
+        public static List<Triangle> GetTriangles(List<GeometryRecord> geomrecords)
         {
-            var triangleCollection = new List<Wkb2Gltf.Triangle>();
+            var triangleCollection = new List<Triangle>();
             foreach (var g in geomrecords) {
                 var triangles = g.GetTriangles();
                 triangleCollection.AddRange(triangles);
