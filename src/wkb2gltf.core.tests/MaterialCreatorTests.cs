@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
@@ -12,6 +11,19 @@ namespace Wkb2Gltf.Tests
     using VERTEX = SharpGLTF.Geometry.VertexTypes.VertexPosition;
     public class MaterialCreatorTests
     {
+        [Test]
+        public void ColorConvertTest()
+        {
+            var hex = "#E6008000";
+            var color = ColorTranslator.FromHtml(hex);
+            Assert.IsTrue(color.A == 230);
+            Assert.IsTrue(color.R == 0);
+            Assert.IsTrue(color.G == 128);
+            Assert.IsTrue(color.B == 0);
+            var hex2 = ColorTranslator.ToHtml(color);
+            Assert.IsTrue(hex.EndsWith(hex2.Substring(1,hex2.Length-1)));
+        }
+
         [Test]
         public void MetallicRoughnessBaseColorTest()
         {

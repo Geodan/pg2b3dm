@@ -326,6 +326,16 @@ In the hexadecimal values there are 4 numbers (x, y, z, w) available. The follow
 </tbody>
 </table>
 
+Sample channel conversion:
+
+- DiffuseColor in Hex = '#E6008000'
+
+Converted to RGBA:
+
+(230, 0, 128, 0)
+
+So Diffuse Red = 230, Diffuse Green = 0, Diffuse Blue = 128, Alpha = 0
+
 ### Remarks
 
 - Fallback scenario from SpecularGlossiness to MetallicRoughness shader for clients that do not support 
