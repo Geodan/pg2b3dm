@@ -26,7 +26,6 @@ namespace pg2b3dm
 
                 var connectionString = $"Host={o.Host};Username={o.User};Database={o.Database};Port={o.Port}";
                 var istrusted = TrustedConnectionChecker.HasTrustedConnection(connectionString);
-
                 if (!istrusted) {
                     Console.Write($"password for user {o.User}: ");
                     password = PasswordAsker.GetPassword();

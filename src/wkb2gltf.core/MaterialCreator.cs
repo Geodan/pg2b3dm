@@ -24,26 +24,31 @@ namespace Wkb2Gltf
                 WithDoubleSide(true).
                 WithAlpha(AlphaMode.OPAQUE);
 
-            if (shader.EmissiveColor != null) {
+            if (!string.IsNullOrEmpty(shader.EmissiveColor)) {
                 material.WithEmissive(ColorToVector3(ColorTranslator.FromHtml(shader.EmissiveColor)));
             }
             if (shader.PbrSpecularGlossiness != null) {
                 material.WithSpecularGlossinessShader();
 
-                if (shader.PbrSpecularGlossiness.DiffuseColor != null) {
-                    material.WithChannelParam(KnownChannel.Diffuse, KnownProperty.RGBA, ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.DiffuseColor)));
+                if (!string.IsNullOrEmpty(shader.PbrSpecularGlossiness.DiffuseColor)) {
+                    material.WithDiffuse(ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.DiffuseColor)));
                 }
-                if (shader.PbrSpecularGlossiness.SpecularGlossiness != null) {
-                    material.WithChannelParam(KnownChannel.SpecularGlossiness, KnownProperty.SpecularFactor, ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.SpecularGlossiness)));
+                if (!string.IsNullOrEmpty(shader.PbrSpecularGlossiness.SpecularGlossiness)) {
+                    var c = ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.SpecularGlossiness));
+                    var specular = new Vector3(c.X, c.Y, c.Z);
+                    var glossiness = c.Z;
+                    material.WithSpecularGlossiness(specular, glossiness);
                 }
             }
             else if (shader.PbrMetallicRoughness != null) {
                 material.WithMetallicRoughnessShader();
-                if (shader.PbrMetallicRoughness.BaseColor != null) {
-                    material.WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, ColorToVector4(ColorTranslator.FromHtml(shader.PbrMetallicRoughness.BaseColor)));
+                if (!string.IsNullOrEmpty(shader.PbrMetallicRoughness.BaseColor)) {
+                    material.WithBaseColor(ColorToVector4(ColorTranslator.FromHtml(shader.PbrMetallicRoughness.BaseColor)));
                 }
-                if (shader.PbrMetallicRoughness.MetallicRoughness != null) {
-                    material.WithChannelParam(KnownChannel.MetallicRoughness, KnownProperty.MetallicFactor, ColorToVector4(ColorTranslator.FromHtml(shader.PbrMetallicRoughness.MetallicRoughness)));
+
+                if (!string.IsNullOrEmpty(shader.PbrMetallicRoughness.MetallicRoughness)) {
+                    var c = ColorToVector4(ColorTranslator.FromHtml(shader.PbrMetallicRoughness.MetallicRoughness));
+                    material.WithMetallicRoughness(c.X, c.Y);
                 }
             }
 
