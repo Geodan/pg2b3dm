@@ -1,25 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace B3dm.Tileset
 {
     public static class TreeSerializer
     {
-        public static string ToJson(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError, string refinement)
+        public static string ToJson(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError, string refinement, Version version = null)
         {
-            var tileset = ToTileset(tiles, transform, box, maxGeometricError, refinement);
+            var tileset = ToTileset(tiles, transform, box, maxGeometricError, refinement, version);
             var json = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
             return json; ;
         }
 
-        public static string ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int subtreeLevels)
+        public static string ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int subtreeLevels, Version version=null)
         {
             var geometricError = maxGeometricError;
             var tileset = new TileSet {
-                asset = new Asset() { version = "1.1", generator = "pg2b3dm" }
+                asset = new Asset() { version = "1.1", generator = $"pg2b3dm {version}" }
             };
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
-            tileset.geometricError = geometricError;
+            tileset.geometricError = null;
             var root = GetRoot(geometricError, t, box, "ADD");
             var content = new Content() { uri = "content/{level}_{x}_{y}.b3dm" };
             root.content = content;
@@ -30,11 +31,11 @@ namespace B3dm.Tileset
             return json;
         }
 
-        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError, string refinement)
+        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError, string refinement, Version version = null)
         {
             var geometricError = maxGeometricError;
             var tileset = new TileSet {
-                asset = new Asset() { version = "1.0", generator = "pg2b3dm" }
+                asset = new Asset() { version = "1.0", generator = $"pg2b3dm {version}" }
             };
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
             tileset.geometricError = geometricError;

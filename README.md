@@ -444,6 +444,8 @@ Press F5 to start debugging.
 
 ## History
 
+2022-08-09: release 0.15, use 1 geometric error for implicit tiling
+
 2022-07-20: release 0.14, adding 3D Tiles 1.1 implicit tiling option
 
 2022-07-05: release 0.13, adding glTF asset copyright

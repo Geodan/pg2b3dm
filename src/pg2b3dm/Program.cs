@@ -46,7 +46,7 @@ namespace pg2b3dm
 
                 Console.WriteLine($"input table:  {o.GeometryTable}");
                 if (o.Query != String.Empty) {
-                    Console.WriteLine($"query:  {o.Query}");
+                    Console.WriteLine($"query:  {o.Query??"-"}");
                 }
                 Console.WriteLine($"input geometry column:  {o.GeometryColumn}");
 
@@ -83,8 +83,7 @@ namespace pg2b3dm
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"spatial reference: {sr}");
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
-                Console.WriteLine($"Attributes columns: {o.AttributeColumns}");
-                Console.WriteLine($"Query: {query}");
+                Console.WriteLine($"Attribute columns: {o.AttributeColumns}");
 
                 var boundingboxAllFeatures = BoundingBoxCalculator.TranslateRotateX(bbox3d, Reverse(translation), Math.PI / 2);
                 var box = boundingboxAllFeatures.GetBox();
@@ -103,7 +102,7 @@ namespace pg2b3dm
                     CalculateBoundingBoxes(translation, tiles.tiles, bbox3d.ZMin, bbox3d.ZMax);
                     Console.WriteLine("writing tileset.json...");
 
-                    var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement);
+                    var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement, version);
                     File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
                     WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles,
              o.ShadersColumn, o.AttributeColumns, o.LodColumn, o.Copyright);
@@ -134,7 +133,7 @@ namespace pg2b3dm
                     File.WriteAllBytes(subtreeFile, subtreebytes);
 
                     var subtreeLevels = tiles.Max(t => t.Z) + 1;
-                    var tilesetjson = TreeSerializer.ToImplicitTileset(translation, box, geometricErrors[0], subtreeLevels);
+                    var tilesetjson = TreeSerializer.ToImplicitTileset(translation, box, geometricErrors[0], subtreeLevels, version);
                     var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
                     Console.WriteLine("SubtreeLevels: " + subtreeLevels);
                     Console.WriteLine("SubdivisionScheme: QUADTREE");

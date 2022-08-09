@@ -6,11 +6,11 @@
 	<PackAsTool>true</PackAsTool>
 	<PackageOutputPath>./nupkg</PackageOutputPath>
 	<ToolCommandName>pg2b3dm</ToolCommandName>
-	<Version>0.14</Version>
+	<Version>0.15</Version>
     <Description>Console tool for converting PostGIS geometries to B3dm tiles (3D Tiles)</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>0.14</AssemblyVersion>
-    <FileVersion>0.14</FileVersion>
+    <AssemblyVersion>0.15</AssemblyVersion>
+    <FileVersion>0.15</FileVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Company>Geodan</Company>

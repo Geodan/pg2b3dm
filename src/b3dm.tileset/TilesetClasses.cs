@@ -7,7 +7,7 @@ namespace B3dm.Tileset
     public class TileSet
     {
         public Root root { get; set; }
-        public double geometricError { get; set; }
+        public double? geometricError { get; set; }
         public Asset asset { get; set; }
     }
 
