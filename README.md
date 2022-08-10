@@ -100,7 +100,6 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --implicit_tiling_max_features (Default 1000) Maximum number of features per tile in 3D Tiles 1.1 Implicit tiling
                          
-  
   --help                Display this help screen.
 
   --version             Display version information.  
@@ -244,7 +243,7 @@ The amount of colors in the lists must correspond to the number of triangles in 
 
 ### Samples
 
-Sample for using shader PbrMetallicRoughness with BaseColor for 2 triangles (note: this is the same method as used in previous releases):
+Sample for using shader PbrMetallicRoughness with BaseColor for 2 triangles:
 
 ```
 {
@@ -351,7 +350,7 @@ Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
-- 0.14 stable build
+- 0.16 stable build
 
 - latest: is build automatically after push to master
 
@@ -503,4 +502,3 @@ Press F5 to start debugging.
 2019-06-01: initial release 0.2
 
 2019-05-01: initial release 0.1
-

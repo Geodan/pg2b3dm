@@ -103,7 +103,7 @@ namespace Wkb2Gltf.Tests
         }
 
         [Test]
-        public void SpecularGlossinessTest()
+        public void SpecularGlossinessWithDiffuseTest()
         {
             var shader = new Shader();
             var diffuse = Color.FromArgb(10, 20, 30, 40); // diffuse rgb + alpha
@@ -115,9 +115,24 @@ namespace Wkb2Gltf.Tests
             // asssert
             Assert.IsNotNull(material);
             Assert.IsTrue(material.Channels.Count == 2);
-            SaveSampleModel(material, "specularglossiness");
+            SaveSampleModel(material, "specularglossinesswithdiffuse");
         }
 
+
+        [Test]
+        public void SpecularGlossinessTest()
+        {
+            var shader = new Shader();
+            var specularGlossiness = Color.FromArgb(50, 60, 70, 80); // specular red, green, blue + glossiness
+            shader.PbrSpecularGlossiness = new PbrSpecularGlossiness() { SpecularGlossiness = ColorTranslator.ToHtml(specularGlossiness) };
+            // act
+            var material = MaterialCreator.CreateMaterial(shader);
+
+            // asssert
+            Assert.IsNotNull(material);
+            Assert.IsTrue(material.Channels.Count == 1);
+            SaveSampleModel(material, "specularglossiness");
+        }
 
         private static void SaveSampleModel(MaterialBuilder material, string name)
         {
