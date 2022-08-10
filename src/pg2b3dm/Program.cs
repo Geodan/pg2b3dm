@@ -18,7 +18,7 @@ namespace pg2b3dm
         static void Main(string[] args)
         {
             var version = Assembly.GetEntryAssembly().GetName().Version;
-            Console.WriteLine($"tool: pg2b3dm {version}");
+            Console.WriteLine($"Tool: pg2b3dm {version}");
 
             Parser.Default.ParseArguments<Options>(args).WithParsed(o => {
                 o.User = string.IsNullOrEmpty(o.User) ? Environment.UserName : o.User;
@@ -27,13 +27,13 @@ namespace pg2b3dm
                 var connectionString = $"Host={o.Host};Username={o.User};Database={o.Database};Port={o.Port}";
                 var istrusted = TrustedConnectionChecker.HasTrustedConnection(connectionString);
                 if (!istrusted) {
-                    Console.Write($"password for user {o.User}: ");
+                    Console.Write($"Password for user {o.User}: ");
                     password = PasswordAsker.GetPassword();
                     connectionString += $";password={password}";
                     Console.WriteLine();
                 }
 
-                Console.WriteLine($"start processing....");
+                Console.WriteLine($"Start processing....");
 
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
@@ -43,11 +43,11 @@ namespace pg2b3dm
                     Directory.CreateDirectory(output);
                 }
 
-                Console.WriteLine($"input table:  {o.GeometryTable}");
+                Console.WriteLine($"Input table: {o.GeometryTable}");
                 if (o.Query != String.Empty) {
-                    Console.WriteLine($"query:  {o.Query??"-"}");
+                    Console.WriteLine($"Query:  {o.Query??"-"}");
                 }
-                Console.WriteLine($"input geometry column:  {o.GeometryColumn}");
+                Console.WriteLine($"input geometry column: {o.GeometryColumn}");
 
                 var geometryTable = o.GeometryTable;
                 var geometryColumn = o.GeometryColumn;
@@ -60,27 +60,33 @@ namespace pg2b3dm
 
                 var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, geometryTable, lodcolumn,query) : new List<int> { 0 });
                 if((geometricErrors.Length != lods.Count + 1) && lodcolumn==string.Empty) {
-                    Console.WriteLine($"lod levels: [{ String.Join(',', lods)}]");
-                    Console.WriteLine($"geometric errors: {o.GeometricErrors}");
+                    Console.WriteLine($"Lod levels: [{ String.Join(',', lods)}]");
+                    Console.WriteLine($"Geometric errors: {o.GeometricErrors}");
 
-                    Console.WriteLine("error: parameter -g --geometricerrors is wrongly specified...");
+                    Console.WriteLine("Error: parameter -g --geometricerrors is wrongly specified...");
                     Console.WriteLine("end of program...");
                     Environment.Exit(0);
                 }
                 if (lodcolumn != String.Empty){
-                    Console.WriteLine($"lod levels: {String.Join(',', lods)}");
+                    Console.WriteLine($"Lod levels: {String.Join(',', lods)}");
 
                     if (lods.Count >= geometricErrors.Length) {
-                        Console.WriteLine($"calculating geometric errors starting from {geometricErrors[0]}");
+                        Console.WriteLine($"Calculating geometric errors starting from {geometricErrors[0]}");
                         geometricErrors = GeometricErrorCalculator.GetGeometricErrors(geometricErrors[0], lods);
                     }
                 };
-                Console.WriteLine("geometric errors: " + String.Join(',', geometricErrors));
+
+                if (!o.UseImplicitTiling) {
+                    Console.WriteLine("Geometric errors: " + String.Join(',', geometricErrors));
+                }
+                else {
+                    Console.WriteLine("Geometric error: " + geometricErrors[0]);
+                }
 
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn, query);
                 var translation = bbox3d.GetCenter().ToVector();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
-                Console.WriteLine($"spatial reference: {sr}");
+                Console.WriteLine($"Spatial reference: {sr}");
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
                 Console.WriteLine($"Attribute columns: {o.AttributeColumns}");
 
@@ -97,9 +103,9 @@ namespace pg2b3dm
                     var tiles = TileCutter.GetTiles(0, conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, 0, lods, geometricErrors.Skip(1).ToArray(), lodcolumn, query);
                     Console.WriteLine();
                     var nrOfTiles = RecursiveTileCounter.CountTiles(tiles.tiles, 0);
-                    Console.WriteLine($"tiles with features: {nrOfTiles} ");
+                    Console.WriteLine($"Tiles with features: {nrOfTiles} ");
                     CalculateBoundingBoxes(translation, tiles.tiles, bbox3d.ZMin, bbox3d.ZMax);
-                    Console.WriteLine("writing tileset.json...");
+                    Console.WriteLine("WSriting tileset.json...");
 
                     var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement, version);
                     File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
@@ -144,8 +150,8 @@ namespace pg2b3dm
 
                 stopWatch.Stop();
                 Console.WriteLine();
-                Console.WriteLine($"elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");
-                Console.WriteLine("program finished.");
+                Console.WriteLine($"Elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");
+                Console.WriteLine("Program finished.");
             });
         }
 
