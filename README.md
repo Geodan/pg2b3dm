@@ -438,6 +438,31 @@ In Visual Studio Code, open .vscode/launch.json and adjust the 'args' parameter 
 
 Press F5 to start debugging.
 
+## Queries
+
+Queries used:
+
+1] Get boundingbox 3D for table
+```
+SELECT st_xmin(geom1), st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {where}) as t
+```
+
+2] Has features in box
+
+```
+select exists(select {geometry_column} from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, {epsg})) and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {lodQuery}
+```
+
+3] Count features in box (used in --use_implicit_tiling)
+```
+select count({geometry_column}) from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, {epsg})) and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {query}
+```
+
+4] Get geometrries per tile
+```
+SELECT id, ST_AsBinary(ST_Translate(geom_triangle, {center_X}*-1,{center_y}*-1 , {center_z}*-1)), shaders FROM {geometry_table} WHERE ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({min_x}, {min_y}, {max_x}, {max_y}, {epsg})) and ST_GeometryType(geom_triangle) = 'ST_PolyhedralSurface' {where} {lodquery}
+```
+
 ## Dependencies
 
 - SharpGLTF (https://github.com/vpenades/SharpGLTF) for generating glTF;
