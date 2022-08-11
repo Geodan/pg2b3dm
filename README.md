@@ -207,8 +207,6 @@ Some remarks about implicit tiling:
 
 - There is no support (yet) for implicit tiling metadata;
 
-- Tileset.json Parameter 'refine' method is hardcoded on 'ADD';
-
 - Parameter 'LodColumn' is not used when using impliciting tiling;
 
 - Only the first value of parameter 'geometricerrors' is used in tileset.json.

@@ -54,7 +54,16 @@ namespace pg2b3dm
                 var idcolumn = o.IdColumn;
                 var lodcolumn = o.LodColumn;
                 var query = o.Query;
-                var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse); ;
+                var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse);
+
+                if (o.UseImplicitTiling) {
+                    if(args.Contains("-e") || args.Contains("--extenttile")) {
+                        Console.WriteLine("Warning: parameter -e --extenttile is ignored with implicit tiling");
+                    }
+                    if (args.Contains("-l") || args.Contains("--lodcolumn")) {
+                        Console.WriteLine("Warning: parameter -l --lodcolumn is ignored with implicit tiling");
+                    }
+                }
 
                 var conn = new NpgsqlConnection(connectionString);
 
@@ -105,7 +114,7 @@ namespace pg2b3dm
                     var nrOfTiles = RecursiveTileCounter.CountTiles(tiles.tiles, 0);
                     Console.WriteLine($"Tiles with features: {nrOfTiles} ");
                     CalculateBoundingBoxes(translation, tiles.tiles, bbox3d.ZMin, bbox3d.ZMax);
-                    Console.WriteLine("WSriting tileset.json...");
+                    Console.WriteLine("Writing tileset.json...");
 
                     var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement, version);
                     File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
@@ -138,7 +147,7 @@ namespace pg2b3dm
                     File.WriteAllBytes(subtreeFile, subtreebytes);
 
                     var subtreeLevels = tiles.Max(t => t.Z) + 1;
-                    var tilesetjson = TreeSerializer.ToImplicitTileset(translation, box, geometricErrors[0], subtreeLevels, version);
+                    var tilesetjson = TreeSerializer.ToImplicitTileset(translation, box, geometricErrors[0], subtreeLevels, o.Refinement, version);
                     var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
                     Console.WriteLine("SubtreeLevels: " + subtreeLevels);
                     Console.WriteLine("SubdivisionScheme: QUADTREE");

@@ -13,7 +13,7 @@ namespace B3dm.Tileset
             return json; ;
         }
 
-        public static string ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int subtreeLevels, Version version=null)
+        public static string ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int subtreeLevels, string refinementMethod, Version version=null)
         {
             var geometricError = maxGeometricError;
             var tileset = new TileSet {
@@ -21,7 +21,7 @@ namespace B3dm.Tileset
             };
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
             tileset.geometricError = null;
-            var root = GetRoot(geometricError, t, box, "ADD");
+            var root = GetRoot(geometricError, t, box, refinementMethod);
             var content = new Content() { uri = "content/{level}_{x}_{y}.b3dm" };
             root.content = content;
             var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };
