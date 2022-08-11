@@ -216,7 +216,7 @@ For more information about Implicit Tiling see https://github.com/CesiumGS/3d-ti
 ## Shaders
 
 Shaderscolumn is a column of type json. In the json document the shaders are defined like PbrMetallicRoughness and
-PbrSpecularGlossiness. Note: PbrSpecularGlossiness is deprecated by Kronos, so advise is to use PbrMetallicRoughness.
+PbrSpecularGlossiness. Note: PbrSpecularGlossiness is deprecated by Khronos, so advise is to use PbrMetallicRoughness.
 
 ### JSON Structure
 
