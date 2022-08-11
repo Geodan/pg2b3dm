@@ -17,7 +17,7 @@ namespace B3dm.Tileset.Tests
             var bbox = new double[] { 0, 0, 1, 1 };
 
             // act
-            var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 5);
+            var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 5, "ADD");
             File.WriteAllText(@"d:\aaa\subtree\test.json", json);
             var jsonobject = JObject.Parse(json);
 
