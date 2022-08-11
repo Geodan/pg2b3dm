@@ -207,7 +207,7 @@ Some remarks about implicit tiling:
 
 - There is no support (yet) for implicit tiling metadata;
 
-- Parameter 'LodColumn' is not used when using impliciting tiling;
+- Parameters '-l --lodcolumn' and  '-e --extenttile' are ignored when using impliciting tiling;
 
 - Only the first value of parameter 'geometricerrors' is used in tileset.json.
 
