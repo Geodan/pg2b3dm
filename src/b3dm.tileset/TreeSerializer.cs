@@ -20,7 +20,6 @@ namespace B3dm.Tileset
                 asset = new Asset() { version = "1.1", generator = $"pg2b3dm {version}" }
             };
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
-            tileset.geometricError = null;
             var root = GetRoot(geometricError, t, box, refinementMethod);
             var content = new Content() { uri = "content/{level}_{x}_{y}.b3dm" };
             root.content = content;
@@ -38,7 +37,6 @@ namespace B3dm.Tileset
                 asset = new Asset() { version = "1.0", generator = $"pg2b3dm {version}" }
             };
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
-            tileset.geometricError = geometricError;
             var root = GetRoot(geometricError, t, region, refinement);
             var children = GetChildren(tiles);
             root.children = children;
