@@ -8,7 +8,7 @@ namespace B3dm.Tileset
     public static class TileCutter
     {
         private static int counter = 0;
-        public static Boundingvolume GetBoundingvolume(BoundingBox3D bbox3d)
+        public static Boundingvolume GetBoundingvolume(BoundingBox3D bbox3d, double Minz, double MaxZ)
         {
             var boundingVolume = new Boundingvolume {
                  region = bbox3d.GetBox()
@@ -37,6 +37,8 @@ namespace B3dm.Tileset
                     var hasFeatures = BoundingBoxRepository.HasFeaturesInBox(conn, geometryTable, geometryColumn, from, to, epsg, lodQuery);
                     if (hasFeatures) {
                         tileId++;
+
+
                         var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y)) {
                             Lod = lods[currentLod],
                             GeometricError = geometricErrors[currentLod]

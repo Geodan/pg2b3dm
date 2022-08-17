@@ -120,7 +120,7 @@ namespace pg2b3dm
                     Console.WriteLine();
                     var nrOfTiles = RecursiveTileCounter.CountTiles(tiles.tiles, 0);
                     Console.WriteLine($"Tiles with features: {nrOfTiles} ");
-                    CalculateBoundingBoxes(translation, tiles.tiles, bbox3d.ZMin, bbox3d.ZMax);
+                    CalculateBoundingBoxes(conn, sr, translation, tiles.tiles, heights.min, heights.max);
                     Console.WriteLine("Writing tileset.json...");
 
                     var minx = ConvertToRadians(bbox_wgs84.XMin);
@@ -183,7 +183,7 @@ namespace pg2b3dm
             return res;
         }
 
-        private static void CalculateBoundingBoxes(double[] translation, List<Tile> tiles, double minZ, double maxZ)
+        private static void CalculateBoundingBoxes(NpgsqlConnection conn, int epsg, double[] translation, List<Tile> tiles, double minZ, double maxZ)
         {
             foreach (var t in tiles) {
 
@@ -192,9 +192,19 @@ namespace pg2b3dm
 
                 if (t.Children != null) {
 
-                    CalculateBoundingBoxes(translation, t.Children, minZ, maxZ);
+                    CalculateBoundingBoxes(conn, epsg, translation, t.Children, minZ, maxZ);
                 }
-                t.Boundingvolume = TileCutter.GetBoundingvolume(bvol);
+
+                var bbox_wgs84 = BoundingBoxRepository.ToWgs84(conn, bvol, epsg);
+
+                var minx = ConvertToRadians(bbox_wgs84.XMin);
+                var miny = ConvertToRadians(bbox_wgs84.YMin);
+                var maxx = ConvertToRadians(bbox_wgs84.XMax);
+                var maxy = ConvertToRadians(bbox_wgs84.YMax);
+
+                t.Boundingvolume = new Boundingvolume {
+                    region = new double[] { minx, miny, maxx, maxy, minZ, maxZ }
+                };
             }
         }
 
