@@ -6,9 +6,9 @@ namespace B3dm.Tileset
 {
     public static class TreeSerializer
     {
-        public static string ToJson(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError, string refinement, Version version = null)
+        public static string ToJson(List<Tile> tiles, double[] transform, double[] region, double maxGeometricError, string refinement, Version version = null)
         {
-            var tileset = ToTileset(tiles, transform, box, maxGeometricError, refinement, version);
+            var tileset = ToTileset(tiles, transform, region, maxGeometricError, refinement, version);
             var json = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
             return json; ;
         }
@@ -31,7 +31,7 @@ namespace B3dm.Tileset
             return json;
         }
 
-        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] box, double maxGeometricError, string refinement, Version version = null)
+        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double maxGeometricError, string refinement, Version version = null)
         {
             var geometricError = maxGeometricError;
             var tileset = new TileSet {
@@ -39,17 +39,17 @@ namespace B3dm.Tileset
             };
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
             tileset.geometricError = geometricError;
-            var root = GetRoot(geometricError, t, box, refinement);
+            var root = GetRoot(geometricError, t, region, refinement);
             var children = GetChildren(tiles);
             root.children = children;
             tileset.root = root;
             return tileset;
         }
 
-        private static Root GetRoot(double geometricError, double[] translation, double[] box, string refinement)
+        private static Root GetRoot(double geometricError, double[] translation, double[] region, string refinement)
         {
             var boundingVolume = new Boundingvolume {
-                box = box
+                region = region
             };
 
             var root = new Root {

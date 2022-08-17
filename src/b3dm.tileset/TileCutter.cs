@@ -11,7 +11,7 @@ namespace B3dm.Tileset
         public static Boundingvolume GetBoundingvolume(BoundingBox3D bbox3d)
         {
             var boundingVolume = new Boundingvolume {
-                box = bbox3d.GetBox()
+                 region = bbox3d.GetBox()
             };
             return boundingVolume;
         }

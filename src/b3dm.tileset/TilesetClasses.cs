@@ -49,13 +49,13 @@ namespace B3dm.Tileset
 
     public class Boundingvolume
     {
-        private double[] _box;
-        public double[] box {
+        private double[] _region;
+        public double[] region {
             get {
-                return this._box;
+                return _region;
             }
             set {
-                _box = value.Select(d => Math.Round(d, 3)).ToArray();
+                _region = value.Select(d => Math.Round(d, 5)).ToArray();
             }
         }
     }

@@ -10,11 +10,13 @@ namespace B3dm.Tileset.Tests
         {
             // arrange
             var bv = new Boundingvolume();
-            bv.box = new double[] {
-                9.3132257461547852E-10,15.165075950091705,-4.6566128730773926E-10,
-                1130.6094067522015,0.0,0.0,
-                0.0,2168.6548668255564,0.0,
-                0.0,0.0,1272.8861378305592};
+            bv.region = new double[] {
+     -1.31972,
+        0.68236,
+        -1.31659,
+        0.68439,
+        -0.0,
+        76.58};
 
             // act
             var output = JsonConvert.SerializeObject(bv);
@@ -23,7 +25,7 @@ namespace B3dm.Tileset.Tests
 
             // assert
             Assert.IsTrue(output != null);
-            Assert.IsTrue(back.box[0] == 0);
+            Assert.IsTrue(back.region[0] == -1.31972);
         }
     }
 }

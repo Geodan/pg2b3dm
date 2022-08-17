@@ -123,7 +123,13 @@ namespace pg2b3dm
                     CalculateBoundingBoxes(translation, tiles.tiles, bbox3d.ZMin, bbox3d.ZMax);
                     Console.WriteLine("Writing tileset.json...");
 
-                    var json = TreeSerializer.ToJson(tiles.tiles, translation, box, geometricErrors[0], o.Refinement, version);
+                    var minx = ConvertToRadians(bbox_wgs84.XMin);
+                    var miny = ConvertToRadians(bbox_wgs84.YMin);
+                    var maxx = ConvertToRadians(bbox_wgs84.XMax);
+                    var maxy = ConvertToRadians(bbox_wgs84.YMax);
+
+                    var region = new double[] { minx, miny, maxx, maxy, heights.min, heights.max }; 
+                    var json = TreeSerializer.ToJson(tiles.tiles, translation, region, geometricErrors[0], o.Refinement, version);
                     File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
                     WriteTiles(conn, geometryTable, geometryColumn, idcolumn, translation, tiles.tiles, sr, o.Output, 0, nrOfTiles,
              o.ShadersColumn, o.AttributeColumns, o.LodColumn, o.Copyright);
@@ -211,6 +217,10 @@ namespace pg2b3dm
 
             }
             return counter;
+        }
+        private static double ConvertToRadians(double angle)
+        {
+            return (Math.PI / 180) * angle;
         }
 
 
