@@ -52,22 +52,47 @@ namespace B3dm.Tileset
         {
             var where = (query != string.Empty ? $"and {query}" : String.Empty);
 
+            var sqlBounds = $"SELECT st_xmin(geom1),st_ymin(geom1), st_xmax(geom1), st_ymax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {where}) as t";
+            var bbox3d = GetBounds(conn, sqlBounds);
+
+            var sqlHeight = $"SELECT st_zmin(geom1), st_zmax(geom1) FROM (select ST_3DExtent(st_transform({geometry_column},4326)) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {where}) as t";
+            var height = GetHeight(conn, sqlHeight);
+            bbox3d.ZMin = height.min;
+            bbox3d.ZMax = height.max;
+            return bbox3d;
+        }
+
+        private static (double min, double max) GetHeight(IDbConnection conn, string sql)
+        {
             conn.Open();
-            var sql = $"SELECT st_xmin(geom1), st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {where}) as t";
+            var cmd = conn.CreateCommand();
+            cmd.CommandText = sql;
+            var reader = cmd.ExecuteReader();
+            reader.Read();
+            var zmin = Math.Round(reader.GetDouble(0),2);
+            var zmax = Math.Round(reader.GetDouble(1),2);
+            reader.Close();
+            conn.Close();
+            return (zmin,zmax);
+        }
+
+        private static BoundingBox3D GetBounds(IDbConnection conn, string sql)
+        {
+            conn.Open();
             var cmd = conn.CreateCommand();
             cmd.CommandText = sql;
             var reader = cmd.ExecuteReader();
             reader.Read();
             var xmin = reader.GetDouble(0);
             var ymin = reader.GetDouble(1);
-            var zmin = reader.GetDouble(2);
-            var xmax = reader.GetDouble(3);
-            var ymax = reader.GetDouble(4);
-            var zmax = reader.GetDouble(5);
+            var xmax = reader.GetDouble(2);
+            var ymax = reader.GetDouble(3);
+            var bbox3d = new BoundingBox3D() { XMin = xmin, YMin = ymin, XMax = xmax, YMax = ymax };
             reader.Close();
             conn.Close();
-            return new BoundingBox3D() { XMin = xmin, YMin = ymin, ZMin = zmin, XMax = xmax, YMax = ymax, ZMax = zmax };
+            return bbox3d;
         }
+
 
         private static string GetGeometryColumn(string geometry_column, double[] translation)
         {

@@ -93,14 +93,16 @@ namespace pg2b3dm
                 }
 
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn, query);
+                var width = bbox3d.ExtentX();
+                var height = bbox3d.ExtentY();
+
                 var translation = bbox3d.GetCenter().ToVector();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
                 Console.WriteLine($"Attribute columns: {o.AttributeColumns}");
 
-                var boundingboxAllFeatures = BoundingBoxCalculator.TranslateRotateX(bbox3d, Reverse(translation), Math.PI / 2);
-                var box = boundingboxAllFeatures.GetBox();
+                var box = bbox3d.GetBox();
 
                 if (!o.UseImplicitTiling) {
                     var outputTiles = $"{output}{Path.AltDirectorySeparatorChar}tiles";
@@ -176,13 +178,12 @@ namespace pg2b3dm
 
                 var bb = t.BoundingBox;
                 var bvol = new BoundingBox3D(bb.XMin, bb.YMin, minZ, bb.XMax, bb.YMax, maxZ);
-                var bvolRotated = BoundingBoxCalculator.TranslateRotateX(bvol, Reverse(translation), Math.PI / 2);
 
                 if (t.Children != null) {
 
                     CalculateBoundingBoxes(translation, t.Children, minZ, maxZ);
                 }
-                t.Boundingvolume = TileCutter.GetBoundingvolume(bvolRotated);
+                t.Boundingvolume = TileCutter.GetBoundingvolume(bvol);
             }
         }
 
