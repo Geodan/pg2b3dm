@@ -92,17 +92,20 @@ namespace pg2b3dm
                     Console.WriteLine("Geometric error: " + geometricErrors[0]);
                 }
 
-                Console.WriteLine($"Query bounding box for table {geometryTable}...");
-                var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn, query);
-                Console.WriteLine($"Bounding box for table: {bbox3d}");
-                Console.WriteLine($"Query heights for table {geometryTable}...");
-                var heights = BoundingBoxRepository.GetHeight(conn, geometryTable, geometryColumn, query);
-                Console.WriteLine($"Heights for table: [{heights.min}, {heights.max}]");
-                var translation = bbox3d.GetCenter().ToVector();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
+                Console.WriteLine($"Query bounding box for table {geometryTable}...");
+                var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn, query);
+                var bbox_wgs84 = BoundingBoxRepository.ToWgs84(conn, bbox3d, sr);
+                Console.WriteLine($"Bounding box for table (WGS84): {Math.Round(bbox_wgs84.XMin,4)}, {Math.Round(bbox_wgs84.YMin,4)}, {Math.Round(bbox_wgs84.XMax,4)}, {Math.Round(bbox_wgs84.YMax,4)}");
+                Console.WriteLine($"Query heights for table {geometryTable}...");
+                var heights = BoundingBoxRepository.GetHeight(conn, geometryTable, geometryColumn, query);
+                Console.WriteLine($"Heights for table: [{heights.min}, {heights.max}] m");
+                var translation = bbox3d.GetCenter().ToVector();
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
-                Console.WriteLine($"Attribute columns: {o.AttributeColumns}");
+
+                var att = !String.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
+                Console.WriteLine($"Attribute columns: {att}");
 
                 var box = bbox3d.GetBox();
 
@@ -164,7 +167,7 @@ namespace pg2b3dm
                 stopWatch.Stop();
                 Console.WriteLine();
                 Console.WriteLine($"Elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");
-                Console.WriteLine("Program finished.");
+                Console.WriteLine($"Program finished {DateTime.Now}.");
             });
         }
 

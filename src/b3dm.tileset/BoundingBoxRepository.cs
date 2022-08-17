@@ -12,6 +12,26 @@ namespace B3dm.Tileset
 {
     public static class BoundingBoxRepository
     {
+        public static BoundingBox ToWgs84(NpgsqlConnection conn, BoundingBox3D bbox3d, int epsg)
+        {
+            conn.Open();
+            var sql = $"select st_asBinary(ST_Transform(ST_SetSRID(ST_MakePoint({bbox3d.XMin},{bbox3d.YMin},{bbox3d.ZMin}), {epsg}), 4326))," +
+                $"st_asBinary(ST_Transform(ST_SetSRID(ST_MakePoint({bbox3d.XMax},{bbox3d.YMax},{bbox3d.ZMax}), {epsg}), 4326))";
+            var cmd = new NpgsqlCommand(sql, conn);
+            var reader = cmd.ExecuteReader();
+            reader.Read();
+            var stream_from = reader.GetStream(0);
+            var from = (Point)Geometry.Deserialize<WkbSerializer>(stream_from);
+            stream_from.Close();
+            var stream_to = reader.GetStream(1);
+            var to = (Point)Geometry.Deserialize<WkbSerializer>(stream_to);
+            stream_to.Close();
+            conn.Close();
+
+            var bb = new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y);
+            return bb;
+        }
+
         public static int CountFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, int epsg, string query)
         {
             var fromX = from.X.Value.ToString(CultureInfo.InvariantCulture);
@@ -244,6 +264,7 @@ namespace B3dm.Tileset
             }
             return res;
         }
+
     }
 }
 
