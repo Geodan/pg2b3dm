@@ -50,16 +50,23 @@ namespace B3dm.Tileset
 
         public static BoundingBox3D GetBoundingBox3DForTable(IDbConnection conn, string geometry_table, string geometry_column, string query = "")
         {
-            var where = (query != string.Empty ? $"and {query}" : String.Empty);
-
-            var sqlBounds = $"SELECT st_xmin(geom1),st_ymin(geom1), st_xmax(geom1), st_ymax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {where}) as t";
+            var where = GetWhere(query);
+            var sqlBounds = $"SELECT st_xmin(geom1),st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {where}) as t";
             var bbox3d = GetBounds(conn, sqlBounds);
+            return bbox3d;
+        }
 
+        private static string GetWhere(string query)
+        {
+            return (query != string.Empty ? $"and {query}" : String.Empty);
+        }
+
+        public static (double min, double max) GetHeight(IDbConnection conn, string geometry_table, string geometry_column, string query = "")
+        {
+            var where = GetWhere(query);
             var sqlHeight = $"SELECT st_zmin(geom1), st_zmax(geom1) FROM (select ST_3DExtent(st_transform({geometry_column},4326)) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {where}) as t";
             var height = GetHeight(conn, sqlHeight);
-            bbox3d.ZMin = height.min;
-            bbox3d.ZMax = height.max;
-            return bbox3d;
+            return height;
         }
 
         private static (double min, double max) GetHeight(IDbConnection conn, string sql)
@@ -69,11 +76,11 @@ namespace B3dm.Tileset
             cmd.CommandText = sql;
             var reader = cmd.ExecuteReader();
             reader.Read();
-            var zmin = Math.Round(reader.GetDouble(0),2);
-            var zmax = Math.Round(reader.GetDouble(1),2);
+            var zmin = Math.Round(reader.GetDouble(0), 2);
+            var zmax = Math.Round(reader.GetDouble(1), 2);
             reader.Close();
             conn.Close();
-            return (zmin,zmax);
+            return (zmin, zmax);
         }
 
         private static BoundingBox3D GetBounds(IDbConnection conn, string sql)
@@ -85,9 +92,11 @@ namespace B3dm.Tileset
             reader.Read();
             var xmin = reader.GetDouble(0);
             var ymin = reader.GetDouble(1);
-            var xmax = reader.GetDouble(2);
-            var ymax = reader.GetDouble(3);
-            var bbox3d = new BoundingBox3D() { XMin = xmin, YMin = ymin, XMax = xmax, YMax = ymax };
+            var zmin = reader.GetDouble(2);
+            var xmax = reader.GetDouble(3);
+            var ymax = reader.GetDouble(4);
+            var zmax = reader.GetDouble(5);
+            var bbox3d = new BoundingBox3D() { XMin = xmin, YMin = ymin, ZMin = zmin, ZMax = zmax, XMax = xmax, YMax = ymax };
             reader.Close();
             conn.Close();
             return bbox3d;
@@ -95,10 +104,10 @@ namespace B3dm.Tileset
 
         private static string GetGeometryColumn(string geometry_column, double[] translation)
         {
-            return $"ST_Translate({ geometry_column}, { translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{ translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , { translation[2].ToString(CultureInfo.InvariantCulture)}*-1)";
+            return $"ST_Translate({geometry_column}, {translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , {translation[2].ToString(CultureInfo.InvariantCulture)}*-1)";
         }
 
-        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "", string query="")
+        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "", string query = "")
         {
             var sqlselect = GetSqlSelect(geometry_column, idcolumn, translation, shaderColumn, attributesColumns);
             var sqlFrom = "FROM " + geometry_table;
@@ -136,7 +145,7 @@ namespace B3dm.Tileset
             return geometries;
         }
 
-        private static string GetWhere(string geometry_column, int epsg, string xmin, string ymin, string xmax, string ymax, string lodQuery="")
+        private static string GetWhere(string geometry_column, int epsg, string xmin, string ymin, string xmax, string ymax, string lodQuery = "")
         {
             return $" WHERE ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, {epsg})) and ST_GeometryType({geometry_column}) = 'ST_PolyhedralSurface' {lodQuery}";
         }
@@ -208,7 +217,7 @@ namespace B3dm.Tileset
             var attributes = new Dictionary<string, object>();
             foreach (var colId in columnIds) {
                 var attr = reader.GetFieldValue<object>(colId.Value);
-                attributes.Add(colId.Key,attr);
+                attributes.Add(colId.Key, attr);
             }
             return attributes;
         }
@@ -229,7 +238,7 @@ namespace B3dm.Tileset
         private static Dictionary<string, int> FindFields(NpgsqlDataReader reader, List<string> fieldNames)
         {
             var res = new Dictionary<string, int>();
-            foreach(var field in fieldNames) {
+            foreach (var field in fieldNames) {
                 var fieldId = FindField(reader, field.Trim());
                 res.Add(field, fieldId);
             }
@@ -237,3 +246,7 @@ namespace B3dm.Tileset
         }
     }
 }
+
+
+
+

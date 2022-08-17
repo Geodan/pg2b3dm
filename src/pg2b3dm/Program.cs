@@ -33,7 +33,7 @@ namespace pg2b3dm
                     Console.WriteLine();
                 }
 
-                Console.WriteLine($"Start processing....");
+                Console.WriteLine($"Start processing {DateTime.Now}....");
 
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
@@ -92,10 +92,12 @@ namespace pg2b3dm
                     Console.WriteLine("Geometric error: " + geometricErrors[0]);
                 }
 
+                Console.WriteLine($"Query bounding box for table {geometryTable}...");
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn, query);
-                var width = bbox3d.ExtentX();
-                var height = bbox3d.ExtentY();
-
+                Console.WriteLine($"Bounding box for table: {bbox3d}");
+                Console.WriteLine($"Query heights for table {geometryTable}...");
+                var heights = BoundingBoxRepository.GetHeight(conn, geometryTable, geometryColumn, query);
+                Console.WriteLine($"Heights for table: [{heights.min}, {heights.max}]");
                 var translation = bbox3d.GetCenter().ToVector();
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
