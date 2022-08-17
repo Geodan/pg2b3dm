@@ -188,14 +188,13 @@ namespace pg2b3dm
             foreach (var t in tiles) {
 
                 var bb = t.BoundingBox;
-                var bvol = new BoundingBox3D(bb.XMin, bb.YMin, minZ, bb.XMax, bb.YMax, maxZ);
 
                 if (t.Children != null) {
 
                     CalculateBoundingBoxes(conn, epsg, translation, t.Children, minZ, maxZ);
                 }
 
-                var bbox_wgs84 = BoundingBoxRepository.ToWgs84(conn, bvol, epsg);
+                var bbox_wgs84 = BoundingBoxRepository.ToWgs84(conn, bb, epsg);
 
                 var minx = ConvertToRadians(bbox_wgs84.XMin);
                 var miny = ConvertToRadians(bbox_wgs84.YMin);

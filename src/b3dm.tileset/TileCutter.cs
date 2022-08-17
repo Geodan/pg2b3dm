@@ -32,14 +32,14 @@ namespace B3dm.Tileset
                     }
 
                     var lodQuery = LodQuery.GetLodQuery(lodcolumn, lods[currentLod]);
-                    var from = new Point(box3d.XMin + extentTile * x, box3d.YMin + extentTile * y);
-                    var to = new Point(box3d.XMin + extentTile * (x + 1), box3d.YMin + extentTile * (y + 1));
+                    var from = new Point(box3d.XMin + extentTile * x, box3d.YMin + extentTile * y, box3d.ZMin);
+                    var to = new Point(box3d.XMin + extentTile * (x + 1), box3d.YMin + extentTile * (y + 1), box3d.ZMax);
                     var hasFeatures = BoundingBoxRepository.HasFeaturesInBox(conn, geometryTable, geometryColumn, from, to, epsg, lodQuery);
                     if (hasFeatures) {
                         tileId++;
 
 
-                        var tile = new Tile(tileId, new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y)) {
+                        var tile = new Tile(tileId, new BoundingBox3D((double)from.X, (double)from.Y, (double)from.Z, (double)to.X, (double)to.Y, (double)to.Z)) {
                             Lod = lods[currentLod],
                             GeometricError = geometricErrors[currentLod]
                         };
