@@ -40,8 +40,6 @@ namespace B3dm.Tileset
         public string uri { get; set; }
     }
 
-
-
     public class Root : Child
     {
     }
@@ -67,7 +65,6 @@ namespace B3dm.Tileset
         {
             return MemberwiseClone();
         }
-
     }
 
     public class Asset
