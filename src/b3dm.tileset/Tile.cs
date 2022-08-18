@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Wkx;
 
 namespace B3dm.Tileset
@@ -16,15 +15,16 @@ namespace B3dm.Tileset
         }
 
         public int Id {
-            get { return id; }
+            get {
+                return id;
+            }
         }
 
         public BoundingBox BoundingBox {
             get { return bb; }
         }
 
-
-        public Boundingvolume Boundingvolume {get;set;}
+        public Boundingvolume Boundingvolume { get; set; }
 
         public int Lod { get; set; }
 

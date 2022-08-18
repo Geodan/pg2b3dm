@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace pg2b3dm
+namespace B3dm.Tileset.extensions
 {
     public static class SphericalMercator
     {

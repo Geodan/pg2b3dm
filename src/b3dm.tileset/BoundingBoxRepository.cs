@@ -39,7 +39,7 @@ namespace B3dm.Tileset
             var toX = to.X.Value.ToString(CultureInfo.InvariantCulture);
             var toY = to.Y.Value.ToString(CultureInfo.InvariantCulture);
 
-            var sql = $"select count({geometry_column}) from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, {epsg})) and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {query}";
+            var sql = $"select count({geometry_column}) from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_Transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 3857), {epsg})) and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {query}";
             conn.Open();
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
@@ -131,7 +131,7 @@ namespace B3dm.Tileset
             return $"ST_Translate({geometry_column}, {translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , {translation[2].ToString(CultureInfo.InvariantCulture)}*-1)";
         }
 
-        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "", string query = "")
+        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile2 t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "", string query = "")
         {
             var sqlselect = GetSqlSelect(geometry_column, idcolumn, translation, shaderColumn, attributesColumns);
             var sqlFrom = "FROM " + geometry_table;
@@ -145,24 +145,6 @@ namespace B3dm.Tileset
             var sqlWhere = GetWhere(geometry_column, epsg, xmin, ymin, xmax, ymax, lodQuery);
             var queryWhere = (query != string.Empty ? $" and {query}" : String.Empty);
 
-            var sql = sqlselect + sqlFrom + sqlWhere + queryWhere;
-
-            var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql);
-            return geometries;
-        }
-
-        public static List<GeometryRecord> GetGeometrySubsetForImplicitTiling(NpgsqlConnection conn, string geometry_table, string geometry_column, BoundingBox bbox, string idcolumn, double[] translation, int epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
-        {
-            var sqlselect = GetSqlSelect(geometry_column, idcolumn, translation, shaderColumn, attributesColumns);
-            var sqlFrom = "FROM " + geometry_table;
-
-            var xmin = bbox.XMin.ToString(CultureInfo.InvariantCulture);
-            var ymin = bbox.YMin.ToString(CultureInfo.InvariantCulture);
-            var xmax = bbox.XMax.ToString(CultureInfo.InvariantCulture);
-            var ymax = bbox.YMax.ToString(CultureInfo.InvariantCulture);
-
-            var sqlWhere = GetWhere(geometry_column, epsg, xmin, ymin, xmax, ymax);
-            var queryWhere = (query != string.Empty ? $" and {query}" : String.Empty);
             var sql = sqlselect + sqlFrom + sqlWhere + queryWhere;
 
             var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql);

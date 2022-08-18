@@ -20,7 +20,7 @@ namespace pg2b3dm.database.tests
             Assert.IsTrue(records == 360);
         }
 
-        [Test]
+        //[Test]
         public void ImplicitTilingTest()
         {
             var config = new ConfigurationBuilder()
@@ -37,8 +37,8 @@ namespace pg2b3dm.database.tests
             var tiles = ImplicitTiling.GenerateTiles("delaware_buildings", conn, 4978, "geom_triangle", "id",
                 bbox,
                 50,
-                new subtree.Tile(0,0,0),
-                new List<subtree.Tile>(),
+                new Tile2(0,0,0),
+                new List<Tile2>(),
                 string.Empty,
                 translation,
                 "shaders",

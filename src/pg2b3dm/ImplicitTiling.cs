@@ -28,14 +28,14 @@ namespace pg2b3dm
             return subtreebytes;
         }
 
-        public static List<subtree.Tile> GenerateTiles(string table, NpgsqlConnection conn, int epsg, string geometry_column, string id_column, BoundingBox bbox, int maxFeaturesPerTile, subtree.Tile tile, List<subtree.Tile> tiles, string query, double[] translation, string colorColumn, string attributesColumn, string outputFolder, string copyright="", bool skipCreateTiles = false)
+        public static List<Tile2> GenerateTiles(string table, NpgsqlConnection conn, int epsg, string geometry_column, string id_column, BoundingBox bbox, int maxFeaturesPerTile, Tile2 tile, List<Tile2> tiles, string query, double[] translation, string colorColumn, string attributesColumn, string outputFolder, string copyright="", bool skipCreateTiles = false)
         {
             var where = (query != string.Empty ? $" and {query}" : String.Empty);
 
             var numberOfFeatures = BoundingBoxRepository.CountFeaturesInBox(conn, table, geometry_column, new Point(bbox.XMin, bbox.YMin), new Point(bbox.XMax, bbox.YMax), epsg, where);
 
             if (numberOfFeatures == 0) {
-                var t2 = new subtree.Tile(tile.Z, tile.X, tile.Y);
+                var t2 = new Tile2(tile.Z, tile.X, tile.Y);
                 t2.Available = false;
                 tiles.Add(t2);
             }
@@ -53,7 +53,8 @@ namespace pg2b3dm
 
                         var bboxQuad = new BoundingBox(xstart, ystart, xend, yend);
 
-                        var new_tile = new subtree.Tile(tile.Z + 1, tile.X * 2 + x, tile.Y * 2 + y);
+                        var new_tile = new Tile2(tile.Z + 1, tile.X * 2 + x, tile.Y * 2 + y);
+                        new_tile.BoundingBox = bboxQuad;
                         GenerateTiles(table, conn, epsg, geometry_column, id_column, bboxQuad, maxFeaturesPerTile, new_tile, tiles, query, translation, colorColumn, attributesColumn, outputFolder, copyright, skipCreateTiles);
                     }
                 }
@@ -63,12 +64,13 @@ namespace pg2b3dm
                     var file = $"{outputFolder}{Path.AltDirectorySeparatorChar}{tile.Z}_{tile.X}_{tile.Y}.b3dm";
                     Console.Write($"\rCreating tile: {file}  ");
 
-                    var geometries = BoundingBoxRepository.GetGeometrySubsetForImplicitTiling(conn, table, geometry_column, bbox, id_column, translation, epsg, colorColumn, attributesColumn, query);
+                    var geometries = BoundingBoxRepository.GetGeometrySubset(conn, table, geometry_column, id_column, translation, tile,  epsg, colorColumn, attributesColumn, query);
                     var bytes = B3dmWriter.ToB3dm(geometries, copyright);
 
                     File.WriteAllBytes(file, bytes);
                 }
-                var t1 = new subtree.Tile(tile.Z, tile.X, tile.Y);
+                var t1 = new Tile2(tile.Z, tile.X, tile.Y);
+                t1.BoundingBox = tile.BoundingBox;
                 t1.Available = true;
                 tiles.Add(t1);
             }
