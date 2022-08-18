@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using B3dm.Tileset;
 using CommandLine;
 using Npgsql;
@@ -103,11 +104,10 @@ namespace pg2b3dm
                 Console.WriteLine($"Heights for table: [{heights.min}, {heights.max}] m");
                 var translation = bbox3d.GetCenter().ToVector();
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
-
+                var bbox_3857 = ToSpherical(bbox_wgs84);
+                
                 var att = !String.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
                 Console.WriteLine($"Attribute columns: {att}");
-
-                var box = bbox3d.GetBox();
 
                 if (!o.UseImplicitTiling) {
                     var outputTiles = $"{output}{Path.AltDirectorySeparatorChar}tiles";
@@ -116,7 +116,7 @@ namespace pg2b3dm
                     }
 
                     // do not use implicit tiling
-                    var tiles = TileCutter.GetTiles(0, conn, o.ExtentTile, geometryTable, geometryColumn, bbox3d, sr, 0, lods, geometricErrors.Skip(1).ToArray(), lodcolumn, query);
+                    var tiles = TileCutter.GetTiles(0, conn, o.ExtentTile, geometryTable, geometryColumn, bbox_3857, sr, 0, lods, geometricErrors.Skip(1).ToArray(), lodcolumn, query);
                     Console.WriteLine();
                     var nrOfTiles = RecursiveTileCounter.CountTiles(tiles.tiles, 0);
                     Console.WriteLine($"Tiles with features: {nrOfTiles} ");
@@ -135,7 +135,7 @@ namespace pg2b3dm
              o.ShadersColumn, o.AttributeColumns, o.LodColumn, o.Copyright);
                 }
                 else {
-                    // use implictit tiling
+                    // use implicit tiling
                     var contentDirectory = $"{output}{Path.AltDirectorySeparatorChar}content";
                     var subtreesDirectory = $"{output}{Path.AltDirectorySeparatorChar}subtrees";
 
@@ -160,7 +160,8 @@ namespace pg2b3dm
                     File.WriteAllBytes(subtreeFile, subtreebytes);
 
                     var subtreeLevels = tiles.Max(t => t.Z) + 1;
-                    var tilesetjson = TreeSerializer.ToImplicitTileset(translation, box, geometricErrors[0], subtreeLevels, o.Refinement, version);
+                    // todo: fix
+                    var tilesetjson = TreeSerializer.ToImplicitTileset(translation, new double[] { }, geometricErrors[0], subtreeLevels, o.Refinement, version);
                     var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
                     Console.WriteLine("SubtreeLevels: " + subtreeLevels);
                     Console.WriteLine("SubdivisionScheme: QUADTREE");
@@ -175,6 +176,18 @@ namespace pg2b3dm
                 Console.WriteLine($"Elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");
                 Console.WriteLine($"Program finished {DateTime.Now}.");
             });
+        }
+
+        private static BoundingBox ToSpherical(BoundingBox bb) {
+            var from = SphericalMercator.ToSphericalMercatorFromWgs84(bb.XMin, bb.YMin);
+            var to = SphericalMercator.ToSphericalMercatorFromWgs84(bb.XMax, bb.YMax);
+            return new BoundingBox(from[0], from[1], to[0], to[1]);
+        }
+        private static BoundingBox ToLonLat(BoundingBox bb)
+        {
+            var from = SphericalMercator.ToWgs84FromSphericalMercator(bb.XMin, bb.YMin);
+            var to = SphericalMercator.ToWgs84FromSphericalMercator(bb.XMax, bb.YMax);
+            return new BoundingBox(from[0], from[1], to[0], to[1]);
         }
 
         public static double[] Reverse(double[] translation)
@@ -194,7 +207,7 @@ namespace pg2b3dm
                     CalculateBoundingBoxes(conn, epsg, translation, t.Children, minZ, maxZ);
                 }
 
-                var bbox_wgs84 = BoundingBoxRepository.ToWgs84(conn, bb, epsg);
+                var bbox_wgs84 = ToLonLat(t.BoundingBox);
 
                 var minx = ConvertToRadians(bbox_wgs84.XMin);
                 var miny = ConvertToRadians(bbox_wgs84.YMin);
