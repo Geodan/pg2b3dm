@@ -59,8 +59,8 @@ namespace B3dm.Tileset
 
             var sql = $"select exists(select {geometry_column} from {geometry_table} where" +
                 $" ST_Intersects(" +
-                $"ST_Centroid(ST_Envelope(st_transform({geometry_column}, 4326))), " +
-                $"st_transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 3857), 4326) " +
+                $"ST_Centroid(ST_Envelope({geometry_column})), " +
+                $"st_transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 3857), {epsg}) " +
                 $") and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {lodQuery})";
             conn.Open();
             var cmd = new NpgsqlCommand(sql, conn);
@@ -172,8 +172,8 @@ namespace B3dm.Tileset
         private static string GetWhere(string geometry_column, int epsg, string xmin, string ymin, string xmax, string ymax, string lodQuery = "")
         {
             return $" WHERE  ST_Intersects(" +
-                $"ST_Centroid(ST_Envelope(st_transform({geometry_column}, 4326))), " +
-                $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 3857), 4326) " +
+                $"ST_Centroid(ST_Envelope({geometry_column})), " +
+                $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 3857), {epsg}) " +
                 $") and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {lodQuery}";
         }
 

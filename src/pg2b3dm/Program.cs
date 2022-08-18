@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using B3dm.Tileset;
 using CommandLine;
 using Npgsql;
@@ -106,7 +105,7 @@ namespace pg2b3dm
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
                 var bbox_3857 = ToSpherical(bbox_wgs84);
                 
-                var att = !String.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
+                var att = !string.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
                 Console.WriteLine($"Attribute columns: {att}");
 
                 if (!o.UseImplicitTiling) {
