@@ -7,7 +7,7 @@ namespace B3dm.Tileset
 {
     public static class TreeSerializer
     {
-        public static string ToJson(List<Tile2> tiles, double[] transform, double[] region, double[] geometricErrors, string refinement, double minheight, double maxheight, Version version = null)
+        public static string ToJson(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, string refinement, double minheight, double maxheight, Version version = null)
         {
             var tileset = ToTileset(tiles, transform, region, geometricErrors, refinement, minheight, maxheight, version);
             var json = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
@@ -31,7 +31,7 @@ namespace B3dm.Tileset
             return json;
         }
 
-        public static TileSet ToTileset(List<Tile2> tiles, double[] transform, double[] region, double[] geometricErrors, string refinement, double minheight, double maxheight, Version version = null)
+        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, string refinement, double minheight, double maxheight, Version version = null)
         {
             var tileset = new TileSet {
                 asset = new Asset() { version = "1.0", generator = $"pg2b3dm {version}" }
@@ -60,7 +60,7 @@ namespace B3dm.Tileset
             return root;
         }
 
-        private static List<Child> GetChildren(List<Tile2> tiles, double geometricError, double minheight, double maxheight)
+        private static List<Child> GetChildren(List<Tile> tiles, double geometricError, double minheight, double maxheight)
         {
             var children = new List<Child>();
             foreach (var tile in tiles) {
@@ -77,7 +77,7 @@ namespace B3dm.Tileset
             return children;
         }
 
-        public static Child GetChild(Tile2 tile, double geometricError, double minheight, double maxheight)
+        public static Child GetChild(Tile tile, double geometricError, double minheight, double maxheight)
         {
             var child = new Child {
                 geometricError = geometricError,

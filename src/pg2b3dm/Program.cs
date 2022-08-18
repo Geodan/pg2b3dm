@@ -119,9 +119,9 @@ namespace pg2b3dm
 
                 Console.WriteLine($"Maximum features per tile: " + o.ImplicitTilingMaxFeatures);
 
-                var tile = new Tile2(0, 0, 0);
+                var tile = new Tile(0, 0, 0);
                 tile.BoundingBox = bbox_3857;
-                var tiles = ImplicitTiling.GenerateTiles(geometryTable, conn, sr, geometryColumn, idcolumn, bbox_3857, o.ImplicitTilingMaxFeatures, tile, new List<Tile2>(), query, translation, o.ShadersColumn, o.AttributeColumns, contentDirectory, o.Copyright);
+                var tiles = ImplicitTiling.GenerateTiles(geometryTable, conn, sr, geometryColumn, idcolumn, bbox_3857, o.ImplicitTilingMaxFeatures, tile, new List<Tile>(), query, translation, o.ShadersColumn, o.AttributeColumns, contentDirectory, o.Copyright);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count);
 

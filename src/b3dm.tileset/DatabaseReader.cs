@@ -16,17 +16,5 @@ namespace B3dm.Tileset
             conn.Close();
             return scalar;
         }
-
-        public static bool ReadBoolean(IDbConnection conn, string sql)
-        {
-            conn.Open();
-            var command = conn.CreateCommand();
-            var reader = command.ExecuteReader();
-            reader.Read();
-            var exists = reader.GetBoolean(0);
-            reader.Close();
-            conn.Close();
-            return exists;
-        }
     }
 }

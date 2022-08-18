@@ -50,28 +50,6 @@ namespace B3dm.Tileset
             return count;
         }
 
-        public static bool HasFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, int epsg, string lodQuery)
-        {
-            var fromX = from.X.Value.ToString(CultureInfo.InvariantCulture);
-            var fromY = from.Y.Value.ToString(CultureInfo.InvariantCulture);
-            var toX = to.X.Value.ToString(CultureInfo.InvariantCulture);
-            var toY = to.Y.Value.ToString(CultureInfo.InvariantCulture);
-
-            var sql = $"select exists(select {geometry_column} from {geometry_table} where" +
-                $" ST_Intersects(" +
-                $"ST_Centroid(ST_Envelope({geometry_column})), " +
-                $"st_transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 3857), {epsg}) " +
-                $") and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {lodQuery})";
-            conn.Open();
-            var cmd = new NpgsqlCommand(sql, conn);
-            var reader = cmd.ExecuteReader();
-            reader.Read();
-            var exists = reader.GetBoolean(0);
-            reader.Close();
-            conn.Close();
-            return exists;
-        }
-
         public static BoundingBox3D GetBoundingBox3DForTable(IDbConnection conn, string geometry_table, string geometry_column, string query = "")
         {
             var where = GetWhere(query);
@@ -131,7 +109,7 @@ namespace B3dm.Tileset
             return $"ST_Translate({geometry_column}, {translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , {translation[2].ToString(CultureInfo.InvariantCulture)}*-1)";
         }
 
-        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile2 t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "", string query = "")
+        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "", string query = "")
         {
             var sqlselect = GetSqlSelect(geometry_column, idcolumn, translation, shaderColumn, attributesColumns);
             var sqlFrom = "FROM " + geometry_table;
