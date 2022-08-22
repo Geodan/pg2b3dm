@@ -10,7 +10,6 @@ namespace Wkb2Gltf
             BatchId = batchId;
             Attributes = new Dictionary<string, object>();
         }
-        public string Id { get; set; }
         public Geometry Geometry { get; set; }
 
         public int BatchId { get; set; }

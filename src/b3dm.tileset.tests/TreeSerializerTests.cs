@@ -19,11 +19,9 @@ namespace B3dm.Tileset.Tests
 
             // act
             var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 5, "ADD");
-            File.WriteAllText(@"test.json", json);
-            var jsonobject = JObject.Parse(json);
 
             // assert
-            Assert.IsTrue(jsonobject != null);
+            Assert.IsTrue(json != null);
         }
 
         [Test]

@@ -5,15 +5,6 @@ namespace B3dm.Tileset.extensions
 {
     public static class BoundingBoxExtensions
     {
-        public static double ExtentX(this BoundingBox bb)
-        {
-            return bb.XMax - bb.XMin;
-        }
-        public static double ExtentY(this BoundingBox bb)
-        {
-            return bb.YMax - bb.YMin;
-        }
-
         public static BoundingBox ToSpherical(this BoundingBox bb)
         {
             var from = SphericalMercator.ToSphericalMercatorFromWgs84(bb.XMin, bb.YMin);

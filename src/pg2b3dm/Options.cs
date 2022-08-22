@@ -20,10 +20,6 @@ namespace pg2b3dm
         public string Output { get; set; }
         [Option('a', "attributecolumns", Required = false, Default = "", HelpText = "Attribute columns")]
         public string AttributeColumns { get; set; }
-
-        [Option('i', "idcolumn", Required = false, Default = "id", HelpText = "Id column")]
-        public string IdColumn { get; set; }
-
         [Option('l', "lodcolumn", Required = false, Default = "", HelpText = "LOD column")]
         public string LodColumn { get; set; }
 
@@ -45,8 +41,8 @@ namespace pg2b3dm
         [Option("use_implicit_tiling", Required = false, Default = false, HelpText = "use 1.1 implicit tiling")]
         public bool UseImplicitTiling { get; set; }
 
-        [Option("implicit_tiling_max_features", Required = false, Default = 1000, HelpText = "1.1 implicit tiling maximum features per tile")]
-        public int ImplicitTilingMaxFeatures { get; set; }
+        [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile")]
+        public int MaxFeaturesPerTile { get; set; }
 
     }
 }

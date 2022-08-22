@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using Newtonsoft.Json;
 using Npgsql;
 using Wkb2Gltf;
@@ -12,26 +13,6 @@ namespace B3dm.Tileset
 {
     public static class BoundingBoxRepository
     {
-        public static BoundingBox ToWgs84(NpgsqlConnection conn, BoundingBox3D bbox3d, int epsg)
-        {
-            conn.Open();
-            var sql = $"select st_asBinary(ST_Transform(ST_SetSRID(ST_MakePoint({bbox3d.XMin},{bbox3d.YMin},{bbox3d.ZMin}), {epsg}), 4326))," +
-                $"st_asBinary(ST_Transform(ST_SetSRID(ST_MakePoint({bbox3d.XMax},{bbox3d.YMax},{bbox3d.ZMax}), {epsg}), 4326))";
-            var cmd = new NpgsqlCommand(sql, conn);
-            var reader = cmd.ExecuteReader();
-            reader.Read();
-            var stream_from = reader.GetStream(0);
-            var from = (Point)Geometry.Deserialize<WkbSerializer>(stream_from);
-            stream_from.Close();
-            var stream_to = reader.GetStream(1);
-            var to = (Point)Geometry.Deserialize<WkbSerializer>(stream_to);
-            stream_to.Close();
-            conn.Close();
-
-            var bb = new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y);
-            return bb;
-        }
-
         public static int CountFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, int epsg, string query)
         {
             var fromX = from.X.Value.ToString(CultureInfo.InvariantCulture);
@@ -109,9 +90,9 @@ namespace B3dm.Tileset
             return $"ST_Translate({geometry_column}, {translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , {translation[2].ToString(CultureInfo.InvariantCulture)}*-1)";
         }
 
-        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, string idcolumn, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "", string query = "")
+        public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "", string query = "")
         {
-            var sqlselect = GetSqlSelect(geometry_column, idcolumn, translation, shaderColumn, attributesColumns);
+            var sqlselect = GetSqlSelect(geometry_column, translation, shaderColumn, attributesColumns);
             var sqlFrom = "FROM " + geometry_table;
 
             var lodQuery = LodQuery.GetLodQuery(lodColumn, t.Lod);
@@ -155,11 +136,10 @@ namespace B3dm.Tileset
             }
             var batchId = 0;
             while (reader.Read()) {
-                var id = reader.GetString(0);
-                var stream = reader.GetStream(1);
+                var stream = reader.GetStream(0);
 
                 var geom = Geometry.Deserialize<WkbSerializer>(stream);
-                var geometryRecord = new GeometryRecord(batchId) { Id = id, Geometry = geom };
+                var geometryRecord = new GeometryRecord(batchId) { Geometry = geom };
 
                 if (shaderColumn != string.Empty) {
                     var json = GetJson(reader, shadersColumnId);
@@ -179,10 +159,10 @@ namespace B3dm.Tileset
             return geometries;
         }
 
-        private static string GetSqlSelect(string geometry_column, string idcolumn, double[] translation, string shaderColumn, string attributesColumns)
+        private static string GetSqlSelect(string geometry_column,double[] translation, string shaderColumn, string attributesColumns)
         {
             var g = GetGeometryColumn(geometry_column, translation);
-            var sqlselect = $"SELECT {idcolumn}, ST_AsBinary({g})";
+            var sqlselect = $"SELECT ST_AsBinary({g})";
             if (shaderColumn != String.Empty) {
                 sqlselect = $"{sqlselect}, {shaderColumn} ";
             }

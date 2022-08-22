@@ -8,6 +8,8 @@ using B3dm.Tileset;
 using CommandLine;
 using Npgsql;
 using B3dm.Tileset.extensions;
+using Newtonsoft.Json;
+using Tile = B3dm.Tileset.Tile;
 
 namespace pg2b3dm
 {
@@ -51,7 +53,6 @@ namespace pg2b3dm
 
                 var geometryTable = o.GeometryTable;
                 var geometryColumn = o.GeometryColumn;
-                var idcolumn = o.IdColumn;
                 var lodcolumn = o.LodColumn;
                 var query = o.Query;
                 var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse);
@@ -93,7 +94,7 @@ namespace pg2b3dm
                 Console.WriteLine($"Spatial reference: {sr}");
                 Console.WriteLine($"Query bounding box for table {geometryTable}...");
                 var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn, query);
-                var bbox_wgs84 = BoundingBoxRepository.ToWgs84(conn, bbox3d, sr);
+                var bbox_wgs84 = bbox3d.ToWgs84();
                 Console.WriteLine($"Bounding box for table (WGS84): {Math.Round(bbox_wgs84.XMin,4)}, {Math.Round(bbox_wgs84.YMin,4)}, {Math.Round(bbox_wgs84.XMax,4)}, {Math.Round(bbox_wgs84.YMax,4)}");
                 Console.WriteLine($"Query heights for table {geometryTable}...");
                 var heights = BoundingBoxRepository.GetHeight(conn, geometryTable, geometryColumn, query);
@@ -113,26 +114,59 @@ namespace pg2b3dm
                 if (!Directory.Exists(contentDirectory)) {
                     Directory.CreateDirectory(contentDirectory);
                 }
-                if (!Directory.Exists(subtreesDirectory)) {
-                    Directory.CreateDirectory(subtreesDirectory);
-                }
 
-                Console.WriteLine($"Maximum features per tile: " + o.ImplicitTilingMaxFeatures);
+                Console.WriteLine($"Maximum features per tile: " + o.MaxFeaturesPerTile);
 
                 var tile = new Tile(0, 0, 0);
                 tile.BoundingBox = bbox_3857;
-                var tiles = ImplicitTiling.GenerateTiles(geometryTable, conn, sr, geometryColumn, idcolumn, bbox_3857, o.ImplicitTilingMaxFeatures, tile, new List<Tile>(), query, translation, o.ShadersColumn, o.AttributeColumns, contentDirectory, o.Copyright);
+                var tiles = ImplicitTiling.GenerateTiles(geometryTable, conn, sr, geometryColumn, bbox_3857, o.MaxFeaturesPerTile, tile, new List<Tile>(), query, translation, o.ShadersColumn, o.AttributeColumns, contentDirectory, o.Copyright);
                 Console.WriteLine();
-                Console.WriteLine("Tiles created: " + tiles.Count);
+                Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
-                var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, o.Refinement, heights.min, heights.max, version);
-                File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
+                if (o.UseImplicitTiling) {
+                    var subtreefile = GenerateSubtreefile(tiles);
+                    if (!Directory.Exists(subtreesDirectory)) {
+                        Directory.CreateDirectory(subtreesDirectory);
+                    }
+
+                    var subtreeFile = $"{subtreesDirectory}{Path.AltDirectorySeparatorChar}0_0_0.subtree";
+                    Console.WriteLine($"Writing {subtreeFile}...");
+                    var subtreebytes = GenerateSubtreefile(tiles);
+                    File.WriteAllBytes(subtreeFile, subtreebytes);
+                    var subtreeLevels = tiles.Max(t => t.Z) + 1;
+                    var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricErrors[0], subtreeLevels, o.Refinement, version);
+                    var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
+                    Console.WriteLine("SubtreeLevels: " + subtreeLevels);
+                    Console.WriteLine("SubdivisionScheme: QUADTREE");
+                    Console.WriteLine("Refine method: ADD");
+                    Console.WriteLine($"Geometric errors: {geometricErrors[0]}, {geometricErrors[0]}");
+                    Console.WriteLine($"Writing {file}...");
+
+                    var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+                    File.WriteAllText(file, json);
+                }
+                else {
+                    var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, o.Refinement, heights.min, heights.max, version);
+                    File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
+                }
 
                 stopWatch.Stop();
                 Console.WriteLine();
                 Console.WriteLine($"Elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");
                 Console.WriteLine($"Program finished {DateTime.Now}.");
             });
+        }
+
+        private static byte[] GenerateSubtreefile(List<Tile> tiles)
+        {
+            var subtreeTiles = new List<subtree.Tile>();
+            foreach(var t in tiles) {
+                subtreeTiles.Add(new subtree.Tile(t.Z, t.X, t.Y, t.Available));
+            }
+
+            var mortonIndex = subtree.MortonIndex.GetMortonIndex(subtreeTiles);
+            var subtreebytes = ImplicitTiling.GetSubtreeBytes(mortonIndex);
+            return subtreebytes;
         }
     }
 }
