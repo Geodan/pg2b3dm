@@ -12,6 +12,8 @@ Differences to py3dtiles:
 
 - memory usage improvements;
 
+- added 3D Tiles 1.1 Implicit tiling support
+
 - fixed glTF warnings;
 
 - added colors option;
@@ -31,7 +33,7 @@ Differences to py3dtiles:
 To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries. Those geometries can be created 
 by FME (using Triangulator transformer - https://www.safe.com/transformers/triangulator/) or custom tesselation tools.
 
-Tileset.json and b3dm tiles are by default created in the 'output/tiles' subdirectory (or specify directory with   -o, --output).
+Tileset.json and b3dm tiles are by default created in the 'output/content' subdirectory (or specify output directory with   -o, --output).
 
 ## Live Sample viewers
 
@@ -74,8 +76,6 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -c, --column           (Default: geom) Geometry column name
 
-  -i, --idcolumn         (Default: id): Identifier column
-
   -t, --table            (Required) Database table name, include database schema if needed
 
   -o, --output           (Default: ./output/tiles) Output directory, will be created if not exists
@@ -83,8 +83,6 @@ If --username and/or --dbname are not specified the current username is used as 
   -p, --port             (Default: 5432) Database port
 
   -a, --attributecolumns (Default: '') attributes column names (comma separated)
-
-  -e, --extenttile       (Default: 1000) Maximum extent per tile
 
   -g, --geometricerrors  (Default: 500, 0) Geometric errors
 
@@ -98,7 +96,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --use_implicit_tiling  (Default: False) Use 3D Tiles 1.1 Implicit tiling
 
-  --implicit_tiling_max_features (Default 1000) Maximum number of features per tile in 3D Tiles 1.1 Implicit tiling
+  --max_features_per_tile (Default 1000) Maximum number of features per tile in 3D Tiles 1.1 Implicit tiling
                          
   --help                Display this help screen.
 
@@ -144,12 +142,6 @@ For large datasets create a spatial index on the geometry column:
 psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle)));
 ```
 
-### Id Column
-
-- Id column must be type string;
-
-- Id column should be indexed for better performance.
-
 ### LOD
 
 - if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
@@ -191,9 +183,9 @@ Attribute columns can be of any type.
 
 ## Tiling method
 
-By default, tiles are created with a size of parameter 'extenttile' (default value 1000 meter). In pg2b3dm version 0.14 support for 3D Tiles
+Tiles are created within a quadtree, with a maximum number of features by max_features_per_tile (default 1000). In pg2b3dm version 0.14 support for 3D Tiles
 1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'false'). When Impliciting Tiling 
-is used a quadtree of b3dm tiles is created, option 'implicit_tiling_max_features' (default value 1000) is used for creating the quadtree.
+is activated a subtree file (0_0_0.subtree) will be created (in folder subtrees) and the tileset.josn file will no longer explitly list all tiles.
 
 At the moment, Implicit tiling is only supported in the CesiumJS client.
 
@@ -207,7 +199,7 @@ Some remarks about implicit tiling:
 
 - There is no support (yet) for implicit tiling metadata;
 
-- Parameters '-l --lodcolumn' and  '-e --extenttile' are ignored when using impliciting tiling;
+- Parameter '-l --lodcolumn' is ignored when using impliciting tiling;
 
 - Only the first value of parameter 'geometricerrors' is used in tileset.json.
 
@@ -435,31 +427,6 @@ In Visual Studio Code, open .vscode/launch.json and adjust the 'args' parameter 
 
 Press F5 to start debugging.
 
-## Queries
-
-Queries used:
-
-1] Get boundingbox 3D for table
-```
-postgres=# SELECT st_xmin(geom1), st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {where}) as t
-```
-
-2] Has features in box
-
-```
-postgres=# select exists(select {geometry_column} from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, {epsg})) and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {lodQuery}
-```
-
-3] Count features in box (used in --use_implicit_tiling)
-```
-postgres=# select count({geometry_column}) from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, {epsg})) and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {query}
-```
-
-4] Get geometrries per tile
-```
-postgres=# SELECT id, ST_AsBinary(ST_Translate(geom_triangle, {center_X}*-1,{center_y}*-1 , {center_z}*-1)), shaders FROM {geometry_table} WHERE ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_MakeEnvelope({min_x}, {min_y}, {max_x}, {max_y}, {epsg})) and ST_GeometryType(geom_triangle) = 'ST_PolyhedralSurface' {where} {lodquery}
-```
-
 ## Dependencies
 
 - SharpGLTF (https://github.com/vpenades/SharpGLTF) for generating glTF;
@@ -472,8 +439,21 @@ postgres=# SELECT id, ST_AsBinary(ST_Translate(geom_triangle, {center_X}*-1,{cen
 
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
+- Subtree (https://github.com/bertt/subtree) - for subtree file handling
 
 ## History
+
+2022-08-23: release 1.0
+
+Use a quadtree tiling method by default, fix skewed bounding volumes in Cesium.
+
+Breaking changes:
+
+- removed: parameter -i, --idcolumn
+
+- removed: parameter -e, --extenttile
+
+- renamed: parameter implicit_tiling_max_features to max_features_per_tile
 
 2022-08-09: release 0.16, fixing materials (MetallicRoughness and SpecularGlossiness)
 
