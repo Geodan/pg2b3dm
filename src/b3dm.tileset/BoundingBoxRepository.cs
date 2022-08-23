@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using System.Numerics;
 using Newtonsoft.Json;
 using Npgsql;
 using Wkb2Gltf;

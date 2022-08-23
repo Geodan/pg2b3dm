@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\b3dm.tileset\b3dm.tileset.csproj" />
     <ProjectReference Include="..\pg2b3dm\pg2b3dm.csproj" />
   </ItemGroup>
 

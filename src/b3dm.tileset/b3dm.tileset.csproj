@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="CoordinateSharp" Version="2.13.1.1" />
     <PackageReference Include="Npgsql" Version="6.0.6" />
-    <PackageReference Include="subtree" Version="1.1.0" />
+    <PackageReference Include="subtree" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>

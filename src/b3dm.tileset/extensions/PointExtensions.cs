@@ -1,5 +1,4 @@
-﻿using System;
-using Wkx;
+﻿using Wkx;
 
 namespace B3dm.Tileset
 {

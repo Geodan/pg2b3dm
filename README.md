@@ -2,7 +2,8 @@
  
  ![Build status](https://github.com/Geodan/pg2b3dm/workflows/.NET%20Core/badge.svg)
 
-Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software started as a port of py3dtiles (https://github.com/Oslandia/py3dtiles) for generating b3dm tiles. The generated 3D Tiles can be visualized in Cesium JS or MapBox GL JS.
+Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software started as a port of py3dtiles (https://github.com/Oslandia/py3dtiles) for generating b3dm tiles. 
+The generated 3D Tiles can be visualized in Cesium JS/Cesium for Unreal or other 3D Tiles client viewer.
 
 ![mokum](https://user-images.githubusercontent.com/538812/63088752-24fa8000-bf56-11e9-9ba8-3273a21dfda0.png)
 
@@ -381,14 +382,7 @@ Requirement: Install .NET 6.0 SDK
 
 https://dotnet.microsoft.com/download/dotnet/6.0
 
-TL;DR:
-
-```
-$ sudo apt-get update
-$ sudo apt-get install apt-transport-https
-$ sudo apt-get update
-$ sudo apt-get install dotnet-sdk-6.0
-```
+Installation guide see https://docs.microsoft.com/en-us/dotnet/core/install/
 
 Build app:
 
@@ -446,6 +440,8 @@ Press F5 to start debugging.
 2022-08-23: release 1.0
 
 Use a quadtree tiling method by default, fix skewed bounding volumes in Cesium.
+
+MapBox GL JS support is discontinued at the moment.
 
 Breaking changes:
 

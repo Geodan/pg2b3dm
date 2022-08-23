@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.95.0/Cesium.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.95.0/Widgets/widgets.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.96.0/Cesium.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.96.0/Widgets/widgets.min.css" rel="stylesheet">
   
     <style>
       html, body, #cesiumContainer {
@@ -34,6 +34,8 @@
         url : 'tileset.json'
     }));
 
+    tileset.debugShowBoundingVolume = true;
+    tileset.debugColorizeTiles = true;
     viewer.scene.globe.depthTestAgainstTerrain = true;
     viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, 0));
     viewer.scene.primitives.add(tileset);

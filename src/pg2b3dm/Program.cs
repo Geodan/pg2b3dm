@@ -98,7 +98,7 @@ namespace pg2b3dm
                 Console.WriteLine($"Bounding box for table (WGS84): {Math.Round(bbox_wgs84.XMin,4)}, {Math.Round(bbox_wgs84.YMin,4)}, {Math.Round(bbox_wgs84.XMax,4)}, {Math.Round(bbox_wgs84.YMax,4)}");
                 Console.WriteLine($"Query heights for table {geometryTable}...");
                 var heights = BoundingBoxRepository.GetHeight(conn, geometryTable, geometryColumn, query);
-                Console.WriteLine($"Heights for table: [{heights.min}, {heights.max}] m");
+                Console.WriteLine($"Heights for table: [{heights.min} m, {heights.max} m] ");
                 var translation = bbox3d.GetCenter().ToVector();
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
                 var bbox_3857 = bbox_wgs84.ToSpherical();

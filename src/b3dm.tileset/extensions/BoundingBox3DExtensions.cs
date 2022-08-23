@@ -12,6 +12,5 @@ namespace B3dm.Tileset.extensions
             return new BoundingBox((double)from.X, (double)from.Y, (double)to.X, (double)to.Y);
 
         }
-
     }
 }
