@@ -3,7 +3,9 @@
 ## Introduction
 
 In this document we run pg2b3dm on a sample dataset, a shapefile from Delaware containing building footprints with a height attribute. 
-The generated 3D tiles are visualized in a CesiumJS/Cesium for Unreal and MapBox GL JS viewer.
+The generated 3D tiles are visualized in a CesiumJS/Cesium for Unreal viewer.
+
+** Note: For MapBox GL JS support use an older version of the document and version pg2b3dm < 1.0. **
 
 ## Download data
 
@@ -174,32 +176,26 @@ $ dotnet tool install --global pg2b3dm
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id --shaderscolumn shaders
-tool: pg2b3dm 0.12.0.0
+Tool: pg2b3dm 1.0.0.0
 Password for user postgres:
-Start processing....
-Calculating bounding boxes...
-Writing tileset.json...
-Writing 927 tiles...
-Progress: tile 927 - 100.00%
-Elapsed: 39 seconds
-Program finished.
+Start processing 8/23/2022 3:28:12 PM....
+Input table: delaware_buildings
+input geometry column: geom_triangle
+Geometric errors: 2024,0
+Spatial reference: 4978
+Query bounding box for table delaware_buildings...
+Bounding box for table (WGS84): -75.6145, 39.0964, -75.4353, 39.2124
+Query heights for table delaware_buildings...
+Heights for table: [-0 m, 76.58 m]
+Use 3D Tiles 1.1 implicit tiling: False
+Attribute columns: -
+Maximum features per tile: 1000
+Creating tile: output/content/2_2_3.b3dm
+Tiles created: 57
+
+Elapsed: 12 seconds
+Program finished 8/23/2022 3:28:24 PM.
 ```
-
-## Visualize in MapBox
-
-Required: Use -f mapbox (default option) in previous step tesselate_building.
-
-Copy the generated tiles to sample_data\delaware\mapbox\ (overwrite the tileset.json and sample tiles in tiles directory there).
-
-Put folder 'sample_data' on a webserver (for example $ python3 -m http.server) and navigate to /delaware/mapbox/index.html
-
-If all goes well in Delaware - Dover you can find some 3D Tiles buildings.
-
-![alt text](delaware_mapbox.png "Delaware MapBox")
-
-Sample live demo in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/delaware/mapbox/
-
 
 ## Visualize in CesiumJS
 

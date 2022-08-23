@@ -18,19 +18,5 @@ namespace B3dm.Tileset.Tests
             // assert
             Assert.IsTrue(pointTranslated.Equals(new Point(11, 22, 33)));
         }
-
-        [Test]
-        public void TestRotateX()
-        {
-            // arrange
-            var point = new Point(1, 2.5, 3);
-            var pointRotatedXExpected = new Point(1, -2.5, -3);
-
-            // act
-            var pointRotatedXActual = point.RotateX(Math.PI);
-
-            // assert
-            Assert.IsTrue(pointRotatedXActual.Equals(pointRotatedXExpected));
-        }
     }
 }

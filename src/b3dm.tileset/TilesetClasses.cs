@@ -7,7 +7,6 @@ namespace B3dm.Tileset
     public class TileSet
     {
         public Root root { get; set; }
-        public double? geometricError { get; set; }
         public Asset asset { get; set; }
     }
 
@@ -41,21 +40,19 @@ namespace B3dm.Tileset
         public string uri { get; set; }
     }
 
-
-
     public class Root : Child
     {
     }
 
     public class Boundingvolume
     {
-        private double[] _box;
-        public double[] box {
+        private double[] _region;
+        public double[] region {
             get {
-                return this._box;
+                return _region;
             }
             set {
-                _box = value.Select(d => Math.Round(d, 3)).ToArray();
+                _region = value.Select(d => Math.Round(d, 5)).ToArray();
             }
         }
     }
@@ -68,7 +65,6 @@ namespace B3dm.Tileset
         {
             return MemberwiseClone();
         }
-
     }
 
     public class Asset
