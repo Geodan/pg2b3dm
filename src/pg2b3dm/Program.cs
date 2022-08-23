@@ -124,7 +124,6 @@ namespace pg2b3dm
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
                 if (o.UseImplicitTiling) {
-                    var subtreefile = GenerateSubtreefile(tiles);
                     if (!Directory.Exists(subtreesDirectory)) {
                         Directory.CreateDirectory(subtreesDirectory);
                     }
@@ -164,8 +163,8 @@ namespace pg2b3dm
                 subtreeTiles.Add(new subtree.Tile(t.Z, t.X, t.Y, t.Available));
             }
 
-            var mortonIndex = subtree.MortonIndex.GetMortonIndex(subtreeTiles);
-            var subtreebytes = ImplicitTiling.GetSubtreeBytes(mortonIndex);
+            var mortonIndices = subtree.MortonIndex.GetMortonIndices(subtreeTiles);
+            var subtreebytes = ImplicitTiling.GetSubtreeBytes(mortonIndices.tileAvailability, mortonIndices.contentAvailability);
             return subtreebytes;
         }
     }

@@ -10,11 +10,16 @@ namespace pg2b3dm
 {
     public static class ImplicitTiling
     {
-        public static byte[] GetSubtreeBytes(string contentAvailability, string subtreeAvailability = null)
+        public static byte[] GetSubtreeBytes(string tileAvailability, string contentAvailability, string subtreeAvailability = null)
         {
             var subtree_root = new Subtree();
             // todo: use other constant for tile availability
-            subtree_root.TileAvailabiltyConstant = 1;
+            // 111110111000011110000000
+            // todo: make other method for hardcoded
+            // var tileavailiability = BitArrayCreator.FromString("111110111000011110000");
+            var tileavailiability = BitArrayCreator.FromString(tileAvailability);
+
+            subtree_root.TileAvailability= tileavailiability;
 
             var s0_root = BitArrayCreator.FromString(contentAvailability);
             subtree_root.ContentAvailability = s0_root;
