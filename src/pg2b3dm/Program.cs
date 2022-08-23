@@ -138,7 +138,7 @@ namespace pg2b3dm
                     Console.WriteLine("SubtreeLevels: " + subtreeLevels);
                     Console.WriteLine("SubdivisionScheme: QUADTREE");
                     Console.WriteLine("Refine method: ADD");
-                    Console.WriteLine($"Geometric errors: {geometricErrors[0]}, {geometricErrors[0]}");
+                    Console.WriteLine($"Geometric errors: {geometricErrors[0]}");
                     Console.WriteLine($"Writing {file}...");
 
                     var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
