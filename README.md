@@ -101,7 +101,7 @@ If --username and/or --dbname are not specified the current username is used as 
   
   --sql_command_timeout  (Default: 30) Command timeout for database queries (in seconds)
 
-  --boudingvolume_heights (Default: '0,100') Height of boundingVolume (min, max) in meters 
+  --boundingvolume_heights (Default: '0,100') Height of boundingVolume (min, max) in meters 
                          
   --help                Display this help screen.
 

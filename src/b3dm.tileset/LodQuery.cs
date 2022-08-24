@@ -6,7 +6,7 @@ namespace B3dm.Tileset
     {
         public static string GetLodQuery(string lodcolumn, int lod)
         {
-            return lodcolumn != String.Empty ? $"and {lodcolumn}={lod}" : "";
+            return lodcolumn != String.Empty ? $" and {lodcolumn}={lod}" : "";
         }
     }
 }

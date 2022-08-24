@@ -32,7 +32,7 @@ namespace pg2b3dm
         [Option("shaderscolumn", Required = false, Default = "", HelpText = "shaders column")]
         public string ShadersColumn { get; set; }
 
-        [Option('q', "query", Required = false, Default = "", HelpText = "Query parameter")]
+        [Option('q', "query", Required = false, Default = "heights>10", HelpText = "Query parameter")]
         public string Query { get; set; }
 
         [Option("copyright", Required = false, Default = "", HelpText = "glTF asset copyright")]
@@ -47,7 +47,7 @@ namespace pg2b3dm
         [Option("sql_command_timeout", Required = false, Default = 30, HelpText = "SQL command timeout")]
         public int SqlCommandTimeout { get; set; }
 
-        [Option("boundingvolume_heights", Required = false, Default = "0,100", HelpText = "Tile heights (min, max) in meters")]
+        [Option("boundingvolume_heights", Required = false, Default = "0,100", HelpText = "Tile boundingVolume heights (min, max) in meters")]
         public string BoundingVolumeHeights { get; set; }
     }
 }

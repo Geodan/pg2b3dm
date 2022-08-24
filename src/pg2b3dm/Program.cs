@@ -100,7 +100,7 @@ namespace pg2b3dm
                 var heightsArray = o.BoundingVolumeHeights.Split(',');
                 (double min, double max) heights = (double.Parse(heightsArray[0]), double.Parse(heightsArray[1]));
 
-                Console.WriteLine($"Heights for table: [{heights.min} m, {heights.max} m] ");
+                Console.WriteLine($"Heights for boundingVolumes: [{heights.min} m, {heights.max} m] ");
                 var translation = bbox3d.GetCenter().ToVector();
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
                 var bbox_3857 = bbox_wgs84.ToSpherical();

@@ -74,7 +74,7 @@ namespace pg2b3dm
                     var file = $"{outputFolder}{Path.AltDirectorySeparatorChar}{tile.Z}_{tile.X}_{tile.Y}.b3dm";
                     Console.Write($"\rCreating tile: {file}  ");
 
-                    var geometries = BoundingBoxRepository.GetGeometrySubset(conn, table, geometry_column, translation, tile,  epsg, colorColumn, attributesColumn, query);
+                    var geometries = BoundingBoxRepository.GetGeometrySubset(conn, table, geometry_column, translation, tile,  epsg, colorColumn, attributesColumn, "", query);
                     var bytes = B3dmWriter.ToB3dm(geometries, copyright);
 
                     File.WriteAllBytes(file, bytes);

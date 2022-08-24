@@ -19,7 +19,7 @@ namespace B3dm.Tileset
             var toX = to.X.Value.ToString(CultureInfo.InvariantCulture);
             var toY = to.Y.Value.ToString(CultureInfo.InvariantCulture);
 
-            var sql = $"select count({geometry_column}) from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_Transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 3857), {epsg})) and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {query}";
+            var sql = $"select count({geometry_column}) from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_Transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 3857), {epsg})) {query}";
             conn.Open();
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
@@ -33,14 +33,14 @@ namespace B3dm.Tileset
         public static BoundingBox3D GetBoundingBox3DForTable(IDbConnection conn, string geometry_table, string geometry_column, string query = "")
         {
             var where = GetWhere(query);
-            var sqlBounds = $"SELECT st_xmin(geom1),st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {where}) as t";
+            var sqlBounds = $"SELECT st_xmin(geom1),st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} {where}) as t";
             var bbox3d = GetBounds(conn, sqlBounds);
             return bbox3d;
         }
 
         private static string GetWhere(string query)
         {
-            return (query != string.Empty ? $" {query}" : String.Empty);
+            return (query != string.Empty ? $" where {query}" : String.Empty);
         }
 
         private static BoundingBox3D GetBounds(IDbConnection conn, string sql)
@@ -92,7 +92,7 @@ namespace B3dm.Tileset
             return $" WHERE  ST_Intersects(" +
                 $"ST_Centroid(ST_Envelope({geometry_column})), " +
                 $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 3857), {epsg}) " +
-                $") and ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {lodQuery}";
+                $") {lodQuery}";
         }
 
         private static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql)
