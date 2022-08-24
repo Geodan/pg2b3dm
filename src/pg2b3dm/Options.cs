@@ -47,5 +47,7 @@ namespace pg2b3dm
         [Option("sql_command_timeout", Required = false, Default = 30, HelpText = "SQL command timeout")]
         public int SqlCommandTimeout { get; set; }
 
+        [Option("boundingvolume_heights", Required = false, Default = "0,100", HelpText = "Tile heights (min, max) in meters")]
+        public string BoundingVolumeHeights { get; set; }
     }
 }

@@ -40,29 +40,7 @@ namespace B3dm.Tileset
 
         private static string GetWhere(string query)
         {
-            return (query != string.Empty ? $"and {query}" : String.Empty);
-        }
-
-        public static (double min, double max) GetHeight(IDbConnection conn, string geometry_table, string geometry_column, string query = "")
-        {
-            var where = GetWhere(query);
-            var sqlHeight = $"SELECT st_zmin(geom1), st_zmax(geom1) FROM (select ST_3DExtent(st_transform({geometry_column},4326)) as geom1 from {geometry_table} where ST_GeometryType({geometry_column}) =  'ST_PolyhedralSurface' {where}) as t";
-            var height = GetHeight(conn, sqlHeight);
-            return height;
-        }
-
-        private static (double min, double max) GetHeight(IDbConnection conn, string sql)
-        {
-            conn.Open();
-            var cmd = conn.CreateCommand();
-            cmd.CommandText = sql;
-            var reader = cmd.ExecuteReader();
-            reader.Read();
-            var zmin = Math.Round(reader.GetDouble(0), 2);
-            var zmax = Math.Round(reader.GetDouble(1), 2);
-            reader.Close();
-            conn.Close();
-            return (zmin, zmax);
+            return (query != string.Empty ? $" {query}" : String.Empty);
         }
 
         private static BoundingBox3D GetBounds(IDbConnection conn, string sql)

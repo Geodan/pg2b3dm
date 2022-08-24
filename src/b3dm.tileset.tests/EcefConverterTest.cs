@@ -13,7 +13,6 @@ namespace B3dm.Tileset.Tests
             Assert.IsTrue(wgs4 != null);
             Assert.IsTrue(wgs4.X == -75.614454164675919);
             Assert.IsTrue(wgs4.Y == 39.096412830732426);
-            Assert.IsTrue(wgs4.Z == 36.132278126178093);
         }
     }
 }
