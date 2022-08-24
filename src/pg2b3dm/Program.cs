@@ -66,7 +66,7 @@ namespace pg2b3dm
                 var conn = new NpgsqlConnection(connectionString);
 
                 var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, geometryTable, lodcolumn,query) : new List<int> { 0 });
-                if((geometricErrors.Length != lods.Count + 1) && lodcolumn==string.Empty) {
+                if((geometricErrors.Length != lods.Count + 1) && lodcolumn!=string.Empty) {
                     Console.WriteLine($"Lod levels: [{ String.Join(',', lods)}]");
                     Console.WriteLine($"Geometric errors: {o.GeometricErrors}");
 

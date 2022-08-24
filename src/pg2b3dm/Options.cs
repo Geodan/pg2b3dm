@@ -23,7 +23,7 @@ namespace pg2b3dm
         [Option('l', "lodcolumn", Required = false, Default = "", HelpText = "LOD column")]
         public string LodColumn { get; set; }
 
-        [Option('g', "geometricerrors", Required = false, Default = "2024,0", HelpText = "Geometric errors")]
+        [Option('g', "geometricerrors", Required = false, Default = "4048,2024,0", HelpText = "Geometric errors")]
         public string GeometricErrors { get; set; }
 
         [Option("refine", Required = false, Default = "REPLACE", HelpText = "Refinement method (ADD/REPLACE)")]
