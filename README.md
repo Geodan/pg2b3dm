@@ -98,6 +98,8 @@ If --username and/or --dbname are not specified the current username is used as 
   --use_implicit_tiling  (Default: False) Use 3D Tiles 1.1 Implicit tiling
 
   --max_features_per_tile (Default 1000) Maximum number of features per tile in 3D Tiles 1.1 Implicit tiling
+  
+  --sql_command_timeout (Default: 30) Command timeout for database queries (in seconds)
                          
   --help                Display this help screen.
 

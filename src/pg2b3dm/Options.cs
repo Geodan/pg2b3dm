@@ -44,5 +44,8 @@ namespace pg2b3dm
         [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile")]
         public int MaxFeaturesPerTile { get; set; }
 
+        [Option("sql_command_timeout", Required = false, Default = 30, HelpText = "SQL command timeout")]
+        public int SqlCommandTimeout { get; set; }
+
     }
 }
