@@ -441,6 +441,8 @@ Press F5 to start debugging.
 
 ## History
 
+2022-08-24: release 1.1: adding parameters sql_command_timeout (default: 30 seconds) and boundingvolume_heights (default: 0,100)
+
 2022-08-23: release 1.0
 
 Use a quadtree tiling method by default, fix skewed bounding volumes in Cesium.
