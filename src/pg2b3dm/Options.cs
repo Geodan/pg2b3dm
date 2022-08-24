@@ -32,7 +32,7 @@ namespace pg2b3dm
         [Option("shaderscolumn", Required = false, Default = "", HelpText = "shaders column")]
         public string ShadersColumn { get; set; }
 
-        [Option('q', "query", Required = false, Default = "heights>10", HelpText = "Query parameter")]
+        [Option('q', "query", Required = false, Default = "", HelpText = "Query parameter")]
         public string Query { get; set; }
 
         [Option("copyright", Required = false, Default = "", HelpText = "glTF asset copyright")]
