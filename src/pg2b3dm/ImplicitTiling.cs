@@ -13,10 +13,6 @@ namespace pg2b3dm
         public static byte[] GetSubtreeBytes(string tileAvailability, string contentAvailability, string subtreeAvailability = null)
         {
             var subtree_root = new Subtree();
-            // todo: use other constant for tile availability
-            // 111110111000011110000000
-            // todo: make other method for hardcoded
-            // var tileavailiability = BitArrayCreator.FromString("111110111000011110000");
             var tileavailiability = BitArrayCreator.FromString(tileAvailability);
 
             subtree_root.TileAvailability= tileavailiability;
