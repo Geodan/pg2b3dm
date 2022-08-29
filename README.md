@@ -96,7 +96,7 @@ If --username and/or --dbname are not specified the current username is used as 
   
   --shaderscolumn        (Default: '') shaders column
 
-  --use_implicit_tiling  (Default: False) Use 3D Tiles 1.1 Implicit tiling
+  --use_implicit_tiling  (Default: True) Use 3D Tiles 1.1 Implicit tiling
 
   --max_features_per_tile (Default 1000) Maximum number of features per tile in 3D Tiles 1.1 Implicit tiling
   
