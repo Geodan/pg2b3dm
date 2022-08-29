@@ -1,6 +1,7 @@
 # pg2b3dm
  
- ![Build status](https://github.com/Geodan/pg2b3dm/workflows/.NET%20Core/badge.svg)
+ ![Build status](https://github.com/Geodan/pg2b3dm/workflows/.NET%20Core/badge.svg)[![Nuget](https://img.shields.io/nuget/vpre/pg2b3dm)](https://www.nuget.org/packages/pg2b3dm)[![Discord](https://img.shields.io/discord/1013017110814932993)](https://discord.gg/uSKvUwPgmG)
+
 
 Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software started as a port of py3dtiles (https://github.com/Oslandia/py3dtiles) for generating b3dm tiles. 
 The generated 3D Tiles can be visualized in Cesium JS/Cesium for Unreal or other 3D Tiles client viewer.
@@ -189,7 +190,7 @@ Attribute columns can be of any type.
 ## Tiling method
 
 Tiles are created within a quadtree, with a maximum number of features by max_features_per_tile (default 1000). In pg2b3dm version 0.14 support for 3D Tiles
-1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'false'). When Impliciting Tiling 
+1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'true'). When Impliciting Tiling 
 is activated a subtree file (0_0_0.subtree) will be created (in folder subtrees) and the tileset.json file will no longer explitly list all tiles.
 
 At the moment, Implicit tiling is only supported in the CesiumJS client.
@@ -344,7 +345,7 @@ Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
-- 0.16 stable build
+- 1.2 stable build
 
 - latest: is build automatically after push to master
 
@@ -440,6 +441,12 @@ Press F5 to start debugging.
 - Subtree (https://github.com/bertt/subtree) - for subtree file handling
 
 ## History
+
+2022-08-29: release 1.2, 
+
+- Fixing debug boundingVolumes and query parameter;
+
+- Option 'use_implicit_tiling' default value canged from False to True;
 
 2022-08-24: release 1.1: adding parameters sql_command_timeout (default: 30 seconds) and boundingvolume_heights (default: 0,100)
 

@@ -109,7 +109,10 @@ namespace B3dm.Tileset
                 attributesColumnIds = FindFields(reader, attributesColumnsList);
             }
             if (shaderColumn != String.Empty) {
-                shadersColumnId = FindField(reader, shaderColumn);
+                var fld = FindField(reader, shaderColumn);
+                if (fld.HasValue) {
+                    shadersColumnId = FindField(reader, shaderColumn).Value;
+                }
             }
             var batchId = 0;
             while (reader.Read()) {
@@ -166,7 +169,7 @@ namespace B3dm.Tileset
             return attributes;
         }
 
-        private static int FindField(NpgsqlDataReader reader, string fieldName)
+        private static int? FindField(NpgsqlDataReader reader, string fieldName)
         {
             var schema = reader.GetSchemaTable();
             var rows = schema.Columns["ColumnName"].Table.Rows;
@@ -176,7 +179,7 @@ namespace B3dm.Tileset
                     return (int)((DataRow)row).ItemArray[1];
                 }
             }
-            return 0;
+            return null;
         }
 
         private static Dictionary<string, int> FindFields(NpgsqlDataReader reader, List<string> fieldNames)
@@ -184,7 +187,9 @@ namespace B3dm.Tileset
             var res = new Dictionary<string, int>();
             foreach (var field in fieldNames) {
                 var fieldId = FindField(reader, field.Trim());
-                res.Add(field, fieldId);
+                if (fieldId.HasValue) {
+                    res.Add(field, fieldId.Value);
+                }
             }
             return res;
         }
