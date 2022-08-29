@@ -37,5 +37,13 @@ namespace B3dm.Tileset.extensions
         {
             return (Math.PI / 180) * angle;
         }
+
+        public static Point GetCenter(this BoundingBox bb)
+        {
+            var x = (bb.XMax + bb.XMin) / 2;
+            var y = (bb.YMax + bb.YMin) / 2;
+            return new Point(x, y, 0);
+        }
+
     }
 }

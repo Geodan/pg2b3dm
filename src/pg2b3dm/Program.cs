@@ -93,15 +93,17 @@ namespace pg2b3dm
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
                 Console.WriteLine($"Query bounding box for table {geometryTable}...");
-                var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn, query);
-                var bbox_wgs84 = bbox3d.ToWgs84();
+                var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, geometryTable, geometryColumn, query);
                 Console.WriteLine($"Bounding box for table (WGS84): {Math.Round(bbox_wgs84.XMin,4)}, {Math.Round(bbox_wgs84.YMin,4)}, {Math.Round(bbox_wgs84.XMax,4)}, {Math.Round(bbox_wgs84.YMax,4)}");
 
                 var heightsArray = o.BoundingVolumeHeights.Split(',');
                 (double min, double max) heights = (double.Parse(heightsArray[0]), double.Parse(heightsArray[1]));
 
                 Console.WriteLine($"Heights for boundingVolumes: [{heights.min} m, {heights.max} m] ");
-                var translation = bbox3d.GetCenter().ToVector();
+                var center_wgs84 = bbox_wgs84.GetCenter();
+                var trans = SpatialConverter.GeodeticToEcef((double)center_wgs84.X, (double)center_wgs84.Y,0);
+                var translation = new double[] { trans.X, trans.Y, trans.Z };
+
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
                 var bbox_3857 = bbox_wgs84.ToSpherical();
                 

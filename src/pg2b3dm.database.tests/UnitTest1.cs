@@ -30,12 +30,11 @@ namespace pg2b3dm.database.tests
                 .Build();
 
             var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
-            var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, "delaware_buildings", "geom_triangle");
-            var bbox_wgs84 = bbox3d.ToWgs84();
+            var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, "delaware_buildings", "geom_triangle");
             var bbox_3857 = bbox_wgs84.ToSpherical();
 
-
-            var translation = bbox3d.GetCenter().ToVector();
+            var center_wgs84 = bbox_wgs84.GetCenter();
+            var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X, (double)center_wgs84.Y, 0);
 
             var tiles = ImplicitTiling.GenerateTiles("delaware_buildings", conn, 4978, "geom_triangle",
                 bbox_3857,
@@ -43,7 +42,7 @@ namespace pg2b3dm.database.tests
                 new Tile(0,0,0),
                 new List<Tile>(),
                 string.Empty,
-                translation,
+                new double[] { translation.X, translation.Y, translation.Z },
                 "shaders",
                 string.Empty,
                 "output/content",
