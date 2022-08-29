@@ -38,7 +38,7 @@ namespace pg2b3dm
         [Option("copyright", Required = false, Default = "", HelpText = "glTF asset copyright")]
         public string Copyright { get; set; }
 
-        [Option("use_implicit_tiling", Required = true, Default = false, HelpText = "use 1.1 implicit tiling")]
+        [Option("use_implicit_tiling", Required = false, Default = true, HelpText = "use 1.1 implicit tiling")]
         public bool UseImplicitTiling { get; set; }
 
         [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile")]
