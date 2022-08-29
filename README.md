@@ -446,7 +446,7 @@ Press F5 to start debugging.
 
 - Fixing debug boundingVolumes and query parameter;
 
-- Option 'use_implicit_tiling' default value canged from False to True;
+- Option 'use_implicit_tiling' default value changed from False to True;
 
 2022-08-24: release 1.1: adding parameters sql_command_timeout (default: 30 seconds) and boundingvolume_heights (default: 0,100)
 
