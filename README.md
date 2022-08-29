@@ -37,6 +37,10 @@ by FME (using Triangulator transformer - https://www.safe.com/transformers/trian
 
 Tileset.json and b3dm tiles are by default created in the 'output/content' subdirectory (or specify output directory with   -o, --output).
 
+## Demo
+
+![Alt Text](demo_pg2b3dm.gif)
+
 ## Live Sample viewers
 
 - 3D Bag by tudelftnl - 10 million Dutch buildings in 3D Tiles https://3dbag.nl/ 
