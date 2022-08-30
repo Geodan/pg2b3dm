@@ -31,7 +31,7 @@ namespace pg2b3dm.database.tests
 
             var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
             var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, "delaware_buildings", "geom_triangle");
-            var bbox_3857 = bbox_wgs84.ToSpherical();
+            //var bbox_3857 = bbox_wgs84.ToSpherical();
 
             var center_wgs84 = bbox_wgs84.GetCenter();
             var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X, (double)center_wgs84.Y, 0);
