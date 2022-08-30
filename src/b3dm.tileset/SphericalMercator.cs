@@ -11,12 +11,5 @@ namespace B3dm.Tileset.extensions
             y = y * 20037508.34 / 180;
             return new double[] { x, y };
         }
-
-        public static double[] ToWgs84FromSphericalMercator(double x, double y)
-        {
-            var lon = x * 180 / 20037508.34;
-            var lat = Math.Atan(Math.Exp(y * Math.PI / 20037508.34)) * 360 / Math.PI - 90;
-            return new double[] { lon, lat };
-        }
     }
 }
