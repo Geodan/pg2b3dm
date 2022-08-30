@@ -19,7 +19,7 @@ namespace B3dm.Tileset
             var toX = to.X.Value.ToString(CultureInfo.InvariantCulture);
             var toY = to.Y.Value.ToString(CultureInfo.InvariantCulture);
 
-            var sql = $"select count({geometry_column}) from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_Transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 3857), {epsg})) {query}";
+            var sql = $"select count({geometry_column}) from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), ST_Transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 4326), {epsg})) {query}";
             conn.Open();
             var cmd = new NpgsqlCommand(sql, conn);
             var reader = cmd.ExecuteReader();
@@ -30,10 +30,10 @@ namespace B3dm.Tileset
             return count;
         }
 
-        public static BoundingBox3D GetBoundingBox3DForTable(IDbConnection conn, string geometry_table, string geometry_column, string query = "")
+        public static BoundingBox GetBoundingBoxForTable(IDbConnection conn, string geometry_table, string geometry_column, string query = "")
         {
             var where = GetWhere(query);
-            var sqlBounds = $"SELECT st_xmin(geom1),st_ymin(geom1), st_zmin(geom1), st_xmax(geom1), st_ymax(geom1), st_zmax(geom1) FROM (select ST_3DExtent({geometry_column}) as geom1 from {geometry_table} {where}) as t";
+            var sqlBounds = $"SELECT st_xmin(geom1),st_ymin(geom1), st_xmax(geom1), st_ymax(geom1) FROM (select ST_Transform(ST_3DExtent({geometry_column}), 4326) as geom1 from {geometry_table} {where}) as t";
             var bbox3d = GetBounds(conn, sqlBounds);
             return bbox3d;
         }
@@ -43,7 +43,7 @@ namespace B3dm.Tileset
             return (query != string.Empty ? $" where {query}" : String.Empty);
         }
 
-        private static BoundingBox3D GetBounds(IDbConnection conn, string sql)
+        private static BoundingBox GetBounds(IDbConnection conn, string sql)
         {
             conn.Open();
             var cmd = conn.CreateCommand();
@@ -52,14 +52,12 @@ namespace B3dm.Tileset
             reader.Read();
             var xmin = reader.GetDouble(0);
             var ymin = reader.GetDouble(1);
-            var zmin = reader.GetDouble(2);
-            var xmax = reader.GetDouble(3);
-            var ymax = reader.GetDouble(4);
-            var zmax = reader.GetDouble(5);
-            var bbox3d = new BoundingBox3D() { XMin = xmin, YMin = ymin, ZMin = zmin, ZMax = zmax, XMax = xmax, YMax = ymax };
+            var xmax = reader.GetDouble(2);
+            var ymax = reader.GetDouble(3);
+            var bbox = new BoundingBox(xmin, ymin, xmax, ymax);
             reader.Close();
             conn.Close();
-            return bbox3d;
+            return bbox;
         }
 
         private static string GetGeometryColumn(string geometry_column, double[] translation)
@@ -91,7 +89,7 @@ namespace B3dm.Tileset
         {
             return $" WHERE  ST_Intersects(" +
                 $"ST_Centroid(ST_Envelope({geometry_column})), " +
-                $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 3857), {epsg}) " +
+                $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326), {epsg}) " +
                 $") {lodQuery}";
         }
 

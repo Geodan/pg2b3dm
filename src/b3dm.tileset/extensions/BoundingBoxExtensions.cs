@@ -1,24 +1,9 @@
-﻿using System;
-using Wkx;
+﻿using Wkx;
 
 namespace B3dm.Tileset.extensions
 {
     public static class BoundingBoxExtensions
     {
-        public static BoundingBox ToSpherical(this BoundingBox bb)
-        {
-            var from = SphericalMercator.ToSphericalMercatorFromWgs84(bb.XMin, bb.YMin);
-            var to = SphericalMercator.ToSphericalMercatorFromWgs84(bb.XMax, bb.YMax);
-            return new BoundingBox(from[0], from[1], to[0], to[1]);
-        }
-
-        public static BoundingBox ToLatLon(this BoundingBox bb)
-        {
-            var from = SphericalMercator.ToWgs84FromSphericalMercator(bb.XMin, bb.YMin);
-            var to = SphericalMercator.ToWgs84FromSphericalMercator(bb.XMax, bb.YMax);
-            return new BoundingBox(from[0], from[1], to[0], to[1]);
-        }
-
         public static BoundingBox ToRadians(this BoundingBox bb)
         {
             var minx = ConvertToRadians(bb.XMin);
@@ -35,7 +20,14 @@ namespace B3dm.Tileset.extensions
 
         private static double ConvertToRadians(double angle)
         {
-            return (Math.PI / 180) * angle;
+            return Radian.ToRadius(angle);
+        }
+
+        public static Point GetCenter(this BoundingBox bb)
+        {
+            var x = (bb.XMax + bb.XMin) / 2;
+            var y = (bb.YMax + bb.YMin) / 2;
+            return new Point(x, y, 0);
         }
     }
 }

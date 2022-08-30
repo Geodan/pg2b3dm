@@ -10,6 +10,7 @@ using Npgsql;
 using B3dm.Tileset.extensions;
 using Newtonsoft.Json;
 using Tile = B3dm.Tileset.Tile;
+using Humanizer;
 
 namespace pg2b3dm
 {
@@ -35,7 +36,7 @@ namespace pg2b3dm
                     Console.WriteLine();
                 }
 
-                Console.WriteLine($"Start processing {DateTime.Now}....");
+                Console.WriteLine($"Start processing {DateTime.Now.ToLocalTime().ToString("s")}....");
 
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
@@ -47,9 +48,9 @@ namespace pg2b3dm
 
                 Console.WriteLine($"Input table: {o.GeometryTable}");
                 if (o.Query != String.Empty) {
-                    Console.WriteLine($"Query:  {o.Query??"-"}");
+                    Console.WriteLine($"Query:  {o.Query ?? "-"}");
                 }
-                Console.WriteLine($"input geometry column: {o.GeometryColumn}");
+                Console.WriteLine($"Input geometry column: {o.GeometryColumn}");
 
                 var geometryTable = o.GeometryTable;
                 var geometryColumn = o.GeometryColumn;
@@ -65,16 +66,16 @@ namespace pg2b3dm
 
                 var conn = new NpgsqlConnection(connectionString);
 
-                var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, geometryTable, lodcolumn,query) : new List<int> { 0 });
-                if((geometricErrors.Length != lods.Count + 1) && lodcolumn==string.Empty) {
-                    Console.WriteLine($"Lod levels: [{ String.Join(',', lods)}]");
+                var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, geometryTable, lodcolumn, query) : new List<int> { 0 });
+                if ((geometricErrors.Length != lods.Count + 1) && lodcolumn == string.Empty) {
+                    Console.WriteLine($"Lod levels: [{String.Join(',', lods)}]");
                     Console.WriteLine($"Geometric errors: {o.GeometricErrors}");
 
                     Console.WriteLine("Error: parameter -g --geometricerrors is wrongly specified...");
                     Console.WriteLine("end of program...");
                     Environment.Exit(0);
                 }
-                if (lodcolumn != String.Empty){
+                if (lodcolumn != String.Empty) {
                     Console.WriteLine($"Lod levels: {String.Join(',', lods)}");
 
                     if (lods.Count >= geometricErrors.Length) {
@@ -93,23 +94,31 @@ namespace pg2b3dm
                 var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
                 Console.WriteLine($"Spatial reference: {sr}");
                 Console.WriteLine($"Query bounding box for table {geometryTable}...");
-                var bbox3d = BoundingBoxRepository.GetBoundingBox3DForTable(conn, geometryTable, geometryColumn, query);
-                var bbox_wgs84 = bbox3d.ToWgs84();
-                Console.WriteLine($"Bounding box for table (WGS84): {Math.Round(bbox_wgs84.XMin,4)}, {Math.Round(bbox_wgs84.YMin,4)}, {Math.Round(bbox_wgs84.XMax,4)}, {Math.Round(bbox_wgs84.YMax,4)}");
+                var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, geometryTable, geometryColumn, query);
+                Console.WriteLine($"Bounding box for table (WGS84): {Math.Round(bbox_wgs84.XMin, 4)}, {Math.Round(bbox_wgs84.YMin, 4)}, {Math.Round(bbox_wgs84.XMax, 4)}, {Math.Round(bbox_wgs84.YMax, 4)}");
 
                 var heightsArray = o.BoundingVolumeHeights.Split(',');
                 (double min, double max) heights = (double.Parse(heightsArray[0]), double.Parse(heightsArray[1]));
 
-                Console.WriteLine($"Heights for boundingVolumes: [{heights.min} m, {heights.max} m] ");
-                var translation = bbox3d.GetCenter().ToVector();
+                Console.WriteLine($"Heights for bounding volume: [{heights.min} m, {heights.max} m] ");
+                var center_wgs84 = bbox_wgs84.GetCenter();
+
+                double[] translation;
+                if (sr == 4978) {
+                    var v3 = SpatialConverter.GeodeticToEcef((double)center_wgs84.X, (double)center_wgs84.Y, 0);
+                    translation = new double[] { v3.X, v3.Y, v3.Z };
+                }
+                else {
+                    translation = SphericalMercator.ToSphericalMercatorFromWgs84((double)center_wgs84.X, (double)center_wgs84.Y);
+                }
+
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
-                var bbox_3857 = bbox_wgs84.ToSpherical();
-                
+
                 var att = !string.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
                 Console.WriteLine($"Attribute columns: {att}");
 
                 var rootBoundingVolumeRegion = bbox_wgs84.ToRadians().ToRegion(heights.min, heights.max);
-                
+
                 var contentDirectory = $"{output}{Path.AltDirectorySeparatorChar}content";
                 var subtreesDirectory = $"{output}{Path.AltDirectorySeparatorChar}subtrees";
 
@@ -120,8 +129,9 @@ namespace pg2b3dm
                 Console.WriteLine($"Maximum features per tile: " + o.MaxFeaturesPerTile);
 
                 var tile = new Tile(0, 0, 0);
-                tile.BoundingBox = bbox_3857;
-                var tiles = ImplicitTiling.GenerateTiles(geometryTable, conn, sr, geometryColumn, bbox_3857, o.MaxFeaturesPerTile, tile, new List<Tile>(), query, translation, o.ShadersColumn, o.AttributeColumns, contentDirectory, o.Copyright);
+                tile.BoundingBox = bbox_wgs84;
+                Console.WriteLine($"Start generating tiles...");
+                var tiles = ImplicitTiling.GenerateTiles(geometryTable, conn, sr, geometryColumn, bbox_wgs84, o.MaxFeaturesPerTile, tile, new List<Tile>(), query, translation, o.ShadersColumn, o.AttributeColumns, contentDirectory, o.Copyright);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
@@ -140,7 +150,6 @@ namespace pg2b3dm
                     Console.WriteLine("SubtreeLevels: " + subtreeLevels);
                     Console.WriteLine("SubdivisionScheme: QUADTREE");
                     Console.WriteLine("Refine method: ADD");
-                    Console.WriteLine($"Geometric errors: {geometricErrors[0]}");
                     Console.WriteLine($"Writing {file}...");
 
                     var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
@@ -153,15 +162,15 @@ namespace pg2b3dm
 
                 stopWatch.Stop();
                 Console.WriteLine();
-                Console.WriteLine($"Elapsed: {stopWatch.ElapsedMilliseconds / 1000} seconds");
-                Console.WriteLine($"Program finished {DateTime.Now}.");
+                Console.WriteLine($"Elapsed: {TimeSpan.FromMilliseconds(stopWatch.ElapsedMilliseconds).Humanize()}");
+                Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");
             });
         }
 
         private static byte[] GenerateSubtreefile(List<Tile> tiles)
         {
             var subtreeTiles = new List<subtree.Tile>();
-            foreach(var t in tiles) {
+            foreach (var t in tiles) {
                 subtreeTiles.Add(new subtree.Tile(t.Z, t.X, t.Y, t.Available));
             }
 

@@ -87,7 +87,7 @@ namespace B3dm.Tileset
             };
             child.content.uri = $"content/{tile.Z}_{tile.X}_{tile.Y}.b3dm";
 
-            var region = tile.BoundingBox.ToLatLon().ToRadians().ToRegion(minheight,maxheight);
+            var region = tile.BoundingBox.ToRadians().ToRegion(minheight,maxheight);
             child.boundingVolume = new Boundingvolume {
                 region = region
             };

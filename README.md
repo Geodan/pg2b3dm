@@ -349,7 +349,7 @@ Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
-- 1.2.1 stable build
+- 1.2.2 stable build
 
 - latest: is build automatically after push to master
 
@@ -445,6 +445,8 @@ Press F5 to start debugging.
 - Subtree (https://github.com/bertt/subtree) - for subtree file handling
 
 ## History
+
+2022-08-30: release 1.2.2, fixing inital boundingbox issue
 
 2022-08-29: release 1.2.1 
 

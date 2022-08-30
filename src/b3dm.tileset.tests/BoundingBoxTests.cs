@@ -10,10 +10,10 @@ namespace B3dm.Tileset.Tests
         [Test]
         public void FirstTEst()
         {
-            var bbLibertyIsland = new BoundingBox(-74.049949, 40.687549, -74.039741, 40.691747);
+            var bbdenhelder = new BoundingBox(4.709058, 52.945690, 4.790726, 52.973842);
             // var bb = new BoundingBox(4.9777, 52.1021, 5.1859, 52.0682);
             //var bb_dela = new BoundingBox(-75.6145, 39.0964, -75.4353, 39.2124);
-            var radians = bbLibertyIsland.ToRadians();
+            var radians = bbdenhelder.ToRadians();
 
             var s= $"{radians.XMin}, {radians.YMin}, {radians.XMax}, {radians.YMax}";
         }
