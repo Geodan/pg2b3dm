@@ -130,6 +130,7 @@ namespace pg2b3dm
 
                 var tile = new Tile(0, 0, 0);
                 tile.BoundingBox = bbox_wgs84;
+                Console.WriteLine($"Start generating tiles...");
                 var tiles = ImplicitTiling.GenerateTiles(geometryTable, conn, sr, geometryColumn, bbox_wgs84, o.MaxFeaturesPerTile, tile, new List<Tile>(), query, translation, o.ShadersColumn, o.AttributeColumns, contentDirectory, o.Copyright);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
