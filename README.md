@@ -1,7 +1,7 @@
 # pg2b3dm
  
  ![Build status](https://github.com/Geodan/pg2b3dm/workflows/.NET%20Core/badge.svg)[![Nuget](https://img.shields.io/nuget/vpre/pg2b3dm)](https://www.nuget.org/packages/pg2b3dm)
-[![Discord](https://img.shields.io/discord/1013017110814932993)](https://discord.gg/uSKvUwPgmG)
+ [![Matrix](https://img.shields.io/matrix/3d-tiles:matrix.org.svg?style=flat)](https://matrix.to/#/#3d-tiles:matrix.org)
 
 
 Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software started as a port of py3dtiles (https://github.com/Oslandia/py3dtiles) for generating b3dm tiles. 
