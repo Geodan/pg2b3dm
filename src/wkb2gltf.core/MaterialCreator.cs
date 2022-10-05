@@ -28,16 +28,22 @@ namespace Wkb2Gltf
                 material.WithEmissive(ColorToVector3(ColorTranslator.FromHtml(shader.EmissiveColor)));
             }
             if (shader.PbrSpecularGlossiness != null) {
+#pragma warning disable CS0618 // Type or member is obsolete
                 material.WithSpecularGlossinessShader();
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 if (!string.IsNullOrEmpty(shader.PbrSpecularGlossiness.DiffuseColor)) {
+#pragma warning disable CS0618 // Type or member is obsolete
                     material.WithDiffuse(ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.DiffuseColor)));
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
                 if (!string.IsNullOrEmpty(shader.PbrSpecularGlossiness.SpecularGlossiness)) {
                     var c = ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.SpecularGlossiness));
                     var specular = new Vector3(c.X, c.Y, c.Z);
                     var glossiness = c.Z;
+#pragma warning disable CS0618 // Type or member is obsolete
                     material.WithSpecularGlossiness(specular, glossiness);
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
             }
             else if (shader.PbrMetallicRoughness != null) {
