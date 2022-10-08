@@ -46,6 +46,11 @@ Tileset.json and b3dm tiles are by default created in the 'output/content' subdi
 
 - 3D Bag by tudelftnl - 10 million Dutch buildings in 3D Tiles https://3dbag.nl/ 
 
+- Baupotential analyse -  https://www.modoplus.de/
+
+![image](https://user-images.githubusercontent.com/538812/194698451-b4c2b1ed-b99b-411c-97d3-34939d32d588.png)
+
+
 - FOSS4G presentations
 
 Presentation at FOSS4G 2021: A fast web 3D viewer for 11 million buildings https://www.youtube.com/watch?v=1_JM2Xf5mDk
