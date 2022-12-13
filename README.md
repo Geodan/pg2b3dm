@@ -401,7 +401,7 @@ https://dotnet.microsoft.com/download/dotnet/6.0
 
 Installation guide see https://docs.microsoft.com/en-us/dotnet/core/install/
 
-Build app:
+To run the app:
 
 ```
 $ git clone https://github.com/Geodan/pg2b3dm.git
