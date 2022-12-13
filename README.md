@@ -405,7 +405,7 @@ Build app:
 
 ```
 $ git clone https://github.com/Geodan/pg2b3dm.git
-$ cd src/pg2b3dm
+$ cd pg2b3dm/src/pg2b3dm
 $ dotnet run -- -h my_host -U my_user -d my_database -t my_schema.my_table
 ```
 
