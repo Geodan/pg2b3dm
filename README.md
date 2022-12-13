@@ -409,7 +409,7 @@ $ cd src/pg2b3dm
 $ dotnet run -- -h my_host -U my_user -d my_database -t my_schema.my_table
 ```
 
-To create an self-contained executable '~/bin/pg2b3dm':
+To create an self-contained executable '~/bin/pg2b3dm' for Linux:
 
 ```
 $ git clone https://github.com/Geodan/pg2b3dm.git
@@ -418,6 +418,8 @@ $ dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true
 $ cp ./bin/Release/net6.0/linux-x64/publish/pg2b3dm ~/bin
 $ ~/bin/pg2b3dm
 ```
+
+Alternative options for parameter -r in dotnet publish: 'osx-x64' (Mac), 'win-x64' (Windows)
 
 ## Debugging in Visual Studio Code
 
