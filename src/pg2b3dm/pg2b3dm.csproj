@@ -3,7 +3,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-	<PackAsTool>true</PackAsTool>
 	<PackageOutputPath>./nupkg</PackageOutputPath>
 	<ToolCommandName>pg2b3dm</ToolCommandName>
 	<Version>1.2.3</Version>
