@@ -405,9 +405,8 @@ Build app:
 
 ```
 $ git clone https://github.com/Geodan/pg2b3dm.git
-$ cd pg2b3dm/src
-$ dotnet build
-$ dotnet run
+$ cd src/pg2b3dm
+$ dotnet run -- -h my_host -U my_user -d my_database -t my_schema.my_table
 ```
 
 To create an self-contained executable '~/bin/pg2b3dm':
