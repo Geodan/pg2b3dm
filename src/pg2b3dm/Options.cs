@@ -39,7 +39,7 @@ namespace pg2b3dm
         public string Copyright { get; set; }
 
         [Option("use_implicit_tiling", Required = false, Default = true, HelpText = "use 1.1 implicit tiling")]
-        public bool UseImplicitTiling { get; set; }
+        public bool? UseImplicitTiling { get; set; }
 
         [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile")]
         public int MaxFeaturesPerTile { get; set; }

@@ -454,6 +454,8 @@ Press F5 to start debugging.
 
 ## History
 
+2022-12-13: release 1.2.3, fixing parameter use_implicit_tiling
+
 2022-08-30: release 1.2.2, fixing initial boundingbox issue
 
 2022-08-29: release 1.2.1 

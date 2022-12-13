@@ -57,8 +57,8 @@ namespace pg2b3dm
                 var lodcolumn = o.LodColumn;
                 var query = o.Query;
                 var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse);
-
-                if (o.UseImplicitTiling) {
+                var useImplicitTiling = (bool)o.UseImplicitTiling;
+                if (useImplicitTiling) {
                     if (args.Contains("-l") || args.Contains("--lodcolumn")) {
                         Console.WriteLine("Warning: parameter -l --lodcolumn is ignored with implicit tiling");
                     }
@@ -84,7 +84,7 @@ namespace pg2b3dm
                     }
                 };
 
-                if (!o.UseImplicitTiling) {
+                if (!useImplicitTiling) {
                     Console.WriteLine("Geometric errors: " + String.Join(',', geometricErrors));
                 }
                 else {
@@ -135,7 +135,7 @@ namespace pg2b3dm
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
-                if (o.UseImplicitTiling) {
+                if (useImplicitTiling) {
                     if (!Directory.Exists(subtreesDirectory)) {
                         Directory.CreateDirectory(subtreesDirectory);
                     }
