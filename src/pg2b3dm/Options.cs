@@ -26,9 +26,6 @@ namespace pg2b3dm
         [Option('g', "geometricerrors", Required = false, Default = "2024,0", HelpText = "Geometric errors")]
         public string GeometricErrors { get; set; }
 
-        [Option("refine", Required = false, Default = "REPLACE", HelpText = "Refinement method (ADD/REPLACE)")]
-        public string Refinement { get; set; }
-
         [Option("shaderscolumn", Required = false, Default = "", HelpText = "shaders column")]
         public string ShadersColumn { get; set; }
 

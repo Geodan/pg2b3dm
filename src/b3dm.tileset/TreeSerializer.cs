@@ -7,19 +7,19 @@ namespace B3dm.Tileset
 {
     public static class TreeSerializer
     {
-        public static string ToJson(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, string refinement, double minheight, double maxheight, Version version = null)
+        public static string ToJson(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null)
         {
-            var tileset = ToTileset(tiles, transform, region, geometricErrors, refinement, minheight, maxheight, version);
+            var tileset = ToTileset(tiles, transform, region, geometricErrors, minheight, maxheight, version);
             var json = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
             return json; ;
         }
 
-        public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int subtreeLevels, string refinementMethod, Version version=null)
+        public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int subtreeLevels, Version version=null)
         {
             var geometricError = maxGeometricError;
             var tileset = GetTilesetObject(version);
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
-            var root = GetRoot(geometricError, t, box, refinementMethod);
+            var root = GetRoot(geometricError, t, box);
             var content = new Content() { uri = "content/{level}_{x}_{y}.b3dm" };
             root.content = content;
             var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };
@@ -28,11 +28,11 @@ namespace B3dm.Tileset
             return tileset;
         }
 
-        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, string refinement, double minheight, double maxheight, Version version = null)
+        public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null)
         {
             var tileset = GetTilesetObject(version);
             var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
-            var root = GetRoot(geometricErrors[0], t, region, refinement);
+            var root = GetRoot(geometricErrors[0], t, region);
             var children = GetChildren(tiles, geometricErrors[1], minheight, maxheight);
             root.children = children;
             tileset.root = root;
@@ -46,7 +46,7 @@ namespace B3dm.Tileset
             };
         }
 
-        private static Root GetRoot(double geometricError, double[] translation, double[] region, string refinement)
+        private static Root GetRoot(double geometricError, double[] translation, double[] region)
         {
             var boundingVolume = new Boundingvolume {
                 region = region
@@ -54,7 +54,7 @@ namespace B3dm.Tileset
 
             var root = new Root {
                 geometricError = geometricError,
-                refine = refinement,
+                refine = "ADD",
                 transform = translation,
                 boundingVolume = boundingVolume
             };
