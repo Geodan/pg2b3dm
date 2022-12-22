@@ -98,14 +98,12 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -a, --attributecolumns (Default: '') attributes column names (comma separated)
 
-  -g, --geometricerrors  (Default: 500, 0) Geometric errors
+  -g, --geometricerrors  (Default: 2000, 0) Geometric errors
 
   -q, --query            (Default: '') Query parameter
 
    --copyright           (Default: '') glTF copyright 
 
-   --refine              (Default: REPLACE) Refinement method (REPLACE/ADD)
-  
   --shaderscolumn        (Default: '') shaders column
 
   --use_implicit_tiling  (Default: True) Use 3D Tiles 1.1 Implicit tiling

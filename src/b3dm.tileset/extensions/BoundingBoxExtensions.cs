@@ -1,33 +1,32 @@
 ﻿using Wkx;
 
-namespace B3dm.Tileset.extensions
+namespace B3dm.Tileset.extensions;
+
+public static class BoundingBoxExtensions
 {
-    public static class BoundingBoxExtensions
+    public static BoundingBox ToRadians(this BoundingBox bb)
     {
-        public static BoundingBox ToRadians(this BoundingBox bb)
-        {
-            var minx = ConvertToRadians(bb.XMin);
-            var miny = ConvertToRadians(bb.YMin);
-            var maxx = ConvertToRadians(bb.XMax);
-            var maxy = ConvertToRadians(bb.YMax);
-            return new BoundingBox(minx, miny, maxx, maxy);
-        }
+        var minx = ConvertToRadians(bb.XMin);
+        var miny = ConvertToRadians(bb.YMin);
+        var maxx = ConvertToRadians(bb.XMax);
+        var maxy = ConvertToRadians(bb.YMax);
+        return new BoundingBox(minx, miny, maxx, maxy);
+    }
 
-        public static double[] ToRegion(this BoundingBox bb, double minheight, double maxheight)
-        {
-            return new double[] { bb.XMin, bb.YMin, bb.XMax, bb.YMax, minheight, maxheight };
-        }
+    public static double[] ToRegion(this BoundingBox bb, double minheight, double maxheight)
+    {
+        return new double[] { bb.XMin, bb.YMin, bb.XMax, bb.YMax, minheight, maxheight };
+    }
 
-        private static double ConvertToRadians(double angle)
-        {
-            return Radian.ToRadius(angle);
-        }
+    private static double ConvertToRadians(double angle)
+    {
+        return Radian.ToRadius(angle);
+    }
 
-        public static Point GetCenter(this BoundingBox bb)
-        {
-            var x = (bb.XMax + bb.XMin) / 2;
-            var y = (bb.YMax + bb.YMin) / 2;
-            return new Point(x, y, 0);
-        }
+    public static Point GetCenter(this BoundingBox bb)
+    {
+        var x = (bb.XMax + bb.XMin) / 2;
+        var y = (bb.YMax + bb.YMin) / 2;
+        return new Point(x, y, 0);
     }
 }

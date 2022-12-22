@@ -1,13 +1,12 @@
 ﻿using System;
 
-namespace B3dm.Tileset
+namespace B3dm.Tileset;
+
+public static class Radian
 {
-    public static class Radian
+    public static double ToRadius(double degrees)
     {
-        public static double ToRadius(double degrees)
-        {
-            double radians = (Math.PI / 180) * degrees;
-            return (radians);
-        }
+        double radians = (Math.PI / 180) * degrees;
+        return (radians);
     }
 }

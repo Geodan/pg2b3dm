@@ -1,10 +1,9 @@
 ﻿using SharpGLTF.Materials;
 
-namespace Wkb2Gltf
+namespace Wkb2Gltf;
+
+public class MaterialAndShader
 {
-    public class MaterialAndShader
-    {
-        public Shader Shader { get; set; }
-        public MaterialBuilder MaterialBuilder { get; set; }
-    }
+    public Shader Shader { get; set; }
+    public MaterialBuilder MaterialBuilder { get; set; }
 }

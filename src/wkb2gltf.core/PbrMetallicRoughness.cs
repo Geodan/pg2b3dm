@@ -1,27 +1,24 @@
-﻿namespace Wkb2Gltf
+﻿namespace Wkb2Gltf;
+
+public class PbrMetallicRoughness
 {
-    public class PbrMetallicRoughness
+    public string MetallicRoughness { get; set; }
+
+    public string BaseColor { get; set; }
+
+
+    public override bool Equals(object other)
     {
-        public string MetallicRoughness { get; set; }
-
-        public string BaseColor { get; set; }
-
-
-        public override bool Equals(object other)
-        {
-            var otherObject = (PbrMetallicRoughness)other;
-            if (MetallicRoughness == otherObject.MetallicRoughness && BaseColor == otherObject.BaseColor) {
-                return true;
-            }
-            return false;
+        var otherObject = (PbrMetallicRoughness)other;
+        if (MetallicRoughness == otherObject.MetallicRoughness && BaseColor == otherObject.BaseColor) {
+            return true;
         }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
+        return false;
     }
 
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
+    }
 
 }
