@@ -55,7 +55,7 @@ public static class ImplicitTiling
                 var file = $"{outputFolder}{Path.AltDirectorySeparatorChar}{tile.Z}_{tile.X}_{tile.Y}.b3dm";
                 Console.Write($"\rCreating tile: {file}  ");
 
-                var geometries = BoundingBoxRepository.GetGeometrySubset(conn, table, geometry_column, translation, tile, epsg, colorColumn, attributesColumn, lodColumn, query);
+                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometry_column, translation, tile, epsg, colorColumn, attributesColumn, lodColumn, query);
                 var bytes = B3dmWriter.ToB3dm(geometries, copyright);
 
                 File.WriteAllBytes(file, bytes);
