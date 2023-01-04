@@ -132,7 +132,8 @@ class Program
             var tile = new Tile(0, 0, 0);
             tile.BoundingBox = bbox_wgs84;
             Console.WriteLine($"Start generating tiles...");
-            var tiles = ImplicitTiling.GenerateTiles(geometryTable, conn, sr, geometryColumn, bbox_wgs84, o.MaxFeaturesPerTile, tile, new List<Tile>(), query, translation, o.ShadersColumn, o.AttributeColumns, o.LodColumn, contentDirectory, lods, o.Copyright);
+            var implicitTiler = new ImplicitTiler(geometryTable, conn, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, o.LodColumn, contentDirectory, lods, o.Copyright);
+            var tiles = implicitTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>());
             Console.WriteLine();
             Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 

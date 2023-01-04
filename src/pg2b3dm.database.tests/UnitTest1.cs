@@ -35,19 +35,18 @@ public class UnitTest1
         var center_wgs84 = bbox_wgs84.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X, (double)center_wgs84.Y, 0);
 
-        var tiles = ImplicitTiling.GenerateTiles("delaware_buildings", conn, 4978, "geom_triangle",
-            bbox_wgs84,
-            50,
-            new Tile(0,0,0),
-            new List<Tile>(),
-            string.Empty,
+        var implicitTiler = new ImplicitTiler("delaware_buildings", conn, 4978, "geom_triangle", 50, string.Empty,
             new double[] { translation.X, translation.Y, translation.Z },
             "shaders",
             string.Empty,
             string.Empty,
             "output/content",
             new List<int>() { 0 },
-            skipCreateTiles: true);
+            skipCreateTiles: true);        
+            var tiles = implicitTiler.GenerateTiles(
+            bbox_wgs84,
+            new Tile(0,0,0),
+            new List<Tile>());
         Assert.IsTrue(tiles.Count == 29);
     }
 }
