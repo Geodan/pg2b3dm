@@ -6,6 +6,6 @@ public static class LodQuery
 {
     public static string GetLodQuery(string lodcolumn, int lod)
     {
-        return lodcolumn != String.Empty ? $" and {lodcolumn}={lod}" : "";
+        return lodcolumn != String.Empty ? $"{lodcolumn}={lod}" : "";
     }
 }

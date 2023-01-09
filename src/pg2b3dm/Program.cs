@@ -62,14 +62,17 @@ class Program
             if (useImplicitTiling) {
                 if (args.Contains("-l") || args.Contains("--lodcolumn")) {
                     Console.WriteLine("Warning: parameter -l --lodcolumn is ignored with implicit tiling");
+                    lodcolumn = String.Empty;
                 }
             }
+            Console.WriteLine($"Lod column: {lodcolumn}");
+            Console.WriteLine($"Geometric errors: {String.Join(',',geometricErrors)}");
 
             var conn = new NpgsqlConnection(connectionString);
 
             var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, geometryTable, lodcolumn, query) : new List<int> { 0 });
             if ((geometricErrors.Length != lods.Count + 1) && lodcolumn == string.Empty) {
-                Console.WriteLine($"Lod levels: [{String.Join(',', lods)}]");
+                Console.WriteLine($"Lod levels from database column {lodcolumn}: [{String.Join(',', lods)}]");
                 Console.WriteLine($"Geometric errors: {o.GeometricErrors}");
 
                 Console.WriteLine("Error: parameter -g --geometricerrors is wrongly specified...");
@@ -82,21 +85,22 @@ class Program
                 if (lods.Count >= geometricErrors.Length) {
                     Console.WriteLine($"Calculating geometric errors starting from {geometricErrors[0]}");
                     geometricErrors = GeometricErrorCalculator.GetGeometricErrors(geometricErrors[0], lods);
+                    Console.WriteLine($"Calculated geometric errors (for {lods.Count} levels): {geometricErrors}");
                 }
             };
 
             if (!useImplicitTiling) {
-                Console.WriteLine("Geometric errors: " + String.Join(',', geometricErrors));
+                Console.WriteLine("Geometric errors used: " + String.Join(',', geometricErrors));
             }
             else {
-                Console.WriteLine("Geometric error: " + geometricErrors[0]);
+                Console.WriteLine("Geometric error used for implicit tiling: " + geometricErrors[0]);
             }
 
             var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
-            Console.WriteLine($"Spatial reference: {sr}");
-            Console.WriteLine($"Query bounding box for table {geometryTable}...");
+            Console.WriteLine($"Spatial reference of {geometryTable}.{geometryColumn}: {sr}");
+            Console.WriteLine($"Query bounding box of {geometryTable}.{geometryColumn}...");
             var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, geometryTable, geometryColumn, query);
-            Console.WriteLine($"Bounding box for table (WGS84): {Math.Round(bbox_wgs84.XMin, 4)}, {Math.Round(bbox_wgs84.YMin, 4)}, {Math.Round(bbox_wgs84.XMax, 4)}, {Math.Round(bbox_wgs84.YMax, 4)}");
+            Console.WriteLine($"Bounding box for {geometryTable}.{geometryColumn} (in WGS84): {Math.Round(bbox_wgs84.XMin, 4)}, {Math.Round(bbox_wgs84.YMin, 4)}, {Math.Round(bbox_wgs84.XMax, 4)}, {Math.Round(bbox_wgs84.YMax, 4)}");
 
             var heightsArray = o.BoundingVolumeHeights.Split(',');
             (double min, double max) heights = (double.Parse(heightsArray[0]), double.Parse(heightsArray[1]));
@@ -112,9 +116,9 @@ class Program
             else {
                 translation = SphericalMercator.ToSphericalMercatorFromWgs84((double)center_wgs84.X, (double)center_wgs84.Y);
             }
+            Console.WriteLine($"Translation: {String.Join(',', translation)}");
 
             Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
-
             var att = !string.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
             Console.WriteLine($"Attribute columns: {att}");
 
@@ -132,7 +136,7 @@ class Program
             var tile = new Tile(0, 0, 0);
             tile.BoundingBox = bbox_wgs84;
             Console.WriteLine($"Start generating tiles...");
-            var implicitTiler = new ImplicitTiler(geometryTable, conn, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, o.LodColumn, contentDirectory, lods, o.Copyright);
+            var implicitTiler = new QuadtreeTiler(conn, geometryTable, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright);
             var tiles = implicitTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>());
             Console.WriteLine();
             Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
@@ -158,6 +162,7 @@ class Program
                 File.WriteAllText(file, json);
             }
             else {
+                var refine = lodcolumn != String.Empty ? "REPLACE" : "ADD";
                 var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, heights.min, heights.max, version);
                 File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
             }

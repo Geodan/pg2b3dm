@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using B3dm.Tileset;
 using Npgsql;
 using Wkx;
 
 namespace pg2b3dm;
 
-public class ImplicitTiler
+public class QuadtreeTiler
 {
     private readonly string table;
     private readonly NpgsqlConnection conn;
@@ -24,7 +25,7 @@ public class ImplicitTiler
     private readonly string copyright;
     private readonly bool skipCreateTiles;
 
-    public ImplicitTiler(string table, NpgsqlConnection conn, int epsg, string geometryColumn, int maxFeaturesPerTile, string query, double[] translation, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false)
+    public QuadtreeTiler(NpgsqlConnection conn, string table, int epsg, string geometryColumn, int maxFeaturesPerTile, string query, double[] translation, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false)
     {
         this.table = table;
         this.conn = conn;
@@ -42,23 +43,25 @@ public class ImplicitTiler
         this.skipCreateTiles = skipCreateTiles;
     }
 
-    public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles)
+    public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod=0)
     {
         var where = (query != string.Empty ? $" and {query}" : String.Empty);
 
-        if (lods.Count > 1) {
-            where += $" and {lodColumn}={lods[0]}";
+        var lodquery = LodQuery.GetLodQuery(lodColumn, lod);
+
+        if (lodColumn != String.Empty) {
+            where += $" and {lodquery}";
         }
+
         var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bbox.XMin, bbox.YMin), new Point(bbox.XMax, bbox.YMax), epsg, where);
 
-        var t2 = new Tile(tile.Z, tile.X, tile.Y);
         if (numberOfFeatures == 0) {
-            t2.Available = false;
-            tiles.Add(t2);
+            tile.Available = false;
+            tiles.Add(tile);
         }
         else if (numberOfFeatures > maxFeaturesPerTile) {
-            t2.Available = false;
-            tiles.Add(t2);
+            tile.Available = false;
+            tiles.Add(tile);
 
             var z = tile.Z + 1;
 
@@ -85,18 +88,37 @@ public class ImplicitTiler
 
             if (!skipCreateTiles) {
 
-                var file = $"{outputFolder}{Path.AltDirectorySeparatorChar}{tile.Z}_{tile.X}_{tile.Y}.b3dm";
+                var file = $"{tile.Z}_{tile.X}_{tile.Y}";
+                if (lodColumn != String.Empty) {
+                    file += $"_{lod}";
+                }
+                file += ".b3dm";
                 Console.Write($"\rCreating tile: {file}  ");
+                tile.ContentUri = file;
 
-                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, tile, epsg, colorColumn, attributesColumn, lodColumn, query);
+
+                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, tile, epsg, colorColumn, attributesColumn, where);
                 var bytes = B3dmWriter.ToB3dm(geometries, copyright);
+                tile.Lod = lod;
 
-                File.WriteAllBytes(file, bytes);
+                File.WriteAllBytes($"{outputFolder}{Path.AltDirectorySeparatorChar}{file}", bytes);
+
+                if(lodColumn!=String.Empty) {
+                    if (lod < lods.Max()){
+                        // take the next lod
+                        var currentIndex = lods.FindIndex(p => p == lod);
+                        var nextIndex = currentIndex + 1;
+                        var nextLod = lods[nextIndex];
+                        var t2=new Tile(tile.X, tile.Y, tile.Z);
+                        t2.BoundingBox = tile.BoundingBox;
+                        var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod);
+                        tile.Children=lodNextTiles;
+                    };
+                }
             }
 
-            t2.BoundingBox = tile.BoundingBox;
-            t2.Available = true;
-            tiles.Add(t2);
+            tile.Available = true;
+            tiles.Add(tile);
         }
 
         return tiles;

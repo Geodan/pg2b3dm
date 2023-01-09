@@ -12,32 +12,30 @@ namespace B3dm.Tileset;
 
 public static class GeometryRepository
 {
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string lodColumn = "", string query = "")
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
     {
         var sqlselect = GetSqlSelect(geometry_column, translation, shaderColumn, attributesColumns);
         var sqlFrom = "FROM " + geometry_table;
 
-        var lodQuery = LodQuery.GetLodQuery(lodColumn, t.Lod);
         var xmin = t.BoundingBox.XMin.ToString(CultureInfo.InvariantCulture);
         var ymin = t.BoundingBox.YMin.ToString(CultureInfo.InvariantCulture);
         var xmax = t.BoundingBox.XMax.ToString(CultureInfo.InvariantCulture);
         var ymax = t.BoundingBox.YMax.ToString(CultureInfo.InvariantCulture);
 
-        var sqlWhere = GetWhere(geometry_column, epsg, xmin, ymin, xmax, ymax, lodQuery);
-        var queryWhere = (query != string.Empty ? $" and {query}" : String.Empty);
+        var sqlWhere = GetWhere(geometry_column, epsg, xmin, ymin, xmax, ymax, query);
 
-        var sql = sqlselect + sqlFrom + sqlWhere + queryWhere;
+        var sql = sqlselect + sqlFrom + sqlWhere;
 
         var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql);
         return geometries;
     }
 
-    private static string GetWhere(string geometry_column, int epsg, string xmin, string ymin, string xmax, string ymax, string lodQuery = "")
+    private static string GetWhere(string geometry_column, int epsg, string xmin, string ymin, string xmax, string ymax, string query = "")
     {
         return $" WHERE  ST_Intersects(" +
             $"ST_Centroid(ST_Envelope({geometry_column})), " +
             $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326), {epsg}) " +
-            $") {lodQuery}";
+            $") {query}";
     }
 
     private static string GetSqlSelect(string geometry_column, double[] translation, string shaderColumn, string attributesColumns)

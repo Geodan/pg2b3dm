@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection.Metadata;
 using B3dm.Tileset.extensions;
 using Newtonsoft.Json;
 
@@ -7,9 +9,9 @@ namespace B3dm.Tileset;
 
 public static class TreeSerializer
 {
-    public static string ToJson(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null)
+    public static string ToJson(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null, string refine = "ADD")
     {
-        var tileset = ToTileset(tiles, transform, region, geometricErrors, minheight, maxheight, version);
+        var tileset = ToTileset(tiles, transform, region, geometricErrors, minheight, maxheight, version, refine);
         var json = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         return json; ;
     }
@@ -28,11 +30,11 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null)
+    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null, string refine="ADD")
     {
         var tileset = GetTilesetObject(version);
         var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
-        var root = GetRoot(geometricErrors[0], t, region);
+        var root = GetRoot(geometricErrors[0], t, region, refine);
         var children = GetChildren(tiles, geometricErrors[1], minheight, maxheight);
         root.children = children;
         tileset.root = root;
@@ -46,7 +48,7 @@ public static class TreeSerializer
         };
     }
 
-    private static Root GetRoot(double geometricError, double[] translation, double[] region)
+    private static Root GetRoot(double geometricError, double[] translation, double[] region, string refine="ADD")
     {
         var boundingVolume = new Boundingvolume {
             region = region
@@ -54,7 +56,7 @@ public static class TreeSerializer
 
         var root = new Root {
             geometricError = geometricError,
-            refine = "ADD",
+            refine = refine,
             transform = translation,
             boundingVolume = boundingVolume
         };
@@ -85,7 +87,7 @@ public static class TreeSerializer
             geometricError = geometricError,
             content = new Content()
         };
-        child.content.uri = $"content/{tile.Z}_{tile.X}_{tile.Y}.b3dm";
+        child.content.uri = $"content{Path.AltDirectorySeparatorChar}{tile.ContentUri}";
 
         var region = tile.BoundingBox.ToRadians().ToRegion(minheight,maxheight);
         child.boundingVolume = new Boundingvolume {

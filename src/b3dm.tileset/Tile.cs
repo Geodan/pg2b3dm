@@ -14,7 +14,8 @@ public class Tile
         X = x;
         Y = y;
     }
-    
+    public string ContentUri { get; set; }
+
     public BoundingBox BoundingBox { get; set; }
 
     public Boundingvolume Boundingvolume { get; set; }
