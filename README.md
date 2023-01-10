@@ -3,35 +3,26 @@
  ![Build status](https://github.com/Geodan/pg2b3dm/workflows/.NET%20Core/badge.svg)[![Nuget](https://img.shields.io/nuget/vpre/pg2b3dm)](https://www.nuget.org/packages/pg2b3dm)
  [![Matrix](https://img.shields.io/matrix/3d-tiles:matrix.org.svg?style=flat)](https://matrix.to/#/#3d-tiles:matrix.org)
 
-
-Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. This software started as a port of py3dtiles (https://github.com/Oslandia/py3dtiles) for generating b3dm tiles. 
-The generated 3D Tiles can be visualized in Cesium JS/Cesium for Unreal or other 3D Tiles client viewer.
+ Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. The generated 
+ 3D Tiles can be visualized in Cesium JS/Cesium for Unreal/Unity3D or other 3D Tiles client viewer.
 
 ![mokum](https://user-images.githubusercontent.com/538812/63088752-24fa8000-bf56-11e9-9ba8-3273a21dfda0.png)
 
-Differences to py3dtiles:
+Features:
 
-- performance improvements;
+- 3D Tiles 1.1 Implicit tiling
 
-- memory usage improvements;
+- Valid glTF 2.0 support;
 
-- added 3D Tiles 1.1 Implicit tiling support
+- Shading PbrMetallicRoughness and PbrSpecularGlossiness support;
 
-- fixed glTF warnings;
+- LOD support;
 
-- added colors option;
-
-- added LOD support;
-
-- added output directory option;
-
-- added refinement method (add or replace) support;
-
-- added glTF shader support for PbrMetallicRoughness and PbrSpecularGlossiness
-
-- added query parameter support;
+- Query parameter support;
 
 - Docker support.
+
+Support for MapBox GL JS is deprecated at the moment. 
 
 To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries. Those geometries can be created 
 by FME (using Triangulator transformer - https://www.safe.com/transformers/triangulator/) or custom tesselation tools.
@@ -98,15 +89,15 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -a, --attributecolumns (Default: '') attributes column names (comma separated)
 
-  -g, --geometricerrors  (Default: 500, 0) Geometric errors
+  -g, --geometricerrors  (Default: 2000, 0) Geometric errors
 
   -q, --query            (Default: '') Query parameter
 
    --copyright           (Default: '') glTF copyright 
 
-   --refine              (Default: REPLACE) Refinement method (REPLACE/ADD)
-  
   --shaderscolumn        (Default: '') shaders column
+
+  --lodcolumn            (Default: '') LOD column
 
   --use_implicit_tiling  (Default: True) Use 3D Tiles 1.1 Implicit tiling
 
@@ -119,6 +110,12 @@ If --username and/or --dbname are not specified the current username is used as 
   --help                Display this help screen.
 
   --version             Display version information.  
+```
+
+Sample command for running pg2b3dm:
+
+```
+-h localhost -U postgres -c geom_triangle --shaderscolumn shaders -t delaware_buildings -d postgres -g 100,0 
 ```
 
 ## Installation
@@ -162,13 +159,37 @@ psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle
 
 ### LOD
 
+With the LOD function there can be multiple representations of features depending on the distance to the camera (geometric error). So 
+for example visualize a simplified geometry when the camera is far away, and a more detailed geometry when the camera is close.
+
+Sample command for using LOD's:
+
+```
+-h localhost -U postgres -c geom_triangle --shaderscolumn shaders -t delaware_buildings_lod -d postgres -g 1000,100,0 --lodcolumn lodcolumn --use_implicit_tiling false --max_features_per_tile 1000
+```
+
+The LOD function will be enabled when parameter --lodcolumn is not empty.
+
+The LOD column in the database contains integer LOD values (like 0,1). First the program queries the distinct values of 
+the LOD column.
+
+For each LOD the program will generate a tile (when there are features available). 
+
+The generated files (for example '4_6_8_0.b3dm') will have 4 parameters (x, y,z and lod). All the tiles will be included in the tileset.json, 
+corresponding with the calculated geometric error.
+
+Notes:
+
 - if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
+
+- LOD function is not available when implicit tiling is used.
 
 ### Geometric errors
 
-- By default, as geometric errors [500,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in the -g option. 
+By default, as geometric errors [2000,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in the -g option. 
 When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal intervals 
-between 500 and 0.
+between 2000 and 0.
+When using implicit tiling only the first value of the geometric errors is used, the rest is automatically calculated by implicit tiling.
 
 ### Query parameter
 
@@ -217,9 +238,9 @@ Some remarks about implicit tiling:
 
 - There is no support (yet) for implicit tiling metadata;
 
-- Parameter '-l --lodcolumn' is ignored when using impliciting tiling;
+- Parameter '-l --lodcolumn' is ignored when using implicit tiling;
 
-- Only the first value of parameter 'geometricerrors' is used in tileset.json.
+- Only the first value of parameter of geometric errors is used in tileset.json.
 
 For more information about Implicit Tiling see https://github.com/CesiumGS/3d-tiles/tree/draft-1.1/specification/ImplicitTiling
 
@@ -454,6 +475,8 @@ Press F5 to start debugging.
 - Subtree (https://github.com/bertt/subtree) - for subtree file handling
 
 ## History
+
+2023-01-10: release 1.3, adding LOD support
 
 2022-12-13: release 1.2.3, fixing parameter use_implicit_tiling
 

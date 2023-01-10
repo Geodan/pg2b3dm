@@ -1,27 +1,25 @@
-﻿
-using Npgsql;
+﻿using Npgsql;
 
-namespace pg2b3dm
+namespace pg2b3dm;
+
+public static class TrustedConnectionChecker
 {
-    public static class TrustedConnectionChecker
+    public static bool HasTrustedConnection(string connectionString)
     {
-        public static bool HasTrustedConnection(string connectionString)
-        {
-            var conn = new NpgsqlConnection(connectionString);
-            try {
-                conn.Open();
-            }
-            catch (PostgresException ex) {
-                if (ex.SqlState == "28P01") {
-                    return false;
-                }
-            }
-            catch (NpgsqlException) {
+        var conn = new NpgsqlConnection(connectionString);
+        try {
+            conn.Open();
+        }
+        catch (PostgresException ex) {
+            if (ex.SqlState == "28P01") {
                 return false;
             }
-
-            conn.Close();
-            return true;
         }
+        catch (NpgsqlException) {
+            return false;
+        }
+
+        conn.Close();
+        return true;
     }
 }

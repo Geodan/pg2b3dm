@@ -2,84 +2,82 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Wkb2Gltf
+namespace Wkb2Gltf;
+
+public class ShaderColors
 {
-    public class ShaderColors
+    public List<string> EmissiveColors { get; set; }
+    [JsonProperty(PropertyName = "PbrSpecularGlossiness")]
+    public PbrSpecularGlossinessColors PbrSpecularGlossinessColors { get; set; }
+
+    [JsonProperty(PropertyName = "PbrMetallicRoughness")]
+    public PbrMetallicRoughnessColors PbrMetallicRoughnessColors { get; set; }
+
+
+    public Shader ToShader(int i)
     {
-        public List<string> EmissiveColors { get; set; }
-        [JsonProperty(PropertyName = "PbrSpecularGlossiness")]
-        public PbrSpecularGlossinessColors PbrSpecularGlossinessColors { get; set; }
+        var shader = new Shader();
+        shader.EmissiveColor = (EmissiveColors != null ? EmissiveColors[i] : null);
 
-        [JsonProperty(PropertyName = "PbrMetallicRoughness")]
-        public PbrMetallicRoughnessColors PbrMetallicRoughnessColors { get; set; }
+        shader.PbrSpecularGlossiness = (PbrSpecularGlossinessColors != null ?
+            new PbrSpecularGlossiness() {
+                DiffuseColor = GetItem(PbrSpecularGlossinessColors.DiffuseColors, i),
+                SpecularGlossiness = GetItem(PbrSpecularGlossinessColors.SpecularGlossinessColors, i)
+            } :
+            null);
 
+        shader.PbrMetallicRoughness = (PbrMetallicRoughnessColors != null ?
+            new PbrMetallicRoughness() {
+                MetallicRoughness = GetItem(PbrMetallicRoughnessColors.MetallicRoughnessColors, i),
+                BaseColor = GetItem(PbrMetallicRoughnessColors.BaseColors, i)
+            } :
+            null);
+        return shader;
+    }
 
-        public Shader ToShader(int i)
-        {
-            var shader = new Shader();
-            shader.EmissiveColor = (EmissiveColors != null ? EmissiveColors[i] : null);
+    public void Validate(int expectedGeometries)
+    {
+        var errors = new List<string>();
+        Check(EmissiveColors, expectedGeometries, "Emissive", errors);
 
-            shader.PbrSpecularGlossiness = (PbrSpecularGlossinessColors != null ?
-                new PbrSpecularGlossiness() {
-                    DiffuseColor = GetItem(PbrSpecularGlossinessColors.DiffuseColors, i),
-                    SpecularGlossiness = GetItem(PbrSpecularGlossinessColors.SpecularGlossinessColors, i)
-                } :
-                null);
-
-            shader.PbrMetallicRoughness = (PbrMetallicRoughnessColors != null ?
-                new PbrMetallicRoughness() {
-                    MetallicRoughness = GetItem(PbrMetallicRoughnessColors.MetallicRoughnessColors, i),
-                    BaseColor = GetItem(PbrMetallicRoughnessColors.BaseColors, i)
-                } :
-                null);
-            return shader;
+        if (PbrSpecularGlossinessColors != null) {
+            Check(PbrSpecularGlossinessColors.DiffuseColors, expectedGeometries, "Diffuse", errors);
+            Check(PbrSpecularGlossinessColors.SpecularGlossinessColors, expectedGeometries, "SpecularGlossines", errors);
         }
 
-        public void Validate(int expectedGeometries)
-        {
-            var errors = new List<string>();
-            Check(EmissiveColors, expectedGeometries, "Emissive", errors);
-
-            if (PbrSpecularGlossinessColors != null) {
-                Check(PbrSpecularGlossinessColors.DiffuseColors, expectedGeometries, "Diffuse", errors);
-                Check(PbrSpecularGlossinessColors.SpecularGlossinessColors, expectedGeometries, "SpecularGlossines", errors);
-            }
-
-            if (PbrMetallicRoughnessColors != null) {
-                Check(PbrMetallicRoughnessColors.MetallicRoughnessColors, expectedGeometries, "MetallicRoughness", errors);
-                Check(PbrMetallicRoughnessColors.BaseColors, expectedGeometries, "BaseColor", errors);
-            }
-
-            if (errors.Count > 0) {
-                throw new ArgumentOutOfRangeException($"Shader error for {string.Join(", ", errors)}. Expected amount: {expectedGeometries}");
-            }
+        if (PbrMetallicRoughnessColors != null) {
+            Check(PbrMetallicRoughnessColors.MetallicRoughnessColors, expectedGeometries, "MetallicRoughness", errors);
+            Check(PbrMetallicRoughnessColors.BaseColors, expectedGeometries, "BaseColor", errors);
         }
 
-        private void Check(List<string> colors, int expectedGeometries, string error, List<string> errors)
-        {
-            if (colors != null && colors.Count != expectedGeometries) {
-                errors.Add(error);
-            }
-        }
-
-        private string GetItem(List<string> items, int i)
-        {
-            return items != null ? items[i] : null;
+        if (errors.Count > 0) {
+            throw new ArgumentOutOfRangeException($"Shader error for {string.Join(", ", errors)}. Expected amount: {expectedGeometries}");
         }
     }
 
-    public class PbrSpecularGlossinessColors
+    private void Check(List<string> colors, int expectedGeometries, string error, List<string> errors)
     {
-        public List<string> DiffuseColors { get; set; }
-        [JsonProperty(PropertyName = "SpecularGlossiness")]
-        public List<string> SpecularGlossinessColors { get; set; }
+        if (colors != null && colors.Count != expectedGeometries) {
+            errors.Add(error);
+        }
     }
 
-    public class PbrMetallicRoughnessColors
+    private string GetItem(List<string> items, int i)
     {
-        [JsonProperty(PropertyName = "MetallicRoughness")]
-        public List<string> MetallicRoughnessColors { get; set; }
-        public List<string> BaseColors { get; set; }
+        return items != null ? items[i] : null;
     }
+}
 
+public class PbrSpecularGlossinessColors
+{
+    public List<string> DiffuseColors { get; set; }
+    [JsonProperty(PropertyName = "SpecularGlossiness")]
+    public List<string> SpecularGlossinessColors { get; set; }
+}
+
+public class PbrMetallicRoughnessColors
+{
+    [JsonProperty(PropertyName = "MetallicRoughness")]
+    public List<string> MetallicRoughnessColors { get; set; }
+    public List<string> BaseColors { get; set; }
 }

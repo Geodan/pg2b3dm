@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 
-namespace Wkb2Gltf
-{
-    public class BatchTable
-    {
-        public List<BatchTableItem> BatchTableItems;
+namespace Wkb2Gltf;
 
-        public BatchTable()
-        {
-            BatchTableItems = new List<BatchTableItem>();
-        }
+public class BatchTable
+{
+    public List<BatchTableItem> BatchTableItems;
+
+    public BatchTable()
+    {
+        BatchTableItems = new List<BatchTableItem>();
     }
 }
