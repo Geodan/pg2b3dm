@@ -112,6 +112,12 @@ If --username and/or --dbname are not specified the current username is used as 
   --version             Display version information.  
 ```
 
+Sample command for running pg2b3dm:
+
+```
+-h localhost -U postgres -c geom_triangle --shaderscolumn shaders -t delaware_buildings -d postgres -g 100,0 
+```
+
 ## Installation
 
 
@@ -155,6 +161,12 @@ psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle
 
 With the LOD function there can be multiple representations of features depending on the distance to the camera (geometric error). So 
 for example visualize a simplified geometry when the camera is far away, and a more detailed geometry when the camera is close.
+
+Sample command for using LOD's:
+
+```
+-h localhost -U postgres -c geom_triangle --shaderscolumn shaders -t delaware_buildings_lod -d postgres -g 1000,100,0 --lodcolumn lodcolumn --use_implicit_tiling false --max_features_per_tile 1000
+```
 
 The LOD function will be enabled when parameter --lodcolumn is not empty.
 
