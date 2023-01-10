@@ -109,6 +109,7 @@ public class QuadtreeTiler
                         var currentIndex = lods.FindIndex(p => p == lod);
                         var nextIndex = currentIndex + 1;
                         var nextLod = lods[nextIndex];
+                        // make a copy of the tile 
                         var t2=new Tile(tile.X, tile.Y, tile.Z);
                         t2.BoundingBox = tile.BoundingBox;
                         var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod);

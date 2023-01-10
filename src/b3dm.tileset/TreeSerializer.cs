@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection.Metadata;
 using B3dm.Tileset.extensions;
 using Newtonsoft.Json;
@@ -35,7 +36,7 @@ public static class TreeSerializer
         var tileset = GetTilesetObject(version);
         var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
         var root = GetRoot(geometricErrors[0], t, region, refine);
-        var children = GetChildren(tiles, geometricErrors[1], minheight, maxheight);
+        var children = GetChildren(tiles, geometricErrors.Skip(1).ToArray(), minheight, maxheight);
         root.children = children;
         tileset.root = root;
         return tileset;
@@ -64,15 +65,15 @@ public static class TreeSerializer
         return root;
     }
 
-    private static List<Child> GetChildren(List<Tile> tiles, double geometricError, double minheight, double maxheight)
+    private static List<Child> GetChildren(List<Tile> tiles, double[] geometricError, double minheight, double maxheight)
     {
         var children = new List<Child>();
         foreach (var tile in tiles) {
             if (tile.Available) {
-                var child = GetChild(tile, geometricError, minheight, maxheight);
+                var child = GetChild(tile, geometricError[0], minheight, maxheight);
 
                 if (tile.Children != null) {
-                    child.children = GetChildren(tile.Children, geometricError, minheight, maxheight);
+                    child.children = GetChildren(tile.Children, geometricError.Skip(1).ToArray(), minheight, maxheight);
                 }
                 children.Add(child);
             }
