@@ -17,7 +17,7 @@ public static class TreeSerializer
         return json; ;
     }
 
-    public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int subtreeLevels, Version version=null)
+    public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version=null)
     {
         var geometricError = maxGeometricError;
         var tileset = GetTilesetObject(version);
@@ -26,7 +26,8 @@ public static class TreeSerializer
         var content = new Content() { uri = "content/{level}_{x}_{y}.b3dm" };
         root.content = content;
         var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };
-        root.implicitTiling = new Implicittiling() { subdivisionScheme = "QUADTREE", subtreeLevels = subtreeLevels, subtrees = subtrees };
+        // next line is confusing for subtreeLevels
+        root.implicitTiling = new Implicittiling() { subdivisionScheme = "QUADTREE", availableLevels = availableLevels, subtreeLevels = availableLevels, subtrees = subtrees };
         tileset.root = root;
         return tileset;
     }

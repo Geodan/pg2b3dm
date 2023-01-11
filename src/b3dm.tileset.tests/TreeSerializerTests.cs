@@ -17,7 +17,7 @@ public class TreeSerializerTests
         var bbox = new double[] { 0, 0, 1, 1 };
 
         // act
-        var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 5);
+        var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 5, 1);
 
         // assert
         Assert.IsTrue(json != null);

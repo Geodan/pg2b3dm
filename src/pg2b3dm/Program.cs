@@ -150,10 +150,12 @@ class Program
                 Console.WriteLine($"Writing {subtreeFile}...");
                 var subtreebytes = SubtreeCreator.GenerateSubtreefile(tiles);
                 File.WriteAllBytes(subtreeFile, subtreebytes);
-                var subtreeLevels = tiles.Max(t => t.Z) + 1;
-                var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricErrors[0], subtreeLevels, version);
+                var availableLevels = tiles.Max(t => t.Z) + 1;
+                var subtreeLevels = 1; // hardcoded for now
+                var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricErrors[0], availableLevels, subtreeLevels, version);
                 var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
-                Console.WriteLine("SubtreeLevels: " + subtreeLevels);
+                Console.WriteLine("Available Levels: " + availableLevels);
+                Console.WriteLine("Subtree Levels: " + subtreeLevels);
                 Console.WriteLine("SubdivisionScheme: QUADTREE");
                 Console.WriteLine("Refine method: ADD");
                 Console.WriteLine($"Writing {file}...");
