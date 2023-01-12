@@ -4,23 +4,25 @@
  [![Matrix](https://img.shields.io/matrix/3d-tiles:matrix.org.svg?style=flat)](https://matrix.to/#/#3d-tiles:matrix.org)
 
  Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. The generated 
- 3D Tiles can be visualized in Cesium JS/Cesium for Unreal/Unity3D or other 3D Tiles client viewer.
+ 3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D or other 3D Tiles client viewers.
 
 ![mokum](https://user-images.githubusercontent.com/538812/63088752-24fa8000-bf56-11e9-9ba8-3273a21dfda0.png)
 
 Features:
 
-- 3D Tiles 1.1 Implicit tiling
+- 3D Tiles 1.1 Implicit tiling;
 
-- Valid glTF 2.0 support;
+- Valid glTF 2.0 files;
 
-- Shading PbrMetallicRoughness and PbrSpecularGlossiness support;
+- Shading PbrMetallicRoughness and PbrSpecularGlossiness;
 
 - LOD support;
 
 - Query parameter support;
 
 - Docker support.
+
+Resulting tilesets are validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
 
 Support for MapBox GL JS is deprecated at the moment. 
 

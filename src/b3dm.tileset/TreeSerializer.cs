@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
 using B3dm.Tileset.extensions;
 using Newtonsoft.Json;
 
@@ -20,7 +19,7 @@ public static class TreeSerializer
     public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version=null)
     {
         var geometricError = maxGeometricError;
-        var tileset = GetTilesetObject(version);
+        var tileset = GetTilesetObject(version, maxGeometricError);
         var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
         var root = GetRoot(geometricError, t, box);
         var content = new Content() { uri = "content/{level}_{x}_{y}.b3dm" };
@@ -34,7 +33,7 @@ public static class TreeSerializer
 
     public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null, string refine="ADD")
     {
-        var tileset = GetTilesetObject(version);
+        var tileset = GetTilesetObject(version, geometricErrors[0]);
         var t = new double[] { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, transform[0], transform[1], transform[2], 1.0 };
         var root = GetRoot(geometricErrors[0], t, region, refine);
         var children = GetChildren(tiles, geometricErrors.Skip(1).ToArray(), minheight, maxheight);
@@ -43,11 +42,11 @@ public static class TreeSerializer
         return tileset;
     }
 
-    private static TileSet GetTilesetObject(Version version)
+    private static TileSet GetTilesetObject(Version version, double geometricError)
     {
-        return new TileSet {
-            asset = new Asset() { version = "1.0", generator = $"pg2b3dm {version}" }
-        };
+        var tileset = new TileSet { asset = new Asset() { version = "1.0", generator = $"pg2b3dm {version}" } };
+        tileset.geometricError = geometricError;
+        return tileset;
     }
 
     private static Root GetRoot(double geometricError, double[] translation, double[] region, string refine="ADD")
