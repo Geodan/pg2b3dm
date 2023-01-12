@@ -80,7 +80,7 @@ public class QuadtreeTiler
 
                     var new_tile = new Tile(z, tile.X * 2 + x, tile.Y * 2 + y);
                     new_tile.BoundingBox = bboxQuad;
-                    GenerateTiles(bboxQuad, new_tile, tiles);
+                    GenerateTiles(bboxQuad, new_tile, tiles, lod);
                 }
             }
         }

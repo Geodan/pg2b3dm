@@ -136,8 +136,8 @@ class Program
             var tile = new Tile(0, 0, 0);
             tile.BoundingBox = bbox_wgs84;
             Console.WriteLine($"Start generating tiles...");
-            var implicitTiler = new QuadtreeTiler(conn, geometryTable, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright);
-            var tiles = implicitTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>());
+            var quadtreeTiler = new QuadtreeTiler(conn, geometryTable, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright);
+            var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First():0);
             Console.WriteLine();
             Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
