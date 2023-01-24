@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using B3dmCore;
 using Newtonsoft.Json;
 
 namespace Wkb2Gltf;
 
 public static class B3dmCreator
 {
-    public static B3dm.Tile.B3dm GetB3dm(Dictionary<string, List<object>> attributes, List<Triangle> triangleCollection, string copyright="")
+    public static B3dm GetB3dm(Dictionary<string, List<object>> attributes, List<Triangle> triangleCollection, string copyright="")
     {
         var bytes = GlbCreator.GetGlb(triangleCollection, copyright);
-        var b3dm = new B3dm.Tile.B3dm(bytes);
+        var b3dm = new B3dm(bytes);
 
         if (attributes.Count > 0) {
             var featureTable = new FeatureTable {

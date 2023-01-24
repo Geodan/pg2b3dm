@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using B3dm.Tileset;
+using B3dm.Tileset.Extensions;
 using Npgsql;
+using subtree;
 using Wkx;
 
 namespace pg2b3dm;
@@ -77,9 +79,8 @@ public class QuadtreeTiler
                     var yend = ystart + dy;
 
                     var bboxQuad = new BoundingBox(xstart, ystart, xend, yend);
-
                     var new_tile = new Tile(z, tile.X * 2 + x, tile.Y * 2 + y);
-                    new_tile.BoundingBox = bboxQuad;
+                    new_tile.BoundingBox = bboxQuad.ToArray();
                     GenerateTiles(bboxQuad, new_tile, tiles, lod);
                 }
             }

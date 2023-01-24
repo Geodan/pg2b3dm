@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace B3dm.Tileset.extensions;
+namespace B3dm.Tileset;
 
 public static class SphericalMercator
 {

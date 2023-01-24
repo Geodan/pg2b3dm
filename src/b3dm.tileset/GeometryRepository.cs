@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 using Npgsql;
+using subtree;
 using Wkb2Gltf;
 using Wkx;
 
@@ -17,10 +18,10 @@ public static class GeometryRepository
         var sqlselect = GetSqlSelect(geometry_column, translation, shaderColumn, attributesColumns);
         var sqlFrom = "FROM " + geometry_table;
 
-        var xmin = t.BoundingBox.XMin.ToString(CultureInfo.InvariantCulture);
-        var ymin = t.BoundingBox.YMin.ToString(CultureInfo.InvariantCulture);
-        var xmax = t.BoundingBox.XMax.ToString(CultureInfo.InvariantCulture);
-        var ymax = t.BoundingBox.YMax.ToString(CultureInfo.InvariantCulture);
+        var xmin = t.BoundingBox[0].ToString(CultureInfo.InvariantCulture);
+        var ymin = t.BoundingBox[1].ToString(CultureInfo.InvariantCulture);
+        var xmax = t.BoundingBox[2].ToString(CultureInfo.InvariantCulture);
+        var ymax = t.BoundingBox[3].ToString(CultureInfo.InvariantCulture);
 
         var sqlWhere = GetWhere(geometry_column, epsg, xmin, ymin, xmax, ymax, query);
 

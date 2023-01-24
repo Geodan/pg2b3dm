@@ -1,7 +1,8 @@
 ﻿using B3dm.Tileset;
-using B3dm.Tileset.extensions;
+using B3dm.Tileset.Extensions;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
+using subtree;
 
 namespace pg2b3dm.database.tests;
 
