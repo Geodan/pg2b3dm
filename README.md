@@ -380,7 +380,7 @@ Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
 
 Tags used (https://hub.docker.com/repository/docker/geodan/pg2b3dm/tags): 
 
-- 1.2.3 stable build
+- {version}: specific version
 
 - latest: is build automatically after push to master
 
