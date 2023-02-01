@@ -60,7 +60,6 @@ public static class SubtreeCreator
         return subtreeFiles;
     }
 
-
     public static string Fill(string availability, int targetLength)
     {
         var l = availability.Length;
