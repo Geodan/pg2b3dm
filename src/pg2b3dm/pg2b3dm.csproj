@@ -7,7 +7,6 @@
 	<ToolCommandName>pg2b3dm</ToolCommandName>
 	<Version>1.4.0</Version>
     <Description>Console tool for converting PostGIS geometries to B3dm tiles (3D Tiles)</Description>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AssemblyVersion>1.4.0</AssemblyVersion>
     <FileVersion>1.4.0</FileVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
