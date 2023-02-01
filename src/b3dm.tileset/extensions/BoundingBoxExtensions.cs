@@ -1,6 +1,6 @@
 ﻿using Wkx;
 
-namespace B3dm.Tileset.extensions;
+namespace B3dm.Tileset.Extensions;
 
 public static class BoundingBoxExtensions
 {
@@ -28,5 +28,10 @@ public static class BoundingBoxExtensions
         var x = (bb.XMax + bb.XMin) / 2;
         var y = (bb.YMax + bb.YMin) / 2;
         return new Point(x, y, 0);
+    }
+
+    public static double[] ToArray(this BoundingBox bb)
+    {
+        return new double[4] { bb.XMin, bb.YMin, bb.XMax, bb.YMax };
     }
 }

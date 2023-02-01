@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using B3dm.Tileset.extensions;
+using B3dm.Tileset.Extensions;
 using Newtonsoft.Json;
+using subtree;
+using Wkx;
 
 namespace B3dm.Tileset;
 
@@ -25,8 +27,7 @@ public static class TreeSerializer
         var content = new Content() { uri = "content/{level}_{x}_{y}.b3dm" };
         root.content = content;
         var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };
-        // next line is confusing for subtreeLevels
-        root.implicitTiling = new Implicittiling() { subdivisionScheme = "QUADTREE", availableLevels = availableLevels, subtreeLevels = availableLevels, subtrees = subtrees };
+        root.implicitTiling = new Implicittiling() { subdivisionScheme = "QUADTREE", availableLevels = availableLevels, subtreeLevels = subtreeLevels, subtrees = subtrees };
         tileset.root = root;
         return tileset;
     }
@@ -90,7 +91,9 @@ public static class TreeSerializer
         };
         child.content.uri = $"content{Path.AltDirectorySeparatorChar}{tile.ContentUri}";
 
-        var region = tile.BoundingBox.ToRadians().ToRegion(minheight,maxheight);
+        var bbox = tile.BoundingBox;
+        var boundingBox = new BoundingBox(bbox[0], bbox[1], bbox[2], bbox[3]);
+        var region = boundingBox.ToRadians().ToRegion(minheight,maxheight);
         child.boundingVolume = new Boundingvolume {
             region = region
         };

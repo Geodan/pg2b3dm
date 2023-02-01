@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using B3dm.Tileset.Extensions;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using subtree;
 using Wkx;
 
 namespace B3dm.Tileset.Tests;
@@ -47,10 +49,10 @@ public class TreeSerializerTests
         // arrange
         var t0=new Tile(0, 0,0);
         t0.Available = true;
-        t0.BoundingBox = new BoundingBox(0, 0, 10, 10);
+        t0.BoundingBox = new BoundingBox(0, 0, 10, 10).ToArray();
         var t1 = new Tile(1, 1, 1);
         t1.Available = true;
-        t1.BoundingBox = new BoundingBox(0,0,10,10);
+        t1.BoundingBox = new BoundingBox(0,0,10,10).ToArray();
         var tiles = new List<Tile> { t0, t1 };
 
         // act
@@ -70,11 +72,11 @@ public class TreeSerializerTests
         var t0 = new Tile(0,0,0);
         t0.Lod = 0;
         t0.Available = true;
-        t0.BoundingBox = new BoundingBox(0, 0, 10, 10);
+        t0.BoundingBox = new BoundingBox(0, 0, 10, 10).ToArray();
         var t0_1 = new Tile(2,0,1);
         t0_1.Lod = 1;
         t0_1.Available = true;
-        t0_1.BoundingBox = new BoundingBox(0, 0, 10, 10);
+        t0_1.BoundingBox = new BoundingBox(0, 0, 10, 10).ToArray();
         t0.Children = new List<Tile> { t0_1 };
 
         var tiles = new List<Tile> { t0 };

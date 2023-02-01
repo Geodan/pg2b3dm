@@ -478,6 +478,8 @@ Press F5 to start debugging.
 
 ## History
 
+2023-02-01: release 1.4, adding tree of subtree files support
+
 2023-01-10: release 1.3, adding LOD support
 
 2022-12-13: release 1.2.3, fixing parameter use_implicit_tiling
