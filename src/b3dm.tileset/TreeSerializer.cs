@@ -27,7 +27,6 @@ public static class TreeSerializer
         var content = new Content() { uri = "content/{level}_{x}_{y}.b3dm" };
         root.content = content;
         var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };
-        // next line is confusing for subtreeLevels
         root.implicitTiling = new Implicittiling() { subdivisionScheme = "QUADTREE", availableLevels = availableLevels, subtreeLevels = subtreeLevels, subtrees = subtrees };
         tileset.root = root;
         return tileset;

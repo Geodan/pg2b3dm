@@ -146,44 +146,25 @@ class Program
                     Directory.CreateDirectory(subtreesDirectory);
                 }
 
-                bool createTreeOfSubtrees = true;
-
-                if (!createTreeOfSubtrees) {
-
-                    var subtreeFile = $"{subtreesDirectory}{Path.AltDirectorySeparatorChar}0_0_0.subtree";
-                    Console.WriteLine($"Writing {subtreeFile}...");
-
-                    var subtreebytes = SubtreeCreator.GenerateSubtreefile(tiles);
-                    File.WriteAllBytes(subtreeFile, subtreebytes);
-
-                    var availableLevels = tiles.Max(t => t.Z) + 1;
-                    var subtreeLevels = 1; // hardcoded for now
-                    var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricErrors[0], availableLevels, subtreeLevels, version);
-                    var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
-                    var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-                    File.WriteAllText(file, json);
-
-                    Console.WriteLine("Available Levels: " + availableLevels);
-                    Console.WriteLine("Subtree Levels: " + subtreeLevels);
-                    Console.WriteLine("SubdivisionScheme: QUADTREE");
-                    Console.WriteLine("Refine method: ADD");
-                    Console.WriteLine($"Writing {file}...");
-
+                var subtreeFiles = SubtreeCreator.GenerateSubtreefiles(tiles);
+                Console.WriteLine($"Writing {subtreeFiles.Count} subtree files...");
+                foreach (var s in subtreeFiles) {
+                    var t = s.Key;
+                    var subtreefile = $"{subtreesDirectory}{Path.AltDirectorySeparatorChar}{t.Z}_{t.X}_{t.Y}.subtree";
+                    File.WriteAllBytes(subtreefile, s.Value);
                 }
-                else {
-                    var subtreeFiles = SubtreeCreator.GenerateSubtreefileRoot(tiles);
-                    foreach(var s in subtreeFiles) {
-                        var t = s.Key;
-                        var subtreefile = $"{subtreesDirectory}{Path.AltDirectorySeparatorChar}{t.Z}_{t.X}_{t.Y}.subtree";
-                        File.WriteAllBytes(subtreefile, s.Value);
-                    }
-                    var subtreeLevels = ((Tile)subtreeFiles.ElementAt(1).Key).Z;
-                    var availableLevels = tiles.Max(t => t.Z) + 1;
-                    var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricErrors[0], availableLevels, subtreeLevels, version);
-                    var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
-                    var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-                    File.WriteAllText(file, json);
-                }
+
+                var subtreeLevels = ((Tile)subtreeFiles.ElementAt(1).Key).Z;
+                var availableLevels = tiles.Max(t => t.Z) + 1;
+                Console.WriteLine("Available Levels: " + availableLevels);
+                Console.WriteLine("Subtree Levels: " + subtreeLevels);
+                var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricErrors[0], availableLevels, subtreeLevels, version);
+                var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
+                var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+                Console.WriteLine("SubdivisionScheme: QUADTREE");
+                Console.WriteLine($"Writing {file}...");
+                File.WriteAllText(file, json);
+
             }
             else {
                 var refine = lodcolumn != String.Empty ? "REPLACE" : "ADD";

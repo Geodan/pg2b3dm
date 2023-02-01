@@ -13,9 +13,9 @@ public class SubtreeCreatorTests
     {
         var tile = new Tile(0, 0, 0);
         tile.Available = true;
-        var subtreeFile = SubtreeCreator.GenerateSubtreefile(new List<Tile> { tile });
-        Assert.IsNotNull(subtreeFile);
-        var stream = new MemoryStream(subtreeFile);
+        var subtreeFiles = SubtreeCreator.GenerateSubtreefiles(new List<Tile> { tile });
+        Assert.IsNotNull(subtreeFiles);
+        var stream = new MemoryStream(subtreeFiles.FirstOrDefault().Value);
         var subtree = SubtreeReader.ReadSubtree(stream);
         Assert.IsTrue(subtree.TileAvailability[0]);
         Assert.IsTrue(subtree.ContentAvailability[0]);
@@ -39,10 +39,19 @@ public class SubtreeCreatorTests
         l2.Available = true;
         tiles.Add(l2);
 
-        var subtreeFiles = SubtreeCreator.GenerateSubtreefileRoot(tiles);
+        // level 3
+        var l3 = new Tile(3, 0, 0);
+        l3.Available = true;
+        tiles.Add(l3);
+
+        // asct
+        var subtreeFiles = SubtreeCreator.GenerateSubtreefiles(tiles);
+
+        // read root subtree file
         Assert.IsTrue(subtreeFiles.Count == 2);
         var stream = new MemoryStream(subtreeFiles.FirstOrDefault().Value);
         var subtree = SubtreeReader.ReadSubtree(stream);
+
         Assert.IsTrue(subtree.TileAvailability[0]);
         Assert.IsTrue(subtree.TileAvailability[1]);
         Assert.IsFalse(subtree.TileAvailability[2]);
@@ -55,6 +64,16 @@ public class SubtreeCreatorTests
         Assert.IsFalse(subtree.ChildSubtreeAvailability[1]);
         Assert.IsFalse(subtree.ChildSubtreeAvailability[2]);
         Assert.IsFalse(subtree.ChildSubtreeAvailability[3]);
+
+        // read child subtree file
+        var streamChild = new MemoryStream(subtreeFiles.LastOrDefault().Value);
+        var subtreeChild = SubtreeReader.ReadSubtree(streamChild);
+        Assert.IsTrue(subtreeChild.ContentAvailability[0]);
+        Assert.IsTrue(subtreeChild.TileAvailability[0]);
+        Assert.IsTrue(subtreeChild.ContentAvailability[1]);
+        Assert.IsTrue(subtreeChild.TileAvailability[1]);
+
+
     }
 
     [Test]
@@ -76,6 +95,6 @@ public class SubtreeCreatorTests
 
         var subtreeTiles = SubtreeCreator.GetSubtreeTiles(tiles, new Tile(1,0,0));
         var subtreeTile = subtreeTiles.FirstOrDefault();
-        Assert.IsTrue(subtreeTile.Z == l2.Z-1 );
+        Assert.IsTrue(subtreeTile.Z == 0 );
     }
 }
