@@ -478,7 +478,7 @@ Press F5 to start debugging.
 
 ## History
 
-2023-02-01: release 1.4.2, fixing subtree files generation
+2023-02-02: release 1.4.2, fixing subtree files generation
 
 2023-02-01: release 1.4.1, fixing global tool
 
