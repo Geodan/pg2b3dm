@@ -87,16 +87,15 @@ public class QuadtreeTiler
         }
         else {
 
+            var file = $"{tile.Z}_{tile.X}_{tile.Y}";
+            if (lodColumn != String.Empty) {
+                file += $"_{lod}";
+            }
+            file += ".b3dm";
+            Console.Write($"\rCreating tile: {file}  ");
+            tile.ContentUri = file;
+
             if (!skipCreateTiles) {
-
-                var file = $"{tile.Z}_{tile.X}_{tile.Y}";
-                if (lodColumn != String.Empty) {
-                    file += $"_{lod}";
-                }
-                file += ".b3dm";
-                Console.Write($"\rCreating tile: {file}  ");
-                tile.ContentUri = file;
-
 
                 var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, tile, epsg, colorColumn, attributesColumn, where);
                 var bytes = B3dmWriter.ToB3dm(geometries, copyright);

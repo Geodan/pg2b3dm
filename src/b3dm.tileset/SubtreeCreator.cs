@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using B3dm.Tileset.Extensions;
 using subtree;
@@ -73,10 +74,9 @@ public static class SubtreeCreator
 
         foreach (var t in tiles) {
             if (tile.HasChild(t)) {
-                var levels = t.Z - tile.Z;
-                var subtreeTile = t.GetParent(levels);
-                subtreeTile.Available = t.Available;
-                res.Add(subtreeTile);
+                var rel= GetRelativeTile(tile, t);
+                rel.Available = t.Available;
+                res.Add(rel);
             }
             else if (t.Z == tile.Z && t.X==tile.X && t.Y==tile.Y) {
                 var rootTile = new Tile(0, 0, 0);
@@ -85,5 +85,12 @@ public static class SubtreeCreator
             }
         }
         return res;
+    }
+
+    public static Tile GetRelativeTile(Tile from, Tile to)
+    {
+        var deltaZ = to.Z - from.Z;
+        var rootOnCurrentLevel = new Tile(to.Z, from.X * 2 * deltaZ, from.Y * 2 * deltaZ);
+        return new Tile(deltaZ,to.X- rootOnCurrentLevel.X, to.Y - rootOnCurrentLevel.Y);
     }
 }
