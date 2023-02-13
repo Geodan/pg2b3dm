@@ -123,12 +123,8 @@ Tool tesselate_building does the following:
 - writes geometries to column geom_triangle (as polyhedralsurface geometries);
 
 - writes shaders info (color code per triangle) into shaders column;
-
-- format option -f mapbox/cesium: in the next sample the default output format is used: '-f mapbox'. 
-When building for Cesium use '-f cesium'. 
-
 ```
-$ tesselate_building -h localhost -U postgres -d postgres -f mapbox -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --shaderscolumn shaders
+$ tesselate_building -h localhost -U postgres -d postgres -f cesium -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --shaderscolumn shaders
 Tool: Tesselate buildings 0.2.0.0
 Password for user postgres:
 Progress: 100.00%
@@ -176,6 +172,7 @@ $ dotnet tool install --global pg2b3dm
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
+$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id --shaderscolumn shaders
 Tool: pg2b3dm 1.0.0.0
 Password for user postgres:
 Start processing 8/23/2022 3:28:12 PM....
@@ -198,8 +195,6 @@ Program finished 8/23/2022 3:28:24 PM.
 ```
 
 ## Visualize in CesiumJS
-
-Required: Use -f cesium in previous step tesselate_building.
 
 Copy the generated tiles to sample_data\delaware\cesium\ (overwrite the tileset.json and sample tiles in tiles directory there).
 
