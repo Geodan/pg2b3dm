@@ -172,7 +172,7 @@ $ dotnet tool install --global pg2b3dm
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -i id --shaderscolumn shaders
+$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres --shaderscolumn shaders
 Tool: pg2b3dm 1.0.0.0
 Password for user postgres:
 Start processing 8/23/2022 3:28:12 PM....
