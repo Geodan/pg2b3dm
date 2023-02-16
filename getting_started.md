@@ -172,8 +172,8 @@ $ dotnet tool install --global pg2b3dm
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres --shaderscolumn shaders
-Tool: pg2b3dm 1.4.2.0
+$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -a id,height --shaderscolumn shaders
+Tool: pg2b3dm 1.4.3.0
 Password for user postgres:
 Start processing 2023-02-13T15:06:32....
 Input table: delaware_buildings
@@ -187,7 +187,7 @@ Bounding box for delaware_buildings.geom_triangle (in WGS84): -75.6145, 39.0771,
 Heights for bounding volume: [0 m, 100 m]
 Translation: 1237929.375,-4795306,4005629.75
 Use 3D Tiles 1.1 implicit tiling: True
-Attribute columns: -
+Attribute columns: id,height
 Maximum features per tile: 1000
 Start generating tiles...
 Creating tile: 3_5_5.b3dm
