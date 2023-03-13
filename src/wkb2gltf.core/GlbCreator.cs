@@ -11,7 +11,7 @@ namespace Wkb2Gltf;
 
 public static class GlbCreator
 {
-    public static byte[] GetGlb(List<Triangle> triangles, string copyright = "")
+    public static byte[] GetGlb(List<Triangle> triangles, string copyright = "", bool addOutlines=false)
     {
         var materialCache = new MaterialsCache();
         var default_hex_color = "#D94F33"; // "#bb3333";

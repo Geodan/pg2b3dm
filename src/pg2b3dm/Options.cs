@@ -46,4 +46,8 @@ public class Options
 
     [Option("boundingvolume_heights", Required = false, Default = "0,100", HelpText = "Tile boundingVolume heights (min, max) in meters")]
     public string BoundingVolumeHeights { get; set; }
+
+    [Option("add_outlines", Required = false, Default = false, HelpText = "add outlines")]
+    public bool? AddOutlines { get; set; }
+
 }

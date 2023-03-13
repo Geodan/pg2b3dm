@@ -57,6 +57,7 @@ class Program
             var geometryColumn = o.GeometryColumn;
             var lodcolumn = o.LodColumn;
             var query = o.Query;
+            var addOutlines = (bool)o.AddOutlines;
             var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse);
             var useImplicitTiling = (bool)o.UseImplicitTiling;
             if (useImplicitTiling) {
@@ -106,6 +107,8 @@ class Program
             (double min, double max) heights = (double.Parse(heightsArray[0]), double.Parse(heightsArray[1]));
 
             Console.WriteLine($"Heights for bounding volume: [{heights.min} m, {heights.max} m] ");
+            Console.WriteLine($"Add outlines: {addOutlines}");
+
             var center_wgs84 = bbox_wgs84.GetCenter();
 
             double[] translation;
@@ -137,7 +140,7 @@ class Program
             tile.BoundingBox = bbox_wgs84.ToArray();
             Console.WriteLine($"Start generating tiles...");
             var quadtreeTiler = new QuadtreeTiler(conn, geometryTable, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
-            var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First():0);
+            var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First():0, addOutlines);
             Console.WriteLine();
             Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 

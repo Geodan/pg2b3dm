@@ -5,13 +5,13 @@ namespace pg2b3dm;
 
 public static class B3dmWriter
 {
-    public static byte[] ToB3dm(List<GeometryRecord> geometries, string copyright="")
+    public static byte[] ToB3dm(List<GeometryRecord> geometries, string copyright="", bool addOutlines = false)
     {
         var triangleCollection = GetTriangles(geometries);
 
         var attributes = GetAttributes(geometries);
 
-        var b3dm = B3dmCreator.GetB3dm(attributes, triangleCollection, copyright);
+        var b3dm = B3dmCreator.GetB3dm(attributes, triangleCollection, copyright, addOutlines);
 
         var bytes = b3dm.ToBytes();
         return bytes;

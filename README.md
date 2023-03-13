@@ -75,43 +75,45 @@ All parameters are optional, except the -t --table option.
 If --username and/or --dbname are not specified the current username is used as default.
 
 ```
-  -U, --username         (Default: username) Database user
+  -U, --username           (Default: username) Database user
 
-  -h, --host             (Default: localhost) Database host
+  -h, --host               (Default: localhost) Database host
 
-  -d, --dbname           (Default: username) Database name
+  -d, --dbname             (Default: username) Database name
 
-  -c, --column           (Default: geom) Geometry column name
+  -c, --column             (Default: geom) Geometry column name
 
-  -t, --table            (Required) Database table name, include database schema if needed
+  -t, --table              (Required) Database table name, include database schema if needed
 
-  -o, --output           (Default: ./output/tiles) Output directory, will be created if not exists
+  -o, --output             (Default: ./output/tiles) Output directory, will be created if not exists
 
-  -p, --port             (Default: 5432) Database port
+  -p, --port               (Default: 5432) Database port
 
-  -a, --attributecolumns (Default: '') attributes column names (comma separated)
+  -a, --attributecolumns   (Default: '') attributes column names (comma separated)
 
-  -g, --geometricerrors  (Default: 2000, 0) Geometric errors
+  -g, --geometricerrors    (Default: 2000, 0) Geometric errors
 
-  -q, --query            (Default: '') Query parameter
+  -q, --query              (Default: '') Query parameter
 
-   --copyright           (Default: '') glTF copyright 
+   --copyright             (Default: '') glTF copyright 
 
-  --shaderscolumn        (Default: '') shaders column
+  --shaderscolumn          (Default: '') shaders column
 
-  --lodcolumn            (Default: '') LOD column
+  --lodcolumn              (Default: '') LOD column
 
-  --use_implicit_tiling  (Default: True) Use 3D Tiles 1.1 Implicit tiling
+  --use_implicit_tiling    (Default: True) Use 3D Tiles 1.1 Implicit tiling
 
-  --max_features_per_tile (Default 1000) Maximum number of features per tile in 3D Tiles 1.1 Implicit tiling
+  --max_features_per_tile  (Default 1000) Maximum number of features per tile in 3D Tiles 1.1 Implicit tiling
   
-  --sql_command_timeout  (Default: 30) Command timeout for database queries (in seconds)
+  --sql_command_timeout    (Default: 30) Command timeout for database queries (in seconds)
 
   --boundingvolume_heights (Default: '0,100') Height of boundingVolume (min, max) in meters 
-                         
-  --help                Display this help screen.
 
-  --version             Display version information.  
+  --add_outlines           (Default: False) Add outlines
+                       
+  --help                   Display this help screen.
+
+  --version                Display version information.  
 ```
 
 Sample command for running pg2b3dm:
