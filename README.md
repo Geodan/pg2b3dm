@@ -287,6 +287,7 @@ in the glTF's. The CesiumJS client has functionality to read and visualize the o
 
 For more information about CESIUM_primitive_outline see https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/CESIUM_primitive_outline/README.md
 
+![image](https://user-images.githubusercontent.com/538812/225029332-5e894455-9f0b-496e-909a-741cec9e80a8.png)
 
 Limitations of the Outline function:
 
