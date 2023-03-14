@@ -281,7 +281,12 @@ The amount of colors in the lists must correspond to the number of triangles in 
 
 Outlines using glTF 2.0 extension CESIUM_primitive_outline can be drawn by setting the option 'add_outlines' to true. when enabling this 
 
+function the extension 'CESIUM_primitive_outline' will be used in the glTF. The indices of vertices that should take part in outlining are stored 
+
+in the glTF's. The CesiumJS client has functionality to read and visualize the outlines. 
+
 For more information about CESIUM_primitive_outline see https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/CESIUM_primitive_outline/README.md
+
 
 Limitations of the Outline function:
 
