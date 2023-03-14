@@ -5,9 +5,9 @@ namespace pg2b3dm;
 
 public static class B3dmWriter
 {
-    public static byte[] ToB3dm(List<GeometryRecord> geometries, string copyright="", bool addOutlines = false)
+    public static byte[] ToB3dm(List<GeometryRecord> geometries, string copyright="", bool addOutlines = false, double areaTolerance = 0.01)
     {
-        var triangleCollection = GetTriangles(geometries);
+        var triangleCollection = GetTriangles(geometries, areaTolerance);
 
         var attributes = GetAttributes(geometries);
 
@@ -34,11 +34,11 @@ public static class B3dmWriter
         return res;
     }
 
-    private static List<Triangle> GetTriangles(List<GeometryRecord> geomrecords)
+    private static List<Triangle> GetTriangles(List<GeometryRecord> geomrecords, double areaTolerance=0.01)
     {
         var triangleCollection = new List<Triangle>();
         foreach (var g in geomrecords) {
-            var triangles = g.GetTriangles();
+            var triangles = g.GetTriangles(areaTolerance);
             triangleCollection.AddRange(triangles);
         }
 

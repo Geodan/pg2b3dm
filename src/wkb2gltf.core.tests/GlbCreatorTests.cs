@@ -80,7 +80,8 @@ public class GlbCreatorTests
         // assert (each triangle becomes a primitive because colors
         var model = ModelRoot.Load(fileName);
         
-        Assert.AreEqual(triangles.Count, model.LogicalMeshes[0].Primitives.Count);
+        // there are 8 small triangles (area) that are removed.
+        Assert.AreEqual(triangles.Count, model.LogicalMeshes[0].Primitives.Count + 8);
     }
 
     [Test]

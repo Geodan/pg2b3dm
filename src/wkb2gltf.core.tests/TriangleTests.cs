@@ -6,6 +6,24 @@ namespace Wkb2Gltf.Tests;
 public class TriangleTests
 {
     [Test]
+    public void TriangleAreaTest()
+    {
+        // arrange
+        var p0 = new Point(0,0,0);
+        var p1 = new Point(1,0,0);
+        var p2 = new Point(0,1,0);
+        var triangle = new Triangle(p0, p1, p2, 0);
+
+        // act
+        var area = triangle.Area();
+
+        // assert
+        Assert.IsTrue(area.Equals(0.5));
+    }
+
+
+
+    [Test]
     public void TestIsDegenerated()
     {
         // arrange

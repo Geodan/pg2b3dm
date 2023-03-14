@@ -18,7 +18,8 @@ class Program
 {
     static string password = string.Empty;
     static bool skipCreateTiles = false; // could be useful for debugging purposes
-
+    private static double areaTolerance = 0.01; // This program filters triangles with area smaller then areaTolerance.
+    
     static void Main(string[] args)
     {
         var version = Assembly.GetEntryAssembly().GetName().Version;
@@ -140,7 +141,7 @@ class Program
             tile.BoundingBox = bbox_wgs84.ToArray();
             Console.WriteLine($"Start generating tiles...");
             var quadtreeTiler = new QuadtreeTiler(conn, geometryTable, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
-            var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First():0, addOutlines);
+            var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First():0, addOutlines, areaTolerance);
             Console.WriteLine();
             Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 

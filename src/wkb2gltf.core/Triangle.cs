@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using Wkb2Gltf.Extensions;
 using Wkx;
 
@@ -66,5 +67,11 @@ public class Triangle
         var v1 = new Vector3((float)p1.X, (float)p1.Y, (float)p1.Z);
         var v2 = new Vector3((float)p2.X, (float)p2.Y, (float)p2.Z);
         return (v0, v1, v2);
+    }
+
+    public double Area()
+    {
+        return Math.Abs((double)(p0.X * (p1.Y - p2.Y) + p1.X * (p2.Y - p0.Y) +
+          p2.X * (p0.Y - p1.Y)) / 2.0);
     }
 }
