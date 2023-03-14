@@ -287,7 +287,7 @@ in the glTF's. The CesiumJS client has functionality to read and visualize the o
 
 For more information about CESIUM_primitive_outline see https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/CESIUM_primitive_outline/README.md
 
-![image](https://user-images.githubusercontent.com/538812/225029332-5e894455-9f0b-496e-909a-741cec9e80a8.png)
+![image](https://user-images.githubusercontent.com/538812/225031600-31bb7768-af5c-46ca-929a-2cf02c0a7d4a.png)
 
 Limitations of the Outline function:
 
@@ -501,6 +501,8 @@ Press F5 to start debugging.
 - Subtree (https://github.com/bertt/subtree) - for subtree file handling
 
 ## History
+
+2023-03-14: release 1.5.0, adding options 'add_outlines' (default false) and 'default_color' (#FFFFFF)
 
 2023-02-16: release 1.4.3, fix for implicit tiling - missing b3dm's on high z-levels
 
