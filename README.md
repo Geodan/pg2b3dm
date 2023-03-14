@@ -20,7 +20,7 @@ Features:
 
 - Query parameter support;
 
-- Outlines support (using CESIUM_primitive_outline)
+- Outlines support (using CESIUM_primitive_outline);
 
 - Docker support.
 
