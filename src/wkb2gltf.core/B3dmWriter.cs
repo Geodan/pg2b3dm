@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
 using Wkb2Gltf;
+using Wkx;
 
 namespace pg2b3dm;
 
 public static class B3dmWriter
 {
-    public static byte[] ToB3dm(List<GeometryRecord> geometries, string copyright="", bool addOutlines = false, double areaTolerance = 0.01)
+    public static byte[] ToB3dm(List<GeometryRecord> geometries, string copyright="", bool addOutlines = false, double areaTolerance = 0.01, string defaultColor = "#FFFFFF")
     {
-        var triangleCollection = GetTriangles(geometries, areaTolerance);
+        var triangles = GetTriangles(geometries, areaTolerance);
 
         var attributes = GetAttributes(geometries);
 
-        var b3dm = B3dmCreator.GetB3dm(attributes, triangleCollection, copyright, addOutlines);
+        var b3dm = B3dmCreator.GetB3dm(attributes, triangles, copyright, addOutlines, defaultColor);
 
         var bytes = b3dm.ToBytes();
         return bytes;
@@ -34,14 +35,16 @@ public static class B3dmWriter
         return res;
     }
 
-    private static List<Triangle> GetTriangles(List<GeometryRecord> geomrecords, double areaTolerance=0.01)
+    private static List<List<Wkb2Gltf.Triangle>> GetTriangles(List<GeometryRecord> geomrecords, double areaTolerance=0.01)
     {
-        var triangleCollection = new List<Triangle>();
+        var triangles = new List<List<Wkb2Gltf.Triangle>>();
         foreach (var g in geomrecords) {
-            var triangles = g.GetTriangles(areaTolerance);
-            triangleCollection.AddRange(triangles);
+            var geomTriangles = new List<Wkb2Gltf.Triangle>() { };
+
+            geomTriangles.AddRange(g.GetTriangles(areaTolerance));
+            triangles.Add(geomTriangles);
         }
 
-        return triangleCollection;
+        return triangles;
     }
 }

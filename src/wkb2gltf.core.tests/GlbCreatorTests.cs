@@ -26,7 +26,7 @@ public class GlbCreatorTests
         var triangles = Triangulator.GetTriangles(polyhedralsurface, 100);
 
         // act
-        var bytes = GlbCreator.GetGlb(triangles);
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ams_building.glb");
         File.WriteAllBytes(fileName, bytes);
 
@@ -45,7 +45,7 @@ public class GlbCreatorTests
         var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, null);
         
         // act
-        var bytes = GlbCreator.GetGlb(triangles);
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ams_building_single_color.glb");
         File.WriteAllBytes(fileName, bytes);
 
@@ -73,7 +73,7 @@ public class GlbCreatorTests
 
         // act
         var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, shaderColors);
-        var bytes = GlbCreator.GetGlb(triangles);
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ams_building_multiple_colors.glb");
         File.WriteAllBytes(fileName, bytes);
 
@@ -178,7 +178,7 @@ public class GlbCreatorTests
         Assert.IsTrue(triangles.Count == 12);
 
         // act
-        var bytes = GlbCreator.GetGlb(triangles);
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "simle_building.glb");
         File.WriteAllBytes(fileName, bytes);
 

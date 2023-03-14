@@ -5,30 +5,35 @@ using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
+using Wkb2Gltf.extensions;
 using Wkb2Gltf.Extensions;
 
 namespace Wkb2Gltf;
 
 public static class GlbCreator
 {
-    public static byte[] GetGlb(List<Triangle> triangles, string copyright = "", bool addOutlines=false)
+    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines=false, string defaultColor = "#FFFFFF")
     {
         var materialCache = new MaterialsCache();
-        var default_hex_color = "#D94F33"; // "#bb3333";
-        var defaultMaterial = MaterialCreator.GetDefaultMaterial(default_hex_color);
+        var shader = new Shader();
+        shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = defaultColor, MetallicRoughness = "" };
+        var defaultMaterial = MaterialCreator.CreateMaterial(shader);
 
         var mesh = new MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty>("mesh");
 
-        foreach (var triangle in triangles) {
-            MaterialBuilder material;
-            if (triangle.Shader!=null) {
-                material = materialCache.GetMaterialBuilderByShader(triangle.Shader);
-            }
-            else {
-                material = defaultMaterial;
-            }
+        foreach (var tri in triangles) {
+            foreach (var triangle in tri) {
+                MaterialBuilder material;
 
-            DrawTriangle(triangle, material, mesh);
+                if (triangle.Shader != null) {
+                    material = materialCache.GetMaterialBuilderByShader(triangle.Shader);
+                }
+                else {
+                    material = defaultMaterial;
+                }
+
+                DrawTriangle(triangle, material, mesh);
+            }
         }
         var scene = new SceneBuilder();
         scene.AddRigidMesh(mesh, Matrix4x4.Identity);
@@ -40,6 +45,10 @@ public static class GlbCreator
 0, 1, 0, 0,
 0, 0, 0, 1);
         model.LogicalNodes.First().LocalTransform = new SharpGLTF.Transforms.AffineTransform(localTransform);
+
+        if (addOutlines) {
+            model.LogicalMeshes[0].Primitives[0].AddOutlines(triangles);
+        }
 
         var bytes = model.WriteGLB().Array;
 

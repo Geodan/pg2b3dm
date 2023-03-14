@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Wkb2Gltf.Extensions;
 using Wkx;
@@ -74,4 +75,14 @@ public class Triangle
         return Math.Abs((double)(p0.X * (p1.Y - p2.Y) + p1.X * (p2.Y - p0.Y) +
           p2.X * (p0.Y - p1.Y)) / 2.0);
     }
+
+    public List<Point> GetPoints()
+    {
+        var points = new List<Point>();
+        points.Add(GetP0());
+        points.Add(GetP1());
+        points.Add(GetP2());
+        return points;
+    }
+
 }

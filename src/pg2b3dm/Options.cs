@@ -50,4 +50,6 @@ public class Options
     [Option("add_outlines", Required = false, Default = false, HelpText = "add outlines")]
     public bool? AddOutlines { get; set; }
 
+    [Option("default_color", Required = false, Default = "#FFFFFF", HelpText = "add outlines")]
+    public string DefaultColor { get; set; }
 }

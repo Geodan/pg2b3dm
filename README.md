@@ -20,6 +20,8 @@ Features:
 
 - Query parameter support;
 
+- Outlines support (using CESIUM_primitive_outline)
+
 - Docker support.
 
 Resulting tilesets are validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
@@ -110,6 +112,8 @@ If --username and/or --dbname are not specified the current username is used as 
   --boundingvolume_heights (Default: '0,100') Height of boundingVolume (min, max) in meters 
 
   --add_outlines           (Default: False) Add outlines
+
+  --default_color          (Default: '#FFFFFF') Default color for models
                        
   --help                   Display this help screen.
 
@@ -272,6 +276,18 @@ The json must have the following structure:
 ```
 
 The amount of colors in the lists must correspond to the number of triangles in the geometry, otherwise an exception is thrown.
+
+### Outlines
+
+Outlines using glTF 2.0 extension CESIUM_primitive_outline can be drawn by setting the option 'add_outlines' to true. when enabling this 
+
+For more information about CESIUM_primitive_outline see https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/CESIUM_primitive_outline/README.md
+
+Limitations of the Outline function:
+
+- When using Draco compression and Outlines there will be an error in the Cesium client: 'Cannot read properties of undefined (reading 'count')'
+
+- Using multiple shaders in the shaders column and outlining is not supported yet. The default color (option 'default_color' will be used instead).
 
 ### Samples
 
