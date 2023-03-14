@@ -277,23 +277,6 @@ The json must have the following structure:
 
 The amount of colors in the lists must correspond to the number of triangles in the geometry, otherwise an exception is thrown.
 
-### Outlines
-
-Outlines using glTF 2.0 extension CESIUM_primitive_outline can be drawn by setting the option 'add_outlines' to true. when enabling this 
-
-function the extension 'CESIUM_primitive_outline' will be used in the glTF. The indices of vertices that should take part in outlining are stored 
-
-in the glTF's. The CesiumJS client has functionality to read and visualize the outlines. 
-
-For more information about CESIUM_primitive_outline see https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/CESIUM_primitive_outline/README.md
-
-![image](https://user-images.githubusercontent.com/538812/225031600-31bb7768-af5c-46ca-929a-2cf02c0a7d4a.png)
-
-Limitations of the Outline function:
-
-- When using Draco compression and Outlines there will be an error in the Cesium client: 'Cannot read properties of undefined (reading 'count')'
-
-- Using multiple shaders in the shaders column and outlining is not supported yet. The default color (option 'default_color' will be used instead).
 
 ### Samples
 
@@ -397,6 +380,25 @@ SpecularGlossiness is not supported (yet)
 - BaseColor of default material is not configureable (yet)
 
 - Shader 'unlit' is not supported (yet)
+
+## Outlines
+
+Outlines using glTF 2.0 extension CESIUM_primitive_outline can be drawn by setting the option 'add_outlines' to true. when enabling this 
+
+function the extension 'CESIUM_primitive_outline' will be used in the glTF. The indices of vertices that should take part in outlining are stored 
+
+in the glTF's. The CesiumJS client has functionality to read and visualize the outlines. 
+
+For more information about CESIUM_primitive_outline see https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/CESIUM_primitive_outline/README.md
+
+![image](https://user-images.githubusercontent.com/538812/225031600-31bb7768-af5c-46ca-929a-2cf02c0a7d4a.png)
+
+Limitations of the Outline function:
+
+- When using Draco compression and Outlines there will be an error in the Cesium client: 'Cannot read properties of undefined (reading 'count')'
+
+- Using multiple shaders in the shaders column and outlining is not supported yet. The default color (option 'default_color' will be used instead).
+
 
 ## Run from Docker
 
