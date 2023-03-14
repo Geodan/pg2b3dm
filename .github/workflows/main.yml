@@ -1,10 +1,11 @@
 name: Build server status
  
-on: 
-    push:
-        branches:
-            - '*'
- 
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ '**' ]
+  
 jobs:
   build:
  
