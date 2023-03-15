@@ -26,7 +26,7 @@ public class GlbCreatorTests
         var triangles = Triangulator.GetTriangles(polyhedralsurface, 100);
 
         // act
-        var bytes = GlbCreator.GetGlb(triangles);
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ams_building.glb");
         File.WriteAllBytes(fileName, bytes);
 
@@ -45,7 +45,7 @@ public class GlbCreatorTests
         var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, null);
         
         // act
-        var bytes = GlbCreator.GetGlb(triangles);
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ams_building_single_color.glb");
         File.WriteAllBytes(fileName, bytes);
 
@@ -73,14 +73,15 @@ public class GlbCreatorTests
 
         // act
         var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, shaderColors);
-        var bytes = GlbCreator.GetGlb(triangles);
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ams_building_multiple_colors.glb");
         File.WriteAllBytes(fileName, bytes);
 
         // assert (each triangle becomes a primitive because colors
         var model = ModelRoot.Load(fileName);
         
-        Assert.AreEqual(triangles.Count, model.LogicalMeshes[0].Primitives.Count);
+        // there are 8 small triangles (area) that are removed.
+        Assert.AreEqual(triangles.Count, model.LogicalMeshes[0].Primitives.Count + 8);
     }
 
     [Test]
@@ -177,7 +178,7 @@ public class GlbCreatorTests
         Assert.IsTrue(triangles.Count == 12);
 
         // act
-        var bytes = GlbCreator.GetGlb(triangles);
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "simle_building.glb");
         File.WriteAllBytes(fileName, bytes);
 

@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using Wkb2Gltf.Extensions;
 using Wkx;
 
@@ -67,4 +69,20 @@ public class Triangle
         var v2 = new Vector3((float)p2.X, (float)p2.Y, (float)p2.Z);
         return (v0, v1, v2);
     }
+
+    public double Area()
+    {
+        return Math.Abs((double)(p0.X * (p1.Y - p2.Y) + p1.X * (p2.Y - p0.Y) +
+          p2.X * (p0.Y - p1.Y)) / 2.0);
+    }
+
+    public List<Point> GetPoints()
+    {
+        var points = new List<Point>();
+        points.Add(GetP0());
+        points.Add(GetP1());
+        points.Add(GetP2());
+        return points;
+    }
+
 }

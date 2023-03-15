@@ -20,6 +20,8 @@ Features:
 
 - Query parameter support;
 
+- Outlines support (using CESIUM_primitive_outline);
+
 - Docker support.
 
 Resulting tilesets are validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
@@ -75,43 +77,47 @@ All parameters are optional, except the -t --table option.
 If --username and/or --dbname are not specified the current username is used as default.
 
 ```
-  -U, --username         (Default: username) Database user
+  -U, --username           (Default: username) Database user
 
-  -h, --host             (Default: localhost) Database host
+  -h, --host               (Default: localhost) Database host
 
-  -d, --dbname           (Default: username) Database name
+  -d, --dbname             (Default: username) Database name
 
-  -c, --column           (Default: geom) Geometry column name
+  -c, --column             (Default: geom) Geometry column name
 
-  -t, --table            (Required) Database table name, include database schema if needed
+  -t, --table              (Required) Database table name, include database schema if needed
 
-  -o, --output           (Default: ./output/tiles) Output directory, will be created if not exists
+  -o, --output             (Default: ./output/tiles) Output directory, will be created if not exists
 
-  -p, --port             (Default: 5432) Database port
+  -p, --port               (Default: 5432) Database port
 
-  -a, --attributecolumns (Default: '') attributes column names (comma separated)
+  -a, --attributecolumns   (Default: '') attributes column names (comma separated)
 
-  -g, --geometricerrors  (Default: 2000, 0) Geometric errors
+  -g, --geometricerrors    (Default: 2000, 0) Geometric errors
 
-  -q, --query            (Default: '') Query parameter
+  -q, --query              (Default: '') Query parameter
 
-   --copyright           (Default: '') glTF copyright 
+   --copyright             (Default: '') glTF copyright 
 
-  --shaderscolumn        (Default: '') shaders column
+  --shaderscolumn          (Default: '') shaders column
 
-  --lodcolumn            (Default: '') LOD column
+  --lodcolumn              (Default: '') LOD column
 
-  --use_implicit_tiling  (Default: True) Use 3D Tiles 1.1 Implicit tiling
+  --use_implicit_tiling    (Default: True) Use 3D Tiles 1.1 Implicit tiling
 
-  --max_features_per_tile (Default 1000) Maximum number of features per tile in 3D Tiles 1.1 Implicit tiling
+  --max_features_per_tile  (Default 1000) Maximum number of features per tile in 3D Tiles 1.1 Implicit tiling
   
-  --sql_command_timeout  (Default: 30) Command timeout for database queries (in seconds)
+  --sql_command_timeout    (Default: 30) Command timeout for database queries (in seconds)
 
   --boundingvolume_heights (Default: '0,100') Height of boundingVolume (min, max) in meters 
-                         
-  --help                Display this help screen.
 
-  --version             Display version information.  
+  --add_outlines           (Default: False) Add outlines
+
+  --default_color          (Default: '#FFFFFF') Default color for models
+                       
+  --help                   Display this help screen.
+
+  --version                Display version information.  
 ```
 
 Sample command for running pg2b3dm:
@@ -271,6 +277,7 @@ The json must have the following structure:
 
 The amount of colors in the lists must correspond to the number of triangles in the geometry, otherwise an exception is thrown.
 
+
 ### Samples
 
 Sample for using shader PbrMetallicRoughness with BaseColor for 2 triangles:
@@ -373,6 +380,31 @@ SpecularGlossiness is not supported (yet)
 - BaseColor of default material is not configureable (yet)
 
 - Shader 'unlit' is not supported (yet)
+
+## Outlines
+
+Outlines using glTF 2.0 extension CESIUM_primitive_outline can be drawn by setting the option 'add_outlines' to true. 
+
+When enabling this 
+function the extension 'CESIUM_primitive_outline' will be used in the glTF. The indices of vertices that should take part in outlining are stored 
+in the glTF's. The CesiumJS client has functionality to read and visualize the outlines. 
+
+In the CesiumJS client the outline color can be changed using the 'outlineColor' property of Cesium3DTileset:
+
+```
+tileset.outlineColor = Cesium.Color.fromCssColorString("#875217");
+```
+
+For more information about CESIUM_primitive_outline see https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/CESIUM_primitive_outline/README.md
+
+![image](https://user-images.githubusercontent.com/538812/225031600-31bb7768-af5c-46ca-929a-2cf02c0a7d4a.png)
+
+Limitations of the Outline function:
+
+- When using Draco compression and Outlines there will be an error in the Cesium client: 'Cannot read properties of undefined (reading 'count')'
+
+- Using multiple shaders in the shaders column and outlining is not supported yet. The default color (option 'default_color' will be used instead).
+
 
 ## Run from Docker
 
@@ -477,6 +509,8 @@ Press F5 to start debugging.
 - Subtree (https://github.com/bertt/subtree) - for subtree file handling
 
 ## History
+
+2023-03-15: release 1.5.0, adding options 'add_outlines' (default false) and 'default_color' (#FFFFFF)
 
 2023-02-16: release 1.4.3, fix for implicit tiling - missing b3dm's on high z-levels
 
