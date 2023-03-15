@@ -5,6 +5,7 @@ using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
+using SharpGLTF.Schema2;
 using Wkb2Gltf.extensions;
 using Wkb2Gltf.Extensions;
 
@@ -12,7 +13,7 @@ namespace Wkb2Gltf;
 
 public static class GlbCreator
 {
-    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines=false, string defaultColor = "#FFFFFF")
+    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF")
     {
         var materialCache = new MaterialsCache();
         var shader = new Shader();

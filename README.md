@@ -383,11 +383,17 @@ SpecularGlossiness is not supported (yet)
 
 ## Outlines
 
-Outlines using glTF 2.0 extension CESIUM_primitive_outline can be drawn by setting the option 'add_outlines' to true. when enabling this 
+Outlines using glTF 2.0 extension CESIUM_primitive_outline can be drawn by setting the option 'add_outlines' to true. 
 
+When enabling this 
 function the extension 'CESIUM_primitive_outline' will be used in the glTF. The indices of vertices that should take part in outlining are stored 
-
 in the glTF's. The CesiumJS client has functionality to read and visualize the outlines. 
+
+In the CesiumJS client the outline color can be changed using the 'outlineColor' property of Cesium3DTileset:
+
+```
+tileset.outlineColor = Cesium.Color.fromCssColorString("#875217");
+```
 
 For more information about CESIUM_primitive_outline see https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/CESIUM_primitive_outline/README.md
 
@@ -504,7 +510,7 @@ Press F5 to start debugging.
 
 ## History
 
-2023-03-14: release 1.5.0, adding options 'add_outlines' (default false) and 'default_color' (#FFFFFF)
+2023-03-15: release 1.5.0, adding options 'add_outlines' (default false) and 'default_color' (#FFFFFF)
 
 2023-02-16: release 1.4.3, fix for implicit tiling - missing b3dm's on high z-levels
 
