@@ -47,9 +47,9 @@ public class Options
     [Option("boundingvolume_heights", Required = false, Default = "0,100", HelpText = "Tile boundingVolume heights (min, max) in meters")]
     public string BoundingVolumeHeights { get; set; }
 
-    [Option("add_outlines", Required = false, Default = false, HelpText = "add outlines")]
+    [Option("add_outlines", Required = false, Default = false, HelpText = "Add outlines")]
     public bool? AddOutlines { get; set; }
 
-    [Option("default_color", Required = false, Default = "#FFFFFF", HelpText = "add outlines")]
+    [Option("default_color", Required = false, Default = "#FFFFFF", HelpText = "Default color")]
     public string DefaultColor { get; set; }
 }

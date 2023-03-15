@@ -110,8 +110,10 @@ class Program
 
             Console.WriteLine($"Heights for bounding volume: [{heights.min} m, {heights.max} m] ");
             Console.WriteLine($"Add outlines: {addOutlines}");
+            Console.WriteLine($"Default color: {defaultColor}");
 
-            if(addOutlines && o.ShadersColumn != null) {
+
+            if (addOutlines && o.ShadersColumn != null) {
                 Console.WriteLine($"Warning: Outline function does not support shaders in  column {o.ShadersColumn}. Default color {o.DefaultColor} will be used.");
                 o.ShadersColumn = String.Empty;
             }
