@@ -5,7 +5,6 @@ using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
-using SharpGLTF.Schema2;
 using Wkb2Gltf.extensions;
 using Wkb2Gltf.Extensions;
 
@@ -40,6 +39,7 @@ public static class GlbCreator
         scene.AddRigidMesh(mesh, Matrix4x4.Identity);
         var model = scene.ToGltf2();
         model.Asset.Copyright = copyright;
+
         var localTransform = new Matrix4x4(
 1, 0, 0, 0,
 0, 0, -1, 0,
@@ -48,7 +48,9 @@ public static class GlbCreator
         model.LogicalNodes.First().LocalTransform = new SharpGLTF.Transforms.AffineTransform(localTransform);
 
         if (addOutlines) {
-            model.LogicalMeshes[0].Primitives[0].AddOutlines(triangles);
+            foreach(var primitive in model.LogicalMeshes[0].Primitives) {
+                primitive.AddOutlines();
+            }
         }
 
         var bytes = model.WriteGLB().Array;

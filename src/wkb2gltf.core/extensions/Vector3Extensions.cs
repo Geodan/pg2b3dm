@@ -7,4 +7,9 @@ public static class Vector3Extensions
     {
         return vector3 / vector3.Length();
     }
+
+    public static Wkx.Point ToPoint(this Vector3 vector)
+    {
+        return new Wkx.Point(vector.X, vector.Y, vector.Z);
+    }
 }
