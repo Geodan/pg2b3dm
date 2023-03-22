@@ -33,7 +33,7 @@ public class OutlineDetectionTests
         var t2 = new Triangle(new Point(10, 0, 0), new Point(10, 1, 0), new Point(11, 1, 0), 2);
 
         // put them in wrong order
-        var triangles = new List<Triangle> { t0, t2, t1 };
+        var triangles = new List<Triangle> { t0, t2, t1  };
 
         var parts = PartFinder.GetParts(triangles);
 
@@ -46,7 +46,7 @@ public class OutlineDetectionTests
         Assert.IsTrue(parts[1][0] == 1);
 
         var outlines = OutlineDetection.GetOutlines2(triangles);
-        Assert.IsTrue(outlines.Count == 14);
+        Assert.IsTrue(outlines.Count == 8);
     }
 
 

@@ -32,7 +32,7 @@ public static class OutlineDetection
     {
 
         var outlines = new List<uint>();
-        var parts = PartFinder.GetParts(triangles, normalTolerance, distanceTolerance);
+        var parts = PartFinder.GetParts2(triangles, normalTolerance, distanceTolerance);
 
         for (uint p = 0; p < parts.Count; p++) {
             var partTriangles = Triangles.SelectByIndex(triangles, parts[(int)p]);

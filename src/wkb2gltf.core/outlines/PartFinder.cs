@@ -1,11 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using Wkb2Gltf.extensions;
 
 namespace Wkb2Gltf.outlines;
 public static class PartFinder
 {
+
+    public static Dictionary<int, List<uint>> GetParts2(List<Triangle> triangles, double normalTolerance = 0.01, double distanceTolerance = 0.01)
+    {
+        var result = new Dictionary<int, List<uint>>();
+        var partId = 0;
+        var normal = triangles[0].GetNormal();
+        var partIds = new List<uint>();
+        partIds.Add(0);
+
+        if (triangles.Count > 1) {
+            for (var i = 1; i < triangles.Count; i++) {
+                var newNormal = triangles[i].GetNormal();
+                var isNormalEqual = Compare.IsAlmostEqual(normal, newNormal, normalTolerance);
+                if (isNormalEqual) {
+                    partIds.Add((uint)i);
+                }
+                else {
+                    result.Add(partId, partIds);
+                    partId++;
+                    normal = newNormal;
+                    partIds = new List<uint>() { (uint) i };
+                }
+
+                if (i == triangles.Count - 1) {
+                    result.Add(partId, partIds);
+                }
+            }
+        }
+        else {
+            result.Add(partId, partIds);
+        }
+
+        return result;
+
+    }
+
+
+
     /// <summary>
     /// This method get a list of parts from a set of triangles. A part consists of set of triangles that are connected and have the same normal direction.
     /// </summary>

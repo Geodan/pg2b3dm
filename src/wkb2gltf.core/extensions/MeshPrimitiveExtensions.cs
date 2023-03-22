@@ -1,4 +1,5 @@
-﻿using SharpGLTF.Schema2;
+﻿using System.Linq;
+using SharpGLTF.Schema2;
 using Wkb2Gltf.outlines;
 
 namespace Wkb2Gltf.extensions;
@@ -9,6 +10,8 @@ public static class MeshPrimitiveExtensions
         var normalTolerance = 0.01;
         var distanceTolerance = 0.01;
         var outlines = OutlineDetection.GetOutlines(meshPrimitive, normalTolerance: normalTolerance, distanceTolerance).ToArray();
-        meshPrimitive.SetCesiumOutline(outlines);
+        if (outlines.Length > 0) {
+            meshPrimitive.SetCesiumOutline(outlines);
+        }
     }
 }
