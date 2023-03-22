@@ -402,9 +402,7 @@ For more information about CESIUM_primitive_outline see https://github.com/Khron
 Limitations of the Outline function:
 
 - When using Draco compression and Outlines there will be an error in the Cesium client: 'Cannot read properties of undefined (reading 'count')'
-
-- Using multiple shaders in the shaders column and outlining is not supported yet. The default color (option 'default_color' will be used instead).
-
+see also https://github.com/CesiumGS/gltf-pipeline/pull/631 
 
 ## Run from Docker
 
@@ -509,6 +507,8 @@ Press F5 to start debugging.
 - Subtree (https://github.com/bertt/subtree) - for subtree file handling
 
 ## History
+
+202303-22: release 1.5.1, improving outlines support
 
 2023-03-15: release 1.5.0, adding options 'add_outlines' (default false) and 'default_color' (#FFFFFF)
 

@@ -94,7 +94,7 @@ public class PrimitiveOutlineTests
 
         // act
         var partsOrig = PartFinder.GetParts(triangles);
-        var parts2 = PartFinder.GetParts2(triangles);
+        var parts2 = PartFinder.GetParts(triangles);
 
         var parts = OutlineDetection.GetOutlines2(triangles);
 

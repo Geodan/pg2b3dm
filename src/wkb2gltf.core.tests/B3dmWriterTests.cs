@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 using pg2b3dm;
@@ -23,7 +22,7 @@ public class B3dmWriterTests
         geometryRecord.Attributes = attributes;
 
         // act
-        var b3dmBytes = B3dmWriter.ToB3dm(new List<GeometryRecord> { geometryRecord });
+        var b3dmBytes = B3dmWriter.ToB3dm(new List<GeometryRecord> { geometryRecord }, addOutlines: true);
 
         // assert
         Assert.IsTrue(b3dmBytes != null);

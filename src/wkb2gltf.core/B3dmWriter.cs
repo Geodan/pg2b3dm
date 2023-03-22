@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Wkb2Gltf;
-using Wkx;
 
 namespace pg2b3dm;
 

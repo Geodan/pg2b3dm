@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using NUnit.Framework;
 using SharpGLTF.Geometry.VertexTypes;
@@ -33,22 +32,19 @@ public class OutlineDetectionTests
         var t2 = new Triangle(new Point(10, 0, 0), new Point(10, 1, 0), new Point(11, 1, 0), 2);
 
         // put them in wrong order
-        var triangles = new List<Triangle> { t0, t2, t1  };
+        var triangles = new List<Triangle> { t0, t2, t1 };
 
         var parts = PartFinder.GetParts(triangles);
 
-        Assert.IsTrue(parts.Count == 2);
-        Assert.IsTrue(parts[0].Count == 2);
+        Assert.IsTrue(parts.Count == 1);
+        Assert.IsTrue(parts[0].Count == 3);
         Assert.IsTrue(parts[0][0] == 0);
-        Assert.IsTrue(parts[0][1] == 2);
+        Assert.IsTrue(parts[0][1] == 1);
         Assert.IsTrue(parts[0][0] == 0);
-        Assert.IsTrue(parts[1].Count == 1);
-        Assert.IsTrue(parts[1][0] == 1);
 
         var outlines = OutlineDetection.GetOutlines2(triangles);
         Assert.IsTrue(outlines.Count == 8);
     }
-
 
     [Test]
     public void Test5415()

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using SharpGLTF.Schema2;
+﻿using SharpGLTF.Schema2;
 using Wkb2Gltf.outlines;
 
 namespace Wkb2Gltf.extensions;
