@@ -180,7 +180,7 @@ class Program
 
             stopWatch.Stop();
             Console.WriteLine();
-            Console.WriteLine($"Elapsed: {TimeSpan.FromMilliseconds(stopWatch.ElapsedMilliseconds).Humanize()}");
+            Console.WriteLine($"Elapsed: {TimeSpan.FromMilliseconds(stopWatch.ElapsedMilliseconds).Humanize(3)}");
             Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");
         });
     }
