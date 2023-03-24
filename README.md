@@ -6,7 +6,7 @@
  Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. The generated 
  3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D or other 3D Tiles client viewers.
 
-![mokum](https://user-images.githubusercontent.com/538812/63088752-24fa8000-bf56-11e9-9ba8-3273a21dfda0.png)
+![image](https://user-images.githubusercontent.com/538812/227500590-bebe59b6-5697-462d-9ebd-b40fe9a2dc2b.png)
 
 Features:
 
