@@ -397,8 +397,6 @@ tileset.outlineColor = Cesium.Color.fromCssColorString("#875217");
 
 For more information about CESIUM_primitive_outline see https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/CESIUM_primitive_outline/README.md
 
-![image](https://user-images.githubusercontent.com/538812/225031600-31bb7768-af5c-46ca-929a-2cf02c0a7d4a.png)
-
 Limitations of the Outline function:
 
 1] When using Draco compression and Outlines there will be an error in the Cesium client: 'Cannot read properties of undefined (reading 'count')'
