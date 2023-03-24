@@ -11,13 +11,14 @@ public static class PartFinder
         var result = new Dictionary<int, List<uint>>();
         var partId = 0;
         var normal = triangles[0].GetNormal();
-        var partIds = new List<uint>();
-        partIds.Add(0);
+        var partIds = new List<uint> {
+            0
+        };
 
         if (triangles.Count > 1) {
             for (var i = 1; i < triangles.Count; i++) {
                 var newNormal = triangles[i].GetNormal();
-                var isNormalEqual = Compare.IsAlmostEqual(normal, newNormal, normalTolerance);
+                var isNormalEqual = Compare.IsAlmostEqual(normal, newNormal, normalTolerance) || Compare.IsAlmostEqual(normal, newNormal*-1, normalTolerance);
                 if (isNormalEqual) {
                     partIds.Add((uint)i);
                 }
@@ -25,7 +26,7 @@ public static class PartFinder
                     result.Add(partId, partIds);
                     partId++;
                     normal = newNormal;
-                    partIds = new List<uint>() { (uint) i };
+                    partIds = new List<uint>() { (uint)i };
                 }
 
                 if (i == triangles.Count - 1) {
