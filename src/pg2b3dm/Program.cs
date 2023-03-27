@@ -112,11 +112,6 @@ class Program
             Console.WriteLine($"Add outlines: {addOutlines}");
             Console.WriteLine($"Default color: {defaultColor}");
 
-            if (addOutlines && o.ShadersColumn != null) {
-                Console.WriteLine($"Warning: Outline function does not support shaders in  column {o.ShadersColumn}. Default color {o.DefaultColor} will be used.");
-                o.ShadersColumn = String.Empty;
-            }
-
             var center_wgs84 = bbox_wgs84.GetCenter();
 
             double[] translation;
@@ -165,7 +160,7 @@ class Program
                     File.WriteAllBytes(subtreefile, s.Value);
                 }
 
-                var subtreeLevels = ((Tile)subtreeFiles.ElementAt(1).Key).Z;
+                var subtreeLevels = subtreeFiles.Count > 1? ((Tile)subtreeFiles.ElementAt(1).Key).Z: 1;
                 var availableLevels = tiles.Max(t => t.Z) + 1;
                 Console.WriteLine("Available Levels: " + availableLevels);
                 Console.WriteLine("Subtree Levels: " + subtreeLevels);
@@ -185,7 +180,7 @@ class Program
 
             stopWatch.Stop();
             Console.WriteLine();
-            Console.WriteLine($"Elapsed: {TimeSpan.FromMilliseconds(stopWatch.ElapsedMilliseconds).Humanize()}");
+            Console.WriteLine($"Elapsed: {TimeSpan.FromMilliseconds(stopWatch.ElapsedMilliseconds).Humanize(3)}");
             Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");
         });
     }

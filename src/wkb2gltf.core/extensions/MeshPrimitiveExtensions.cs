@@ -1,19 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using SharpGLTF.Schema2;
+﻿using SharpGLTF.Schema2;
 using Wkb2Gltf.outlines;
 
 namespace Wkb2Gltf.extensions;
 public static class MeshPrimitiveExtensions
 {
-    // todo: refactor so triangles parameter is no longer needed here
-    public static void AddOutlines(this MeshPrimitive meshPrimitive, List<List<Triangle>> triangles)
+    public static void AddOutlines(this MeshPrimitive meshPrimitive)
     {
-        var normalTolerance = 0.01;
+        var normalTolerance = 0.1;
         var distanceTolerance = 0.01;
-
-        var originalIndices = meshPrimitive.IndexAccessor.AsIndicesArray().ToArray();
-        var outlines = OutlineDetection.GetOutlines(originalIndices, triangles, normalTolerance: normalTolerance, distanceTolerance).ToArray();
-        meshPrimitive.SetCesiumOutline(outlines);
+        var outlines = OutlineDetection.GetOutlines(meshPrimitive, normalTolerance: normalTolerance, distanceTolerance).ToArray();
+        if (outlines.Length > 0) {
+            meshPrimitive.SetCesiumOutline(outlines);
+        }
     }
 }

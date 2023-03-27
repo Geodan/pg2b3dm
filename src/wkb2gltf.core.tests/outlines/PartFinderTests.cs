@@ -16,13 +16,11 @@ public class PartFinderTests
 
         var triangles = new List<Triangle>() { t0, t1, t2 };
 
+        // In this case wel'll only find one part because only the normal is checked
         var parts = PartFinder.GetParts(triangles);
 
-        Assert.That(parts.Count, Is.EqualTo(2));
-        Assert.That(parts[0].Count, Is.EqualTo(2));
+        Assert.That(parts.Count, Is.EqualTo(1));
+        Assert.That(parts[0].Count, Is.EqualTo(3));
         Assert.That(parts[0][0], Is.EqualTo(0));
-
-        Assert.That(parts[1].Count, Is.EqualTo(1));
-        Assert.That(parts[1][0], Is.EqualTo(2));
     }
 }

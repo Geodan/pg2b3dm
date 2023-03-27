@@ -23,7 +23,6 @@ public class MeshPrimitiveOutlineTests
         var p0 = new Point(0, 0, 0);
         var p1 = new Point(1, 0, 0);
         var p2 = new Point(0, 1, 0);
-        var triangle = new Triangle(p0, p1, p2, 0);
         var t = (p0.ToVector(), p1.ToVector(), p2.ToVector());
 
         prim.AddTriangleWithBatchId(t, Vector3.One, 101);
@@ -32,11 +31,8 @@ public class MeshPrimitiveOutlineTests
         scene.AddRigidMesh(mesh, Matrix4x4.Identity);
         var model = scene.ToGltf2();
 
-        var triangles = new List<List<Triangle>>();
-        var triangleList = new List<Triangle>() { triangle };
-        triangles.Add(triangleList);
 
         // act
-        model.LogicalMeshes[0].Primitives[0].AddOutlines(triangles);
+        model.LogicalMeshes[0].Primitives[0].AddOutlines();
     }
 }

@@ -93,7 +93,10 @@ public class PrimitiveOutlineTests
         var triangles = new List<Triangle>() { t0, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11 };
 
         // act
-        var parts = OutlineDetection.GetOutlines(triangles);
+        var partsOrig = PartFinder.GetParts(triangles);
+        var parts2 = PartFinder.GetParts(triangles);
+
+        var parts = OutlineDetection.GetOutlines2(triangles);
 
         // assert
         Assert.IsTrue(parts.Count == 48);

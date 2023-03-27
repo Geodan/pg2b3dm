@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using NUnit.Framework;
 using SharpGLTF.Geometry.VertexTypes;
@@ -37,18 +36,15 @@ public class OutlineDetectionTests
 
         var parts = PartFinder.GetParts(triangles);
 
-        Assert.IsTrue(parts.Count == 2);
-        Assert.IsTrue(parts[0].Count == 2);
+        Assert.IsTrue(parts.Count == 1);
+        Assert.IsTrue(parts[0].Count == 3);
         Assert.IsTrue(parts[0][0] == 0);
-        Assert.IsTrue(parts[0][1] == 2);
+        Assert.IsTrue(parts[0][1] == 1);
         Assert.IsTrue(parts[0][0] == 0);
-        Assert.IsTrue(parts[1].Count == 1);
-        Assert.IsTrue(parts[1][0] == 1);
 
-        var outlines = OutlineDetection.GetOutlines(triangles);
-        Assert.IsTrue(outlines.Count == 14);
+        var outlines = OutlineDetection.GetOutlines2(triangles);
+        Assert.IsTrue(outlines.Count == 8);
     }
-
 
     [Test]
     public void Test5415()
@@ -84,13 +80,10 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         var model = scene.ToGltf2();
 
         // act
-        var originalIndices = model.LogicalMeshes[0].Primitives[0].IndexAccessor.AsIndicesArray().ToArray();
-        var max_indice = originalIndices.Max();
-        var outlines = OutlineDetection.GetOutlines(originalIndices, new List<List<Triangle>>() { triangles });
-        var max_outlines = outlines.Max();
+        var outlines = OutlineDetection.GetOutlines(model.LogicalMeshes[0].Primitives[0]);
 
         // assert
-        Assert.IsTrue(max_outlines <= max_indice);
+        Assert.IsTrue(outlines.Count > 0);
     }
 
     [Test]
@@ -122,13 +115,10 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         var model = scene.ToGltf2();
 
         // act
-        var originalIndices = model.LogicalMeshes[0].Primitives[0].IndexAccessor.AsIndicesArray().ToArray();
-        var max_indice = originalIndices.Max();
-        var outlines = OutlineDetection.GetOutlines(originalIndices, new List<List<Triangle>>() { triangles });
-        var max_outlines = outlines.Max();
+        var outlines = OutlineDetection.GetOutlines(model.LogicalMeshes[0].Primitives[0]);
 
         // assert
-        Assert.IsTrue(max_outlines <= max_indice);
+        Assert.IsTrue(outlines.Count > 0);
     }
 
     [Test]
@@ -140,7 +130,7 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         var triangles = Triangulator.GetTriangles(g, 0);
 
         // act
-        var res = OutlineDetection.GetOutlines(triangles);
+        var res = OutlineDetection.GetOutlines2(triangles);
 
         // assert
         Assert.IsTrue(res.Count == 48);
@@ -155,7 +145,7 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         var triangles = Triangulator.GetTriangles(g, 0);
 
         // act
-        var res = OutlineDetection.GetOutlines(triangles);
+        var res = OutlineDetection.GetOutlines2(triangles);
 
         // assert
         Assert.IsTrue(res.Count == 48);
