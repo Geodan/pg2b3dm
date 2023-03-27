@@ -6,7 +6,7 @@
  Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. The generated 
  3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D or other 3D Tiles client viewers.
 
-![mokum](https://user-images.githubusercontent.com/538812/63088752-24fa8000-bf56-11e9-9ba8-3273a21dfda0.png)
+![image](https://user-images.githubusercontent.com/538812/227500590-bebe59b6-5697-462d-9ebd-b40fe9a2dc2b.png)
 
 Features:
 
@@ -397,12 +397,15 @@ tileset.outlineColor = Cesium.Color.fromCssColorString("#875217");
 
 For more information about CESIUM_primitive_outline see https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/CESIUM_primitive_outline/README.md
 
-![image](https://user-images.githubusercontent.com/538812/225031600-31bb7768-af5c-46ca-929a-2cf02c0a7d4a.png)
 
-Limitations of the Outline function:
-
-- When using Draco compression and Outlines there will be an error in the Cesium client: 'Cannot read properties of undefined (reading 'count')'
+When using Draco compression and Outlines there will be an error in the Cesium client: 'Cannot read properties of undefined (reading 'count')'
 see also https://github.com/CesiumGS/gltf-pipeline/pull/631 
+
+There is a workaround:
+
+. Use gltf-pipeline with https://github.com/CesiumGS/gltf-pipeline/pull/631
+
+. Use gltf-pipeline settings --draco.compressionLevel 0 --draco.quantizePositionBits 14
 
 ## Run from Docker
 
