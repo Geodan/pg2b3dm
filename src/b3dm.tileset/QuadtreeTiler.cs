@@ -45,7 +45,7 @@ public class QuadtreeTiler
         this.skipCreateTiles = skipCreateTiles;
     }
 
-    public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod=0, bool addOutlines=false, double areaTolerance = 0.01, string defaultColor = "#FFFFFF")
+    public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod=0, bool addOutlines=false, double areaTolerance = 0.01, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000")
     {
         var where = (query != string.Empty ? $" and {query}" : String.Empty);
 
@@ -81,7 +81,7 @@ public class QuadtreeTiler
                     var bboxQuad = new BoundingBox(xstart, ystart, xend, yend);
                     var new_tile = new Tile(z, tile.X * 2 + x, tile.Y * 2 + y);
                     new_tile.BoundingBox = bboxQuad.ToArray();
-                    GenerateTiles(bboxQuad, new_tile, tiles, lod, addOutlines, areaTolerance, defaultColor);
+                    GenerateTiles(bboxQuad, new_tile, tiles, lod, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness);
                 }
             }
         }
@@ -98,7 +98,7 @@ public class QuadtreeTiler
             if (!skipCreateTiles) {
 
                 var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, tile, epsg, colorColumn, attributesColumn, where);
-                var bytes = B3dmWriter.ToB3dm(geometries, copyright, addOutlines, areaTolerance, defaultColor);
+                var bytes = B3dmWriter.ToB3dm(geometries, copyright, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness);
                 tile.Lod = lod;
 
                 File.WriteAllBytes($"{outputFolder}{Path.AltDirectorySeparatorChar}{file}", bytes);
@@ -112,7 +112,7 @@ public class QuadtreeTiler
                         // make a copy of the tile 
                         var t2=new Tile(tile.X, tile.Y, tile.Z);
                         t2.BoundingBox = tile.BoundingBox;
-                        var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, addOutlines, areaTolerance, defaultColor);
+                        var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness);
                         tile.Children=lodNextTiles;
                     };
                 }

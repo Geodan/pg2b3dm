@@ -52,4 +52,7 @@ public class Options
 
     [Option("default_color", Required = false, Default = "#FFFFFF", HelpText = "Default color")]
     public string DefaultColor { get; set; }
+
+    [Option("default_metallic_roughness", Required = false, Default = "#008000", HelpText = "Default metallic roughness")]
+    public string DefaultMetallicRoughness { get; set; }
 }

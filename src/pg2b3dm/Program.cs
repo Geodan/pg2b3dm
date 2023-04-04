@@ -58,6 +58,7 @@ class Program
             var geometryColumn = o.GeometryColumn;
             var lodcolumn = o.LodColumn;
             var defaultColor = o.DefaultColor;
+            var defaultMetallicRoughness = o.DefaultMetallicRoughness;
             var query = o.Query;
             var addOutlines = (bool)o.AddOutlines;
             var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse);
@@ -111,6 +112,7 @@ class Program
             Console.WriteLine($"Heights for bounding volume: [{heights.min} m, {heights.max} m] ");
             Console.WriteLine($"Add outlines: {addOutlines}");
             Console.WriteLine($"Default color: {defaultColor}");
+            Console.WriteLine($"Default metallic roughness: {defaultMetallicRoughness}");
 
             var center_wgs84 = bbox_wgs84.GetCenter();
 
@@ -143,7 +145,7 @@ class Program
             tile.BoundingBox = bbox_wgs84.ToArray();
             Console.WriteLine($"Start generating tiles...");
             var quadtreeTiler = new QuadtreeTiler(conn, geometryTable, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
-            var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First():0, addOutlines, areaTolerance, defaultColor);
+            var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First():0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness);
             Console.WriteLine();
             Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
