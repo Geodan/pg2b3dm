@@ -102,7 +102,7 @@ class Program
             var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
             Console.WriteLine($"Spatial reference of {geometryTable}.{geometryColumn}: {sr}");
             Console.WriteLine($"Query bounding box of {geometryTable}.{geometryColumn}...");
-            var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, geometryTable, geometryColumn, query);
+            var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, geometryTable, geometryColumn);
             Console.WriteLine($"Bounding box for {geometryTable}.{geometryColumn} (in WGS84): {Math.Round(bbox_wgs84.XMin, 4)}, {Math.Round(bbox_wgs84.YMin, 4)}, {Math.Round(bbox_wgs84.XMax, 4)}, {Math.Round(bbox_wgs84.YMax, 4)}");
 
             var heightsArray = o.BoundingVolumeHeights.Split(',');

@@ -511,6 +511,8 @@ Press F5 to start debugging.
 
 ## History
 
+2023-04-04: release 1.5.2, fix query parameter
+
 2023-03-27: release 1.5.1, add outlines support for multiple shaders
 
 2023-03-15: release 1.5.0, adding options 'add_outlines' (default false) and 'default_color' (#FFFFFF)
