@@ -53,7 +53,8 @@ public class MaterialCreator
             }
 
             if (!string.IsNullOrEmpty(shader.PbrMetallicRoughness.MetallicRoughness)) {
-                var c = ColorToVector4(ColorTranslator.FromHtml(shader.PbrMetallicRoughness.MetallicRoughness));
+                var html = ColorTranslator.FromHtml(shader.PbrMetallicRoughness.MetallicRoughness);
+                var c = ColorToVector4(html);
                 material.WithMetallicRoughness(c.X, c.Y);
             }
         }

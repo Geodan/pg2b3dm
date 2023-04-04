@@ -254,7 +254,23 @@ For more information about Implicit Tiling see https://github.com/CesiumGS/3d-ti
 
 ## Shaders
 
-Shaderscolumn is a column of type json. In the json document the shaders are defined like PbrMetallicRoughness and
+By default (when option --shaderscolumn is not used), the following PbrMetallicRoughness shader is used with parameters for all triangles:
+
+- BaseColor: #FFFFFF (option --default_color)
+
+R = 255, G = 255, B = 255, A = 1 
+
+- MetallicRoughness: #008000 (option --default_metallic_roughness)
+
+Metallic factor: 0, Roughness factor: 0.5019608 (128/255)
+
+- Doubleside: true (hardcoded)
+
+- Alpha: 0 (hardcoded)
+
+Alternative option is to specify a shader per triangle in the ShadersColumn.
+
+Shaderscolumn is a column of type json. In this json document the shaders are defined like PbrMetallicRoughness and
 PbrSpecularGlossiness. Note: PbrSpecularGlossiness is deprecated by Khronos, so advise is to use PbrMetallicRoughness.
 
 ### JSON Structure
