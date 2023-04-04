@@ -1,22 +1,15 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using Wkx;
 
 namespace B3dm.Tileset;
 
 public static class BoundingBoxRepository
 {
-    public static BoundingBox GetBoundingBoxForTable(IDbConnection conn, string geometry_table, string geometry_column, string query = "")
+    public static BoundingBox GetBoundingBoxForTable(IDbConnection conn, string geometry_table, string geometry_column)
     {
-        var where = GetWhere(query);
-        var sqlBounds = $"SELECT st_xmin(geom1),st_ymin(geom1), st_xmax(geom1), st_ymax(geom1) FROM (select ST_Transform(ST_3DExtent({geometry_column}), 4326) as geom1 from {geometry_table} {where}) as t";
+        var sqlBounds = $"SELECT st_xmin(geom1),st_ymin(geom1), st_xmax(geom1), st_ymax(geom1) FROM (select ST_Transform(ST_3DExtent({geometry_column}), 4326) as geom1 from {geometry_table}) as t";
         var bbox3d = GetBounds(conn, sqlBounds);
         return bbox3d;
-    }
-
-    private static string GetWhere(string query)
-    {
-        return (query != string.Empty ? $" where {query}" : String.Empty);
     }
 
     private static BoundingBox GetBounds(IDbConnection conn, string sql)
