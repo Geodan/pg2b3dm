@@ -13,22 +13,52 @@ namespace B3dm.Tileset;
 
 public static class GeometryRepository
 {
+    public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Tile t, string query = "")
+    {
+        var sqlSelect = $"select st_asbinary(st_extent(st_transform(st_setsrid(st_force3d({geometry_column}),4978), 4326))) ";
+
+        var b = GetTileBoundingBox(t);
+        var sqlWhere = GetWhere(geometry_column, 4978, b.xmin, b.ymin, b.xmax, b.ymax, query);
+        var sql = $"{sqlSelect} from {geometry_table} {sqlWhere}";
+
+        conn.Open();
+        var cmd = new NpgsqlCommand(sql, conn);
+        var reader = cmd.ExecuteReader();
+        reader.Read();
+        var stream = reader.GetStream(0);
+        var polygon = (Polygon)Geometry.Deserialize<WkbSerializer>(stream);
+        var points = polygon.ExteriorRing.Points;
+        var result = new double[] { (double)points[0].X, (double)points[0].Y, (double)points[2].X, (double)points[2].Y };
+
+        reader.Close();
+        conn.Close();
+
+        return result;
+    }
+
+
     public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
     {
         var sqlselect = GetSqlSelect(geometry_column, translation, shaderColumn, attributesColumns);
         var sqlFrom = "FROM " + geometry_table;
 
-        var xmin = t.BoundingBox[0].ToString(CultureInfo.InvariantCulture);
-        var ymin = t.BoundingBox[1].ToString(CultureInfo.InvariantCulture);
-        var xmax = t.BoundingBox[2].ToString(CultureInfo.InvariantCulture);
-        var ymax = t.BoundingBox[3].ToString(CultureInfo.InvariantCulture);
+        var b = GetTileBoundingBox(t);
 
-        var sqlWhere = GetWhere(geometry_column, epsg, xmin, ymin, xmax, ymax, query);
+        var sqlWhere = GetWhere(geometry_column, epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
 
         var sql = sqlselect + sqlFrom + sqlWhere;
 
         var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql);
         return geometries;
+    }
+
+    private static (string xmin, string ymin, string xmax, string ymax) GetTileBoundingBox (Tile t)
+    {
+        var xmin = t.BoundingBox[0].ToString(CultureInfo.InvariantCulture);
+        var ymin = t.BoundingBox[1].ToString(CultureInfo.InvariantCulture);
+        var xmax = t.BoundingBox[2].ToString(CultureInfo.InvariantCulture);
+        var ymax = t.BoundingBox[3].ToString(CultureInfo.InvariantCulture);
+        return(xmin, ymin, xmax, ymax);
     }
 
     private static string GetWhere(string geometry_column, int epsg, string xmin, string ymin, string xmax, string ymax, string query = "")
