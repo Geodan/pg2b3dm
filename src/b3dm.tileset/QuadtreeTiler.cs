@@ -98,10 +98,6 @@ public class QuadtreeTiler
             if (!skipCreateTiles) {
 
                 var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, tile, epsg, colorColumn, attributesColumn, where);
-                if(geometries.Count > 0) {
-                    var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, tile, where);
-                    tile.BoundingBox = bbox_geometries;
-                }
                 var bytes = B3dmWriter.ToB3dm(geometries, copyright, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness);
                 tile.Lod = lod;
 
@@ -120,6 +116,11 @@ public class QuadtreeTiler
                         tile.Children=lodNextTiles;
                     };
                 }
+
+                // next code is used to fix geometries that have centroid in the tile, but some parts outside...
+                var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, tile, where);
+                tile.BoundingBox = bbox_geometries;
+
             }
 
             tile.Available = true;
