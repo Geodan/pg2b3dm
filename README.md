@@ -101,7 +101,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --shaderscolumn               (Default: '') shaders column
 
-lodcolumn                       (Default: '') LOD column
+  --lodcolumn                   (Default: '') LOD column
 
   --use_implicit_tiling         (Default: True) Use 3D Tiles 1.1 Implicit tiling
 
