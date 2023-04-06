@@ -234,7 +234,7 @@ Attribute columns can be of any type.
 
 Tiles are created within a quadtree, with a maximum number of features by max_features_per_tile (default 1000). In pg2b3dm version 0.14 support for 3D Tiles
 1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'true'). When Impliciting Tiling 
-is activated a subtree file (0_0_0.subtree) will be created (in folder subtrees) and the tileset.json file will no longer explitly list all tiles.
+is activated subtree files (*.subtree) will be created (in folder subtrees) and the tileset.json file will no longer explitly list all tiles.
 
 At the moment, Implicit tiling is only supported in the CesiumJS client.
 
