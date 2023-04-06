@@ -529,6 +529,8 @@ Press F5 to start debugging.
 
 ## History
 
+2023-04-06: release 1.5.3, fix disappearing features
+
 2023-04-04: release 1.5.2, fix query parameter
 
 2023-03-27: release 1.5.1, add outlines support for multiple shaders
