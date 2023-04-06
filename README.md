@@ -244,13 +244,13 @@ Some remarks about implicit tiling:
 
 - There is no support (yet) for multiple contents per tile;
 
-- There is no support (yet) for creating child subtrees, only root subtree file 0_0_0.subtree is created;
-
 - There is no support (yet) for implicit tiling metadata;
 
 - Parameter '-l --lodcolumn' is ignored when using implicit tiling;
 
-- Only the first value of parameter of geometric errors is used in tileset.json.
+- Only the first value of parameter of geometric errors is used in tileset.json;
+
+- When using larger geometries (that intersect partly with a quadtree tile) and implicit tiling there can be issues with feature visibility.
 
 For more information about Implicit Tiling see https://github.com/CesiumGS/3d-tiles/tree/draft-1.1/specification/ImplicitTiling
 
