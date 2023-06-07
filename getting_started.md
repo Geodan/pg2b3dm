@@ -112,6 +112,12 @@ Install tool tesselate_building
 $ dotnet tool install --global tesselate_building
 ```
 
+When installation gives problems try with:
+
+```
+$ dotnet tool install -g --add-source 'https://api.nuget.org/v3/index.json' --ignore-failed-sources tesselate_building
+```
+
 Tool tesselate_building does the following:
 
 - reads the footprint heights and geometries (from wkb_geometry);
