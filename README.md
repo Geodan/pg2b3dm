@@ -33,6 +33,12 @@ by FME (using Triangulator transformer - https://www.safe.com/transformers/trian
 
 Tileset.json and b3dm tiles are by default created in the 'output/content' subdirectory (or specify output directory with   -o, --output).
 
+## Getting started
+
+See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and visualize buildings in CesiumJS/Cesium for Unreal.
+
+For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
+
 ## Demo
 
 ![Alt Text](demo_pg2b3dm.gif)
@@ -148,12 +154,6 @@ To run:
 ```
 $ pg2b3dm
 ```
-
-## Getting started
-
-See [getting started](getting_started.md) for a tutorial how to run pg2b3dm and visualize buildings in MapBox GL JS or CesiumJS/Cesium for Unreal.
-
-For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
 
 ## Remarks
 
