@@ -395,8 +395,6 @@ So Diffuse Red = 230, Diffuse Green = 0, Diffuse Blue = 128, Alpha = 0
 - Fallback scenario from SpecularGlossiness to MetallicRoughness shader for clients that do not support 
 SpecularGlossiness is not supported (yet)
 
-- BaseColor of default material is not configureable (yet)
-
 - Shader 'unlit' is not supported (yet)
 
 ## Outlines
