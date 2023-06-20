@@ -527,6 +527,8 @@ Press F5 to start debugging.
 
 ## History
 
+2023-06-20: release 1.5.4, fix issue when only 1 level is generated
+
 2023-04-06: release 1.5.3, fix disappearing features
 
 2023-04-04: release 1.5.2, fix query parameter
