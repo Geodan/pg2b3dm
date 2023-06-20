@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
 	<PackageOutputPath>./nupkg</PackageOutputPath>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<ToolCommandName>pg2b3dm</ToolCommandName>
-	<Version>1.5.3</Version>
+	<Version>1.5.4</Version>
     <Description>Console tool for converting PostGIS geometries to B3dm tiles (3D Tiles)</Description>
     <AssemblyVersion>1.5.4</AssemblyVersion>
     <FileVersion>1.5.4</FileVersion>
@@ -28,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\b3dm.tileset\b3dm.tileset.csproj" />
+	<None Include="..\..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>
