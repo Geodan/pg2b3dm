@@ -162,7 +162,7 @@ class Program
                     File.WriteAllBytes(subtreefile, s.Value);
                 }
 
-                var subtreeLevels = subtreeFiles.Count > 1? ((Tile)subtreeFiles.ElementAt(1).Key).Z: 1;
+                var subtreeLevels = subtreeFiles.Count > 1? ((Tile)subtreeFiles.ElementAt(1).Key).Z: 2;
                 var availableLevels = tiles.Max(t => t.Z) + 1;
                 Console.WriteLine("Available Levels: " + availableLevels);
                 Console.WriteLine("Subtree Levels: " + subtreeLevels);
