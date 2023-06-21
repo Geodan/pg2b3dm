@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
     <TargetFramework>net6.0</TargetFramework>
 	<PackageOutputPath>./nupkg</PackageOutputPath>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -29,7 +28,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\b3dm.tileset\b3dm.tileset.csproj" />
-	<None Include="..\..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>
