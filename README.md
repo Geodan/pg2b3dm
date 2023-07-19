@@ -397,6 +397,32 @@ SpecularGlossiness is not supported (yet)
 
 - Shader 'unlit' is not supported (yet)
 
+### Client side styling
+
+An alternative option is to style the 3D Tiles on runtime (in the client).
+
+Example for styling buildings in a 3D Tileset based on attribute 'bouwjaar' in CesiumJS:
+
+```
+   var buildings = new Cesium.Cesium3DTileset({
+        url : './buildings/tileset.json'
+    });
+
+    buildings.style = new Cesium.Cesium3DTileStyle({
+      color: {
+        conditions: [
+        ["${feature['bouwjaar']} <= 1700", "color('#430719')"],
+        ["${feature['bouwjaar']} > 1700", "color('#740320')"],
+        ]
+      }
+    }
+  );
+```
+
+Remember to add attribute bouwjaar with '-a bouwjaar' when creating the 3D Tiles.
+
+For the specs of 3D Tiles Styling Language see https://github.com/CesiumGS/3d-tiles/tree/main/specification/Styling 
+
 ## Outlines
 
 Outlines using glTF 2.0 extension CESIUM_primitive_outline can be drawn by setting the option 'add_outlines' to true. 
