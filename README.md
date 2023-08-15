@@ -49,11 +49,6 @@ For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and F
 
 ![image](https://user-images.githubusercontent.com/538812/194698535-5b324133-bdf1-4d8c-8d53-37555a6f7b5b.png)
 
-- Baupotential analyse -  https://www.modoplus.de/
-
-![image](https://user-images.githubusercontent.com/538812/194698451-b4c2b1ed-b99b-411c-97d3-34939d32d588.png)
-
-
 - FOSS4G presentations
 
 Presentation at FOSS4G 2021: A fast web 3D viewer for 11 million buildings https://www.youtube.com/watch?v=1_JM2Xf5mDk
