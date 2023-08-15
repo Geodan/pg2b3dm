@@ -10,13 +10,11 @@ jobs:
   build:
  
     runs-on: ubuntu-latest
-    env:
-      PUSH_PACKAGES: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
  
     steps:
-    - uses: actions/checkout@v1
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
     - name: Build with dotnet
