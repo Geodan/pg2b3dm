@@ -39,48 +39,15 @@ $ ogr2ogr -f "PostgreSQL" PG:"host=localhost user=postgres password=postgres dbn
 
 In PostGIS, a spatial table 'delaware_buildings' is created.
 
-## PSQL into PostGIS
-
-PSQL into PostGIS and do a count on the buildings:
-
-```
-postgres=# select count(*) from delaware_buildings;
- count
---------
- 22532
-(1 row)
-```
-
-## Clean data
-
-Maybe there are some invalid polygons, let's remove them first.
-
-```
-postgres=# DELETE from delaware_buildings where ST_IsValid(wkb_geometry)=false;
-DELETE 0
-```
-
-## Add id field with text type
-
-```
-postgres=# ALTER TABLE delaware_buildings ADD COLUMN id varchar;
-postgres=# UPDATE delaware_buildings SET id = ogc_fid::text;
-```
-
-## Add column for output triangulated geometry
+## Add columns 
 
 ```
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_triangle geometry;
-```
-
-## Shaders
-
-Add two json columns to the delaware_buildings table:
-
-```
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN style json;
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN shaders json;
 ```
+
+## Shaders
 
 Update the style column with a JSON file containing walls, roof, floor colors:
 
@@ -92,17 +59,10 @@ Colors used:
 
 #EEC900: yellow (wall)
 
-
 ```
 postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#EEC900", "roof":"#FF0000", "floor":"#008000"}');
 ```
 The 'shaders' column will be filled in next 'bertt/tesselate_building' step.
-
-now exit psql:
-
-```
-postgres=# exit
-```
 
 ## Run tesselate_building
 
@@ -178,8 +138,8 @@ $ dotnet tool install --global pg2b3dm
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -a id,height --shaderscolumn shaders
-Tool: pg2b3dm 1.4.3.0
+$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -a ogc_fid,height --shaderscolumn shaders
+Tool: pg2b3dm 1.5.5.0
 Password for user postgres:
 Start processing 2023-02-13T15:06:32....
 Input table: delaware_buildings
