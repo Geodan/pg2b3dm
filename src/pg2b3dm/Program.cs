@@ -11,7 +11,6 @@ using Newtonsoft.Json;
 using Humanizer;
 using subtree;
 using B3dm.Tileset.Extensions;
-using Wkx;
 
 namespace pg2b3dm;
 
@@ -57,7 +56,6 @@ class Program
 
             var geometryTable = o.GeometryTable;
             var geometryColumn = o.GeometryColumn;
-            var lodcolumn = o.LodColumn;
             var defaultColor = o.DefaultColor;
             var defaultMetallicRoughness = o.DefaultMetallicRoughness;
             var query = o.Query;
@@ -82,7 +80,7 @@ class Program
             Console.WriteLine($"Default metallic roughness: {defaultMetallicRoughness}");
 
             var center_wgs84 = bbox_wgs84.GetCenter();
-            var translation = GetTranslation(sr, center_wgs84);
+            var translation = Translation.GetTranslation(sr, center_wgs84);
             Console.WriteLine($"Translation: {String.Join(',', translation)}");
 
             var att = !string.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
@@ -97,12 +95,12 @@ class Program
             // cesium specific
             if(appMode == AppMode.Cesium) {
                 Console.WriteLine("Cesium mode");
-
+                var lodcolumn = o.LodColumn;
                 var addOutlines = (bool)o.AddOutlines;
                 var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse);
                 var useImplicitTiling = (bool)o.UseImplicitTiling;
                 if (useImplicitTiling) {
-                    if (args.Contains("-l") || args.Contains("--lodcolumn")) {
+                    if (!String.IsNullOrEmpty(lodcolumn)) {
                         Console.WriteLine("Warning: parameter -l --lodcolumn is ignored with implicit tiling");
                         lodcolumn = String.Empty;
                     }
@@ -204,19 +202,5 @@ class Program
             Console.WriteLine($"Elapsed: {TimeSpan.FromMilliseconds(stopWatch.ElapsedMilliseconds).Humanize(3)}");
             Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");
         });
-    }
-
-    private static double[] GetTranslation(int sr, Point center_wgs84)
-    {
-        double[] translation;
-        if (sr == 4978) {
-            var v3 = SpatialConverter.GeodeticToEcef((double)center_wgs84.X, (double)center_wgs84.Y, 0);
-            translation = new double[] { v3.X, v3.Y, v3.Z };
-        }
-        else {
-            translation = SphericalMercator.ToSphericalMercatorFromWgs84((double)center_wgs84.X, (double)center_wgs84.Y);
-        }
-
-        return translation;
     }
 }
