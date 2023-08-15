@@ -18,18 +18,10 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 8.0.x
     - name: Build with dotnet
       working-directory: src      
       run: dotnet build --configuration Release      
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: docker build ./src --file ./src/Dockerfile --tag geodan/pg2b3dm:latest
-    - name: Log in to Docker Hub
-      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-    - if: ${{ env.PUSH_PACKAGES }}
-      name: Publish the Docker image
-      run: docker push geodan/pg2b3dm:latest
