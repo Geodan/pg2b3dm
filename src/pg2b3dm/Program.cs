@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using Humanizer;
 using subtree;
 using B3dm.Tileset.Extensions;
+using Wkx;
 
 namespace pg2b3dm;
 
@@ -54,7 +55,7 @@ class Program
             }
             Console.WriteLine($"Input geometry column: {o.GeometryColumn}");
 
-            var geometryTable = o.GeometryTable;
+            var table = o.GeometryTable;
             var geometryColumn = o.GeometryColumn;
             var defaultColor = o.DefaultColor;
             var defaultMetallicRoughness = o.DefaultMetallicRoughness;
@@ -62,7 +63,7 @@ class Program
 
             var conn = new NpgsqlConnection(connectionString);
 
-            var sr = SpatialReferenceRepository.GetSpatialReference(conn, geometryTable, geometryColumn);
+            var sr = SpatialReferenceRepository.GetSpatialReference(conn, table, geometryColumn);
             if(sr!=3857 && sr != 4978) {
                 Console.WriteLine("Error: Input geometries not in epsg:3857 / epsg:4978");
                 Console.WriteLine("Program exit...");
@@ -71,10 +72,10 @@ class Program
 
             appMode = (sr == 3857 ? AppMode.Mapbox : AppMode.Cesium);
 
-            Console.WriteLine($"Spatial reference of {geometryTable}.{geometryColumn}: {sr}");
-            Console.WriteLine($"Query bounding box of {geometryTable}.{geometryColumn}...");
-            var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, geometryTable, geometryColumn);
-            Console.WriteLine($"Bounding box for {geometryTable}.{geometryColumn} (in WGS84): {Math.Round(bbox_wgs84.XMin, 4)}, {Math.Round(bbox_wgs84.YMin, 4)}, {Math.Round(bbox_wgs84.XMax, 4)}, {Math.Round(bbox_wgs84.YMax, 4)}");
+            Console.WriteLine($"Spatial reference of {table}.{geometryColumn}: {sr}");
+            Console.WriteLine($"Query bounding box of {table}.{geometryColumn}...");
+            var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn);
+            Console.WriteLine($"Bounding box for {table}.{geometryColumn} (in WGS84): {Math.Round(bbox_wgs84.XMin, 4)}, {Math.Round(bbox_wgs84.YMin, 4)}, {Math.Round(bbox_wgs84.XMax, 4)}, {Math.Round(bbox_wgs84.YMax, 4)}");
 
             Console.WriteLine($"Default color: {defaultColor}");
             Console.WriteLine($"Default metallic roughness: {defaultMetallicRoughness}");
@@ -108,7 +109,7 @@ class Program
                 Console.WriteLine($"Lod column: {lodcolumn}");
                 Console.WriteLine($"Geometric errors: {String.Join(',', geometricErrors)}");
 
-                var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, geometryTable, lodcolumn, query) : new List<int> { 0 });
+                var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, table, lodcolumn, query) : new List<int> { 0 });
                 if ((geometricErrors.Length != lods.Count + 1) && lodcolumn == string.Empty) {
                     Console.WriteLine($"Lod levels from database column {lodcolumn}: [{String.Join(',', lods)}]");
                     Console.WriteLine($"Geometric errors: {o.GeometricErrors}");
@@ -151,7 +152,7 @@ class Program
                 var tile = new Tile(0, 0, 0);
                 tile.BoundingBox = bbox_wgs84.ToArray();
                 Console.WriteLine($"Start generating tiles...");
-                var quadtreeTiler = new QuadtreeTiler(conn, geometryTable, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
+                var quadtreeTiler = new QuadtreeTiler(conn, table, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
                 var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
@@ -190,10 +191,37 @@ class Program
             }
             else {
                 Console.WriteLine("MapBox mode");
-                Console.WriteLine("Not implemented yet");
+                // Todo: make parameter
+                var level = 15;
 
+                var tiles = Tiles.Tools.Tilebelt.GetTilesOnLevel(new double[] { bbox_wgs84.XMin, bbox_wgs84.YMin, bbox_wgs84.XMax, bbox_wgs84.YMax }, level);
+
+                Console.WriteLine("Tiles to be created: " + tiles.Count());
+
+                foreach (var t in tiles) {
+                    var bounds = t.Bounds();
+
+                    var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bounds[0], bounds[1]), new Point(bounds[2], bounds[3]), sr, query);
+
+                    if (numberOfFeatures > 0) {
+
+                        var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, bounds, sr, o.ShadersColumn, o.AttributeColumns, query);
+
+                        var where = GeometryRepository.GetWhere(geometryColumn,sr, bounds[0].ToString(), bounds[1].ToString(), bounds[2].ToString(), bounds[3].ToString());
+
+                        var sqlselect = GeometryRepository.GetSqlSelect(geometryColumn, translation, o.ShadersColumn, o.AttributeColumns);
+
+                        var sql = sqlselect + " from " + table +  " " + where;
+
+                        var geoms = GeometryRepository.GetGeometries(conn, o.ShadersColumn, o.AttributeColumns , sql);
+                        var bytes = B3dmWriter.ToB3dm(geoms, o.Copyright, true, areaTolerance, defaultColor, defaultMetallicRoughness);
+
+                        File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.X}-{t.Y}-{t.Z}.b3dm", bytes);
+
+                        Console.Write(".");
+                    }
+                }
             }
-
 
             // end cesium specific
             stopWatch.Stop();

@@ -13,6 +13,7 @@ public static class Translation
         }
         else {
             translation = SphericalMercator.ToSphericalMercatorFromWgs84((double)center_wgs84.X, (double)center_wgs84.Y);
+            translation = new double[] { translation[0], translation[1], 0 };
         }
 
         return translation;

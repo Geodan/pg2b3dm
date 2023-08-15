@@ -97,7 +97,7 @@ public class QuadtreeTiler
 
             if (!skipCreateTiles) {
 
-                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, tile, epsg, colorColumn, attributesColumn, where);
+                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, tile.BoundingBox, epsg, colorColumn, attributesColumn, where);
                 var bytes = B3dmWriter.ToB3dm(geometries, copyright, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness);
                 tile.Lod = lod;
 

@@ -17,7 +17,7 @@ public static class GeometryRepository
     {
         var sqlSelect = $"select st_asbinary(st_extent(st_transform(st_setsrid(st_force3d({geometry_column}),4978), 4326))) ";
 
-        var b = GetTileBoundingBox(t);
+        var b = GetTileBoundingBox(t.BoundingBox);
         var sqlWhere = GetWhere(geometry_column, 4978, b.xmin, b.ymin, b.xmax, b.ymax, query);
         var sql = $"{sqlSelect} from {geometry_table} {sqlWhere}";
 
@@ -37,12 +37,12 @@ public static class GeometryRepository
     }
 
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, Tile t, int epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, double[] bbox, int epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
     {
         var sqlselect = GetSqlSelect(geometry_column, translation, shaderColumn, attributesColumns);
         var sqlFrom = "FROM " + geometry_table;
 
-        var b = GetTileBoundingBox(t);
+        var b = GetTileBoundingBox(bbox);
 
         var sqlWhere = GetWhere(geometry_column, epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
 
@@ -52,16 +52,16 @@ public static class GeometryRepository
         return geometries;
     }
 
-    private static (string xmin, string ymin, string xmax, string ymax) GetTileBoundingBox (Tile t)
+    private static (string xmin, string ymin, string xmax, string ymax) GetTileBoundingBox(double[] bbox)
     {
-        var xmin = t.BoundingBox[0].ToString(CultureInfo.InvariantCulture);
-        var ymin = t.BoundingBox[1].ToString(CultureInfo.InvariantCulture);
-        var xmax = t.BoundingBox[2].ToString(CultureInfo.InvariantCulture);
-        var ymax = t.BoundingBox[3].ToString(CultureInfo.InvariantCulture);
+        var xmin = bbox[0].ToString(CultureInfo.InvariantCulture);
+        var ymin = bbox[1].ToString(CultureInfo.InvariantCulture);
+        var xmax = bbox[2].ToString(CultureInfo.InvariantCulture);
+        var ymax = bbox[3].ToString(CultureInfo.InvariantCulture);
         return(xmin, ymin, xmax, ymax);
     }
 
-    private static string GetWhere(string geometry_column, int epsg, string xmin, string ymin, string xmax, string ymax, string query = "")
+    public static string GetWhere(string geometry_column, int epsg, string xmin, string ymin, string xmax, string ymax, string query = "")
     {
         return $" WHERE  ST_Intersects(" +
             $"ST_Centroid(ST_Envelope({geometry_column})), " +
@@ -69,7 +69,7 @@ public static class GeometryRepository
             $") {query}";
     }
 
-    private static string GetSqlSelect(string geometry_column, double[] translation, string shaderColumn, string attributesColumns)
+    public static string GetSqlSelect(string geometry_column, double[] translation, string shaderColumn, string attributesColumns)
     {
         var g = GetGeometryColumn(geometry_column, translation);
         var sqlselect = $"SELECT ST_AsBinary({g})";
@@ -83,12 +83,12 @@ public static class GeometryRepository
         return sqlselect;
     }
 
-    private static string GetGeometryColumn(string geometry_column, double[] translation)
+    public static string GetGeometryColumn(string geometry_column, double[] translation)
     {
         return $"ST_Translate({geometry_column}, {translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , {translation[2].ToString(CultureInfo.InvariantCulture)}*-1)";
     }
 
-    private static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql)
+    public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql)
     {
         var geometries = new List<GeometryRecord>();
         conn.Open();
