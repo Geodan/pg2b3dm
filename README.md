@@ -158,7 +158,7 @@ In release 1.6 experimental support for MapBox GL JS v3 beta is added.
 
 See announcement https://www.mapbox.com/blog/standard-core-style
 
-To get things running:
+To get things running (see also https://github.com/Geodan/pg2b3dm/blob/master/getting_started.md):
 
 - Create EPSG:3857 triangulated geometries in your database;
 
