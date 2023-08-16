@@ -142,21 +142,25 @@ Run pg2b3dm, the program will make a connection to the database and 1 tileset.js
 
 ```
 $ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -a ogc_fid,height --shaderscolumn shaders
-Tool: pg2b3dm 1.5.5.0
+Tool: pg2b3dm 1.6.0.0
 Password for user postgres:
-Start processing 2023-02-13T15:06:32....
-Input table: delaware_buildings
+Start processing 2023-08-16T13:05:13....
+Input table: delaware_buildings_cesium
 Input geometry column: geom_triangle
+Spatial reference of delaware_buildings_cesium.geom_triangle: 4978
+Query bounding box of delaware_buildings_cesium.geom_triangle...
+Bounding box for delaware_buildings_cesium.geom_triangle (in WGS84): -75.6145, 39.0771, -75.4353, 39.2319
+Default color: #FFFFFF
+Default metallic roughness: #008000
+Translation: 1237929.375,-4795306,4005629.75
+Attribute columns: ogc_fid,height
+Starting Cesium mode...
 Lod column:
 Geometric errors: 2000,0
 Geometric error used for implicit tiling: 2000
-Spatial reference of delaware_buildings.geom_triangle: 4978
-Query bounding box of delaware_buildings.geom_triangle...
-Bounding box for delaware_buildings.geom_triangle (in WGS84): -75.6145, 39.0771, -75.4353, 39.2319
 Heights for bounding volume: [0 m, 100 m]
-Translation: 1237929.375,-4795306,4005629.75
+Add outlines: False
 Use 3D Tiles 1.1 implicit tiling: True
-Attribute columns: id,height
 Maximum features per tile: 1000
 Start generating tiles...
 Creating tile: 3_5_5.b3dm
@@ -167,8 +171,8 @@ Subtree Levels: 3
 SubdivisionScheme: QUADTREE
 Writing output/tileset.json...
 
-Elapsed: 12 seconds
-Program finished 2023-02-13T15:06:45.
+Elapsed: 5 seconds, 628 milliseconds
+Program finished 2023-08-16T13:05:18.
 ```
 
 ## Visualize in CesiumJS
