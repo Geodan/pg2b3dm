@@ -95,7 +95,7 @@ class Program
 
             // cesium specific
             if (appMode == AppMode.Cesium) {
-                Console.WriteLine("Cesium mode");
+                Console.WriteLine("Starting Cesium mode...");
                 var lodcolumn = o.LodColumn;
                 var addOutlines = (bool)o.AddOutlines;
                 var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse);
@@ -192,7 +192,7 @@ class Program
             }
             else {
                 // mapbox specific code
-                Console.WriteLine("Experimental MapBox v3 mode");
+                Console.WriteLine("Starting Experimental MapBox v3 mode...");
                 var min_zoom = o.MinZoom;
                 var max_zoom = o.MaxZoom;
 
@@ -214,18 +214,8 @@ class Program
                         if (numberOfFeatures > 0) {
 
                             var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, bounds, sr, o.ShadersColumn, o.AttributeColumns, query);
-
-                            var where = GeometryRepository.GetWhere(geometryColumn, sr, bounds[0].ToString(), bounds[1].ToString(), bounds[2].ToString(), bounds[3].ToString());
-
-                            var sqlselect = GeometryRepository.GetSqlSelect(geometryColumn, translation, o.ShadersColumn, o.AttributeColumns);
-
-                            var sql = sqlselect + " from " + table + " " + where;
-
-                            var geoms = GeometryRepository.GetGeometries(conn, o.ShadersColumn, o.AttributeColumns, sql);
-                            var bytes = B3dmWriter.ToB3dm(geoms, o.Copyright, true, areaTolerance, defaultColor, defaultMetallicRoughness);
-
+                            var bytes = B3dmWriter.ToB3dm(geometries, o.Copyright, false, areaTolerance, defaultColor, defaultMetallicRoughness);
                             File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.Z}-{t.X}-{t.Y}.b3dm", bytes);
-
                             Console.Write(".");
                         }
                     }
