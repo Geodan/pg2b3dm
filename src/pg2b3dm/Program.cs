@@ -64,7 +64,7 @@ class Program
             var conn = new NpgsqlConnection(connectionString);
 
             var sr = SpatialReferenceRepository.GetSpatialReference(conn, table, geometryColumn);
-            if(sr!=3857 && sr != 4978) {
+            if (sr != 3857 && sr != 4978) {
                 Console.WriteLine("Error: Input geometries not in epsg:3857 / epsg:4978");
                 Console.WriteLine("Program exit...");
                 Environment.Exit(0);
@@ -94,7 +94,7 @@ class Program
             }
 
             // cesium specific
-            if(appMode == AppMode.Cesium) {
+            if (appMode == AppMode.Cesium) {
                 Console.WriteLine("Cesium mode");
                 var lodcolumn = o.LodColumn;
                 var addOutlines = (bool)o.AddOutlines;
@@ -187,43 +187,53 @@ class Program
                     var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, heights.min, heights.max, version);
                     File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
                 }
+                // end cesium specific code
 
             }
             else {
-                Console.WriteLine("MapBox mode");
-                // Todo: make parameter
-                var level = 15;
+                // mapbox specific code
+                Console.WriteLine("Experimental MapBox v3 mode");
+                var min_zoom = o.MinZoom;
+                var max_zoom = o.MaxZoom;
 
-                var tiles = Tiles.Tools.Tilebelt.GetTilesOnLevel(new double[] { bbox_wgs84.XMin, bbox_wgs84.YMin, bbox_wgs84.XMax, bbox_wgs84.YMax }, level);
+                if (min_zoom > max_zoom) {
+                    Console.WriteLine("Error: min zoom level is higher than max zoom level");
+                    Environment.Exit(0);
+                }
 
-                Console.WriteLine("Tiles to be created: " + tiles.Count());
+                for (var level = min_zoom; level <= max_zoom; level++) {
+                    var tiles = Tiles.Tools.Tilebelt.GetTilesOnLevel(new double[] { bbox_wgs84.XMin, bbox_wgs84.YMin, bbox_wgs84.XMax, bbox_wgs84.YMax }, level);
 
-                foreach (var t in tiles) {
-                    var bounds = t.Bounds();
+                    Console.WriteLine($"Tiles to be created on level {level}: {tiles.Count()}");
 
-                    var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bounds[0], bounds[1]), new Point(bounds[2], bounds[3]), sr, query);
+                    foreach (var t in tiles) {
+                        var bounds = t.Bounds();
 
-                    if (numberOfFeatures > 0) {
+                        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bounds[0], bounds[1]), new Point(bounds[2], bounds[3]), sr, query);
 
-                        var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, bounds, sr, o.ShadersColumn, o.AttributeColumns, query);
+                        if (numberOfFeatures > 0) {
 
-                        var where = GeometryRepository.GetWhere(geometryColumn,sr, bounds[0].ToString(), bounds[1].ToString(), bounds[2].ToString(), bounds[3].ToString());
+                            var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, bounds, sr, o.ShadersColumn, o.AttributeColumns, query);
 
-                        var sqlselect = GeometryRepository.GetSqlSelect(geometryColumn, translation, o.ShadersColumn, o.AttributeColumns);
+                            var where = GeometryRepository.GetWhere(geometryColumn, sr, bounds[0].ToString(), bounds[1].ToString(), bounds[2].ToString(), bounds[3].ToString());
 
-                        var sql = sqlselect + " from " + table +  " " + where;
+                            var sqlselect = GeometryRepository.GetSqlSelect(geometryColumn, translation, o.ShadersColumn, o.AttributeColumns);
 
-                        var geoms = GeometryRepository.GetGeometries(conn, o.ShadersColumn, o.AttributeColumns , sql);
-                        var bytes = B3dmWriter.ToB3dm(geoms, o.Copyright, true, areaTolerance, defaultColor, defaultMetallicRoughness);
+                            var sql = sqlselect + " from " + table + " " + where;
 
-                        File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.X}-{t.Y}-{t.Z}.b3dm", bytes);
+                            var geoms = GeometryRepository.GetGeometries(conn, o.ShadersColumn, o.AttributeColumns, sql);
+                            var bytes = B3dmWriter.ToB3dm(geoms, o.Copyright, true, areaTolerance, defaultColor, defaultMetallicRoughness);
 
-                        Console.Write(".");
+                            File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.Z}-{t.X}-{t.Y}.b3dm", bytes);
+
+                            Console.Write(".");
+                        }
                     }
                 }
+                // end mapbox specific code
+
             }
 
-            // end cesium specific
             stopWatch.Stop();
 
             Console.WriteLine();

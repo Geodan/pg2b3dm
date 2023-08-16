@@ -36,7 +36,6 @@ public static class GeometryRepository
         return result;
     }
 
-
     public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, double[] bbox, int epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
     {
         var sqlselect = GetSqlSelect(geometry_column, translation, shaderColumn, attributesColumns);
