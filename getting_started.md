@@ -89,6 +89,9 @@ Tool tesselate_building does the following:
 - writes geometries to column geom_triangle (as polyhedralsurface geometries);
 
 - writes shaders info (color code per triangle) into shaders column;
+
+Note: For Mapbox GL JS v3 beta support use '-f mapbox' in the following step.
+
 ```
 $ tesselate_building -h localhost -U postgres -d postgres -f cesium -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --shaderscolumn shaders
 Tool: Tesselate buildings 0.2.0.0
@@ -179,6 +182,10 @@ If all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 ![alt text](delaware_cesium.png "Delaware Cesium")
 
 Sample live demo in Cesium: https://geodan.github.io/pg2b3dm/sample_data/delaware/cesium/
+
+## Visualize in Mapbox GL JS v3 beta
+
+See demo https://geodan.github.io/pg2b3dm/sample_data/delaware/mapboxv3
 
 ## Visualize in Cesium for Unreal
 
