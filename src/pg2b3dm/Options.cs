@@ -20,14 +20,6 @@ public class Options
     public string Output { get; set; }
     [Option('a', "attributecolumns", Required = false, Default = "", HelpText = "Attribute columns")]
     public string AttributeColumns { get; set; }
-    [Option('l', "lodcolumn", Required = false, Default = "", HelpText = "LOD column")]
-    public string LodColumn { get; set; }
-
-    [Option('g', "geometricerrors", Required = false, Default = "2000,0", HelpText = "Geometric errors")]
-    public string GeometricErrors { get; set; }
-
-    [Option("shaderscolumn", Required = false, Default = "", HelpText = "shaders column")]
-    public string ShadersColumn { get; set; }
 
     [Option('q', "query", Required = false, Default = "", HelpText = "Query parameter")]
     public string Query { get; set; }
@@ -35,24 +27,42 @@ public class Options
     [Option("copyright", Required = false, Default = "", HelpText = "glTF asset copyright")]
     public string Copyright { get; set; }
 
-    [Option("use_implicit_tiling", Required = false, Default = true, HelpText = "use 1.1 implicit tiling")]
-    public bool? UseImplicitTiling { get; set; }
-
-    [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile")]
-    public int MaxFeaturesPerTile { get; set; }
-
     [Option("sql_command_timeout", Required = false, Default = 30, HelpText = "SQL command timeout")]
     public int SqlCommandTimeout { get; set; }
-
-    [Option("boundingvolume_heights", Required = false, Default = "0,100", HelpText = "Tile boundingVolume heights (min, max) in meters")]
-    public string BoundingVolumeHeights { get; set; }
-
-    [Option("add_outlines", Required = false, Default = false, HelpText = "Add outlines")]
-    public bool? AddOutlines { get; set; }
 
     [Option("default_color", Required = false, Default = "#FFFFFF", HelpText = "Default color")]
     public string DefaultColor { get; set; }
 
     [Option("default_metallic_roughness", Required = false, Default = "#008000", HelpText = "Default metallic roughness")]
     public string DefaultMetallicRoughness { get; set; }
+
+    // cesium specific options
+
+    [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile (Cesium)", SetName = "Cesium")]
+    public int MaxFeaturesPerTile { get; set; }
+
+    [Option('l', "lodcolumn", Required = false, Default = "", HelpText = "LOD column (Cesium)", SetName = "Cesium")]
+    public string LodColumn { get; set; }
+
+    [Option('g', "geometricerrors", Required = false, Default = "2000,0", HelpText = "Geometric errors (Cesium)", SetName = "Cesium")]
+    public string GeometricErrors { get; set; }
+
+    [Option("shaderscolumn", Required = false, Default = "", HelpText = "shaders column (Cesium)", SetName = "Cesium")]
+    public string ShadersColumn { get; set; }
+
+    [Option("use_implicit_tiling", Required = false, Default = true, HelpText = "use 1.1 implicit tiling (Cesium)", SetName = "Cesium")]
+    public bool UseImplicitTiling { get; set; }
+
+    [Option("boundingvolume_heights", Required = false, Default = "0,100", HelpText = "Tile boundingVolume heights (min, max) in meters (Cesium)", SetName = "Cesium")]
+    public string BoundingVolumeHeights { get; set; }
+
+    [Option("add_outlines", Required = false, Default = false, HelpText = "Add outlines (Cesium)", SetName = "Cesium")]
+    public bool AddOutlines { get; set; }
+
+    // mapbox specific options
+    [Option("min_zoom", Required = false, Default = 15, HelpText = "Minimum zoom level (Mapbox)", SetName = "Mapbox")]
+    public int MinZoom { get; set; }
+    
+    [Option("max_zoom", Required = false, Default = 15, HelpText = "Maximum zoom level (Mapbox) ", SetName = "Mapbox")]
+    public int MaxZoom { get; set; }
 }
