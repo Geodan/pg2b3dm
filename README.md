@@ -584,7 +584,7 @@ Press F5 to start debugging.
 
 ## History
 
-2023-08-16: release 1.6.9, add experimental support for Mapbox GL JS v3
+2023-08-16: release 1.6.0, add experimental support for Mapbox GL JS v3
 
 2023-06-20: release 1.5.5, fix issue when only 1 level is generated
 
