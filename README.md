@@ -171,7 +171,7 @@ To get things running:
 
 - Tiles are written in format {z}-{x}-{y}.b3dm in the content directory;
 
-- Add the resulting tiles as 'batched-model') to your Mapbox GL JS v3 beta viewer
+- Add the resulting tiles as 'batched-model' to your Mapbox GL JS v3 beta viewer
 
 Sample code:
 
@@ -188,6 +188,8 @@ map.addSource('3d tiles', {
 ```
 
 Note: In the currrent MapBox GL JS 3 beta (v3.0.0-beta.1) version the tiles are requested but the glTF's are not rendered correct yet.
+
+Live demo see https://geodan.github.io/pg2b3dm/sample_data/delaware/mapboxv3/
 
 ## Remarks
 
