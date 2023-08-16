@@ -90,11 +90,11 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -o, --output                    (Default: output) Output path
 
-  -a, --attributecolumns          (Default: ) Attribute columns
+  -a, --attributecolumns          (Default: '') Attribute columns
 
-  -q, --query                     (Default: ) Query parameter
+  -q, --query                     (Default: '') Query parameter
 
-  --copyright                     (Default: ) glTF asset copyright
+  --copyright                     (Default: '') glTF asset copyright
 
   --sql_command_timeout           (Default: 30) SQL command timeout
 
@@ -104,11 +104,11 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --max_features_per_tile         (Default: 1000) maximum features per tile (Cesium)
 
-  -l, --lodcolumn                 (Default: ) LOD column (Cesium)
+  -l, --lodcolumn                 (Default: '') LOD column (Cesium)
 
   -g, --geometricerrors           (Default: 2000,0) Geometric errors (Cesium)
 
-  --shaderscolumn                 (Default: ) shaders column (Cesium)
+  --shaderscolumn                 (Default: '') shaders column (Cesium)
 
   --use_implicit_tiling           (Default: true) use 1.1 implicit tiling (Cesium)
 
