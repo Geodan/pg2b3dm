@@ -4,7 +4,7 @@
  [![Join the chat at https://discord.gg/gGCka4Nd](https://img.shields.io/discord/1013017110814932993?color=%237289DA&label=pg2b3dm&logo=discord&logoColor=white)](https://discord.gg/uSKvUwPgmG)
 
  Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. The generated 
- 3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D or other 3D Tiles client viewers.
+ 3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D, Mapbox GL JS v3 beta (experimental) or other 3D Tiles client viewers.
 
 ![image](https://user-images.githubusercontent.com/538812/227500590-bebe59b6-5697-462d-9ebd-b40fe9a2dc2b.png)
 
@@ -25,8 +25,6 @@ Features:
 - Docker support.
 
 Resulting tilesets are validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
-
-Support for MapBox GL JS is deprecated at the moment. 
 
 To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries. Those geometries can be created 
 by FME (using Triangulator transformer - https://www.safe.com/transformers/triangulator/) or custom tesselation tools.
@@ -83,49 +81,53 @@ All parameters are optional, except the -t --table option.
 If --username and/or --dbname are not specified the current username is used as default.
 
 ```
-  -U, --username                (Default: username) Database user
+  -U, --username                  Database user
 
-  -h, --host                    (Default: localhost) Database host
+  -h, --host                      (Default: localhost) Database host
 
-  -d, --dbname                  (Default: username) Database name
+  -d, --dbname                    Database name
 
-  -c, --column                  (Default: geom) Geometry column name
+  -c, --column                    (Default: geom) Geometry column
 
-  -t, --table                   (Required) Database table name, include database schema if needed
+  -t, --table                     Required. Database table, include database schema if needed
 
-  -o, --output                  (Default: ./output/tiles) Output directory, will be created if not exists
+  -p, --port                      (Default: 5432) Database port
 
-  -p, --port                    (Default: 5432) Database port
+  -o, --output                    (Default: output) Output path
 
-  -a, --attributecolumns        (Default: '') attributes column names (comma separated)
+  -a, --attributecolumns          (Default: ) Attribute columns
 
-  -g, --geometricerrors         (Default: 2000, 0) Geometric errors
+  -q, --query                     (Default: ) Query parameter
 
-  -q, --query                   (Default: '') Query parameter
+  --copyright                     (Default: ) glTF asset copyright
 
-   --copyright                  (Default: '') glTF copyright 
+  --sql_command_timeout           (Default: 30) SQL command timeout
 
-  --shaderscolumn               (Default: '') shaders column
+  --default_color                 (Default: #FFFFFF) Default color
 
-  --lodcolumn                   (Default: '') LOD column
+  --default_metallic_roughness    (Default: #008000) Default metallic roughness
 
-  --use_implicit_tiling         (Default: True) Use 3D Tiles 1.1 Implicit tiling
+  --max_features_per_tile         (Default: 1000) maximum features per tile (Cesium)
 
-  --max_features_per_tile       (Default 1000) Maximum number of features per tile in 3D Tiles 1.1 Implicit tiling
-  
-  --sql_command_timeout         (Default: 30) Command timeout for database queries (in seconds)
+  -l, --lodcolumn                 (Default: ) LOD column (Cesium)
 
-  --boundingvolume_heights      (Default: '0,100') Height of boundingVolume (min, max) in meters 
+  -g, --geometricerrors           (Default: 2000,0) Geometric errors (Cesium)
 
-  --add_outlines                (Default: False) Add outlines
+  --shaderscolumn                 (Default: ) shaders column (Cesium)
 
-  --default_color               (Default: '#FFFFFF') Default color for models
-                       
-  --default_metallic_roughness  (Default: '#008000') Default metallic roughness
-  
-  --help                        Display this help screen.
+  --use_implicit_tiling           (Default: true) use 1.1 implicit tiling (Cesium)
 
-  --version                     Display version information.  
+  --boundingvolume_heights        (Default: 0,100) Tile boundingVolume heights (min, max) in meters (Cesium)
+
+  --add_outlines                  (Default: false) Add outlines (Cesium)
+
+  --min_zoom                      (Default: 15) Minimum zoom level (Mapbox)
+
+  --max_zoom                      (Default: 15) Maximum zoom level (Mapbox)
+
+  --help                          Display this help screen.
+
+  --version                       Display version information.
 ```
 
 Sample command for running pg2b3dm:
@@ -154,6 +156,38 @@ To run:
 ```
 $ pg2b3dm
 ```
+
+## Experimental MapBox GL JS Support
+
+In release 1.6 experimental support for MapBox GL JS v3 beta is added.
+
+See announcement https://www.mapbox.com/blog/standard-core-style
+
+To get things running:
+
+- Create EPSG:3857 triangulated geometries in your database;
+
+- Run pg2b3dm 1.6 or higher, use Mapbox specific parameters min_zoom (default 15)/ max_zoom (default 15);
+
+- Tiles are written in format {z}-{x}-{y}.b3dm in the content directory;
+
+- Add the resulting tiles as 'batched-model') to your Mapbox GL JS v3 beta viewer
+
+Sample code:
+
+```
+map.addSource('3d tiles', {
+        "type": "batched-model",
+        "maxzoom": 15,
+        "minzoom": 15,
+        "tiles": [
+          "http://localhost:2015/content/{z}-{x}-{y}.b3dm"
+        ]
+      }
+)});
+```
+
+Note: In the currrent MapBox GL JS 3 beta (v3.0.0-beta.1) version the tiles are requested but the glTF's are not rendered correct yet.
 
 ## Remarks
 
@@ -552,6 +586,8 @@ Press F5 to start debugging.
 - Subtree (https://github.com/bertt/subtree) - for subtree file handling
 
 ## History
+
+2023-08-16: release 1.6.9, add experimental support for Mapbox GL JS v3
 
 2023-06-20: release 1.5.5, fix issue when only 1 level is generated
 
