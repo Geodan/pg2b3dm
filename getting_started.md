@@ -3,9 +3,7 @@
 ## Introduction
 
 In this document we run pg2b3dm on a sample dataset, a shapefile from Delaware containing building footprints with a height attribute. 
-The generated 3D tiles are visualized in a CesiumJS/Cesium for Unreal viewer.
-
-** Note: For MapBox GL JS support use an older version of the document and version pg2b3dm < 1.0. **
+The generated 3D tiles are visualized in a CesiumJS/Mapbox GL JS v3 beta/Cesium for Unreal viewer.
 
 ## Download data
 
