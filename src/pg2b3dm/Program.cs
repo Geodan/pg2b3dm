@@ -80,10 +80,6 @@ class Program
             Console.WriteLine($"Default color: {defaultColor}");
             Console.WriteLine($"Default metallic roughness: {defaultMetallicRoughness}");
 
-            var center_wgs84 = bbox_wgs84.GetCenter();
-            var translation = Translation.GetTranslation(sr, center_wgs84);
-            Console.WriteLine($"Translation: {String.Join(',', translation)}");
-
             var att = !string.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
             Console.WriteLine($"Attribute columns: {att}");
 
@@ -96,6 +92,11 @@ class Program
             // cesium specific
             if (appMode == AppMode.Cesium) {
                 Console.WriteLine("Starting Cesium mode...");
+
+                var center_wgs84 = bbox_wgs84.GetCenter();
+                var translation = Translation.GetTranslation(sr, center_wgs84);
+                Console.WriteLine($"Translation: {String.Join(',', translation)}");
+
                 var lodcolumn = o.LodColumn;
                 var addOutlines = (bool)o.AddOutlines;
                 var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse);
@@ -212,8 +213,10 @@ class Program
                         var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bounds[0], bounds[1]), new Point(bounds[2], bounds[3]), sr, query);
 
                         if (numberOfFeatures > 0) {
+                            var center = t.Center();
+                            var centerTileTranslation = Translation.GetTranslation(3857, new Point(center[0], center[1], 0)); ;
 
-                            var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, bounds, sr, o.ShadersColumn, o.AttributeColumns, query);
+                            var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, centerTileTranslation, bounds, sr, o.ShadersColumn, o.AttributeColumns, query);
                             var bytes = B3dmWriter.ToB3dm(geometries, o.Copyright, false, areaTolerance, defaultColor, defaultMetallicRoughness);
                             File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.Z}-{t.X}-{t.Y}.b3dm", bytes);
                             Console.Write(".");

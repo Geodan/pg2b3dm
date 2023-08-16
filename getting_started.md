@@ -140,7 +140,7 @@ Run pg2b3dm, the program will make a connection to the database and 1 tileset.js
 
 ```
 $ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -a ogc_fid,height --shaderscolumn shaders
-Tool: pg2b3dm 1.6.0.0
+Tool: pg2b3dm 1.6.1.0
 Password for user postgres:
 Start processing 2023-08-16T13:05:13....
 Input table: delaware_buildings_cesium
