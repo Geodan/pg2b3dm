@@ -184,7 +184,7 @@ map.addSource('3d tiles', {
 
 Note: In the currrent MapBox GL JS 3 beta (v3.0.0-beta.1) version the tiles are requested but the glTF's are not rendered correct yet.
 
-Live demo see https://geodan.github.io/pg2b3dm/sample_data/delaware/mapboxv3/
+Live demo see https://geodan.github.io/pg2b3dm/sample_data/delaware/mapboxv3/ (zoom in a bit)
 
 ## Remarks
 
