@@ -198,6 +198,10 @@ For large datasets create a spatial index on the geometry column:
 psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle)));
 ```
 
+In release 1.6.2 a check is added for the spatial index. If the spatial index is not present the following warning is shown.
+
+![image](https://user-images.githubusercontent.com/538812/261248327-c29b4520-a374-4441-83bf-2b60e8313c65.png)
+
 ### LOD
 
 With the LOD function there can be multiple representations of features depending on the distance to the camera (geometric error). So 
@@ -583,6 +587,8 @@ Press F5 to start debugging.
 - Subtree (https://github.com/bertt/subtree) - for subtree file handling
 
 ## History
+
+2023-08-17: release 1.6.2, add check for spatial index
 
 2023-08-16: release 1.6.1, translate b3dm's to center of tile for Mapbox GL JS v3
 
