@@ -103,6 +103,12 @@ After running, columns 'geom_triangle' and 'shaders' should be filled with the c
 
 The geom_triangle column contains PolyhedralSurfaceZ geometries consisting of triangles.
 
+In SQL add a spatial index on the geom_triangle column for fast performance:
+
+```
+psql> CREATE INDEX ON delaware_buildings USING gist(st_centroid(st_envelope(geom_triangle)));
+```
+
 The shaders column contains json information like:
 
 ```
