@@ -18,9 +18,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{E84F14
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{0403ED2E-B5AA-4160-8E10-84ED0D671778}"
 	ProjectSection(SolutionItems) = preProject
+		..\cesium_notes.md = ..\cesium_notes.md
 		C:\Users\bertt\Desktop\delaware.png = C:\Users\bertt\Desktop\delaware.png
 		C:\Users\bert\Desktop\demo_pg2b3dm.gif = C:\Users\bert\Desktop\demo_pg2b3dm.gif
 		..\getting_started.md = ..\getting_started.md
+		..\mapbox_notes.md = ..\mapbox_notes.md
 		..\README.md = ..\README.md
 		release_notes_0.10.md = release_notes_0.10.md
 		release_notes_0.11.md = release_notes_0.11.md
