@@ -9,6 +9,20 @@ namespace pg2b3dm.database.tests;
 public class UnitTest1
 {
     [Test]
+    public void HasSpatialIndexTest() {
+
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .AddEnvironmentVariables()
+            .Build();
+
+        var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
+        var hasSpatialIndex = SpatialIndexChecker.HasSpatialIndex(conn, "delaware_buildings", "geom_triangle");
+        Assert.IsFalse(hasSpatialIndex);
+    }
+
+
+    [Test]
     public void FirstTest()
     {
         var config = new ConfigurationBuilder()
