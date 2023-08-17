@@ -16,11 +16,9 @@ Features:
 
 - Shading PbrMetallicRoughness and PbrSpecularGlossiness;
 
-- LOD support;
-
 - Query parameter support;
 
-- Outlines support (using CESIUM_primitive_outline);
+- Cesium: LOD support and Outlines support (using CESIUM_primitive_outline);
 
 - Docker support.
 
@@ -152,47 +150,11 @@ To run:
 $ pg2b3dm
 ```
 
-## Experimental MapBox GL JS Support
-
-In release 1.6 experimental support for MapBox GL JS v3 beta is added.
-
-See announcement https://www.mapbox.com/blog/standard-core-style
-
-To get things running (see also https://github.com/Geodan/pg2b3dm/blob/master/getting_started.md):
-
-- Create EPSG:3857 triangulated geometries in your database;
-
-- Run pg2b3dm 1.6 or higher, use Mapbox specific parameters min_zoom (default 15)/ max_zoom (default 15);
-
-- Tiles are written in format {z}-{x}-{y}.b3dm in the content directory;
-
-- Add the resulting tiles as 'batched-model' to your Mapbox GL JS v3 beta viewer
-
-Sample code:
-
-```
-map.addSource('3d tiles', {
-        "type": "batched-model",
-        "maxzoom": 15,
-        "minzoom": 15,
-        "tiles": [
-          "http://localhost:2015/content/{z}-{x}-{y}.b3dm"
-        ]
-      }
-)});
-```
-
-Note: In the currrent MapBox GL JS 3 beta (v3.0.0-beta.1) version the tiles are requested but the glTF's are not rendered correct yet.
-
-Live demo see https://geodan.github.io/pg2b3dm/sample_data/delaware/mapboxv3/ (zoom in a bit)
-
 ## Styling
 
 For styling see [styling 3D Tiles](styling.md) 
 
-## Remarks
-
-### Geometries
+## Geometries
 
 - All geometries must be type polyhedralsurface consisting of triangles with 4 vertices each. If not 4 vertices exception is thrown.
 
@@ -206,41 +168,7 @@ In release 1.6.2 a check is added for the spatial index. If the spatial index is
 
 ![image](https://user-images.githubusercontent.com/538812/261248327-c29b4520-a374-4441-83bf-2b60e8313c65.png)
 
-### LOD
-
-With the LOD function there can be multiple representations of features depending on the distance to the camera (geometric error). So 
-for example visualize a simplified geometry when the camera is far away, and a more detailed geometry when the camera is close.
-
-Sample command for using LOD's:
-
-```
--h localhost -U postgres -c geom_triangle --shaderscolumn shaders -t delaware_buildings_lod -d postgres -g 1000,100,0 --lodcolumn lodcolumn --use_implicit_tiling false --max_features_per_tile 1000
-```
-
-The LOD function will be enabled when parameter --lodcolumn is not empty.
-
-The LOD column in the database contains integer LOD values (like 0,1). First the program queries the distinct values of 
-the LOD column.
-
-For each LOD the program will generate a tile (when there are features available). 
-
-The generated files (for example '4_6_8_0.b3dm') will have 4 parameters (x, y,z and lod). All the tiles will be included in the tileset.json, 
-corresponding with the calculated geometric error.
-
-Notes:
-
-- if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
-
-- LOD function is not available when implicit tiling is used.
-
-### Geometric errors
-
-By default, as geometric errors [2000,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in the -g option. 
-When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal intervals 
-between 2000 and 0.
-When using implicit tiling only the first value of the geometric errors is used, the rest is automatically calculated by implicit tiling.
-
-### Query parameter
+## Query parameter
 
 The -q --query will be added to the 'where' part of all queries. 
 
@@ -260,7 +188,7 @@ Spatial query:
 
 Make sure to check the indexes when using large tables.
 
-### Attributes
+## Attributes
 
 With the -a attributecolumns parameter multiple columns with attributes can be specified. The attribute information is stored in the b3dm batch table. 
 Multiple columns must be comma separated:
@@ -269,57 +197,13 @@ Sample:  --attributescolumns col1,col2
 
 Attribute columns can be of any type.
 
-## Tiling method
+## Cesium support
 
-Tiles are created within a quadtree, with a maximum number of features by max_features_per_tile (default 1000). In pg2b3dm version 0.14 support for 3D Tiles
-1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'true'). When Impliciting Tiling 
-is activated subtree files (*.subtree) will be created (in folder subtrees) and the tileset.json file will no longer explitly list all tiles.
+For Cesium support (tiling schema, LODS, outlines) see [Cesium notes](cesium_notes.md) 
 
-At the moment, Implicit tiling is only supported in the CesiumJS client.
+## Mapbox support
 
-Some remarks about implicit tiling:
-
-- There is no support (yet) for creating octree instead of quadtree;
-
-- There is no support (yet) for multiple contents per tile;
-
-- There is no support (yet) for implicit tiling metadata;
-
-- Parameter '-l --lodcolumn' is ignored when using implicit tiling;
-
-- Only the first value of parameter of geometric errors is used in tileset.json;
-
-- When using larger geometries (that intersect partly with a quadtree tile) and implicit tiling there can be issues with feature visibility.
-
-For more information about Implicit Tiling see https://github.com/CesiumGS/3d-tiles/tree/draft-1.1/specification/ImplicitTiling
-
-
-
-## Outlines
-
-Outlines using glTF 2.0 extension CESIUM_primitive_outline can be drawn by setting the option 'add_outlines' to true. 
-
-When enabling this 
-function the extension 'CESIUM_primitive_outline' will be used in the glTF. The indices of vertices that should take part in outlining are stored 
-in the glTF's. The CesiumJS client has functionality to read and visualize the outlines. 
-
-In the CesiumJS client the outline color can be changed using the 'outlineColor' property of Cesium3DTileset:
-
-```
-tileset.outlineColor = Cesium.Color.fromCssColorString("#875217");
-```
-
-For more information about CESIUM_primitive_outline see https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/CESIUM_primitive_outline/README.md
-
-
-When using Draco compression and Outlines there will be an error in the Cesium client: 'Cannot read properties of undefined (reading 'count')'
-see also https://github.com/CesiumGS/gltf-pipeline/pull/631 
-
-There is a workaround:
-
-. Use gltf-pipeline with https://github.com/CesiumGS/gltf-pipeline/pull/631
-
-. Use gltf-pipeline settings --draco.compressionLevel 0 --draco.quantizePositionBits 14
+For Mapbox support see [Mapbox notes](mapbox_notes.md) 
 
 ## Run from Docker
 
@@ -350,12 +234,6 @@ $ docker build -t geodan/pg2b3dm:{name_of_feature_branch} .
 ```
 
 ### Running
-
-Sample on Windows: 
-
-```
-$ docker run -v C:\output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_table
-```
 
 Sample on Linux:
 
