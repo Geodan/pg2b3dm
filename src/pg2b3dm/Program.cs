@@ -69,10 +69,24 @@ class Program
                 Console.WriteLine("Program exit...");
                 Environment.Exit(0);
             }
-
             appMode = (sr == 3857 ? AppMode.Mapbox : AppMode.Cesium);
-
             Console.WriteLine($"Spatial reference of {table}.{geometryColumn}: {sr}");
+
+            // Check spatialIndex
+            var hasSpatialIndex = SpatialIndexChecker.HasSpatialIndex(conn, table, geometryColumn);
+            if (!hasSpatialIndex) {
+                Console.WriteLine();
+                Console.WriteLine("-----------------------------------------------------------------------------");
+                Console.WriteLine($"WARNING: No spatial index detected on {table}.{geometryColumn}");
+                Console.WriteLine("Fix: add a spatial index, for example: ");
+                Console.WriteLine($"'CREATE INDEX ON {table} USING gist(st_centroid(st_envelope({geometryColumn})))'");
+                Console.WriteLine("-----------------------------------------------------------------------------");
+                Console.WriteLine();
+            }
+            else {
+                Console.WriteLine($"Spatial index detected on {table}.{geometryColumn}");
+            }
+
             Console.WriteLine($"Query bounding box of {table}.{geometryColumn}...");
             var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn);
             Console.WriteLine($"Bounding box for {table}.{geometryColumn} (in WGS84): {Math.Round(bbox_wgs84.XMin, 4)}, {Math.Round(bbox_wgs84.YMin, 4)}, {Math.Round(bbox_wgs84.XMax, 4)}, {Math.Round(bbox_wgs84.YMax, 4)}");
@@ -205,7 +219,7 @@ class Program
                 for (var level = min_zoom; level <= max_zoom; level++) {
                     var tiles = Tiles.Tools.Tilebelt.GetTilesOnLevel(new double[] { bbox_wgs84.XMin, bbox_wgs84.YMin, bbox_wgs84.XMax, bbox_wgs84.YMax }, level);
 
-                    Console.WriteLine($"Tiles to be created on level {level}: {tiles.Count()}");
+                    Console.WriteLine($"Creating tiles for level {level}: {tiles.Count()}");
 
                     foreach (var t in tiles) {
                         var bounds = t.Bounds();
