@@ -22,8 +22,8 @@ public class GlbCreatorTests
         // arrange
         var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
         var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
-        var polyhedralsurface = ((PolyhedralSurface)g);
-        var triangles = Triangulator.GetTriangles(polyhedralsurface, 100);
+        var multipolygon = ((MultiPolygon)g);
+        var triangles = Triangulator.GetTriangles(multipolygon, 100);
 
         // act
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
@@ -41,8 +41,8 @@ public class GlbCreatorTests
         // arrange
         var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
         var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
-        var polyhedralsurface = ((PolyhedralSurface)g);
-        var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, null);
+        var multipolygon = ((MultiPolygon)g);
+        var triangles = Triangulator.GetTriangles(multipolygon, 100, null);
         
         // act
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
@@ -61,10 +61,10 @@ public class GlbCreatorTests
         // arrange
         var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
         var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
-        var polyhedralsurface = ((PolyhedralSurface)g);
+        var multipolygon = ((MultiPolygon)g);
         var shaderColors = new ShaderColors();
         var metallicRoughness = new PbrMetallicRoughnessColors();
-        metallicRoughness.BaseColors = (from geo in polyhedralsurface.Geometries
+        metallicRoughness.BaseColors = (from geo in multipolygon.Geometries
                                         let random = new Random()
                                         let color = string.Format("#{0:X6}", random.Next(0x1000000))
                                         select color).ToList();
@@ -72,7 +72,7 @@ public class GlbCreatorTests
         shaderColors.PbrMetallicRoughnessColors = metallicRoughness;
 
         // act
-        var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, shaderColors);
+        var triangles = Triangulator.GetTriangles(multipolygon, 100, shaderColors);
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ams_building_multiple_colors.glb");
         File.WriteAllBytes(fileName, bytes);
@@ -90,11 +90,11 @@ public class GlbCreatorTests
         // arrange
         var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
         var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
-        var polyhedralsurface = ((PolyhedralSurface)g);
+        var multipolygon = ((MultiPolygon)g);
 
         var shaderColors = new ShaderColors();
         var metallicRoughness = new PbrMetallicRoughnessColors();
-        metallicRoughness.BaseColors = (from geo in polyhedralsurface.Geometries
+        metallicRoughness.BaseColors = (from geo in multipolygon.Geometries
                                         let random = new Random()
                                         let color = String.Format("#{0:X6}", random.Next(0x1000000))
                                         select color).ToList();
@@ -110,7 +110,7 @@ public class GlbCreatorTests
 
         // act
         try {
-            var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, shaderColors);
+            var triangles = Triangulator.GetTriangles(multipolygon, 100, shaderColors);
         }
         catch(Exception ex){
             // assert
@@ -166,14 +166,14 @@ public class GlbCreatorTests
         var buildingDelawareWkt = "POLYHEDRALSURFACE Z (((1237196.52254261 -4794569.11324542 4006730.36853675,1237205.09930114 -4794565.00723136 4006732.61840877,1237198.22281801 -4794557.02527831 4006744.21497578,1237196.52254261 -4794569.11324542 4006730.36853675)),((1237198.22281801 -4794557.02527831 4006744.21497578,1237189.64607418 -4794561.13128501 4006741.96510802,1237196.52254261 -4794569.11324542 4006730.36853675,1237198.22281801 -4794557.02527831 4006744.21497578)),((1237199.14544946 -4794579.27792655 4006738.92021596,1237207.72222617 -4794575.17190377 4006741.17009276,1237200.84572844 -4794567.18993371 4006752.76668446,1237199.14544946 -4794579.27792655 4006738.92021596)),((1237200.84572844 -4794567.18993371 4006752.76668446,1237192.26896643 -4794571.29594914 4006750.51681191,1237199.14544946 -4794579.27792655 4006738.92021596,1237200.84572844 -4794567.18993371 4006752.76668446)),((1237205.09930114 -4794565.00723136 4006732.61840877,1237196.52254261 -4794569.11324542 4006730.36853675,1237207.72222617 -4794575.17190377 4006741.17009276,1237205.09930114 -4794565.00723136 4006732.61840877)),((1237207.72222617 -4794575.17190377 4006741.17009276,1237199.14544946 -4794579.27792655 4006738.92021596,1237196.52254261 -4794569.11324542 4006730.36853675,1237207.72222617 -4794575.17190377 4006741.17009276)),((1237196.52254261 -4794569.11324542 4006730.36853675,1237189.64607418 -4794561.13128501 4006741.96510802,1237199.14544946 -4794579.27792655 4006738.92021596,1237196.52254261 -4794569.11324542 4006730.36853675)),((1237199.14544946 -4794579.27792655 4006738.92021596,1237192.26896643 -4794571.29594914 4006750.51681191,1237189.64607418 -4794561.13128501 4006741.96510802,1237199.14544946 -4794579.27792655 4006738.92021596)),((1237189.64607418 -4794561.13128501 4006741.96510802,1237198.22281801 -4794557.02527831 4006744.21497578,1237192.26896643 -4794571.29594914 4006750.51681191,1237189.64607418 -4794561.13128501 4006741.96510802)),((1237192.26896643 -4794571.29594914 4006750.51681191,1237200.84572844 -4794567.18993371 4006752.76668446,1237198.22281801 -4794557.02527831 4006744.21497578,1237192.26896643 -4794571.29594914 4006750.51681191)),((1237198.22281801 -4794557.02527831 4006744.21497578,1237205.09930114 -4794565.00723136 4006732.61840877,1237200.84572844 -4794567.18993371 4006752.76668446,1237198.22281801 -4794557.02527831 4006744.21497578)),((1237200.84572844 -4794567.18993371 4006752.76668446,1237207.72222617 -4794575.17190377 4006741.17009276,1237205.09930114 -4794565.00723136 4006732.61840877,1237200.84572844 -4794567.18993371 4006752.76668446)))";
         var colors = new List<string>() {"#385E0F","#385E0F", "#FF0000", "#FF0000", "#EEC900","#EEC900","#EEC900","#EEC900","#EEC900","#EEC900","#EEC900","#EEC900"};
         var g = Geometry.Deserialize<WktSerializer>(buildingDelawareWkt);
-        var polyhedralsurface = ((PolyhedralSurface)g);
-        var center = polyhedralsurface.GetCenter();
+        var multipolygon = ((MultiPolygon)g);
+        var center = multipolygon.GetCenter();
 
         var shaderColors = new ShaderColors();
         var metallicRoughness = new PbrMetallicRoughnessColors();
         metallicRoughness.BaseColors = colors;
 
-        var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, shaderColors);
+        var triangles = Triangulator.GetTriangles(multipolygon, 100, shaderColors);
         CheckNormal(triangles[2], center);
         Assert.IsTrue(triangles.Count == 12);
 

@@ -20,7 +20,7 @@ public class GeometryRecord
 
     public List<Triangle> GetTriangles(double areaTolerance=0.01)
     {
-        var surface = (PolyhedralSurface)Geometry;
+        var surface = (MultiPolygon)Geometry;
         var triangles = Triangulator.GetTriangles(surface, BatchId, Shader, areaTolerance);
         return triangles;
     }

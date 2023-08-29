@@ -6,16 +6,16 @@ namespace Wkb2Gltf;
 
 public static class Triangulator
 {
-    public static List<Triangle> GetTriangles(PolyhedralSurface polyhedralsurface, int batchId, ShaderColors shadercolors =null, double areaTolerence = 0.01)
+    public static List<Triangle> GetTriangles(MultiPolygon multipolygon, int batchId, ShaderColors shadercolors =null, double areaTolerence = 0.01)
     {
         var degenerated_triangles = 0;
         var allTriangles = new List<Triangle>();
-        for(var i=0;i<polyhedralsurface.Geometries.Count;i++) {
-            var geometry = polyhedralsurface.Geometries[i];
+        for(var i=0;i<multipolygon.Geometries.Count;i++) {
+            var geometry = multipolygon.Geometries[i];
             var triangle = GetTriangle(geometry, batchId);
 
             if (triangle!=null && shadercolors != null && triangle.Area() > areaTolerence) {
-                shadercolors.Validate(polyhedralsurface.Geometries.Count);
+                shadercolors.Validate(multipolygon.Geometries.Count);
                 triangle.Shader = shadercolors.ToShader(i);
             }
 
