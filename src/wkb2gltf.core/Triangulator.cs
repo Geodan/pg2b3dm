@@ -6,15 +6,14 @@ namespace Wkb2Gltf;
 
 public static class Triangulator
 {
-    public static List<Triangle> GetTriangles(MultiPolygon multipolygon, int batchId, ShaderColors shadercolors = null, double areaTolerence = 0.01)
+    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, ShaderColors shadercolors = null, double areaTolerence = 0.01)
     {
-        var geometries = multipolygon.Geometries;
-        return GetTriangles(batchId, shadercolors, areaTolerence, geometries);
-    }
+        var isMultiPolygon = geometry is MultiPolygon;
 
-    public static List<Triangle> GetTriangles(PolyhedralSurface polyhedralsurface, int batchId, ShaderColors shadercolors = null, double areaTolerence = 0.01)
-    {
-        var geometries = polyhedralsurface.Geometries;
+        var geometries = isMultiPolygon ?
+            ((MultiPolygon)geometry).Geometries :
+            ((PolyhedralSurface)geometry).Geometries;
+
         return GetTriangles(batchId, shadercolors, areaTolerence, geometries);
     }
 
