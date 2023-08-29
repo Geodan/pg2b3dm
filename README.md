@@ -24,7 +24,7 @@ Features:
 
 Resulting tilesets are validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
 
-To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries. Those geometries can be created 
+To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface/multipolygon geometries. Those geometries can be created 
 by FME (using Triangulator transformer - https://www.safe.com/transformers/triangulator/) or custom tesselation tools.
 
 Tileset.json and b3dm tiles are by default created in the 'output/content' subdirectory (or specify output directory with   -o, --output).
