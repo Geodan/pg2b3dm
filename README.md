@@ -156,7 +156,9 @@ For styling see [styling 3D Tiles](styling.md)
 
 ## Geometries
 
-- All geometries must be type polyhedralsurface consisting of triangles with 4 vertices each. If not 4 vertices exception is thrown.
+- All geometries must be type polyhedralsurface or multipolygon consisting of triangles with 4 vertices each. If not 4 vertices exception is thrown.
+
+Support for MultiPolygon is added in release 1.6.3.
 
 For large datasets create a spatial index on the geometry column:
 
@@ -302,6 +304,8 @@ Press F5 to start debugging.
 - Subtree (https://github.com/bertt/subtree) - for subtree file handling
 
 ## History
+
+2023-08-29: release 1.6.3, add support for MultiPolygonZ
 
 2023-08-17: release 1.6.2, add check for spatial index
 
