@@ -20,6 +20,8 @@ Features:
 
 - Cesium: LOD support and Outlines support (using CESIUM_primitive_outline);
 
+- Triangulation of input geometries MultiPolygon/PolyhedralSurface;
+
 - Docker support.
 
 Resulting tilesets are validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
