@@ -41,6 +41,7 @@ The json must have the following structure:
 
 The amount of colors in the lists must correspond to the number of triangles in the geometry, otherwise an exception is thrown.
 
+Warning: The input geometries must be triangulated for this to work. Otherwise pg2b3dm will triangulate the geometries and the number of triangles will be unknown.
 
 ## Samples
 
