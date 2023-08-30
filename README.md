@@ -24,8 +24,9 @@ Features:
 
 Resulting tilesets are validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
 
-To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface/multipolygon geometries. Those geometries can be created 
-by FME (using Triangulator transformer - https://www.safe.com/transformers/triangulator/) or custom tesselation tools.
+To run this tool there must be a PostGIS table available containing polyhedralsurface/multipolygon geometries. 
+
+New feature in pg2b3dm 1.7.0: When the geometries are not triangulated, pg2b3m will perform triangulation. 
 
 Tileset.json and b3dm tiles are by default created in the 'output/content' subdirectory (or specify output directory with   -o, --output).
 
@@ -291,19 +292,23 @@ Press F5 to start debugging.
 
 ## Dependencies
 
-- SharpGLTF (https://github.com/vpenades/SharpGLTF) for generating glTF;
+- b3dm-tile (https://github.com/bertt/b3dm-tile-cs) - for generating b3dm files;
 
 - CommandLineParser (https://github.com/commandlineparser/commandline) for parsing command line options;
 
 - Npgsql (https://www.npgsql.org/) - for access to PostgreSQL;
 
-- b3dm-tile (https://github.com/bertt/b3dm-tile-cs) - for generating b3dm files;
-
-- Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
+- SharpGLTF (https://github.com/vpenades/SharpGLTF) for generating glTF;
 
 - Subtree (https://github.com/bertt/subtree) - for subtree file handling
 
+- Triangulator (https://github.com/bertt/triangulator) - for triangulating geometries
+
+- Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
+
 ## History
+
+2023-08-29: release 1.7.0, add triangulator - runs only when geometry is not triangulated
 
 2023-08-29: release 1.6.3, add support for MultiPolygonZ
 
