@@ -34,9 +34,28 @@ Tileset.json and b3dm tiles are by default created in the 'output/content' subdi
 
 ## Getting started
 
-See [getting started](getting_started.md) for a tutorial how to convert a shapefile of buildings to 3D Tiles and visualize in CesiumJS/Cesium for Unreal.
+1] See [getting started](getting_started.md) for a tutorial how to convert a shapefile of buildings to 3D Tiles and visualize in CesiumJS/Cesium for Unreal.
 
-For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
+2] For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
+
+3] Convert Dutch 3D Bag to 3D Tiles
+
+- Download Geopackage tile from https://3dbag.nl/, for example https://3dbag.nl/nl/download?tid=7-480-624
+
+Result: 7-480-624.gpkg (18 MB)
+
+- Import in PostGIS database, convert to Cesium coordinates
+
+```
+$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4978 7-480-624.gpkg lod22_3d
+```
+
+- Convert to 3D Tiles using pg2b3dm
+
+```
+$ pg2b3dm -h localhost -U postgres -c geom -d postgres -t lod22_3d -a identificatie
+```
+- Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/tienhoven/  
 
 ## Demo
 
