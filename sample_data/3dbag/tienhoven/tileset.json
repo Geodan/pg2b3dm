@@ -1,0 +1,50 @@
+{
+  "geometricError": 2000.0,
+  "root": {
+    "transform": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      3904347.25,
+      348519.34375,
+      5014556.0,
+      1.0
+    ],
+    "geometricError": 2000.0,
+    "refine": "ADD",
+    "boundingVolume": {
+      "region": [
+        0.08849673124663605,
+        0.910226397236542,
+        0.08956021156953269,
+        0.9109160564649954,
+        0.0,
+        100.0
+      ]
+    },
+    "content": {
+      "uri": "content/{level}_{x}_{y}.b3dm"
+    },
+    "implicitTiling": {
+      "availableLevels": 2,
+      "subdivisionScheme": "QUADTREE",
+      "subtreeLevels": 2,
+      "subtrees": {
+        "uri": "subtrees/{level}_{x}_{y}.subtree"
+      }
+    }
+  },
+  "asset": {
+    "generator": "pg2b3dm 1.7.0.0",
+    "version": "1.0"
+  }
+}
