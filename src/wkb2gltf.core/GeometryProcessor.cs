@@ -1,20 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using Triangulate;
 using Wkx;
 
 namespace Wkb2Gltf;
 
-public static class Triangulator
+public static class GeometryProcessor
 {
     public static List<Triangle> GetTriangles(Geometry geometry, int batchId, ShaderColors shadercolors = null, double areaTolerence = 0.01)
     {
+        if (geometry is not MultiPolygon && geometry is not PolyhedralSurface) {
+            throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
+        }
+
         var isMultiPolygon = geometry is MultiPolygon;
 
         var geometries = isMultiPolygon ?
             ((MultiPolygon)geometry).Geometries :
             ((PolyhedralSurface)geometry).Geometries;
 
+
+        var isTriangulated = IsTriangulated(geometries);
+
+        if (!isTriangulated) {
+            // try to triangulate
+            var geometryTriangles = Triangulator.Triangulate(geometry);
+
+            geometries = isMultiPolygon ?
+                ((MultiPolygon)geometryTriangles).Geometries :
+                ((PolyhedralSurface)geometryTriangles).Geometries;
+        }
+
+
         return GetTriangles(batchId, shadercolors, areaTolerence, geometries);
+
     }
 
     private static List<Triangle> GetTriangles(int batchId, ShaderColors shadercolors, double areaTolerence, List<Polygon> geometries)
@@ -61,4 +80,15 @@ public static class Triangulator
         var triangle = new Triangle(pnts[0], pnts[1], pnts[2], batchId);
         return triangle;
     }
+
+    private static bool IsTriangulated(List<Polygon> polygons)
+    {
+        foreach (var polygon in polygons) {
+            if (polygon.ExteriorRing.Points.Count != 4) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
