@@ -157,9 +157,8 @@ For styling see [styling 3D Tiles](styling.md)
 
 ## Geometries
 
-- All geometries must be type polyhedralsurface or multipolygon consisting of triangles with 4 vertices each. If not 4 vertices exception is thrown.
-
-Support for MultiPolygon is added in release 1.6.3.
+Input geometries must be of type PolyhedralSurface or Multipolygon (with z values). When the geometry is not triangulated, pg2b3dm will perform
+triangulation.
 
 For large datasets create a spatial index on the geometry column:
 
@@ -167,7 +166,7 @@ For large datasets create a spatial index on the geometry column:
 psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle)));
 ```
 
-In release 1.6.2 a check is added for the spatial index. If the spatial index is not present the following warning is shown.
+When there the spatial index is not present the following warning is shown.
 
 ![image](https://user-images.githubusercontent.com/538812/261248327-c29b4520-a374-4441-83bf-2b60e8313c65.png)
 
