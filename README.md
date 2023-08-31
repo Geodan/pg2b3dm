@@ -309,6 +309,8 @@ Press F5 to start debugging.
 
 ## History
 
+2023-08-29: release 1.7.1, improve spatial index check
+
 2023-08-29: release 1.7.0, add triangulator - runs only when geometry is not triangulated
 
 2023-08-29: release 1.6.3, add support for MultiPolygonZ
