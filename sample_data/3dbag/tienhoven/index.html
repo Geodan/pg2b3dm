@@ -25,19 +25,19 @@
 <body>
   <div id="cesiumContainer"></div>
   <script type="module">
+    
     const pdokLuchtfoto = new Cesium.WebMapTileServiceImageryProvider({
-      url: 'https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0?layer=Actueel_orthoHR&style=default&tilematrixset={TileMatrixSet}&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix={TileMatrix}&TileCol={TileCol}&TileRow={TileRow}',
+      url: 'https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0',
       layer : 'Actueel_orthoHR',
       style : 'default',
       format : 'image/png',
-      tileMatrixSetID : 'epsg:28992',
-      maximumLevel: 19,
+      tileMatrixSetID : 'EPSG:3857',
       credit : new Cesium.Credit('Pdok')
     });
  
     var viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: pdokLuchtfoto
     });
+    viewer.imageryLayers.addImageryProvider(pdokLuchtfoto);
    
     viewer.scene.debugShowFramesPerSecond = true;
 
