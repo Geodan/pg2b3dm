@@ -7,8 +7,9 @@ public static class SpatialIndexChecker
     {
         var schema = "public";
         if(geometry_table.Contains('.')) {
-            schema = geometry_table.Split('.')[0];
-            geometry_table = geometry_table.Split('.')[1];
+            var items = geometry_table.Split('.', 2);
+            schema = items[0];
+            geometry_table = items[1];
         }
 
         var sql = $"select count(*) from pg_indexes " +
@@ -16,6 +17,7 @@ public static class SpatialIndexChecker
             $"and indexdef like @index";
         conn.Open();
         var cmd = new NpgsqlCommand(sql, conn);
+
         cmd.Parameters.AddWithValue("schema", schema);
         cmd.Parameters.AddWithValue("geometry_table", geometry_table);
         cmd.Parameters.AddWithValue("index", "%"+geometry_column + "%");
