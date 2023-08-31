@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.106.0/Cesium.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.106.0/Widgets/widgets.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.108.0/Cesium.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.108.0/Widgets/widgets.min.css" rel="stylesheet">
   
     <style>
       html, body, #cesiumContainer {
@@ -24,31 +24,37 @@
 </head>
 <body>
   <div id="cesiumContainer"></div>
-  <script>
-   
-    const esri = new Cesium.ArcGisMapServerImageryProvider({
-      url : 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer'
+  <script type="module">
+    const pdokLuchtfoto = new Cesium.WebMapTileServiceImageryProvider({
+      url: 'https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0?layer=Actueel_orthoHR&style=default&tilematrixset={TileMatrixSet}&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fpng&TileMatrix={TileMatrix}&TileCol={TileCol}&TileRow={TileRow}',
+      layer : 'Actueel_orthoHR',
+      style : 'default',
+      format : 'image/png',
+      tileMatrixSetID : 'epsg:28992',
+      maximumLevel: 19,
+      credit : new Cesium.Credit('Pdok')
     });
  
     var viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: esri
+      imageryProvider: pdokLuchtfoto
     });
    
     viewer.scene.debugShowFramesPerSecond = true;
-    var tileset = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
-        url : 'tileset.json'
-    }));
 
-var terrainProvider = new Cesium.CesiumTerrainProvider({
-    url : 'https://3d.kadaster.nl/dtm/ahn4'
-});
-viewer.scene.terrainProvider = terrainProvider;
-viewer.scene.globe.depthTestAgainstTerrain=true;
+    var terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl('https://3d.kadaster.nl/dtm/ahn4');
+    viewer.scene.terrainProvider = terrainProvider;
+    viewer.scene.globe.depthTestAgainstTerrain=true;
 
+    const tileset = await Cesium.Cesium3DTileset.fromUrl(
+      "tileset.json"
+    );  
+    viewer.scene.primitives.add(tileset);
 
     tileset.debugShowBoundingVolume = true;
     // tileset.debugColorizeTiles = true;
     viewer.scene.globe.depthTestAgainstTerrain = true;
+
+
     viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, 0));
     var handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
     handler.setInputAction(function(movement) {
