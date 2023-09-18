@@ -15,6 +15,7 @@ public class MaterialCreator
         WithMetallicRoughnessShader().
         WithAlpha(AlphaMode.BLEND).
         WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, ColorToVector4(rgb));
+        material.WithMetallicRoughness(0.0f);
         return material;
     }
 
