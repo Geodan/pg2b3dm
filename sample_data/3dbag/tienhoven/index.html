@@ -39,6 +39,16 @@
         animation: false,
         timeline: false
     });
+
+    viewer.scene.light = new Cesium.DirectionalLight({
+      direction: viewer.scene.camera.directionWC,
+    });
+    viewer.scene.preRender.addEventListener(function (scene, time) {
+      viewer.scene.light.direction = Cesium.Cartesian3.clone(
+        viewer.scene.camera.directionWC,
+        viewer.scene.light.direction
+      );
+    });
     viewer.imageryLayers.addImageryProvider(pdokLuchtfoto);
    
     viewer.scene.debugShowFramesPerSecond = true;
