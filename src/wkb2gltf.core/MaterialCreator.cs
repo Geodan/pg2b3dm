@@ -6,10 +6,10 @@ namespace Wkb2Gltf;
 
 public class MaterialCreator
 {
-    public static MaterialBuilder CreateMaterial(Shader shader)
+    public static MaterialBuilder CreateMaterial(Shader shader, bool defaultDoubleSided = true)
     {
         var material = new MaterialBuilder().
-            WithDoubleSide(true).
+            WithDoubleSide(defaultDoubleSided).
             WithAlpha(AlphaMode.OPAQUE);
 
         if (!string.IsNullOrEmpty(shader.EmissiveColor)) {

@@ -59,6 +59,7 @@ class Program
             var geometryColumn = o.GeometryColumn;
             var defaultColor = o.DefaultColor;
             var defaultMetallicRoughness = o.DefaultMetallicRoughness;
+            var defaultDoubleSided = (bool)o.DefaultDoubleSided;
             var query = o.Query;
 
             var conn = new NpgsqlConnection(connectionString);
@@ -93,6 +94,7 @@ class Program
 
             Console.WriteLine($"Default color: {defaultColor}");
             Console.WriteLine($"Default metallic roughness: {defaultMetallicRoughness}");
+            Console.WriteLine($"Default doublesided: {defaultDoubleSided}");
 
             var att = !string.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
             Console.WriteLine($"Attribute columns: {att}");
@@ -168,7 +170,7 @@ class Program
                 tile.BoundingBox = bbox_wgs84.ToArray();
                 Console.WriteLine($"Start generating tiles...");
                 var quadtreeTiler = new QuadtreeTiler(conn, table, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
-                var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness);
+                var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, defaultDoubleSided);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 

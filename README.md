@@ -122,6 +122,8 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --default_metallic_roughness    (Default: #008000) Default metallic roughness
 
+  --default_double_sided          (Default: true) Default double sided
+
   --max_features_per_tile         (Default: 1000) maximum features per tile (Cesium)
 
   -l, --lodcolumn                 (Default: '') LOD column (Cesium)

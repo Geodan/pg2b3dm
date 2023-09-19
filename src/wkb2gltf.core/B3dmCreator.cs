@@ -8,9 +8,9 @@ namespace Wkb2Gltf;
 
 public static class B3dmCreator
 {
-    public static B3dm GetB3dm(Dictionary<string, List<object>> attributes, List<List<Triangle>> triangleCollection, string copyright="", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000")
+    public static B3dm GetB3dm(Dictionary<string, List<object>> attributes, List<List<Triangle>> triangleCollection, string copyright="", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true)
     {
-        var bytes = GlbCreator.GetGlb(triangleCollection, copyright, addOutlines, defaultColor, defaultMetallicRoughness);
+        var bytes = GlbCreator.GetGlb(triangleCollection, copyright, addOutlines, defaultColor, defaultMetallicRoughness, defaultDoubleSided);
 
         var b3dm = new B3dm(bytes);
 

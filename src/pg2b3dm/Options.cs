@@ -36,6 +36,9 @@ public class Options
     [Option("default_metallic_roughness", Required = false, Default = "#008000", HelpText = "Default metallic roughness")]
     public string DefaultMetallicRoughness { get; set; }
 
+    [Option("default_double_sided", Required = false, Default = true, HelpText = "Default double sided")]
+    public bool? DefaultDoubleSided { get; set; }
+
     // cesium specific options
 
     [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile (Cesium)", SetName = "Cesium")]
@@ -51,7 +54,7 @@ public class Options
     public string ShadersColumn { get; set; }
 
     [Option("use_implicit_tiling", Required = false, Default = true, HelpText = "use 1.1 implicit tiling (Cesium)", SetName = "Cesium")]
-    public bool UseImplicitTiling { get; set; }
+    public bool? UseImplicitTiling { get; set; }
 
     [Option("boundingvolume_heights", Required = false, Default = "0,100", HelpText = "Tile boundingVolume heights (min, max) in meters (Cesium)", SetName = "Cesium")]
     public string BoundingVolumeHeights { get; set; }

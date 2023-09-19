@@ -12,12 +12,12 @@ namespace Wkb2Gltf;
 
 public static class GlbCreator
 {
-    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000")
+    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true)
     {
         var materialCache = new MaterialsCache();
         var shader = new Shader();
         shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = defaultColor, MetallicRoughness = defaultMetallicRoughness };
-        var defaultMaterial = MaterialCreator.CreateMaterial(shader);
+        var defaultMaterial = MaterialCreator.CreateMaterial(shader, defaultDoubleSided);
 
         var mesh = new MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty>("mesh");
 
