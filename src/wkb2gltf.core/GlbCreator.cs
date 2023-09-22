@@ -69,12 +69,8 @@ public static class GlbCreator
             var ext = model.InitializeMetadataExtension("propertyTable", attributes.First().Value.Count);
             foreach (var attribute in attributes) {
                 var type = attribute.Value.FirstOrDefault().GetType();
-                if(type == typeof(string)) {
-                    var list = attribute.Value.ConvertAll(x => x.ToString());
-                    model.AddMetadata(ext, attribute.Key, list);
-                }
                 // todo: do not cast all these types to float
-                else if(type == typeof(decimal) || type == typeof(double) || type == typeof(float)) {
+                if(type == typeof(decimal) || type == typeof(double) || type == typeof(float)) {
                     var list = attribute.Value.ConvertAll(x => Convert.ToSingle(x));
                     model.AddMetadata(ext, attribute.Key, list);
                 }
@@ -86,6 +82,11 @@ public static class GlbCreator
                     var list = attribute.Value.ConvertAll(x => (int)x);
                     model.AddMetadata(ext, attribute.Key, list);
                 }
+                else {
+                    var list = attribute.Value.ConvertAll(x => x.ToString());
+                    model.AddMetadata(ext, attribute.Key, list);
+                }
+
                 // todo add other types?
             }
         }
