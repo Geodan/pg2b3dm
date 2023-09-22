@@ -122,7 +122,9 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --default_metallic_roughness    (Default: #008000) Default metallic roughness
 
-  --default_double_sided          (Default: true) Default double sided
+  --double_sided                  (Default: true) Default double sided
+
+  --create_gltf                   (Default: true) Create glTF files
 
   --max_features_per_tile         (Default: 1000) maximum features per tile (Cesium)
 
@@ -329,6 +331,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2023-09-22: release 1.8, adding 3D Tiles 1.1 Metadata support. Options added: create_gltf (default true), double_sided (default true)
 
 2023-08-29: release 1.7.1, improve spatial index check
 

@@ -36,8 +36,11 @@ public class Options
     [Option("default_metallic_roughness", Required = false, Default = "#008000", HelpText = "Default metallic roughness")]
     public string DefaultMetallicRoughness { get; set; }
 
-    [Option("default_double_sided", Required = false, Default = true, HelpText = "Default double sided")]
-    public bool? DefaultDoubleSided { get; set; }
+    [Option("double_sided", Required = false, Default = true, HelpText = "double sided")]
+    public bool? DoubleSided { get; set; }
+
+    [Option("create_gltf", Required = false, Default = true, HelpText = "Create glTF")]
+    public bool? CreateGltf { get; set; }
 
     // cesium specific options
 

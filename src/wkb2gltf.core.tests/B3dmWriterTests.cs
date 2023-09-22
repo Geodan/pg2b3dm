@@ -22,7 +22,7 @@ public class B3dmWriterTests
         geometryRecord.Attributes = attributes;
 
         // act
-        var b3dmBytes = B3dmWriter.ToB3dm(new List<GeometryRecord> { geometryRecord }, addOutlines: true);
+        var b3dmBytes = TileWriter.ToTile(new List<GeometryRecord> { geometryRecord }, addOutlines: true);
 
         // assert
         Assert.IsTrue(b3dmBytes != null);
