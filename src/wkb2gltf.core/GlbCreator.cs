@@ -86,12 +86,7 @@ public static class GlbCreator
                     var list = attribute.Value.ConvertAll(x => (int)x);
                     model.AddMetadata(ext, attribute.Key, list);
                 }
-
-
-                //var list = new List<string>();
-                //foreach (var item in attribute.Value) {
-                //    list.Add(item.ToString());
-                //}
+                // todo add other types?
             }
         }
 
