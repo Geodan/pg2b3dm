@@ -12,6 +12,8 @@ Features:
 
 - 3D Tiles 1.1 Implicit tiling;
 
+- 3D Tiles extensions EXT_Mesh_Features and EXT_Structural_Metadata; 
+
 - Valid glTF 2.0 files;
 
 - Shading PbrMetallicRoughness and PbrSpecularGlossiness;
@@ -27,8 +29,6 @@ Features:
 Resulting tilesets are validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
 
 To run this tool there must be a PostGIS table available containing polyhedralsurface/multipolygon geometries. 
-
-New feature in pg2b3dm 1.7.0: When the geometries are not triangulated, pg2b3m will perform triangulation. 
 
 Tileset.json and b3dm tiles are by default created in the 'output/content' subdirectory (or specify output directory with   -o, --output).
 
@@ -332,7 +332,7 @@ Press F5 to start debugging.
 
 ## History
 
-2023-09-22: release 1.8, adding 3D Tiles 1.1 Metadata support. Options added: create_gltf (default true), double_sided (default true)
+2023-09-22: release 1.8, adding 3D Tiles 1.1 Metadata support (EXT_Mesh_Features / EXT_Structural_Metadata). Options added: create_gltf (default true), double_sided (default true)
 
 2023-08-29: release 1.7.1, improve spatial index check
 
