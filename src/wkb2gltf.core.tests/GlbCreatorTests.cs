@@ -16,6 +16,35 @@ namespace Wkb2Gltf.Tests;
 
 public class GlbCreatorTests
 {
+
+    [Test]
+    public void CreateGltfWithAttributesTest()
+    {
+        // arrange
+        var p0 = new Point(0, 0, 0);
+        var p1 = new Point(1, 1, 0);
+        var p2 = new Point(1, 0, 0);
+
+        var triangle1 = new Triangle(p0, p1, p2, 0);
+        var triangles = new List<Triangle>() { triangle1 };
+
+        var attributes = new Dictionary<string, List<object>>();
+        attributes.Add("id", new List<object>() { "1" });
+        attributes.Add("id1", new List<object>() { 1 });
+        attributes.Add("id2", new List<object>() { (uint)1 });
+        attributes.Add("id3", new List<object>() { 1.1 });
+
+        // act
+        var bytes = TileCreator.GetTile(attributes, new List<List<Triangle>>() { triangles }, createGltf: true);
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "gltf_withattributes.glb");
+        File.WriteAllBytes(fileName, bytes);
+
+
+        // assert
+        var model = ModelRoot.Load(fileName);
+        Assert.AreEqual(1, model.LogicalMeshes[0].Primitives.Count);
+    }
+
     [Test]
     public void CreateGlbWithDefaultColor() { 
 
