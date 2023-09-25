@@ -8,19 +8,19 @@ using SharpGLTF.Schema2;
 namespace SharpGLTF.Geometry;
 
 [System.Diagnostics.DebuggerDisplay("𝐂:{Color} 𝐔𝐕:{TexCoord}")]
-public struct VertexWithBatchId : IVertexCustom
+public struct VertexWithFeatureId : IVertexCustom
 {
-    public static implicit operator VertexWithBatchId(float batchId)
+    public static implicit operator VertexWithFeatureId(float batchId)
     {
-        return new VertexWithBatchId(batchId);
+        return new VertexWithFeatureId(batchId);
     }
 
-    public VertexWithBatchId(float batchId)
+    public VertexWithFeatureId(float batchId)
     {
         BatchId = batchId;
     }
 
-    public const string CUSTOMATTRIBUTENAME = "_BATCHID";
+    public const string CUSTOMATTRIBUTENAME = "_FEATURE_ID_0";
 
     [VertexAttribute(CUSTOMATTRIBUTENAME, EncodingType.FLOAT, false)]
     public float BatchId;

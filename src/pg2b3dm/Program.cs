@@ -59,7 +59,9 @@ class Program
             var geometryColumn = o.GeometryColumn;
             var defaultColor = o.DefaultColor;
             var defaultMetallicRoughness = o.DefaultMetallicRoughness;
-            var defaultDoubleSided = (bool)o.DefaultDoubleSided;
+            var doubleSided = (bool)o.DoubleSided;
+            var createGltf = (bool)o.CreateGltf;
+
             var query = o.Query;
 
             var conn = new NpgsqlConnection(connectionString);
@@ -94,7 +96,8 @@ class Program
 
             Console.WriteLine($"Default color: {defaultColor}");
             Console.WriteLine($"Default metallic roughness: {defaultMetallicRoughness}");
-            Console.WriteLine($"Default doublesided: {defaultDoubleSided}");
+            Console.WriteLine($"Doublesided: {doubleSided}");
+            Console.WriteLine($"Create glTF tiles: {createGltf}");
 
             var att = !string.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
             Console.WriteLine($"Attribute columns: {att}");
@@ -170,7 +173,7 @@ class Program
                 tile.BoundingBox = bbox_wgs84.ToArray();
                 Console.WriteLine($"Start generating tiles...");
                 var quadtreeTiler = new QuadtreeTiler(conn, table, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
-                var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, defaultDoubleSided);
+                var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided,createGltf);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
@@ -191,7 +194,7 @@ class Program
                     var availableLevels = tiles.Max(t => t.Z) + 1;
                     Console.WriteLine("Available Levels: " + availableLevels);
                     Console.WriteLine("Subtree Levels: " + subtreeLevels);
-                    var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricErrors[0], availableLevels, subtreeLevels, version);
+                    var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricErrors[0], availableLevels, subtreeLevels, version, createGltf);
                     var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
                     var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
                     Console.WriteLine("SubdivisionScheme: QUADTREE");
@@ -233,7 +236,7 @@ class Program
                             var centerTileTranslation = Translation.GetTranslation(3857, new Point(center[0], center[1], 0)); ;
 
                             var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, centerTileTranslation, bounds, sr, o.ShadersColumn, o.AttributeColumns, query);
-                            var bytes = B3dmWriter.ToB3dm(geometries, o.Copyright, false, areaTolerance, defaultColor, defaultMetallicRoughness);
+                            var bytes = TileWriter.ToTile(geometries, o.Copyright, false, areaTolerance, defaultColor, defaultMetallicRoughness);
                             File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.Z}-{t.X}-{t.Y}.b3dm", bytes);
                             Console.Write(".");
                         }

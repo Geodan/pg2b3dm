@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Wkb2Gltf;
 
 namespace pg2b3dm;
 
-public static class B3dmWriter
+public static class TileWriter
 {
-    public static byte[] ToB3dm(List<GeometryRecord> geometries, string copyright="", bool addOutlines = false, double areaTolerance = 0.01, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true)
+    public static byte[] ToTile(List<GeometryRecord> geometries, string copyright = "", bool addOutlines = false, double areaTolerance = 0.01, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, bool createGltf = false)
     {
         var triangles = GetTriangles(geometries, areaTolerance);
         var attributes = GetAttributes(geometries);
 
-        var b3dm = B3dmCreator.GetB3dm(attributes, triangles, copyright, addOutlines, defaultColor, defaultMetallicRoughness, defaultDoubleSided);
+        var bytes = TileCreator.GetTile(attributes, triangles, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
 
-        var bytes = b3dm.ToBytes();
         return bytes;
     }
 
@@ -34,7 +32,7 @@ public static class B3dmWriter
         return res;
     }
 
-    private static List<List<Triangle>> GetTriangles(List<GeometryRecord> geomrecords, double areaTolerance=0.01)
+    private static List<List<Triangle>> GetTriangles(List<GeometryRecord> geomrecords, double areaTolerance = 0.01)
     {
         var triangles = new List<List<Triangle>>();
         foreach (var g in geomrecords) {
