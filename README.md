@@ -332,6 +332,8 @@ Press F5 to start debugging.
 
 ## History
 
+2023-09-26: release 1.8.1, updating triangulator 
+
 2023-09-22: release 1.8, adding 3D Tiles 1.1 Metadata support (EXT_Mesh_Features / EXT_Structural_Metadata). Options added: create_gltf (default true), double_sided (default true)
 
 2023-08-29: release 1.7.1, improve spatial index check
