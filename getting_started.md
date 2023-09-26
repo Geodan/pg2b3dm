@@ -220,8 +220,7 @@ Copy the generated tiles to webserver (for example $ python3 -m http.server)
 In the Game View the buildings should be visisble, when using --create-gltf false as option in pg2b3dm (so b3dm's are created), the metadata 
 also shows up. 
 
-![image](https://github.com/Geodan/pg2b3dm/assets/538812/abe8efa4-b07f-441b-a627-393c7d0fb46e)
-
+![image](https://github.com/Geodan/pg2b3dm/assets/538812/5c99a8bd-8e4e-453e-a442-02fa181d6322)
 
 ## Visualize in Mapbox GL JS v3 beta
 
