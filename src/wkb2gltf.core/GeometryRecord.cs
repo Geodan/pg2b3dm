@@ -20,8 +20,8 @@ public class GeometryRecord
 
     public List<Triangle> GetTriangles(double areaTolerance=0.01)
     {
-        var surface = (PolyhedralSurface)Geometry;
-        var triangles = Triangulator.GetTriangles(surface, BatchId, Shader, areaTolerance);
+        var triangles = GeometryProcessor.GetTriangles(Geometry, BatchId, Shader, areaTolerance);
+
         return triangles;
     }
 

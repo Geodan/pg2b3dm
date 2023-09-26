@@ -10,7 +10,6 @@ namespace SharpGLTF.Geometry;
 [System.Diagnostics.DebuggerDisplay("𝐂:{Color} 𝐔𝐕:{TexCoord}")]
 public struct VertexWithBatchId : IVertexCustom
 {
-
     public static implicit operator VertexWithBatchId(float batchId)
     {
         return new VertexWithBatchId(batchId);

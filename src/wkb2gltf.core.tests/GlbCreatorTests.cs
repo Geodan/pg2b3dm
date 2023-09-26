@@ -16,6 +16,35 @@ namespace Wkb2Gltf.Tests;
 
 public class GlbCreatorTests
 {
+
+    [Test]
+    public void CreateGltfWithAttributesTest()
+    {
+        // arrange
+        var p0 = new Point(0, 0, 0);
+        var p1 = new Point(1, 1, 0);
+        var p2 = new Point(1, 0, 0);
+
+        var triangle1 = new Triangle(p0, p1, p2, 0);
+        var triangles = new List<Triangle>() { triangle1 };
+
+        var attributes = new Dictionary<string, List<object>>();
+        attributes.Add("id", new List<object>() { "1" });
+        attributes.Add("id1", new List<object>() { 1 });
+        attributes.Add("id2", new List<object>() { (uint)1 });
+        attributes.Add("id3", new List<object>() { 1.1 });
+
+        // act
+        var bytes = TileCreator.GetTile(attributes, new List<List<Triangle>>() { triangles }, createGltf: true);
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "gltf_withattributes.glb");
+        File.WriteAllBytes(fileName, bytes);
+
+
+        // assert
+        var model = ModelRoot.Load(fileName);
+        Assert.AreEqual(1, model.LogicalMeshes[0].Primitives.Count);
+    }
+
     [Test]
     public void CreateGlbWithDefaultColor() { 
 
@@ -23,7 +52,7 @@ public class GlbCreatorTests
         var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
         var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
         var polyhedralsurface = ((PolyhedralSurface)g);
-        var triangles = Triangulator.GetTriangles(polyhedralsurface, 100);
+        var triangles = GeometryProcessor.GetTriangles(polyhedralsurface, 100);
 
         // act
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
@@ -42,7 +71,7 @@ public class GlbCreatorTests
         var buildingWkb = File.OpenRead(@"testfixtures/ams_building.wkb");
         var g = Geometry.Deserialize<WkbSerializer>(buildingWkb);
         var polyhedralsurface = ((PolyhedralSurface)g);
-        var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, null);
+        var triangles = GeometryProcessor.GetTriangles(polyhedralsurface, 100, null);
         
         // act
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
@@ -64,15 +93,18 @@ public class GlbCreatorTests
         var polyhedralsurface = ((PolyhedralSurface)g);
         var shaderColors = new ShaderColors();
         var metallicRoughness = new PbrMetallicRoughnessColors();
+
+
         metallicRoughness.BaseColors = (from geo in polyhedralsurface.Geometries
                                         let random = new Random()
                                         let color = string.Format("#{0:X6}", random.Next(0x1000000))
                                         select color).ToList();
 
+
         shaderColors.PbrMetallicRoughnessColors = metallicRoughness;
 
         // act
-        var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, shaderColors);
+        var triangles = GeometryProcessor.GetTriangles(polyhedralsurface, 100, shaderColors);
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ams_building_multiple_colors.glb");
         File.WriteAllBytes(fileName, bytes);
@@ -110,7 +142,7 @@ public class GlbCreatorTests
 
         // act
         try {
-            var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, shaderColors);
+            var triangles = GeometryProcessor.GetTriangles(polyhedralsurface, 100, shaderColors);
         }
         catch(Exception ex){
             // assert
@@ -158,6 +190,20 @@ public class GlbCreatorTests
         Assert.AreEqual(2, model.LogicalMeshes[0].Primitives.Count);
     }
 
+    [Test]
+    public static void CreateGlbForNonTriangulatedGeometry()
+    {
+        // arrange
+        var wkt = "POLYHEDRALSURFACE Z (((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)),((0 0 0, 0 1 0, 0 1 1, 0 0 1, 0 0 0)), ((0 0 0, 1 0 0, 1 0 1, 0 0 1, 0 0 0)), ((1 1 1, 1 0 1, 0 0 1, 0 1 1, 1 1 1)),((1 1 1, 1 0 1, 1 0 0, 1 1 0, 1 1 1)),((1 1 1, 1 1 0, 0 1 0, 0 1 1, 1 1 1)))";
+        var g = Geometry.Deserialize<WktSerializer>(wkt);
+
+        // act
+        var triangles = GeometryProcessor.GetTriangles(g, 100);
+
+        // assert
+        Assert.AreEqual(6, ((PolyhedralSurface)g).Geometries.Count);
+        Assert.AreEqual(12, triangles.Count);
+    }
 
     [Test]
     public static void CreateGlbForSimpleBuilding()
@@ -173,7 +219,7 @@ public class GlbCreatorTests
         var metallicRoughness = new PbrMetallicRoughnessColors();
         metallicRoughness.BaseColors = colors;
 
-        var triangles = Triangulator.GetTriangles(polyhedralsurface, 100, shaderColors);
+        var triangles = GeometryProcessor.GetTriangles(polyhedralsurface, 100, shaderColors);
         CheckNormal(triangles[2], center);
         Assert.IsTrue(triangles.Count == 12);
 

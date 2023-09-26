@@ -6,22 +6,10 @@ namespace Wkb2Gltf;
 
 public class MaterialCreator
 {
-    public static MaterialBuilder GetDefaultMaterial(string color)
-    {
-        var rgb = ColorTranslator.FromHtml(color);
-
-        var material = new MaterialBuilder().
-        WithDoubleSide(true).
-        WithMetallicRoughnessShader().
-        WithAlpha(AlphaMode.BLEND).
-        WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, ColorToVector4(rgb));
-        return material;
-    }
-
-    public static MaterialBuilder CreateMaterial(Shader shader)
+    public static MaterialBuilder CreateMaterial(Shader shader, bool defaultDoubleSided = true)
     {
         var material = new MaterialBuilder().
-            WithDoubleSide(true).
+            WithDoubleSide(defaultDoubleSided).
             WithAlpha(AlphaMode.OPAQUE);
 
         if (!string.IsNullOrEmpty(shader.EmissiveColor)) {

@@ -5,11 +5,16 @@ using Newtonsoft.Json;
 
 namespace Wkb2Gltf;
 
-public static class B3dmCreator
+public static class TileCreator
 {
-    public static B3dm GetB3dm(Dictionary<string, List<object>> attributes, List<List<Triangle>> triangleCollection, string copyright="", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000")
+    public static byte[] GetTile(Dictionary<string, List<object>> attributes, List<List<Triangle>> triangleCollection, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, bool createGltf = false)
     {
-        var bytes = GlbCreator.GetGlb(triangleCollection, copyright, addOutlines, defaultColor, defaultMetallicRoughness);
+        var bytes = GlbCreator.GetGlb(triangleCollection, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, attributes, createGltf, doubleSided);
+
+        if(createGltf) {
+            return bytes;
+        }
+
         var b3dm = new B3dm(bytes);
 
         if (attributes.Count > 0) {
@@ -33,6 +38,8 @@ public static class B3dmCreator
                 b3dm.BatchTableJson = json;
             }
         }
-        return b3dm;
+        var tileBytes = b3dm.ToBytes();
+
+        return tileBytes;
     }
 }

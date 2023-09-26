@@ -3,9 +3,7 @@
 ## Introduction
 
 In this document we run pg2b3dm on a sample dataset, a shapefile from Delaware containing building footprints with a height attribute. 
-The generated 3D tiles are visualized in a CesiumJS/Cesium for Unreal viewer.
-
-** Note: For MapBox GL JS support use an older version of the document and version pg2b3dm < 1.0. **
+The generated 3D tiles are visualized in a CesiumJS/Mapbox GL JS v3 beta/Cesium for Unreal viewer.
 
 ## Download data
 
@@ -39,48 +37,15 @@ $ ogr2ogr -f "PostgreSQL" PG:"host=localhost user=postgres password=postgres dbn
 
 In PostGIS, a spatial table 'delaware_buildings' is created.
 
-## PSQL into PostGIS
-
-PSQL into PostGIS and do a count on the buildings:
-
-```
-postgres=# select count(*) from delaware_buildings;
- count
---------
- 22532
-(1 row)
-```
-
-## Clean data
-
-Maybe there are some invalid polygons, let's remove them first.
-
-```
-postgres=# DELETE from delaware_buildings where ST_IsValid(wkb_geometry)=false;
-DELETE 0
-```
-
-## Add id field with text type
-
-```
-postgres=# ALTER TABLE delaware_buildings ADD COLUMN id varchar;
-postgres=# UPDATE delaware_buildings SET id = ogc_fid::text;
-```
-
-## Add column for output triangulated geometry
+## Add columns 
 
 ```
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_triangle geometry;
-```
-
-## Shaders
-
-Add two json columns to the delaware_buildings table:
-
-```
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN style json;
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN shaders json;
 ```
+
+## Shaders
 
 Update the style column with a JSON file containing walls, roof, floor colors:
 
@@ -92,17 +57,10 @@ Colors used:
 
 #EEC900: yellow (wall)
 
-
 ```
 postgres=# UPDATE delaware_buildings SET style = ('{ "walls": "#EEC900", "roof":"#FF0000", "floor":"#008000"}');
 ```
 The 'shaders' column will be filled in next 'bertt/tesselate_building' step.
-
-now exit psql:
-
-```
-postgres=# exit
-```
 
 ## Run tesselate_building
 
@@ -129,6 +87,9 @@ Tool tesselate_building does the following:
 - writes geometries to column geom_triangle (as polyhedralsurface geometries);
 
 - writes shaders info (color code per triangle) into shaders column;
+
+Note: For Mapbox GL JS v3 beta support use '-f mapbox' in the following step.
+
 ```
 $ tesselate_building -h localhost -U postgres -d postgres -f cesium -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --shaderscolumn shaders
 Tool: Tesselate buildings 0.2.0.0
@@ -141,6 +102,12 @@ Program finished.
 After running, columns 'geom_triangle' and 'shaders' should be filled with the correct information.
 
 The geom_triangle column contains PolyhedralSurfaceZ geometries consisting of triangles.
+
+In SQL add a spatial index on the geom_triangle column for fast performance:
+
+```
+psql> CREATE INDEX ON delaware_buildings USING gist(st_centroid(st_envelope(geom_triangle)));
+```
 
 The shaders column contains json information like:
 
@@ -178,25 +145,31 @@ $ dotnet tool install --global pg2b3dm
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -a id,height --shaderscolumn shaders
-Tool: pg2b3dm 1.4.3.0
+Tool: pg2b3dm 1.8.0.0
 Password for user postgres:
-Start processing 2023-02-13T15:06:32....
-Input table: delaware_buildings
+Start processing 2023-09-26T12:09:01....
+Input table: delaware_buildings_cesium
 Input geometry column: geom_triangle
+Spatial reference of delaware_buildings_cesium.geom_triangle: 4978
+Spatial index detected on delaware_buildings_cesium.geom_triangle
+Query bounding box of delaware_buildings_cesium.geom_triangle...
+Bounding box for delaware_buildings_cesium.geom_triangle (in WGS84): -75.6145, 39.0771, -75.4353, 39.2319
+Default color: #FFFFFF
+Default metallic roughness: #008000
+Doublesided: True
+Create glTF tiles: True
+Attribute columns: height,ogc_fid,description
+Starting Cesium mode...
+Translation: 1237929.375,-4795306,4005629.75
 Lod column:
 Geometric errors: 2000,0
 Geometric error used for implicit tiling: 2000
-Spatial reference of delaware_buildings.geom_triangle: 4978
-Query bounding box of delaware_buildings.geom_triangle...
-Bounding box for delaware_buildings.geom_triangle (in WGS84): -75.6145, 39.0771, -75.4353, 39.2319
 Heights for bounding volume: [0 m, 100 m]
-Translation: 1237929.375,-4795306,4005629.75
+Add outlines: False
 Use 3D Tiles 1.1 implicit tiling: True
-Attribute columns: id,height
 Maximum features per tile: 1000
 Start generating tiles...
-Creating tile: 3_5_5.b3dm
+Creating tile: 3_5_5.glb
 Tiles created: 59
 Writing 29 subtree files...
 Available Levels: 5
@@ -204,8 +177,8 @@ Subtree Levels: 3
 SubdivisionScheme: QUADTREE
 Writing output/tileset.json...
 
-Elapsed: 12 seconds
-Program finished 2023-02-13T15:06:45.
+Elapsed: 6 seconds, 457 milliseconds
+Program finished 2023-09-26T12:09:08.
 ```
 
 ## Visualize in CesiumJS
@@ -219,6 +192,40 @@ If all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 ![alt text](delaware_cesium.png "Delaware Cesium")
 
 Sample live demo in Cesium: https://geodan.github.io/pg2b3dm/sample_data/delaware/cesium/
+
+## Visualize in Cesium for Unity3D
+
+Required: 
+
+- Installation Unity3D with plugin 'Cesium for Unity3D' - current version is 1.6.2
+
+- Use -f cesium in previous step tesselate_building.
+
+Copy the generated tiles to webserver (for example $ python3 -m http.server)
+
+- In Unity3D open sample Assets - CesiumForUnitySamples - Scenes - 05_CesiumMetadata
+
+- In the hierarchy navigate to CesiumGeoReference - NYC Buildings - Inpspector
+
+- In the Inspector change 'Tileset source' from 'From Cesium Ion' to 'From Url'
+
+- In the Inspector change 'URL' to the url pointing to tileset.json
+
+![image](https://github.com/Geodan/pg2b3dm/assets/538812/28c2cf56-5e6d-4368-b0fe-651d7ffdbe35)
+
+- In the Hierarchy go to CesiumGeoReference and change the Latitude, Longitude to 39.15, -75.51
+
+- In the Hierarchy go to CesiumGeoReference DynamicCamera, in the Inspector go to 'Cesium Globe Anchor' and change the Latitude, Longitude to 39.15, -75.51
+
+In the Game View the buildings should be visisble, when using --create-gltf false as option in pg2b3dm (so b3dm's are created), the metadata 
+also shows up. 
+
+![image](https://github.com/Geodan/pg2b3dm/assets/538812/abe8efa4-b07f-441b-a627-393c7d0fb46e)
+
+
+## Visualize in Mapbox GL JS v3 beta
+
+See demo https://geodan.github.io/pg2b3dm/sample_data/delaware/mapboxv3
 
 ## Visualize in Cesium for Unreal
 

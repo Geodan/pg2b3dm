@@ -1,10 +1,10 @@
 # pg2b3dm
  
- ![Build status](https://github.com/Geodan/pg2b3dm/workflows/.NET%20Core/badge.svg)[![Nuget](https://img.shields.io/nuget/vpre/pg2b3dm)](https://www.nuget.org/packages/pg2b3dm)
+ ![Build status](https://github.com/Geodan/pg2b3dm/actions/workflows/main.yml/badge.svg)[![Nuget](https://img.shields.io/nuget/vpre/pg2b3dm)](https://www.nuget.org/packages/pg2b3dm)
  [![Join the chat at https://discord.gg/gGCka4Nd](https://img.shields.io/discord/1013017110814932993?color=%237289DA&label=pg2b3dm&logo=discord&logoColor=white)](https://discord.gg/uSKvUwPgmG)
 
  Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles)/b3dm tiles. The generated 
- 3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D or other 3D Tiles client viewers.
+ 3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D, Mapbox GL JS v3 beta (experimental) or other 3D Tiles client viewers.
 
 ![image](https://user-images.githubusercontent.com/538812/227500590-bebe59b6-5697-462d-9ebd-b40fe9a2dc2b.png)
 
@@ -12,32 +12,50 @@ Features:
 
 - 3D Tiles 1.1 Implicit tiling;
 
+- 3D Tiles extensions EXT_Mesh_Features and EXT_Structural_Metadata; 
+
 - Valid glTF 2.0 files;
 
 - Shading PbrMetallicRoughness and PbrSpecularGlossiness;
 
-- LOD support;
-
 - Query parameter support;
 
-- Outlines support (using CESIUM_primitive_outline);
+- Cesium: LOD support and Outlines support (using CESIUM_primitive_outline);
+
+- Triangulation of input geometries MultiPolygon/PolyhedralSurface;
 
 - Docker support.
 
 Resulting tilesets are validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
 
-Support for MapBox GL JS is deprecated at the moment. 
-
-To run this tool there must be a PostGIS table available containing triangulated polyhedralsurface geometries. Those geometries can be created 
-by FME (using Triangulator transformer - https://www.safe.com/transformers/triangulator/) or custom tesselation tools.
+To run this tool there must be a PostGIS table available containing polyhedralsurface/multipolygon geometries. 
 
 Tileset.json and b3dm tiles are by default created in the 'output/content' subdirectory (or specify output directory with   -o, --output).
 
 ## Getting started
 
-See [getting started](getting_started.md) for a tutorial how to convert a shapefile of buildings to 3D Tiles and visualize in CesiumJS/Cesium for Unreal.
+1] See [getting started](getting_started.md) for a tutorial how to convert a shapefile of buildings to 3D Tiles and visualize in CesiumJS/Cesium for Unreal/Unity3D.
 
-For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
+2] For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
+
+3] Convert Dutch 3D Bag to 3D Tiles
+
+- Download Geopackage tile from https://3dbag.nl/, for example https://3dbag.nl/nl/download?tid=7-480-624
+
+Result: 7-480-624.gpkg (18 MB)
+
+- Import in PostGIS database, convert to Cesium coordinates
+
+```
+$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4978 7-480-624.gpkg lod22_3d
+```
+
+- Convert to 3D Tiles using pg2b3dm
+
+```
+$ pg2b3dm -h localhost -U postgres -c geom -d postgres -t lod22_3d -a identificatie
+```
+- Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/tienhoven/  
 
 ## Demo
 
@@ -48,11 +66,6 @@ For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and F
 - 3D Bag by tudelftnl - 10 million Dutch buildings in 3D Tiles https://3dbag.nl/ 
 
 ![image](https://user-images.githubusercontent.com/538812/194698535-5b324133-bdf1-4d8c-8d53-37555a6f7b5b.png)
-
-- Baupotential analyse -  https://www.modoplus.de/
-
-![image](https://user-images.githubusercontent.com/538812/194698451-b4c2b1ed-b99b-411c-97d3-34939d32d588.png)
-
 
 - FOSS4G presentations
 
@@ -83,49 +96,57 @@ All parameters are optional, except the -t --table option.
 If --username and/or --dbname are not specified the current username is used as default.
 
 ```
-  -U, --username                (Default: username) Database user
+  -U, --username                  Database user
 
-  -h, --host                    (Default: localhost) Database host
+  -h, --host                      (Default: localhost) Database host
 
-  -d, --dbname                  (Default: username) Database name
+  -d, --dbname                    Database name
 
-  -c, --column                  (Default: geom) Geometry column name
+  -c, --column                    (Default: geom) Geometry column
 
-  -t, --table                   (Required) Database table name, include database schema if needed
+  -t, --table                     Required. Database table, include database schema if needed
 
-  -o, --output                  (Default: ./output/tiles) Output directory, will be created if not exists
+  -p, --port                      (Default: 5432) Database port
 
-  -p, --port                    (Default: 5432) Database port
+  -o, --output                    (Default: output) Output path
 
-  -a, --attributecolumns        (Default: '') attributes column names (comma separated)
+  -a, --attributecolumns          (Default: '') Attribute columns
 
-  -g, --geometricerrors         (Default: 2000, 0) Geometric errors
+  -q, --query                     (Default: '') Query parameter
 
-  -q, --query                   (Default: '') Query parameter
+  --copyright                     (Default: '') glTF asset copyright
 
-   --copyright                  (Default: '') glTF copyright 
+  --sql_command_timeout           (Default: 30) SQL command timeout
 
-  --shaderscolumn               (Default: '') shaders column
+  --default_color                 (Default: #FFFFFF) Default color
 
-  --lodcolumn                   (Default: '') LOD column
+  --default_metallic_roughness    (Default: #008000) Default metallic roughness
 
-  --use_implicit_tiling         (Default: True) Use 3D Tiles 1.1 Implicit tiling
+  --double_sided                  (Default: true) Default double sided
 
-  --max_features_per_tile       (Default 1000) Maximum number of features per tile in 3D Tiles 1.1 Implicit tiling
-  
-  --sql_command_timeout         (Default: 30) Command timeout for database queries (in seconds)
+  --create_gltf                   (Default: true) Create glTF files
 
-  --boundingvolume_heights      (Default: '0,100') Height of boundingVolume (min, max) in meters 
+  --max_features_per_tile         (Default: 1000) maximum features per tile (Cesium)
 
-  --add_outlines                (Default: False) Add outlines
+  -l, --lodcolumn                 (Default: '') LOD column (Cesium)
 
-  --default_color               (Default: '#FFFFFF') Default color for models
-                       
-  --default_metallic_roughness  (Default: '#008000') Default metallic roughness
-  
-  --help                        Display this help screen.
+  -g, --geometricerrors           (Default: 2000,0) Geometric errors (Cesium)
 
-  --version                     Display version information.  
+  --shaderscolumn                 (Default: '') shaders column (Cesium)
+
+  --use_implicit_tiling           (Default: true) use 1.1 implicit tiling (Cesium)
+
+  --boundingvolume_heights        (Default: 0,100) Tile boundingVolume heights (min, max) in meters (Cesium)
+
+  --add_outlines                  (Default: false) Add outlines (Cesium)
+
+  --min_zoom                      (Default: 15) Minimum zoom level (Mapbox)
+
+  --max_zoom                      (Default: 15) Maximum zoom level (Mapbox)
+
+  --help                          Display this help screen.
+
+  --version                       Display version information.
 ```
 
 Sample command for running pg2b3dm:
@@ -155,11 +176,14 @@ To run:
 $ pg2b3dm
 ```
 
-## Remarks
+## Styling
 
-### Geometries
+For styling see [styling 3D Tiles](styling.md) 
 
-- All geometries must be type polyhedralsurface consisting of triangles with 4 vertices each. If not 4 vertices exception is thrown.
+## Geometries
+
+Input geometries must be of type PolyhedralSurface or Multipolygon (with z values). When the geometry is not triangulated, pg2b3dm will perform
+triangulation.
 
 For large datasets create a spatial index on the geometry column:
 
@@ -167,41 +191,11 @@ For large datasets create a spatial index on the geometry column:
 psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle)));
 ```
 
-### LOD
+When there the spatial index is not present the following warning is shown.
 
-With the LOD function there can be multiple representations of features depending on the distance to the camera (geometric error). So 
-for example visualize a simplified geometry when the camera is far away, and a more detailed geometry when the camera is close.
+![image](https://user-images.githubusercontent.com/538812/261248327-c29b4520-a374-4441-83bf-2b60e8313c65.png)
 
-Sample command for using LOD's:
-
-```
--h localhost -U postgres -c geom_triangle --shaderscolumn shaders -t delaware_buildings_lod -d postgres -g 1000,100,0 --lodcolumn lodcolumn --use_implicit_tiling false --max_features_per_tile 1000
-```
-
-The LOD function will be enabled when parameter --lodcolumn is not empty.
-
-The LOD column in the database contains integer LOD values (like 0,1). First the program queries the distinct values of 
-the LOD column.
-
-For each LOD the program will generate a tile (when there are features available). 
-
-The generated files (for example '4_6_8_0.b3dm') will have 4 parameters (x, y,z and lod). All the tiles will be included in the tileset.json, 
-corresponding with the calculated geometric error.
-
-Notes:
-
-- if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
-
-- LOD function is not available when implicit tiling is used.
-
-### Geometric errors
-
-By default, as geometric errors [2000,0] are used (for 1 LOD). When there multiple LOD's, there should be number_of_lod + 1 geometric errors specified in the -g option. 
-When using multiple LOD and the -g option is not specified, the geometric errors are calculated using equal intervals 
-between 2000 and 0.
-When using implicit tiling only the first value of the geometric errors is used, the rest is automatically calculated by implicit tiling.
-
-### Query parameter
+## Query parameter
 
 The -q --query will be added to the 'where' part of all queries. 
 
@@ -221,7 +215,7 @@ Spatial query:
 
 Make sure to check the indexes when using large tables.
 
-### Attributes
+## Attributes
 
 With the -a attributecolumns parameter multiple columns with attributes can be specified. The attribute information is stored in the b3dm batch table. 
 Multiple columns must be comma separated:
@@ -230,224 +224,13 @@ Sample:  --attributescolumns col1,col2
 
 Attribute columns can be of any type.
 
-## Tiling method
+## Cesium support
 
-Tiles are created within a quadtree, with a maximum number of features by max_features_per_tile (default 1000). In pg2b3dm version 0.14 support for 3D Tiles
-1.1 Impliciting Tiling is added. Impliciting Tiling can be activated using the parameter 'use_implicit_tiling' (default value 'true'). When Impliciting Tiling 
-is activated subtree files (*.subtree) will be created (in folder subtrees) and the tileset.json file will no longer explitly list all tiles.
+For Cesium support (tiling schema, LODS, outlines) see [Cesium notes](cesium_notes.md) 
 
-At the moment, Implicit tiling is only supported in the CesiumJS client.
+## Mapbox support
 
-Some remarks about implicit tiling:
-
-- There is no support (yet) for creating octree instead of quadtree;
-
-- There is no support (yet) for multiple contents per tile;
-
-- There is no support (yet) for implicit tiling metadata;
-
-- Parameter '-l --lodcolumn' is ignored when using implicit tiling;
-
-- Only the first value of parameter of geometric errors is used in tileset.json;
-
-- When using larger geometries (that intersect partly with a quadtree tile) and implicit tiling there can be issues with feature visibility.
-
-For more information about Implicit Tiling see https://github.com/CesiumGS/3d-tiles/tree/draft-1.1/specification/ImplicitTiling
-
-## Shaders
-
-By default (when option --shaderscolumn is not used), the following PbrMetallicRoughness shader is used with parameters for all triangles:
-
-- BaseColor: #FFFFFF (option --default_color)
-
-R = 255, G = 255, B = 255, A = 1 
-
-- MetallicRoughness: #008000 (option --default_metallic_roughness)
-
-Metallic factor: 0, Roughness factor: 0.5019608 (128/255)
-
-- Doubleside: true (hardcoded)
-
-- Alpha: 0 (hardcoded)
-
-Alternative option is to specify a shader per triangle in the ShadersColumn.
-
-Shaderscolumn is a column of type json. In this json document the shaders are defined like PbrMetallicRoughness and
-PbrSpecularGlossiness. Note: PbrSpecularGlossiness is deprecated by Khronos, so advise is to use PbrMetallicRoughness.
-
-### JSON Structure
-
-The json must have the following structure:
-
-```
-{
-    "EmissiveColors": [list_of_emissivecolors in hex],
-    "PbrMetallicRoughness": {
-        "BaseColors": [ list_of_basecolors in hex],
-        "MetallicRoughness": [list_of_metallic_roughness in hex]
-    },
-    "PbrSpecularGlossiness": {
-        "DiffuseColors": [list_of_diffuse in hex],
-        "SpecularGlossiness": [list_of_specular_glossiness in hex]
-    }
-}
-```
-
-The amount of colors in the lists must correspond to the number of triangles in the geometry, otherwise an exception is thrown.
-
-
-### Samples
-
-Sample for using shader PbrMetallicRoughness with BaseColor for 2 triangles:
-
-```
-{
-    "PbrMetallicRoughness": {
-        "BaseColors": ["#008000","#008000"]
-    }
-}
-```
-
-Sample for Specular Glossiness with Diffuse and SpecularGlossiness for 2 triangles :
-
-```
-{
-    "PbrSpecularGlossiness": {
-        "DiffuseColors": ["#E6008000","#E6008000"],
-        "SpecularGlossiness": ["#4D0000ff", "#4D0000ff"]
-    }
-}
-```
-
-
-In the hexadecimal values there are 4 numbers (x, y, z, w) available. The following material channels table defines which number should be used for the various shader properties.
-
-### Material channels
-
-<table>
-<thead>
-<tr>
-<th>Channel</th>
-<th>Shader Style</th>
-<th>X</th>
-<th>Y</th>
-<th>Z</th>
-<th>W</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<tr>
-<td>Emissive</td>
-<td>All</td>
-<td>Red</td>
-<td>Green</td>
-<td>Blue</td>
-<td></td>
-</tr>
-<tr>
-<td>BaseColor</td>
-<td>Metallic Roughness</td>
-<td>Red</td>
-<td>Green</td>
-<td>Blue</td>
-<td>Alpha</td>
-</tr>
-<tr>
-<td>MetallicRoughness</td>
-<td>Metallic Roughness</td>
-<td>Metallic Factor</td>
-<td>Roughness Factor</td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>Diffuse</td>
-<td>Specular Glossiness</td>
-<td>Diffuse Red</td>
-<td>Diffuse Green</td>
-<td>Diffuse Blue</td>
-<td>Alpha</td>
-</tr>
-<tr>
-<td>SpecularGlossiness</td>
-<td>Specular Glossiness</td>
-<td>Specular Red</td>
-<td>Specular Green</td>
-<td>Specular Blue</td>
-<td>Glossiness</td>
-</tr>
-</tbody>
-</table>
-
-Sample channel conversion:
-
-- DiffuseColor in Hex = '#E6008000'
-
-Converted to RGBA:
-
-(230, 0, 128, 0)
-
-So Diffuse Red = 230, Diffuse Green = 0, Diffuse Blue = 128, Alpha = 0
-
-### Remarks
-
-- Fallback scenario from SpecularGlossiness to MetallicRoughness shader for clients that do not support 
-SpecularGlossiness is not supported (yet)
-
-- Shader 'unlit' is not supported (yet)
-
-### Client side styling
-
-An alternative option is to style the 3D Tiles on runtime (in the client).
-
-Example for styling buildings in a 3D Tileset based on attribute 'bouwjaar' in CesiumJS:
-
-```
-   var buildings = new Cesium.Cesium3DTileset({
-        url : './buildings/tileset.json'
-    });
-
-    buildings.style = new Cesium.Cesium3DTileStyle({
-      color: {
-        conditions: [
-        ["${feature['bouwjaar']} <= 1700", "color('#430719')"],
-        ["${feature['bouwjaar']} > 1700", "color('#740320')"],
-        ]
-      }
-    }
-  );
-```
-
-Remember to add attribute bouwjaar with '-a bouwjaar' when creating the 3D Tiles.
-
-For the specs of 3D Tiles Styling Language see https://github.com/CesiumGS/3d-tiles/tree/main/specification/Styling 
-
-## Outlines
-
-Outlines using glTF 2.0 extension CESIUM_primitive_outline can be drawn by setting the option 'add_outlines' to true. 
-
-When enabling this 
-function the extension 'CESIUM_primitive_outline' will be used in the glTF. The indices of vertices that should take part in outlining are stored 
-in the glTF's. The CesiumJS client has functionality to read and visualize the outlines. 
-
-In the CesiumJS client the outline color can be changed using the 'outlineColor' property of Cesium3DTileset:
-
-```
-tileset.outlineColor = Cesium.Color.fromCssColorString("#875217");
-```
-
-For more information about CESIUM_primitive_outline see https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/CESIUM_primitive_outline/README.md
-
-
-When using Draco compression and Outlines there will be an error in the Cesium client: 'Cannot read properties of undefined (reading 'count')'
-see also https://github.com/CesiumGS/gltf-pipeline/pull/631 
-
-There is a workaround:
-
-. Use gltf-pipeline with https://github.com/CesiumGS/gltf-pipeline/pull/631
-
-. Use gltf-pipeline settings --draco.compressionLevel 0 --draco.quantizePositionBits 14
+For Mapbox support see [Mapbox notes](mapbox_notes.md) 
 
 ## Run from Docker
 
@@ -478,12 +261,6 @@ $ docker build -t geodan/pg2b3dm:{name_of_feature_branch} .
 ```
 
 ### Running
-
-Sample on Windows: 
-
-```
-$ docker run -v C:\output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_table
-```
 
 Sample on Linux:
 
@@ -539,19 +316,35 @@ Press F5 to start debugging.
 
 ## Dependencies
 
-- SharpGLTF (https://github.com/vpenades/SharpGLTF) for generating glTF;
+- b3dm-tile (https://github.com/bertt/b3dm-tile-cs) - for generating b3dm files;
 
 - CommandLineParser (https://github.com/commandlineparser/commandline) for parsing command line options;
 
 - Npgsql (https://www.npgsql.org/) - for access to PostgreSQL;
 
-- b3dm-tile (https://github.com/bertt/b3dm-tile-cs) - for generating b3dm files;
-
-- Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
+- SharpGLTF (https://github.com/vpenades/SharpGLTF) for generating glTF;
 
 - Subtree (https://github.com/bertt/subtree) - for subtree file handling
 
+- Triangulator (https://github.com/bertt/triangulator) - for triangulating geometries
+
+- Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
+
 ## History
+
+2023-09-22: release 1.8, adding 3D Tiles 1.1 Metadata support (EXT_Mesh_Features / EXT_Structural_Metadata). Options added: create_gltf (default true), double_sided (default true)
+
+2023-08-29: release 1.7.1, improve spatial index check
+
+2023-08-29: release 1.7.0, add triangulator - runs only when geometry is not triangulated
+
+2023-08-29: release 1.6.3, add support for MultiPolygonZ
+
+2023-08-17: release 1.6.2, add check for spatial index
+
+2023-08-16: release 1.6.1, translate b3dm's to center of tile for Mapbox GL JS v3
+
+2023-08-16: release 1.6.0, add experimental support for Mapbox GL JS v3
 
 2023-06-20: release 1.5.5, fix issue when only 1 level is generated
 
