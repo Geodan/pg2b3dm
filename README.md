@@ -34,7 +34,7 @@ Tileset.json and b3dm tiles are by default created in the 'output/content' subdi
 
 ## Getting started
 
-1] See [getting started](getting_started.md) for a tutorial how to convert a shapefile of buildings to 3D Tiles and visualize in CesiumJS/Cesium for Unreal.
+1] See [getting started](getting_started.md) for a tutorial how to convert a shapefile of buildings to 3D Tiles and visualize in CesiumJS/Cesium for Unreal/Unity3D.
 
 2] For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
 

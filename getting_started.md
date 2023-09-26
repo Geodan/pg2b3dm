@@ -145,20 +145,22 @@ $ dotnet tool install --global pg2b3dm
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -a ogc_fid,height --shaderscolumn shaders
-Tool: pg2b3dm 1.6.1.0
+Tool: pg2b3dm 1.8.0.0
 Password for user postgres:
-Start processing 2023-08-16T13:05:13....
+Start processing 2023-09-26T12:09:01....
 Input table: delaware_buildings_cesium
 Input geometry column: geom_triangle
 Spatial reference of delaware_buildings_cesium.geom_triangle: 4978
+Spatial index detected on delaware_buildings_cesium.geom_triangle
 Query bounding box of delaware_buildings_cesium.geom_triangle...
 Bounding box for delaware_buildings_cesium.geom_triangle (in WGS84): -75.6145, 39.0771, -75.4353, 39.2319
 Default color: #FFFFFF
 Default metallic roughness: #008000
-Translation: 1237929.375,-4795306,4005629.75
-Attribute columns: ogc_fid,height
+Doublesided: True
+Create glTF tiles: True
+Attribute columns: height,ogc_fid,description
 Starting Cesium mode...
+Translation: 1237929.375,-4795306,4005629.75
 Lod column:
 Geometric errors: 2000,0
 Geometric error used for implicit tiling: 2000
@@ -167,7 +169,7 @@ Add outlines: False
 Use 3D Tiles 1.1 implicit tiling: True
 Maximum features per tile: 1000
 Start generating tiles...
-Creating tile: 3_5_5.b3dm
+Creating tile: 3_5_5.glb
 Tiles created: 59
 Writing 29 subtree files...
 Available Levels: 5
@@ -175,8 +177,8 @@ Subtree Levels: 3
 SubdivisionScheme: QUADTREE
 Writing output/tileset.json...
 
-Elapsed: 5 seconds, 628 milliseconds
-Program finished 2023-08-16T13:05:18.
+Elapsed: 6 seconds, 457 milliseconds
+Program finished 2023-09-26T12:09:08.
 ```
 
 ## Visualize in CesiumJS
@@ -190,6 +192,35 @@ If all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 ![alt text](delaware_cesium.png "Delaware Cesium")
 
 Sample live demo in Cesium: https://geodan.github.io/pg2b3dm/sample_data/delaware/cesium/
+
+## Visualize in Cesium for Unity3D
+
+Required: 
+
+- Installation Unity3D with plugin 'Cesium for Unity3D' - current version is 1.6.2
+
+- Use -f cesium in previous step tesselate_building.
+
+Copy the generated tiles to webserver (for example $ python3 -m http.server)
+
+- In Unity3D open sample Assets - CesiumForUnitySamples - Scenes - 05_CesiumMetadata
+
+- In the hierarchy navigate to CesiumGeoReference - NYC Buildings - Inpspector
+
+- In the Inspector change 'Tileset source' from 'From Cesium Ion' to 'From Url'
+
+- In the Inspector change 'URL' to the url pointing to tileset.json
+
+![image](https://github.com/Geodan/pg2b3dm/assets/538812/28c2cf56-5e6d-4368-b0fe-651d7ffdbe35)
+
+- In the Hierarchy go to CesiumGeoReference and change the Latitude, Longitude to 39.15, -75.51
+
+- In the Hierarchy go to CesiumGeoReference DynamicCamera, in the Inspector go to 'Cesium Globe Anchor' and change the Latitude, Longitude to 39.15, -75.51
+
+In the Game View the buildings should be visisble, when using --create-gltf false as option in pg2b3dm (so b3dm's are created), the metadata 
+also shows up. 
+
+![image](https://github.com/Geodan/pg2b3dm/assets/538812/5c99a8bd-8e4e-453e-a442-02fa181d6322)
 
 ## Visualize in Mapbox GL JS v3 beta
 
