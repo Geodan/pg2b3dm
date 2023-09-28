@@ -15,8 +15,7 @@ public static class GeometryRepository
 {
     public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Tile t, string query = "")
     {
-        var sqlSelect = $"select st_asbinary(st_extent(st_transform(st_setsrid(st_force3d({geometry_column}),4978), 4326))) ";
-
+        var sqlSelect = $"select st_asbinary(st_extent(st_transform({geometry_column}, 4326))) ";
         var b = GetTileBoundingBox(t.BoundingBox);
         var sqlWhere = GetWhere(geometry_column, 4978, b.xmin, b.ymin, b.xmax, b.ymax, query);
         var sql = $"{sqlSelect} from {geometry_table} {sqlWhere}";
