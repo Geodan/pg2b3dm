@@ -55,7 +55,7 @@ $ pg2b3dm -h localhost -U postgres -c geom -d postgres -t lod22_3d -a identifica
 
 Older getting started documents:
 
-1] See [getting started](getting_started.md) for a tutorial how to convert a shapefile of buildings to 3D Tiles and visualize in CesiumJS/Cesium for Unreal/Unity3D.
+1] See [getting started](getting_started.md) for a tutorial how to convert a 2D shapefile of buildings with height attribute to 3D Tiles and visualize in CesiumJS/Cesium for Unreal/Unity3D.
 
 2] For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
 
