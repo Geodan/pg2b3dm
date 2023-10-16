@@ -27,9 +27,6 @@ public class Options
     [Option("copyright", Required = false, Default = "", HelpText = "glTF asset copyright")]
     public string Copyright { get; set; }
 
-    [Option("sql_command_timeout", Required = false, Default = 30, HelpText = "SQL command timeout")]
-    public int SqlCommandTimeout { get; set; }
-
     [Option("default_color", Required = false, Default = "#FFFFFF", HelpText = "Default color")]
     public string DefaultColor { get; set; }
 
