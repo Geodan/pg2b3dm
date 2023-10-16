@@ -30,7 +30,7 @@ class Program
             o.User = string.IsNullOrEmpty(o.User) ? Environment.UserName : o.User;
             o.Database = string.IsNullOrEmpty(o.Database) ? Environment.UserName : o.Database;
 
-            var connectionString = $"Host={o.Host};Username={o.User};Database={o.Database};Port={o.Port};CommandTimeOut={o.SqlCommandTimeout}";
+            var connectionString = $"Host={o.Host};Username={o.User};Database={o.Database};Port={o.Port};CommandTimeOut=0";
             var istrusted = TrustedConnectionChecker.HasTrustedConnection(connectionString);
             if (!istrusted) {
                 Console.Write($"Password for user {o.User}: ");
