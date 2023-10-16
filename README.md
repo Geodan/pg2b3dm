@@ -118,8 +118,6 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --copyright                     (Default: '') glTF asset copyright
 
-  --sql_command_timeout           (Default: 30) SQL command timeout
-
   --default_color                 (Default: #FFFFFF) Default color
 
   --default_metallic_roughness    (Default: #008000) Default metallic roughness
