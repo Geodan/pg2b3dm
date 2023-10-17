@@ -332,6 +332,8 @@ Press F5 to start debugging.
 
 ## History
 
+2023-10-17: release 1.8.3, tileset.json asset version from 1.0 to 1.1, database connection timeout removed
+
 2023-10-04: release 1.8.2, use humanizer with resources 
 
 2023-09-26: release 1.8.1, updating triangulator 
