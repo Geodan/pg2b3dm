@@ -46,7 +46,7 @@ public static class TreeSerializer
 
     private static TileSet GetTilesetObject(Version version, double geometricError)
     {
-        var tileset = new TileSet { asset = new Asset() { version = "1.0", generator = $"pg2b3dm {version}" } };
+        var tileset = new TileSet { asset = new Asset() { version = "1.1", generator = $"pg2b3dm {version}" } };
         tileset.geometricError = geometricError;
         return tileset;
     }
