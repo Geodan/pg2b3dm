@@ -114,7 +114,7 @@ public class QuadtreeTiler
                         // make a copy of the tile 
                         var t2 = new Tile(tile.X, tile.Y, tile.Z);
                         t2.BoundingBox = tile.BoundingBox;
-                        var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, createGltf);
+                        var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
                         tile.Children = lodNextTiles;
                     };
                 }
