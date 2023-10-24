@@ -16,6 +16,6 @@
     <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.6.0-preview5.19224.8" />
     <PackageReference Include="Wkx" Version="0.5.1" />
-	<PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-cesiummetadata" />
+	<PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-cesiummetadata3" />
   </ItemGroup>
 </Project>

@@ -6,6 +6,7 @@ using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
+using SharpGLTF.Schema2;
 using Wkb2Gltf.extensions;
 using Wkb2Gltf.Extensions;
 
@@ -61,6 +62,7 @@ public static class GlbCreator
 
         if (addOutlines) {
             foreach (var primitive in model.LogicalMeshes[0].Primitives) {
+                CesiumExtensions.RegisterExtensions();
                 primitive.AddOutlines();
             }
         }
