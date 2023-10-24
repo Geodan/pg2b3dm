@@ -34,6 +34,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pg2b3dm", "pg2b3dm\pg2b3dm.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pg2b3dm.database.tests", "pg2b3dm.database.tests\pg2b3dm.database.tests.csproj", "{97942C44-A7E0-43D5-A241-5BFA633B2B42}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpGLTF.Cesium", "SharpGLTF.Cesium\SharpGLTF.Cesium.csproj", "{DFF3CFFE-99FB-491F-8DC0-9A1B24AE4238}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpGLTF.Cesium.Tests", "SharpGLTF.Cesium.Tests\SharpGLTF.Cesium.Tests.csproj", "{148300D4-0CC4-439C-B131-09A4C7B19666}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +68,14 @@ Global
 		{97942C44-A7E0-43D5-A241-5BFA633B2B42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97942C44-A7E0-43D5-A241-5BFA633B2B42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97942C44-A7E0-43D5-A241-5BFA633B2B42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFF3CFFE-99FB-491F-8DC0-9A1B24AE4238}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFF3CFFE-99FB-491F-8DC0-9A1B24AE4238}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFF3CFFE-99FB-491F-8DC0-9A1B24AE4238}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFF3CFFE-99FB-491F-8DC0-9A1B24AE4238}.Release|Any CPU.Build.0 = Release|Any CPU
+		{148300D4-0CC4-439C-B131-09A4C7B19666}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{148300D4-0CC4-439C-B131-09A4C7B19666}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{148300D4-0CC4-439C-B131-09A4C7B19666}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{148300D4-0CC4-439C-B131-09A4C7B19666}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

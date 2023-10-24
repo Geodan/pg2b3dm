@@ -6,6 +6,7 @@ using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
+using SharpGLTF.Schema2;
 using Wkb2Gltf.extensions;
 using Wkb2Gltf.Extensions;
 
@@ -60,6 +61,8 @@ public static class GlbCreator
         model.LogicalNodes.First().LocalTransform = new SharpGLTF.Transforms.AffineTransform(localTransform);
 
         if (addOutlines) {
+            CesiumExtensions.RegisterExtensions();
+
             foreach (var primitive in model.LogicalMeshes[0].Primitives) {
                 primitive.AddOutlines();
             }

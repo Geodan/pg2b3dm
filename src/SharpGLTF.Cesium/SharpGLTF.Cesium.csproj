@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <AssemblyName>SharpGLTF.Cesium</AssemblyName>
+    <RootNamespace>SharpGLTF</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Schema2\Generated\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SharpGLTF.Core" Version="1.0.0-cesiummetadata2" />
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-cesiummetadata2" />
+  </ItemGroup>
+
+</Project>

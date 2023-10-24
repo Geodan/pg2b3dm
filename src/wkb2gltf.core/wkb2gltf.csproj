@@ -11,10 +11,16 @@
     <PackageReference Include="b3dm-tile" Version="1.1.1" />
     <PackageReference Include="bertt.triangulator" Version="1.2.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+    <PackageReference Include="SharpGLTF.Core" Version="1.0.0-cesiummetadata2" />
+    <PackageReference Include="SharpGLTF.Runtime" Version="1.0.0-cesiummetadata2" />
+	  <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-cesiummetadata2" />
+	  <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.6.0-preview5.19224.8" />
     <PackageReference Include="Wkx" Version="0.5.1" />
-	<PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-cesiummetadata" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SharpGLTF.Cesium\SharpGLTF.Cesium.csproj" />
   </ItemGroup>
 </Project>
