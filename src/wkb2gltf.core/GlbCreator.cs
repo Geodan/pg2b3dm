@@ -61,8 +61,8 @@ public static class GlbCreator
         model.LogicalNodes.First().LocalTransform = new SharpGLTF.Transforms.AffineTransform(localTransform);
 
         if (addOutlines) {
+            CesiumExtensions.RegisterExtensions();
             foreach (var primitive in model.LogicalMeshes[0].Primitives) {
-                CesiumExtensions.RegisterExtensions();
                 primitive.AddOutlines();
             }
         }
