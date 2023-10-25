@@ -140,6 +140,8 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --add_outlines                  (Default: false) Add outlines (Cesium)
 
+  -r, --refinement                (Default: REPLACE) Refinement ADD/REPLACE (Cesium)
+
   --min_zoom                      (Default: 15) Minimum zoom level (Mapbox)
 
   --max_zoom                      (Default: 15) Maximum zoom level (Mapbox)
@@ -331,6 +333,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2023-10-25: release 1.8.4, add -r --refinement option
 
 2023-10-17: release 1.8.3, tileset.json asset version from 1.0 to 1.1, database connection timeout removed
 
