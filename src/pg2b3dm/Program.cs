@@ -128,6 +128,7 @@ class Program
                 }
                 Console.WriteLine($"Lod column: {lodcolumn}");
                 Console.WriteLine($"Geometric errors: {String.Join(',', geometricErrors)}");
+                Console.WriteLine($"Refinement: {o.Refinement}");
 
                 var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, table, lodcolumn, query) : new List<int> { 0 });
                 if ((geometricErrors.Length != lods.Count + 1) && lodcolumn == string.Empty) {
@@ -203,7 +204,7 @@ class Program
 
                 }
                 else {
-                    var refine = lodcolumn != String.Empty ? "REPLACE" : "ADD";
+                    var refine = o.Refinement;
                     var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, heights.min, heights.max, version, refine);
                     File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
                 }
