@@ -94,7 +94,7 @@ public class QuadtreeTiler
 
             var ext = createGltf ? ".glb" : ".b3dm";
             file += ext;
-            Console.WriteLine($"\rCreating tile: {file}  ");
+            Console.Write($"\rCreating tile: {file}  ");
             tile.ContentUri = file;
 
             if (!skipCreateTiles) {
