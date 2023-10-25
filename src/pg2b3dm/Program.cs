@@ -144,7 +144,7 @@ class Program
                     if (lods.Count >= geometricErrors.Length) {
                         Console.WriteLine($"Calculating geometric errors starting from {geometricErrors[0]}");
                         geometricErrors = GeometricErrorCalculator.GetGeometricErrors(geometricErrors[0], lods);
-                        Console.WriteLine($"Calculated geometric errors (for {lods.Count} levels): {geometricErrors}");
+                        Console.WriteLine($"Calculated geometric errors (for {lods.Count} levels): {String.Join(',',geometricErrors)}");
                     }
                 };
 
@@ -204,7 +204,7 @@ class Program
                 }
                 else {
                     var refine = lodcolumn != String.Empty ? "REPLACE" : "ADD";
-                    var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, heights.min, heights.max, version);
+                    var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, heights.min, heights.max, version, refine);
                     File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
                 }
                 // end cesium specific code

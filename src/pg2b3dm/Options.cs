@@ -60,7 +60,7 @@ public class Options
     public string BoundingVolumeHeights { get; set; }
 
     [Option("add_outlines", Required = false, Default = false, HelpText = "Add outlines (Cesium)", SetName = "Cesium")]
-    public bool AddOutlines { get; set; }
+    public bool? AddOutlines { get; set; }
 
     // mapbox specific options
     [Option("min_zoom", Required = false, Default = 15, HelpText = "Minimum zoom level (Mapbox)", SetName = "Mapbox")]
