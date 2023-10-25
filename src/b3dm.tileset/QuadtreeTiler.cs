@@ -94,7 +94,7 @@ public class QuadtreeTiler
 
             var ext = createGltf ? ".glb" : ".b3dm";
             file += ext;
-            Console.Write($"\rCreating tile: {file}  ");
+            Console.WriteLine($"\rCreating tile: {file}  ");
             tile.ContentUri = file;
 
             if (!skipCreateTiles) {
@@ -112,7 +112,7 @@ public class QuadtreeTiler
                         var nextIndex = currentIndex + 1;
                         var nextLod = lods[nextIndex];
                         // make a copy of the tile 
-                        var t2 = new Tile(tile.X, tile.Y, tile.Z);
+                        var t2 = new Tile(tile.Z, tile.X, tile.Y);
                         t2.BoundingBox = tile.BoundingBox;
                         var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
                         tile.Children = lodNextTiles;
