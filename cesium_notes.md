@@ -42,8 +42,12 @@ the LOD column.
 
 For each LOD the program will generate a tile (when there are features available). 
 
-The generated files (for example '4_6_8_0.b3dm') will have 4 parameters (x, y,z and lod). All the tiles will be included in the tileset.json, 
+The generated files (for example '4_6_8_0.b3dm') will have 4 parameters (z, x, y and lod). All the tiles will be included in the tileset.json, 
 corresponding with the calculated geometric error.
+
+Demo 2 LODS https://bertt.github.io/cesium_3dtiles_samples/samples/lod_bag3d/
+
+![bag_lods](https://github.com/Geodan/pg2b3dm/assets/538812/cc5bd11e-0302-4271-b39d-7065b98177ba)
 
 Notes:
 
