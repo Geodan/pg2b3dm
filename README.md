@@ -334,6 +334,8 @@ Press F5 to start debugging.
 
 ## History
 
+2023-11-13: release 1.8.5, fix for dataset with geometries on 1 location
+
 2023-10-25: release 1.8.4, add -r --refinement option
 
 2023-10-17: release 1.8.3, tileset.json asset version from 1.0 to 1.1, database connection timeout removed

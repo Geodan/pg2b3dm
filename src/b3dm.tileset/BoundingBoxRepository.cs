@@ -19,10 +19,12 @@ public static class BoundingBoxRepository
         cmd.CommandText = sql;
         var reader = cmd.ExecuteReader();
         reader.Read();
-        var xmin = reader.GetDouble(0);
-        var ymin = reader.GetDouble(1);
-        var xmax = reader.GetDouble(2);
-        var ymax = reader.GetDouble(3);
+        // increase the boundingbox a little to avoid missing geometries at the edges
+        var delta = 0.001;
+        var xmin = reader.GetDouble(0)-delta;
+        var ymin = reader.GetDouble(1)-delta;
+        var xmax = reader.GetDouble(2)+delta;
+        var ymax = reader.GetDouble(3)+delta;
         var bbox = new BoundingBox(xmin, ymin, xmax, ymax);
         reader.Close();
         conn.Close();

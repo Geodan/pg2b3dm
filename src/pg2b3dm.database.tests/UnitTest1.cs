@@ -62,7 +62,7 @@ public class UnitTest1
             bbox_wgs84,
             new Tile(0,0,0),
             new List<Tile>());
-        Assert.IsTrue(tiles.Count == 29);
+        Assert.IsTrue(tiles.Count == 33);
     }
 
     [Test]
@@ -93,7 +93,7 @@ public class UnitTest1
         bbox_wgs84,
         new Tile(0, 0, 0),
         new List<Tile>());
-        Assert.IsTrue(tiles.Count == 125);
+        Assert.IsTrue(tiles.Count == 149);
 
     }
 }
