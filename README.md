@@ -234,6 +234,12 @@ For Cesium support (tiling schema, LODS, outlines) see [Cesium notes](cesium_not
 
 For Mapbox support see [Mapbox notes](mapbox_notes.md) 
 
+## QGIS support
+
+In QGIS 3.34 support for 3D Tiles is added see https://cesium.com/blog/2023/11/07/qgis-now-supports-3d-tiles/
+
+To create 3D Tiles for QGIS use parameters '--create_gltf false --use_implicit_tiling false' as 3D Tiles 1.1 features are not supported yet. 
+
 ## Run from Docker
 
 Docker image: https://hub.docker.com/repository/docker/geodan/pg2b3dm
