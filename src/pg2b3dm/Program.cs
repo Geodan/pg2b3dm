@@ -120,34 +120,35 @@ class Program
                 var addOutlines = (bool)o.AddOutlines;
                 var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse);
                 var useImplicitTiling = (bool)o.UseImplicitTiling;
-                if (useImplicitTiling) {
-                    if (!String.IsNullOrEmpty(lodcolumn)) {
-                        Console.WriteLine("Warning: parameter -l --lodcolumn is ignored with implicit tiling");
-                        lodcolumn = String.Empty;
-                    }
-                }
+                //if (useImplicitTiling) {
+                //    if (!String.IsNullOrEmpty(lodcolumn)) {
+                //        Console.WriteLine("Warning: parameter -l --lodcolumn is ignored with implicit tiling");
+                //        lodcolumn = String.Empty;
+                //    }
+                //}
                 Console.WriteLine($"Lod column: {lodcolumn}");
                 Console.WriteLine($"Geometric errors: {String.Join(',', geometricErrors)}");
                 Console.WriteLine($"Refinement: {o.Refinement}");
 
                 var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, table, lodcolumn, query) : new List<int> { 0 });
-                if ((geometricErrors.Length != lods.Count + 1) && lodcolumn == string.Empty) {
-                    Console.WriteLine($"Lod levels from database column {lodcolumn}: [{String.Join(',', lods)}]");
-                    Console.WriteLine($"Geometric errors: {o.GeometricErrors}");
+                // 3,6
+                //if ((geometricErrors.Length != lods.Count + 1) && lodcolumn == string.Empty) {
+                //    Console.WriteLine($"Lod levels from database column {lodcolumn}: [{String.Join(',', lods)}]");
+                //    Console.WriteLine($"Geometric errors: {o.GeometricErrors}");
 
-                    Console.WriteLine("Error: parameter -g --geometricerrors is wrongly specified...");
-                    Console.WriteLine("end of program...");
-                    Environment.Exit(0);
-                }
-                if (lodcolumn != String.Empty) {
-                    Console.WriteLine($"Lod levels: {String.Join(',', lods)}");
+                //    Console.WriteLine("Error: parameter -g --geometricerrors is wrongly specified...");
+                //    Console.WriteLine("end of program...");
+                //    Environment.Exit(0);
+                //}
+                //if (lodcolumn != String.Empty) {
+                //    Console.WriteLine($"Lod levels: {String.Join(',', lods)}");
 
-                    if (lods.Count >= geometricErrors.Length) {
-                        Console.WriteLine($"Calculating geometric errors starting from {geometricErrors[0]}");
-                        geometricErrors = GeometricErrorCalculator.GetGeometricErrors(geometricErrors[0], lods);
-                        Console.WriteLine($"Calculated geometric errors (for {lods.Count} levels): {String.Join(',',geometricErrors)}");
-                    }
-                };
+                //    if (lods.Count >= geometricErrors.Length) {
+                //        Console.WriteLine($"Calculating geometric errors starting from {geometricErrors[0]}");
+                //        geometricErrors = GeometricErrorCalculator.GetGeometricErrors(geometricErrors[0], lods);
+                //        Console.WriteLine($"Calculated geometric errors (for {lods.Count} levels): {String.Join(',', geometricErrors)}");
+                //    }
+                //};
 
                 if (!useImplicitTiling) {
                     Console.WriteLine("Geometric errors used: " + String.Join(',', geometricErrors));
@@ -174,7 +175,7 @@ class Program
                 tile.BoundingBox = bbox_wgs84.ToArray();
                 Console.WriteLine($"Start generating tiles...");
                 var quadtreeTiler = new QuadtreeTiler(conn, table, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
-                var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided,createGltf);
+                var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided,createGltf);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
