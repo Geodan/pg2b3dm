@@ -18,8 +18,11 @@ jobs:
     - name: Build with dotnet
       working-directory: src      
       run: dotnet build --configuration Release
-    - Testing glb
-      working-directory: wkb2gltf.core.tests      
+    - name: Testing glb
+      working-directory: src/wkb2gltf.core.tests      
+      run: dotnet test
+    - name: Testing tileset
+      working-directory: src/b3dm.tileset.tests     
       run: dotnet test
              
   publishdocker:
