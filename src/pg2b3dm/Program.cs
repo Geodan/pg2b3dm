@@ -67,12 +67,12 @@ class Program
             var conn = new NpgsqlConnection(connectionString);
 
             var sr = SpatialReferenceRepository.GetSpatialReference(conn, table, geometryColumn);
-            if (sr != 3857 && sr != 4978) {
-                Console.WriteLine("Error: Input geometries not in epsg:3857 / epsg:4978");
+            if (sr != 3857 && sr != 4326 && sr!= 4979) {
+                Console.WriteLine("Error: Input geometries not in epsg:4326 / epsg:4979");
                 Console.WriteLine("Program exit...");
                 Environment.Exit(0);
             }
-            appMode = (sr == 3857 ? AppMode.Mapbox : AppMode.Cesium);
+            appMode = AppMode.Cesium;
             Console.WriteLine($"Spatial reference of {table}.{geometryColumn}: {sr}");
 
             // Check spatialIndex
@@ -92,7 +92,7 @@ class Program
 
             Console.WriteLine($"Query bounding box of {table}.{geometryColumn}...");
             var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn);
-            Console.WriteLine($"Bounding box for {table}.{geometryColumn} (in WGS84): {Math.Round(bbox_wgs84.XMin, 4)}, {Math.Round(bbox_wgs84.YMin, 4)}, {Math.Round(bbox_wgs84.XMax, 4)}, {Math.Round(bbox_wgs84.YMax, 4)}");
+            Console.WriteLine($"Bounding box for {table}.{geometryColumn} (in WGS84): {Math.Round(bbox_wgs84.XMin, 8)}, {Math.Round(bbox_wgs84.YMin, 8)}, {Math.Round(bbox_wgs84.XMax, 8)}, {Math.Round(bbox_wgs84.YMax, 8)}");
 
             Console.WriteLine($"Default color: {defaultColor}");
             Console.WriteLine($"Default metallic roughness: {defaultMetallicRoughness}");

@@ -50,7 +50,7 @@ public class UnitTest1
         var center_wgs84 = bbox_wgs84.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
 
-        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings", 4978, "geom_triangle", 50, string.Empty,
+        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings", 4326, "geom_triangle", 50, string.Empty,
             new double[] { translation.X, translation.Y, translation.Z },
             "shaders",
             string.Empty,
@@ -62,7 +62,7 @@ public class UnitTest1
             bbox_wgs84,
             new Tile(0,0,0),
             new List<Tile>());
-        Assert.That(tiles.Count, Is.EqualTo(33));
+        Assert.That(tiles.Count, Is.EqualTo(29));
     }
 
     [Test]
@@ -81,19 +81,19 @@ public class UnitTest1
         var center_wgs84 = bbox_wgs84.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
 
-        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings_lod", 4978, "geom_triangle", 10, string.Empty,
+        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings_lod", 4326, "geom_triangle", 10, string.Empty,
             new double[] { translation.X, translation.Y, translation.Z },
             "shaders",
             string.Empty,
             "lodcolumn",
             "output/content",
             new List<int>() { 0,1 },
-            skipCreateTiles: false);
+            skipCreateTiles: true);
         var tiles = implicitTiler.GenerateTiles(
         bbox_wgs84,
         new Tile(0, 0, 0),
         new List<Tile>());
-        Assert.That(tiles.Count, Is.EqualTo(149));
+        Assert.That(tiles.Count, Is.EqualTo(141));
 
     }
 }

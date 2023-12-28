@@ -7,7 +7,7 @@ public static class Translation
     public static double[] GetTranslation(int sr, Point center_wgs84)
     {
         double[] translation;
-        if (sr == 4978) {
+        if (sr == 4326 || sr == 4979) {
             var v3 = SpatialConverter.GeodeticToEcef((double)center_wgs84.X, (double)center_wgs84.Y, 0);
             translation = new double[] { v3.X, v3.Y, v3.Z };
         }

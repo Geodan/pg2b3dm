@@ -13,11 +13,11 @@ namespace B3dm.Tileset;
 
 public static class GeometryRepository
 {
-    public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Tile t, string query = "")
+    public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, int epsg, Tile t, string query = "")
     {
-        var sqlSelect = $"select st_asbinary(st_extent(st_transform({geometry_column}, 4326))) ";
+        var sqlSelect = $"select st_asbinary(st_extent({geometry_column})) ";
         var b = GetTileBoundingBox(t.BoundingBox);
-        var sqlWhere = GetWhere(geometry_column, 4978, b.xmin, b.ymin, b.xmax, b.ymax, query);
+        var sqlWhere = GetWhere(geometry_column, epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
         var sql = $"{sqlSelect} from {geometry_table} {sqlWhere}";
 
         conn.Open();
@@ -83,7 +83,7 @@ public static class GeometryRepository
 
     public static string GetGeometryColumn(string geometry_column, double[] translation)
     {
-        return $"ST_Translate({geometry_column}, {translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , {translation[2].ToString(CultureInfo.InvariantCulture)}*-1)";
+        return $"ST_Translate(st_transform({geometry_column}, 4978), {translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , {translation[2].ToString(CultureInfo.InvariantCulture)}*-1)";
     }
 
     public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql)

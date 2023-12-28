@@ -40,10 +40,10 @@ Convert 3D Data (Multipolygon Z) to 3D Tiles
 
 Result: 7-480-624.gpkg (18 MB)
 
-- Import in PostGIS database, convert to Cesium coordinates
+    - Import in PostGIS database, convert to EPSG:4979 (WGS84 ellipsoidal heights)
 
 ```
-$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4978 7-480-624.gpkg lod22_3d
+$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4979 7-480-624.gpkg lod22_3d
 ```
 
 - Convert to 3D Tiles using pg2b3dm
@@ -339,6 +339,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2023-12-28: release 2.0.0, changed input coordinate systen from EOSG:4978 to EPSG:4326 (or EPSG:4979 for ellipsoidal heights)
 
 2023-11-13: release 1.8.5, fix for dataset with geometries on 1 location
 
