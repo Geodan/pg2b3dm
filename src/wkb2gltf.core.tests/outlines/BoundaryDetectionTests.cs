@@ -12,12 +12,12 @@ public class BoundaryDetectionTests
 
         var boundary = BoundaryDetection.GetSharedPoints(t0, t1);
 
-        Assert.IsTrue(boundary.first.Count == 2);
-        Assert.IsTrue(boundary.first[0] == 1);
-        Assert.IsTrue(boundary.first[1] == 2);
+        Assert.That(boundary.first.Count == 2, Is.True);
+        Assert.That(boundary.first[0] == 1, Is.True);
+        Assert.That(boundary.first[1] == 2, Is.True);
 
-        Assert.IsTrue(boundary.second.Count == 2);
-        Assert.IsTrue(boundary.second[0] == 1);
-        Assert.IsTrue(boundary.second[1] == 0);
+        Assert.That(boundary.second.Count == 2, Is.True);
+        Assert.That(boundary.second[0] == 1, Is.True);
+        Assert.That(boundary.second[1] == 0, Is.True);
     }
 }

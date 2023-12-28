@@ -25,7 +25,7 @@ public class BoundingVolumeTests
         var back = JsonConvert.DeserializeObject<Boundingvolume>(output);
 
         // assert
-        Assert.IsTrue(output != null);
-        Assert.IsTrue(back.region[0] == -1.31972);
+        Assert.That(output != null, Is.True);
+        Assert.That(back.region[0] == -1.31972, Is.True);
     }
 }

@@ -23,8 +23,8 @@ public class PrimitiveOutlineTests
         var outlines = Part.GetOutlines(triangles, new List<uint>() { 0, 1, 2, 3 });
 
         // assert
-        Assert.IsTrue(outlines.Count == 6 * 2);
-        Assert.IsTrue(outlines.SequenceEqual(new List<uint>() { 0, 1, 1, 2, 5, 3, 8, 6, 9, 10, 10, 11 }));
+        Assert.That(outlines.Count == 6 * 2, Is.True);
+        Assert.That(outlines.SequenceEqual(new List<uint>() { 0, 1, 1, 2, 5, 3, 8, 6, 9, 10, 10, 11 }), Is.True);
     }
 
     [Test]
@@ -38,8 +38,8 @@ public class PrimitiveOutlineTests
         var outlines = Part.GetOutlines(triangles, new List<uint>() { 0 });
 
         // asert
-        Assert.IsTrue(outlines.Count == 6);
-        Assert.IsTrue(outlines.SequenceEqual(new List<uint>() { 0, 1, 1, 2, 2, 0 }));
+        Assert.That(outlines.Count == 6, Is.True);
+        Assert.That(outlines.SequenceEqual(new List<uint>() { 0, 1, 1, 2, 2, 0 }), Is.True);
     }
 
     [Test]
@@ -54,8 +54,8 @@ public class PrimitiveOutlineTests
         var outlines = Part.GetOutlines(triangles, new List<uint>() { 0, 1 });
 
         // assert
-        Assert.IsTrue(outlines.Count == 8);
-        Assert.IsTrue(outlines.SequenceEqual(new List<uint>() { 0, 1, 1, 2, 3, 4, 4, 5 }));
+        Assert.That(outlines.Count == 8, Is.True);
+        Assert.That(outlines.SequenceEqual(new List<uint>() { 0, 1, 1, 2, 3, 4, 4, 5 }), Is.True);
     }
 
     [Test]
@@ -71,7 +71,7 @@ public class PrimitiveOutlineTests
         var outlines = Part.GetOutlines(triangles, new List<uint> { 0, 1, 2 });
 
         // assert
-        Assert.IsTrue(outlines.Count == 10);
+        Assert.That(outlines.Count == 10, Is.True);
     }
 
     [Test]
@@ -99,6 +99,6 @@ public class PrimitiveOutlineTests
         var parts = OutlineDetection.GetOutlines2(triangles);
 
         // assert
-        Assert.IsTrue(parts.Count == 48);
+        Assert.That(parts.Count == 48, Is.True);
     }
 }

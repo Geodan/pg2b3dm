@@ -16,6 +16,6 @@ public class NormalTests
 
         var expected = new Vector3(0.193098128f, 0.6316621f, 0.750810444f);
         var normal = t.GetNormal();
-        Assert.IsTrue(normal.Equals(expected));
+        Assert.That(normal.Equals(expected), Is.True);
     }
 }

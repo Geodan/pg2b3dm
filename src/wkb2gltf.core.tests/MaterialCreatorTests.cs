@@ -16,12 +16,12 @@ public class MaterialCreatorTests
     {
         var hex = "#E6008000";
         var color = ColorTranslator.FromHtml(hex);
-        Assert.IsTrue(color.A == 230);
-        Assert.IsTrue(color.R == 0);
-        Assert.IsTrue(color.G == 128);
-        Assert.IsTrue(color.B == 0);
+        Assert.That(color.A == 230, Is.True);
+        Assert.That(color.R == 0, Is.True);
+        Assert.That(color.G == 128, Is.True);
+        Assert.That(color.B == 0, Is.True);
         var hex2 = ColorTranslator.ToHtml(color);
-        Assert.IsTrue(hex.EndsWith(hex2.Substring(1,hex2.Length-1)));
+        Assert.That(hex.EndsWith(hex2.Substring(1, hex2.Length - 1)), Is.True);
     }
 
     [Test]
@@ -37,12 +37,12 @@ public class MaterialCreatorTests
         var material = MaterialCreator.CreateMaterial(shader);
 
         // asssert
-        Assert.IsNotNull(material);
+        Assert.That(material != null);
         var rgba = (Vector4)material.Channels.First().Parameters["RGBA"];
-        Assert.IsTrue(rgba.X == 0);
-        Assert.IsTrue(Math.Round(rgba.Y * 255) == 128);
-        Assert.IsTrue(rgba.Z == 0);
-        Assert.IsTrue(rgba.W == 1);
+        Assert.That(rgba.X == 0, Is.True);
+        Assert.That(Math.Round(rgba.Y * 255) == 128, Is.True);
+        Assert.That(rgba.Z == 0, Is.True);
+        Assert.That(rgba.W == 1, Is.True);
 
         SaveSampleModel(material, "basecolor");
     }
@@ -54,23 +54,23 @@ public class MaterialCreatorTests
         var shader = new Shader();
         var emissive = new Vector3(10, 20, 30);
         // #008000 = green https://www.color-hex.com/color/008000 (0,128,0))
-        shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = "#008000"};
+        shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = "#008000" };
         shader.EmissiveColor = ColorTranslator.ToHtml(Color.FromArgb(10, 20, 30));
         // act
         var material = MaterialCreator.CreateMaterial(shader);
 
         // asssert
-        Assert.IsNotNull(material);
+        Assert.That(material != null);
         var rgba = (Vector4)material.Channels.ToArray()[1].Parameters["RGBA"];
-        Assert.IsTrue(rgba.X == 0);
-        Assert.IsTrue(Math.Round(rgba.Y * 255) == 128);
-        Assert.IsTrue(rgba.Z == 0);
-        Assert.IsTrue(rgba.W == 1);
+        Assert.That(rgba.X == 0, Is.True);
+        Assert.That(Math.Round(rgba.Y * 255) == 128, Is.True);
+        Assert.That(rgba.Z == 0, Is.True);
+        Assert.That(rgba.W == 1, Is.True);
         var emissiveParams = material.Channels.ToArray()[0].Parameters;
         var emissiveVector3 = (Vector3)emissiveParams[KnownProperty.RGB];
-        Assert.AreEqual(emissive.X, Math.Round(emissiveVector3.X*255));
-        Assert.AreEqual(emissive.Y, Math.Round(emissiveVector3.Y * 255));
-        Assert.AreEqual(emissive.Z, Math.Round(emissiveVector3.Z * 255));
+        Assert.That(Math.Round(emissiveVector3.X * 255), Is.EqualTo(emissive.X));
+        Assert.That(Math.Round(emissiveVector3.Y * 255), Is.EqualTo(emissive.Y));
+        Assert.That(Math.Round(emissiveVector3.Z * 255), Is.EqualTo(emissive.Z));
         SaveSampleModel(material, "basecolor");
     }
 
@@ -93,11 +93,11 @@ public class MaterialCreatorTests
         var material = MaterialCreator.CreateMaterial(shader);
 
         // asssert
-        Assert.IsNotNull(material);
-        Assert.IsTrue(material.Channels.Count == 2);
+        Assert.That(material != null);
+        Assert.That(material.Channels.Count == 2, Is.True);
         var metallicRoughnessParams = material.Channels.ToArray()[1].Parameters;
-        Assert.IsTrue(metallicRoughnessParams[KnownProperty.MetallicFactor] == metallicFactor);
-        Assert.IsTrue(metallicRoughnessParams[KnownProperty.RoughnessFactor] == roughnessFactor);
+        Assert.That(metallicRoughnessParams[KnownProperty.MetallicFactor] == metallicFactor, Is.True);
+        Assert.That(metallicRoughnessParams[KnownProperty.RoughnessFactor] == roughnessFactor, Is.True);
 
         SaveSampleModel(material, "metallic");
     }
@@ -113,8 +113,8 @@ public class MaterialCreatorTests
         var material = MaterialCreator.CreateMaterial(shader);
 
         // asssert
-        Assert.IsNotNull(material);
-        Assert.IsTrue(material.Channels.Count == 2);
+        Assert.That(material!=null);
+        Assert.That(material.Channels.Count == 2, Is.True);
         SaveSampleModel(material, "specularglossinesswithdiffuse");
     }
 
@@ -129,8 +129,8 @@ public class MaterialCreatorTests
         var material = MaterialCreator.CreateMaterial(shader);
 
         // asssert
-        Assert.IsNotNull(material);
-        Assert.IsTrue(material.Channels.Count == 1);
+        Assert.That(material != null);
+        Assert.That(material.Channels.Count == 1, Is.True);
         SaveSampleModel(material, "specularglossiness");
     }
 

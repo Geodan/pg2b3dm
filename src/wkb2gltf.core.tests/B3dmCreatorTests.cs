@@ -27,7 +27,7 @@ public class B3dmCreatorTests
         // assert
         var stream = new MemoryStream(bytes);
         var b3dm = B3dmReader.ReadB3dm(stream);
-        Assert.IsTrue(b3dm.B3dmHeader.Version == 1);
-        Assert.IsTrue(b3dm.BatchTableJson == "{\"id\":[\"1\"]}    ");
+        Assert.That(b3dm.B3dmHeader.Version == 1, Is.True);
+        Assert.That(b3dm.BatchTableJson == "{\"id\":[\"1\"]}    ", Is.True);
     }
 }

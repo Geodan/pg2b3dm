@@ -18,7 +18,7 @@ public class UnitTest1
 
         var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
         var hasSpatialIndex = SpatialIndexChecker.HasSpatialIndex(conn, "delaware_buildings", "geom_triangle");
-        Assert.IsFalse(hasSpatialIndex);
+        Assert.That(hasSpatialIndex==false);
     }
 
 
@@ -33,7 +33,7 @@ public class UnitTest1
         var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
         var sql = "select count(*) from delaware_buildings";
         var records = DatabaseReader.ReadScalar(conn, sql);
-        Assert.IsTrue(records == 360);
+        Assert.That(records, Is.EqualTo(360));
     }
 
     [Test]
@@ -62,7 +62,7 @@ public class UnitTest1
             bbox_wgs84,
             new Tile(0,0,0),
             new List<Tile>());
-        Assert.IsTrue(tiles.Count == 33);
+        Assert.That(tiles.Count, Is.EqualTo(33));
     }
 
     [Test]
@@ -93,7 +93,7 @@ public class UnitTest1
         bbox_wgs84,
         new Tile(0, 0, 0),
         new List<Tile>());
-        Assert.IsTrue(tiles.Count == 149);
+        Assert.That(tiles.Count, Is.EqualTo(149));
 
     }
 }

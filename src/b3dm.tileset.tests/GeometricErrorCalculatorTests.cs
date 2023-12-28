@@ -11,10 +11,10 @@ public class GeometricErrorCalculatorTests
         var lods = new List<int> { 0, 1 };
         var geometricErrors = GeometricErrorCalculator.GetGeometricErrors(500, lods);
 
-        Assert.IsTrue(geometricErrors.Length == 3);
-        Assert.IsTrue(geometricErrors[0] == 500);
-        Assert.IsTrue(geometricErrors[1] == 250);
-        Assert.IsTrue(geometricErrors[2] == 0);
+        Assert.That(geometricErrors.Length == 3, Is.True);
+        Assert.That(geometricErrors[0] == 500, Is.True);
+        Assert.That(geometricErrors[1] == 250, Is.True);
+        Assert.That(geometricErrors[2] == 0, Is.True);
     }
 
     [Test]
@@ -23,19 +23,19 @@ public class GeometricErrorCalculatorTests
         var lods = new List<int> { 0 };
         var geometricErrors = GeometricErrorCalculator.GetGeometricErrors(500, lods);
 
-        Assert.IsTrue(geometricErrors.Length == 2);
-        Assert.IsTrue(geometricErrors[0] == 500);
-        Assert.IsTrue(geometricErrors[1] == 0);
+        Assert.That(geometricErrors.Length == 2, Is.True);
+        Assert.That(geometricErrors[0] == 500, Is.True);
+        Assert.That(geometricErrors[1] == 0, Is.True);
     }
 
     [Test]
     public void CalculateGeometricErrorRoundingTest(){
         var lods = new List<int> { 0,1,2 };
         var geometricErrors = GeometricErrorCalculator.GetGeometricErrors(100, lods);
-        Assert.IsTrue(geometricErrors.Length == 4);
-        Assert.IsTrue(geometricErrors[0] == 100);
-        Assert.IsTrue(geometricErrors[1] == 67);
-        Assert.IsTrue(geometricErrors[2] == 33);
-        Assert.IsTrue(geometricErrors[3] == 0);
+        Assert.That(geometricErrors.Length == 4, Is.True);
+        Assert.That(geometricErrors[0] == 100, Is.True);
+        Assert.That(geometricErrors[1] == 67, Is.True);
+        Assert.That(geometricErrors[2] == 33, Is.True);
+        Assert.That(geometricErrors[3] == 0, Is.True);
     }
 }

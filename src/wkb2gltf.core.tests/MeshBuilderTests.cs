@@ -6,7 +6,6 @@ using SharpGLTF.Schema2;
 using SharpGLTF.Materials;
 using Wkb2Gltf.Extensions;
 using System.IO;
-using SharpGLTF.Memory;
 
 namespace Wkb2Gltf.Tests;
 
@@ -38,6 +37,6 @@ public class MeshBuilderTests
 
         var batchId = dstMesh.Primitives[0].GetVertexAccessor(VertexWithBatchId.CUSTOMATTRIBUTENAME).AsScalarArray();
 
-        CollectionAssert.AreEqual(new float[] { 101, 101, 101 }, batchId);
+        Assert.That(batchId, Is.EqualTo(new float[] { 101, 101, 101 }).AsCollection);
     }
 }

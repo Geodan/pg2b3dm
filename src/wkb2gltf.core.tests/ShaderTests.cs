@@ -20,7 +20,7 @@ public class ShaderTests
         otherShader.PbrSpecularGlossiness = sg;
 
         var res = shaderWithSpecularGlossiness.Equals(otherShader);
-        Assert.IsTrue(res);
+        Assert.That(res, Is.True);
     }
 }
 

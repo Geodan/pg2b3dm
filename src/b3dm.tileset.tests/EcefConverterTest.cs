@@ -10,6 +10,6 @@ public class EcefConverterTest
     {
         var p = new Point(-75.614, 38.908);
         var ecef1 = SpatialConverter.GeodeticToEcef((double)p.X,(double)p.Y, 0);
-        Assert.IsTrue(true);
+        Assert.That(ecef1.X > 0, Is.True);
     }
 }

@@ -19,7 +19,7 @@ public  class OutlinesForMeshPrimitivesTesting
         var model = ModelRoot.Load(@"testfixtures/two_triangles.glb");
 
         var primitives = model.LogicalMeshes[0].Primitives;
-        Assert.IsTrue(primitives.Count == 2);
+        Assert.That(primitives.Count == 2, Is.True);
 
         model.LogicalMeshes[0].Primitives[0].AddOutlines();
     }

@@ -42,7 +42,7 @@ public class GlbCreatorTests
 
         // assert
         var model = ModelRoot.Load(fileName);
-        Assert.AreEqual(1, model.LogicalMeshes[0].Primitives.Count);
+        Assert.That(model.LogicalMeshes[0].Primitives.Count, Is.EqualTo(1));
     }
 
     [Test]
@@ -61,7 +61,7 @@ public class GlbCreatorTests
 
         // assert
         var model = ModelRoot.Load(fileName);
-        Assert.AreEqual(1, model.LogicalMeshes[0].Primitives.Count);
+        Assert.That(model.LogicalMeshes[0].Primitives.Count, Is.EqualTo(1));
     }
 
     [Test]
@@ -80,7 +80,7 @@ public class GlbCreatorTests
 
         // assert
         var model = ModelRoot.Load(fileName);
-        Assert.AreEqual(1, model.LogicalMeshes[0].Primitives.Count);
+        Assert.That(model.LogicalMeshes[0].Primitives.Count, Is.EqualTo(1));
 
     }
 
@@ -111,9 +111,9 @@ public class GlbCreatorTests
 
         // assert (each triangle becomes a primitive because colors
         var model = ModelRoot.Load(fileName);
-        
+
         // there are 8 small triangles (area) that are removed.
-        Assert.AreEqual(triangles.Count, model.LogicalMeshes[0].Primitives.Count + 8);
+        Assert.That(model.LogicalMeshes[0].Primitives.Count + 8, Is.EqualTo(triangles.Count));
     }
 
     [Test]
@@ -146,9 +146,9 @@ public class GlbCreatorTests
         }
         catch(Exception ex){
             // assert
-            Assert.IsTrue(ex != null);
-            Assert.IsTrue(ex is ArgumentOutOfRangeException);
-            Assert.IsTrue(ex.Message.Contains("Diffuse, BaseColor"));
+            Assert.That(ex != null, Is.True);
+            Assert.That(ex is ArgumentOutOfRangeException, Is.True);
+            Assert.That(ex.Message.Contains("Diffuse, BaseColor"), Is.True);
         }
     }
 
@@ -185,9 +185,9 @@ public class GlbCreatorTests
         
         // act
         var model = scene.ToGltf2();
-        
+
         // assert
-        Assert.AreEqual(2, model.LogicalMeshes[0].Primitives.Count);
+        Assert.That(model.LogicalMeshes[0].Primitives.Count, Is.EqualTo(2));
     }
 
     [Test]
@@ -201,8 +201,8 @@ public class GlbCreatorTests
         var triangles = GeometryProcessor.GetTriangles(g, 100);
 
         // assert
-        Assert.AreEqual(6, ((PolyhedralSurface)g).Geometries.Count);
-        Assert.AreEqual(12, triangles.Count);
+        Assert.That(((PolyhedralSurface)g).Geometries.Count, Is.EqualTo(6));
+        Assert.That(triangles.Count, Is.EqualTo(12));
     }
 
     [Test]
@@ -221,7 +221,7 @@ public class GlbCreatorTests
 
         var triangles = GeometryProcessor.GetTriangles(polyhedralsurface, 100, shaderColors);
         CheckNormal(triangles[2], center);
-        Assert.IsTrue(triangles.Count == 12);
+        Assert.That(triangles.Count == 12, Is.True);
 
         // act
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
@@ -238,9 +238,9 @@ public class GlbCreatorTests
         var p0 = t.ToVectors().Item1;
         var vertexDistance = (p0- center.ToVector()).Length();
         var withNormalDistance = (p0 + normal - center.ToVector()).Length();
-        
+
         // assert
-        Assert.IsTrue(withNormalDistance > vertexDistance);
+        Assert.That(withNormalDistance > vertexDistance, Is.True);
     }
 
     private static void DrawTriangle(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal> mesh)

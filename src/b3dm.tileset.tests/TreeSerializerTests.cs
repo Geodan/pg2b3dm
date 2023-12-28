@@ -22,7 +22,7 @@ public class TreeSerializerTests
         var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 5, 1);
 
         // assert
-        Assert.IsTrue(json != null);
+        Assert.That(json != null, Is.True);
     }
 
     [Test]
@@ -38,9 +38,9 @@ public class TreeSerializerTests
         // act
         var json = TreeSerializer.ToJson(tiles, translation, bbox, new double[] { 500, 0}, 0, 10);
         var jsonobject = JObject.Parse(json);
-        
+
         // assert
-        Assert.IsTrue(jsonobject != null);
+        Assert.That(jsonobject != null, Is.True);
     }
 
     [Test]
@@ -61,7 +61,7 @@ public class TreeSerializerTests
 
         // assert
         var tileset = TreeSerializer.ToTileset(tiles, translation, bbox, new double[] { 500, 0 }, 0, 10);
-        Assert.IsTrue(tileset.root.children.Count == 2);
+        Assert.That(tileset.root.children.Count == 2, Is.True);
     }
 
 
@@ -87,10 +87,10 @@ public class TreeSerializerTests
 
         // assert
         var tileset = TreeSerializer.ToTileset(tiles, translation, bbox, new double[] {500,100,0}, 0, 10);
-        Assert.IsTrue(tileset.root.children[0].children.Count == 1);
-        Assert.IsTrue(tileset.root.geometricError==500);
-        Assert.IsTrue(tileset.root.children[0].geometricError == 100);
-        Assert.IsTrue(tileset.root.children[0].children[0].geometricError == 0);
+        Assert.That(tileset.root.children[0].children.Count == 1, Is.True);
+        Assert.That(tileset.root.geometricError==500, Is.True);
+        Assert.That(tileset.root.children[0].geometricError == 100, Is.True);
+        Assert.That(tileset.root.children[0].children[0].geometricError == 0, Is.True);
 
     }
 }

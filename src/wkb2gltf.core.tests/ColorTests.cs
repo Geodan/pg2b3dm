@@ -10,6 +10,6 @@ public class ColorTests
     {
         var hexcolor = "#ff5555";
         var color = ColorTranslator.FromHtml(hexcolor);
-        Assert.IsTrue(color.R == 255 && color.G == 85 && color.B == 85);
+        Assert.That(color.R == 255 && color.G == 85 && color.B == 85, Is.True);
     }
 }

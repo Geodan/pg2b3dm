@@ -11,6 +11,6 @@ public class BoundingBoxTests
     {
         var bbox = new BoundingBox(5, 51, 6, 52);
         var radians = bbox.ToRadians();
-        Assert.IsTrue(radians.XMin == 0.087266462599716474);
+        Assert.That(radians.XMin == 0.087266462599716474, Is.True);
     }
 }

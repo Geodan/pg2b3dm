@@ -36,14 +36,14 @@ public class OutlineDetectionTests
 
         var parts = PartFinder.GetParts(triangles);
 
-        Assert.IsTrue(parts.Count == 1);
-        Assert.IsTrue(parts[0].Count == 3);
-        Assert.IsTrue(parts[0][0] == 0);
-        Assert.IsTrue(parts[0][1] == 1);
-        Assert.IsTrue(parts[0][0] == 0);
+        Assert.That(parts.Count == 1, Is.True);
+        Assert.That(parts[0].Count == 3, Is.True);
+        Assert.That(parts[0][0] == 0, Is.True);
+        Assert.That(parts[0][1] == 1, Is.True);
+        Assert.That(parts[0][0] == 0, Is.True);
 
         var outlines = OutlineDetection.GetOutlines2(triangles);
-        Assert.IsTrue(outlines.Count == 8);
+        Assert.That(outlines.Count == 8, Is.True);
     }
 
     [Test]
@@ -83,7 +83,7 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         var outlines = OutlineDetection.GetOutlines(model.LogicalMeshes[0].Primitives[0]);
 
         // assert
-        Assert.IsTrue(outlines.Count > 0);
+        Assert.That(outlines.Count > 0, Is.True);
     }
 
     [Test]
@@ -96,7 +96,7 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
 
         var surface = (PolyhedralSurface)g;
         var triangles = GeometryProcessor.GetTriangles(surface, 0);
-        Assert.IsTrue(triangles.Count == 12);
+        Assert.That(triangles.Count == 12, Is.True);
 
         var material = new MaterialBuilder().
             WithDoubleSide(true).
@@ -118,7 +118,7 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         var outlines = OutlineDetection.GetOutlines(model.LogicalMeshes[0].Primitives[0]);
 
         // assert
-        Assert.IsTrue(outlines.Count > 0);
+        Assert.That(outlines.Count > 0, Is.True);
     }
 
     [Test]
@@ -133,7 +133,7 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         var res = OutlineDetection.GetOutlines2(triangles);
 
         // assert
-        Assert.IsTrue(res.Count == 48);
+        Assert.That(res.Count == 48, Is.True);
     }
 
     [Test]
@@ -148,7 +148,7 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         var res = OutlineDetection.GetOutlines2(triangles);
 
         // assert
-        Assert.IsTrue(res.Count == 48);
+        Assert.That(res.Count == 48, Is.True);
     }
 
 
@@ -164,7 +164,7 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         var res = OutlineDetection.GetOutlines2(triangles);
 
         // assert
-        Assert.IsTrue(res.Count == 48);
+        Assert.That(res.Count == 48, Is.True);
     }
 
     [Test]
@@ -178,23 +178,23 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         var triangles = new List<Triangle> { t0, t1, t2 };
 
         var a = Adjacency.GetAdjacencyList(triangles);
-        Assert.IsTrue(a.ContainsKey(0));
-        Assert.IsTrue(a[0].Count == 1);
-        Assert.IsTrue(a[1].Count == 1);
-        Assert.IsTrue(a[2].Count == 2);
+        Assert.That(a.ContainsKey(0), Is.True);
+        Assert.That(a[0].Count == 1, Is.True);
+        Assert.That(a[1].Count == 1, Is.True);
+        Assert.That(a[2].Count == 2, Is.True);
 
 
         var outlines = Part.GetOutlines(triangles, new List<uint>() { 0, 1, 2 });
-        Assert.IsTrue(outlines[0] == 0);
-        Assert.IsTrue(outlines[1] == 1);
-        Assert.IsTrue(outlines[2] == 2);
-        Assert.IsTrue(outlines[3] == 0);
-        Assert.IsTrue(outlines[4] == 4);
-        Assert.IsTrue(outlines[5] == 5);
-        Assert.IsTrue(outlines[6] == 5);
-        Assert.IsTrue(outlines[7] == 3);
-        Assert.IsTrue(outlines[8] == 7);
-        Assert.IsTrue(outlines[9] == 8);
+        Assert.That(outlines[0] == 0, Is.True);
+        Assert.That(outlines[1] == 1, Is.True);
+        Assert.That(outlines[2] == 2, Is.True);
+        Assert.That(outlines[3] == 0, Is.True);
+        Assert.That(outlines[4] == 4, Is.True);
+        Assert.That(outlines[5] == 5, Is.True);
+        Assert.That(outlines[6] == 5, Is.True);
+        Assert.That(outlines[7] == 3, Is.True);
+        Assert.That(outlines[8] == 7, Is.True);
+        Assert.That(outlines[9] == 8, Is.True);
     }
 
 }

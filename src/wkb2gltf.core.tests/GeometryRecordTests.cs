@@ -21,11 +21,11 @@ public class GeometryRecordTests
         var triangles = geometryRecord.GetTriangles();
 
         // assert
-        Assert.IsTrue(g != null);
+        Assert.That(g != null, Is.True);
 
         // there are 262 geometries... 
-        Assert.IsTrue(polyhedralsurface.Geometries.Count == 262);
+        Assert.That(polyhedralsurface.Geometries.Count == 262, Is.True);
         // there are 51 degenerated triangles in this geometry...
-        Assert.IsTrue(triangles.Count == polyhedralsurface.Geometries.Count - 51);
+        Assert.That(triangles.Count == polyhedralsurface.Geometries.Count - 51, Is.True);
     }
 }

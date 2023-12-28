@@ -23,6 +23,6 @@ public class BatchTableTests
         var json = JsonConvert.SerializeObject(batchTable, new BatchTableJsonConverter(typeof(BatchTable)));
 
         // assert
-        Assert.IsTrue(json == "{\"first item\":[\"0\",\"1\",\"2\"],\"second item\":[\"100\",\"101\",\"102\"]}");
+        Assert.That(json == "{\"first item\":[\"0\",\"1\",\"2\"],\"second item\":[\"100\",\"101\",\"102\"]}", Is.True);
     }
 }

@@ -25,6 +25,6 @@ public class B3dmWriterTests
         var b3dmBytes = TileWriter.ToTile(new List<GeometryRecord> { geometryRecord }, addOutlines: true);
 
         // assert
-        Assert.IsTrue(b3dmBytes != null);
+        Assert.That(b3dmBytes != null, Is.True);
     }
 }

@@ -18,7 +18,7 @@ public class TriangleTests
         var area = triangle.Area();
 
         // assert
-        Assert.IsTrue(area.Equals(0.5));
+        Assert.That(area.Equals(0.5), Is.True);
     }
 
 
@@ -37,7 +37,7 @@ public class TriangleTests
         var isDegenerated = triangle.IsDegenerated();
 
         // assert
-        Assert.IsTrue(isDegenerated);
+        Assert.That(isDegenerated, Is.True);
     }
 
     [Test]
@@ -54,6 +54,6 @@ public class TriangleTests
         var res = triangle.ToVectors();
 
         // assert
-        Assert.IsTrue(res.Item1.X == 4403.12842f);
+        Assert.That(res.Item1.X == 4403.12842f, Is.True);
     }
 }
