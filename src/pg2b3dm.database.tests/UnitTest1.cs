@@ -47,7 +47,7 @@ public class UnitTest1
         var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
         var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, "delaware_buildings", "geom_triangle");
 
-        var center_wgs84 = bbox_wgs84.GetCenter();
+        var center_wgs84 = bbox_wgs84.bbox.GetCenter(0, 100);
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
 
         var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings", 4326, "geom_triangle", 50, string.Empty,
@@ -59,7 +59,7 @@ public class UnitTest1
             new List<int>() { 0 },
             skipCreateTiles: true);        
             var tiles = implicitTiler.GenerateTiles(
-            bbox_wgs84,
+            bbox_wgs84.bbox,
             new Tile(0,0,0),
             new List<Tile>());
         Assert.That(tiles.Count, Is.EqualTo(29));
@@ -78,7 +78,7 @@ public class UnitTest1
         var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
         var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, "delaware_buildings_lod", "geom_triangle");
 
-        var center_wgs84 = bbox_wgs84.GetCenter();
+        var center_wgs84 = bbox_wgs84.bbox.GetCenter(0, 100);
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
 
         var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings_lod", 4326, "geom_triangle", 10, string.Empty,
@@ -90,7 +90,7 @@ public class UnitTest1
             new List<int>() { 0,1 },
             skipCreateTiles: true);
         var tiles = implicitTiler.GenerateTiles(
-        bbox_wgs84,
+        bbox_wgs84.bbox,
         new Tile(0, 0, 0),
         new List<Tile>());
         Assert.That(tiles.Count, Is.EqualTo(141));

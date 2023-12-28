@@ -55,7 +55,7 @@ public class QuadtreeTiler
             where += $" and {lodquery}";
         }
 
-        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bbox.XMin, bbox.YMin), new Point(bbox.XMax, bbox.YMax), epsg, where);
+        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bbox.XMin, bbox.YMin), new Point(bbox.XMax, bbox.YMax), where);
 
         if (numberOfFeatures == 0) {
             tile.Available = false;

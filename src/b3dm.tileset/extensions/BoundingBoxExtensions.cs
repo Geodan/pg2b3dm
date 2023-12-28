@@ -23,11 +23,12 @@ public static class BoundingBoxExtensions
         return Radian.ToRadius(angle);
     }
 
-    public static Point GetCenter(this BoundingBox bb)
+    public static Point GetCenter(this BoundingBox bb, double zmin,  double zmax)
     {
         var x = (bb.XMax + bb.XMin) / 2;
         var y = (bb.YMax + bb.YMin) / 2;
-        return new Point(x, y, 0);
+        var z = (zmax + zmin) / 2;
+        return new Point(x, y, z);
     }
 
     public static double[] ToArray(this BoundingBox bb)

@@ -67,13 +67,17 @@ class Program
             var conn = new NpgsqlConnection(connectionString);
 
             var sr = SpatialReferenceRepository.GetSpatialReference(conn, table, geometryColumn);
-            if (sr != 3857 && sr != 4326 && sr!= 4979) {
-                Console.WriteLine("Error: Input geometries not in epsg:4326 / epsg:4979");
+
+            if (sr == 4978) {
+                Console.WriteLine("Error: Input geometries in epsg:4978 are not supported in version >= 2.0.0");
+                Console.WriteLine("Fix: Use local coordinate systems or EPSG:4326 in input datasource.");
                 Console.WriteLine("Program exit...");
                 Environment.Exit(0);
             }
+
             appMode = AppMode.Cesium;
             Console.WriteLine($"Spatial reference of {table}.{geometryColumn}: {sr}");
+
 
             // Check spatialIndex
             var hasSpatialIndex = SpatialIndexChecker.HasSpatialIndex(conn, table, geometryColumn);
@@ -92,8 +96,16 @@ class Program
 
             Console.WriteLine($"Query bounding box of {table}.{geometryColumn}...");
             var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn);
-            Console.WriteLine($"Bounding box for {table}.{geometryColumn} (in WGS84): {Math.Round(bbox_wgs84.XMin, 8)}, {Math.Round(bbox_wgs84.YMin, 8)}, {Math.Round(bbox_wgs84.XMax, 8)}, {Math.Round(bbox_wgs84.YMax, 8)}");
+            var bbox = bbox_wgs84.bbox;
 
+            Console.WriteLine($"Bounding box for {table}.{geometryColumn} (in WGS84): " +
+                $"{Math.Round(bbox.XMin, 8)}, {Math.Round(bbox.YMin, 8)}, " +
+                $"{Math.Round(bbox.XMax, 8)}, {Math.Round(bbox.YMax, 8)}");
+
+            var zmin = bbox_wgs84.zmin;
+            var zmax = bbox_wgs84.zmax;
+
+            Console.WriteLine($"Z values: {zmin} - {zmax}");
             Console.WriteLine($"Default color: {defaultColor}");
             Console.WriteLine($"Default metallic roughness: {defaultMetallicRoughness}");
             Console.WriteLine($"Doublesided: {doubleSided}");
@@ -112,8 +124,8 @@ class Program
             if (appMode == AppMode.Cesium) {
                 Console.WriteLine("Starting Cesium mode...");
 
-                var center_wgs84 = bbox_wgs84.GetCenter();
-                var translation = Translation.GetTranslation(sr, center_wgs84);
+                var center_wgs84 = bbox.GetCenter(zmin, zmax);
+                var translation = Translation.GetTranslation(center_wgs84);
                 Console.WriteLine($"Translation: {String.Join(',', translation)}");
 
                 var lodcolumn = o.LodColumn;
@@ -156,25 +168,23 @@ class Program
                     Console.WriteLine("Geometric error used for implicit tiling: " + geometricErrors[0]);
                 }
 
-                var heightsArray = o.BoundingVolumeHeights.Split(',');
-                (double min, double max) heights = (double.Parse(heightsArray[0]), double.Parse(heightsArray[1]));
-
-                Console.WriteLine($"Heights for bounding volume: [{heights.min} m, {heights.max} m] ");
+                Console.WriteLine($"Heights for bounding volume: [{zmin} m, {zmax} m] ");
                 Console.WriteLine($"Add outlines: {addOutlines}");
 
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
 
-                var rootBoundingVolumeRegion = bbox_wgs84.ToRadians().ToRegion(heights.min, heights.max);
+
+                var rootBoundingVolumeRegion = bbox.ToRadians().ToRegion(zmin, zmax);
 
                 var subtreesDirectory = $"{output}{Path.AltDirectorySeparatorChar}subtrees";
 
                 Console.WriteLine($"Maximum features per tile: " + o.MaxFeaturesPerTile);
 
                 var tile = new Tile(0, 0, 0);
-                tile.BoundingBox = bbox_wgs84.ToArray();
+                tile.BoundingBox = bbox.ToArray();
                 Console.WriteLine($"Start generating tiles...");
                 var quadtreeTiler = new QuadtreeTiler(conn, table, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
-                var tiles = quadtreeTiler.GenerateTiles(bbox_wgs84, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided,createGltf);
+                var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided,createGltf);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
@@ -205,7 +215,7 @@ class Program
                 }
                 else {
                     var refine = o.Refinement;
-                    var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, heights.min, heights.max, version, refine);
+                    var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, zmin, zmax, version, refine);
                     File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
                 }
                 // end cesium specific code
@@ -223,18 +233,18 @@ class Program
                 }
 
                 for (var level = min_zoom; level <= max_zoom; level++) {
-                    var tiles = Tiles.Tools.Tilebelt.GetTilesOnLevel(new double[] { bbox_wgs84.XMin, bbox_wgs84.YMin, bbox_wgs84.XMax, bbox_wgs84.YMax }, level);
+                    var tiles = Tiles.Tools.Tilebelt.GetTilesOnLevel(new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax }, level);
 
                     Console.WriteLine($"Creating tiles for level {level}: {tiles.Count()}");
 
                     foreach (var t in tiles) {
                         var bounds = t.Bounds();
 
-                        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bounds[0], bounds[1]), new Point(bounds[2], bounds[3]), sr, query);
+                        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bounds[0], bounds[1]), new Point(bounds[2], bounds[3]), query);
 
                         if (numberOfFeatures > 0) {
                             var center = t.Center();
-                            var centerTileTranslation = Translation.GetTranslation(3857, new Point(center[0], center[1], 0)); ;
+                            var centerTileTranslation = Translation.GetTranslation(new Point(center[0], center[1], 0)); ;
 
                             var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, centerTileTranslation, bounds, sr, o.ShadersColumn, o.AttributeColumns, query);
                             var bytes = TileWriter.ToTile(geometries, o.Copyright, false, areaTolerance, defaultColor, defaultMetallicRoughness);

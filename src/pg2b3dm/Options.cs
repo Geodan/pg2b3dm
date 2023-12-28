@@ -56,9 +56,6 @@ public class Options
     [Option("use_implicit_tiling", Required = false, Default = true, HelpText = "use 1.1 implicit tiling (Cesium)", SetName = "Cesium")]
     public bool? UseImplicitTiling { get; set; }
 
-    [Option("boundingvolume_heights", Required = false, Default = "0,100", HelpText = "Tile boundingVolume heights (min, max) in meters (Cesium)", SetName = "Cesium")]
-    public string BoundingVolumeHeights { get; set; }
-
     [Option("add_outlines", Required = false, Default = false, HelpText = "Add outlines (Cesium)", SetName = "Cesium")]
     public bool? AddOutlines { get; set; }
 
