@@ -69,10 +69,10 @@ class Program
             var sr = SpatialReferenceRepository.GetSpatialReference(conn, table, geometryColumn);
 
             if (sr == 4978) {
-                Console.WriteLine("Error: Input geometries in epsg:4978 are not supported in version >= 2.0.0");
+                Console.WriteLine("----------------------------------------------------------------------------");
+                Console.WriteLine("Warning: Input geometries in ECEF (epsg:4978) are not supported in version >= 2.0.0");
                 Console.WriteLine("Fix: Use local coordinate systems or EPSG:4326 in input datasource.");
-                Console.WriteLine("Program exit...");
-                Environment.Exit(0);
+                Console.WriteLine("----------------------------------------------------------------------------");
             }
 
             appMode = AppMode.Cesium;

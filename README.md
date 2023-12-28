@@ -40,11 +40,14 @@ Convert 3D Data (Multipolygon Z) to 3D Tiles
 
 Result: 7-480-624.gpkg (18 MB)
 
-    - Import in PostGIS database, convert to EPSG:4979 (WGS84 ellipsoidal heights)
+    - Import in PostGIS database, convert to EPSG:4979 (WGS84 ellipsoidal heights). Note: in the Cesium client viewer the terrain 
+    should be added to see the buildings on the correct height.
 
 ```
 $ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4979 7-480-624.gpkg lod22_3d
 ```
+
+When the terrain is not used, omit the -t_srs parameter (Dutch EPSG code EPSG:7415 will be used).
 
 - Convert to 3D Tiles using pg2b3dm
 
