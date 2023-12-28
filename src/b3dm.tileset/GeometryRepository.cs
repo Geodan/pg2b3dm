@@ -35,14 +35,14 @@ public static class GeometryRepository
         return result;
     }
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, double[] bbox, int epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, double[] bbox, int source_epsg, int to_epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
     {
-        var sqlselect = GetSqlSelect(geometry_column, translation, shaderColumn, attributesColumns);
+        var sqlselect = GetSqlSelect(geometry_column, translation, to_epsg, shaderColumn, attributesColumns);
         var sqlFrom = "FROM " + geometry_table;
 
         var b = GetTileBoundingBox(bbox);
 
-        var sqlWhere = GetWhere(geometry_column, epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
+        var sqlWhere = GetWhere(geometry_column, source_epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
 
         var sql = sqlselect + sqlFrom + sqlWhere;
 
@@ -59,17 +59,17 @@ public static class GeometryRepository
         return(xmin, ymin, xmax, ymax);
     }
 
-    public static string GetWhere(string geometry_column, int epsg, string xmin, string ymin, string xmax, string ymax, string query = "")
+    public static string GetWhere(string geometry_column, int source_epsg, string xmin, string ymin, string xmax, string ymax, string query = "")
     {
         return $" WHERE  ST_Intersects(" +
             $"ST_Centroid(ST_Envelope({geometry_column})), " +
-            $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326), {epsg}) " +
+            $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326), {source_epsg}) " +
             $") {query}";
     }
 
-    public static string GetSqlSelect(string geometry_column, double[] translation, string shaderColumn, string attributesColumns)
+    public static string GetSqlSelect(string geometry_column, double[] translation, int to_epsg, string shaderColumn, string attributesColumns)
     {
-        var g = GetGeometryColumn(geometry_column, translation);
+        var g = GetGeometryColumn(geometry_column, translation, to_epsg);
         var sqlselect = $"SELECT ST_AsBinary({g})";
         if (shaderColumn != String.Empty) {
             sqlselect = $"{sqlselect}, {shaderColumn} ";
@@ -81,9 +81,9 @@ public static class GeometryRepository
         return sqlselect;
     }
 
-    public static string GetGeometryColumn(string geometry_column, double[] translation)
+    public static string GetGeometryColumn(string geometry_column, double[] translation, int to_epsg)
     {
-        return $"ST_Translate(st_transform({geometry_column}, 4978), {translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , {translation[2].ToString(CultureInfo.InvariantCulture)}*-1)";
+        return $"ST_Translate(st_transform({geometry_column}, {to_epsg}), {translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , {translation[2].ToString(CultureInfo.InvariantCulture)}*-1)";
     }
 
     public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql)

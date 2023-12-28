@@ -66,18 +66,17 @@ class Program
 
             var conn = new NpgsqlConnection(connectionString);
 
-            var sr = SpatialReferenceRepository.GetSpatialReference(conn, table, geometryColumn);
+            var source_epsg = SpatialReferenceRepository.GetSpatialReference(conn, table, geometryColumn);
 
-            if (sr == 4978) {
+            if (source_epsg == 4978) {
                 Console.WriteLine("----------------------------------------------------------------------------");
-                Console.WriteLine("Warning: Input geometries in ECEF (epsg:4978) are not supported in version >= 2.0.0");
+                Console.WriteLine("WARNING: Input geometries in ECEF (epsg:4978) are not supported in version >= 2.0.0");
                 Console.WriteLine("Fix: Use local coordinate systems or EPSG:4326 in input datasource.");
                 Console.WriteLine("----------------------------------------------------------------------------");
             }
 
             appMode = AppMode.Cesium;
-            Console.WriteLine($"Spatial reference of {table}.{geometryColumn}: {sr}");
-
+            Console.WriteLine($"Spatial reference of {table}.{geometryColumn}: {source_epsg}");
 
             // Check spatialIndex
             var hasSpatialIndex = SpatialIndexChecker.HasSpatialIndex(conn, table, geometryColumn);
@@ -104,6 +103,8 @@ class Program
 
             var zmin = bbox_wgs84.zmin;
             var zmax = bbox_wgs84.zmax;
+            // int to_epsg = 3857;
+            int to_epsg = 4978;
 
             Console.WriteLine($"Height values: [{Math.Round(zmin, 2)} m - {Math.Round(zmax, 2)} m]");
             Console.WriteLine($"Default color: {defaultColor}");
@@ -125,6 +126,8 @@ class Program
                 Console.WriteLine("Starting Cesium mode...");
 
                 var center_wgs84 = bbox.GetCenter(zmin, zmax);
+                //var tr = SphericalMercator.ToSphericalMercatorFromWgs84((double)center_wgs84.X, (double)center_wgs84.Y);
+                //var translation = new double[] { tr[0], tr[1], (zmax + zmin) / 2};
                 var translation = Translation.GetTranslation(center_wgs84);
                 Console.WriteLine($"Translation: {String.Join(',', translation)}");
 
@@ -179,7 +182,7 @@ class Program
                 var tile = new Tile(0, 0, 0);
                 tile.BoundingBox = bbox.ToArray();
                 Console.WriteLine($"Start generating tiles...");
-                var quadtreeTiler = new QuadtreeTiler(conn, table, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
+                var quadtreeTiler = new QuadtreeTiler(conn, table, source_epsg, to_epsg, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
                 var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
@@ -242,7 +245,7 @@ class Program
                             var center = t.Center();
                             var centerTileTranslation = Translation.GetTranslation(new Point(center[0], center[1], 0)); ;
 
-                            var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, centerTileTranslation, bounds, sr, o.ShadersColumn, o.AttributeColumns, query);
+                            var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, centerTileTranslation, bounds, source_epsg, to_epsg, o.ShadersColumn, o.AttributeColumns, query);
                             var bytes = TileWriter.ToTile(geometries, o.Copyright, false, areaTolerance, defaultColor, defaultMetallicRoughness);
                             File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.Z}-{t.X}-{t.Y}.b3dm", bytes);
                             Console.Write(".");
