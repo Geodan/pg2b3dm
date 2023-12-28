@@ -105,7 +105,7 @@ class Program
             var zmin = bbox_wgs84.zmin;
             var zmax = bbox_wgs84.zmax;
 
-            Console.WriteLine($"Z values: {zmin} - {zmax}");
+            Console.WriteLine($"Height values: [{Math.Round(zmin, 2)} m - {Math.Round(zmax, 2)} m]");
             Console.WriteLine($"Default color: {defaultColor}");
             Console.WriteLine($"Default metallic roughness: {defaultMetallicRoughness}");
             Console.WriteLine($"Doublesided: {doubleSided}");
@@ -157,7 +157,7 @@ class Program
                     if (lods.Count >= geometricErrors.Length) {
                         Console.WriteLine($"Calculating geometric errors starting from {geometricErrors[0]}");
                         geometricErrors = GeometricErrorCalculator.GetGeometricErrors(geometricErrors[0], lods);
-                        Console.WriteLine($"Calculated geometric errors (for {lods.Count} levels): {String.Join(',',geometricErrors)}");
+                        Console.WriteLine($"Calculated geometric errors (for {lods.Count} levels): {String.Join(',', geometricErrors)}");
                     }
                 };
 
@@ -167,12 +167,8 @@ class Program
                 else {
                     Console.WriteLine("Geometric error used for implicit tiling: " + geometricErrors[0]);
                 }
-
-                Console.WriteLine($"Heights for bounding volume: [{zmin} m, {zmax} m] ");
                 Console.WriteLine($"Add outlines: {addOutlines}");
-
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
-
 
                 var rootBoundingVolumeRegion = bbox.ToRadians().ToRegion(zmin, zmax);
 
@@ -184,7 +180,7 @@ class Program
                 tile.BoundingBox = bbox.ToArray();
                 Console.WriteLine($"Start generating tiles...");
                 var quadtreeTiler = new QuadtreeTiler(conn, table, sr, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
-                var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided,createGltf);
+                var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
