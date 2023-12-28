@@ -3,7 +3,7 @@
  ![Build status](https://github.com/Geodan/pg2b3dm/actions/workflows/main.yml/badge.svg)[![Nuget](https://img.shields.io/nuget/vpre/pg2b3dm)](https://www.nuget.org/packages/pg2b3dm)
  [![Join the chat at https://discord.gg/gGCka4Nd](https://img.shields.io/discord/1013017110814932993?color=%237289DA&label=pg2b3dm&logo=discord&logoColor=white)](https://discord.gg/uSKvUwPgmG)
 
- Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles). The generated 
+ Tool for converting 3D geometries from PostGIS in EPSG:4326 coordinate system to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles). The generated 
  3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D, Cesium for Omniverse, Mapbox GL JS v3 beta (experimental) or other 3D Tiles client viewers.
 
 ![image](https://user-images.githubusercontent.com/538812/227500590-bebe59b6-5697-462d-9ebd-b40fe9a2dc2b.png)
@@ -340,7 +340,7 @@ Press F5 to start debugging.
 
 ## History
 
-2023-12-28: release 2.0.0, changed input coordinate systen from EOSG:4978 to EPSG:4326 (or EPSG:4979 for ellipsoidal heights)
+2023-12-28: release 2.0.0, changed input coordinate systen from EPSG:4978 to EPSG:4326 (or EPSG:4979 for ellipsoidal heights)
 
 2023-11-13: release 1.8.5, fix for dataset with geometries on 1 location
 
