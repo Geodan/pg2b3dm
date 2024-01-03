@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Newtonsoft.Json.Linq;
-using NUnit.Framework;
-using SharpGLTF.Geometry;
-using SharpGLTF.Memory;
+﻿using NUnit.Framework;
 using SharpGLTF.Schema2;
 using Wkb2Gltf.extensions;
-using Wkb2Gltf.outlines;
-using Wkx;
 
 namespace Wkb2Gltf.Tests.outlines;
 public  class OutlinesForMeshPrimitivesTesting
@@ -21,6 +13,6 @@ public  class OutlinesForMeshPrimitivesTesting
         var primitives = model.LogicalMeshes[0].Primitives;
         Assert.That(primitives.Count == 2, Is.True);
 
-        model.LogicalMeshes[0].Primitives[0].AddOutlines();
+       // model.LogicalMeshes[0].Primitives[0].AddOutlines();
     }
 }

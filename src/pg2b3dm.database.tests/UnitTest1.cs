@@ -47,11 +47,11 @@ public class UnitTest1
         var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
         var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, "delaware_buildings", "geom_triangle");
 
-        var center_wgs84 = bbox_wgs84.GetCenter();
+        var center_wgs84 = bbox_wgs84.bbox.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
 
-        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings", 4978, "geom_triangle", 50, string.Empty,
-            new double[] { translation.X, translation.Y, translation.Z },
+        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings", 4326, 4978, "geom_triangle", 50, string.Empty,
+            center_wgs84,
             "shaders",
             string.Empty,
             string.Empty,
@@ -59,10 +59,10 @@ public class UnitTest1
             new List<int>() { 0 },
             skipCreateTiles: true);        
             var tiles = implicitTiler.GenerateTiles(
-            bbox_wgs84,
+            bbox_wgs84.bbox,
             new Tile(0,0,0),
             new List<Tile>());
-        Assert.That(tiles.Count, Is.EqualTo(33));
+        Assert.That(tiles.Count, Is.EqualTo(29));
     }
 
     [Test]
@@ -78,22 +78,22 @@ public class UnitTest1
         var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
         var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, "delaware_buildings_lod", "geom_triangle");
 
-        var center_wgs84 = bbox_wgs84.GetCenter();
+        var center_wgs84 = bbox_wgs84.bbox.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
 
-        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings_lod", 4978, "geom_triangle", 10, string.Empty,
-            new double[] { translation.X, translation.Y, translation.Z },
+        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings_lod", 4326, 4978, "geom_triangle", 10, string.Empty,
+            center_wgs84,
             "shaders",
             string.Empty,
             "lodcolumn",
             "output/content",
             new List<int>() { 0,1 },
-            skipCreateTiles: false);
+            skipCreateTiles: true);
         var tiles = implicitTiler.GenerateTiles(
-        bbox_wgs84,
+        bbox_wgs84.bbox,
         new Tile(0, 0, 0),
         new List<Tile>());
-        Assert.That(tiles.Count, Is.EqualTo(149));
+        Assert.That(tiles.Count, Is.EqualTo(141));
 
     }
 }

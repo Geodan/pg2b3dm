@@ -14,11 +14,12 @@ public class QuadtreeTiler
 {
     private readonly string table;
     private readonly NpgsqlConnection conn;
-    private readonly int epsg;
+    private readonly int source_epsg;
+    private readonly int to_epsg;
     private readonly string geometryColumn;
     private readonly int maxFeaturesPerTile;
     private readonly string query;
-    private readonly double[] translation;
+    private readonly Point center;
     private readonly string colorColumn;
     private readonly string attributesColumn;
     private readonly string lodColumn;
@@ -27,15 +28,16 @@ public class QuadtreeTiler
     private readonly string copyright;
     private readonly bool skipCreateTiles;
 
-    public QuadtreeTiler(NpgsqlConnection conn, string table, int epsg, string geometryColumn, int maxFeaturesPerTile, string query, double[] translation, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false)
+    public QuadtreeTiler(NpgsqlConnection conn, string table, int source_epsg, int to_epsg, string geometryColumn, int maxFeaturesPerTile, string query, Point center, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false)
     {
         this.table = table;
         this.conn = conn;
-        this.epsg = epsg;
+        this.source_epsg = source_epsg;
+        this.to_epsg = to_epsg;
         this.geometryColumn = geometryColumn;
         this.maxFeaturesPerTile = maxFeaturesPerTile;
         this.query = query;
-        this.translation = translation;
+        this.center = center;
         this.colorColumn = colorColumn;
         this.attributesColumn = attributesColumn;
         this.lodColumn = lodColumn;
@@ -55,7 +57,7 @@ public class QuadtreeTiler
             where += $" and {lodquery}";
         }
 
-        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bbox.XMin, bbox.YMin), new Point(bbox.XMax, bbox.YMax), epsg, where);
+        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bbox.XMin, bbox.YMin), new Point(bbox.XMax, bbox.YMax), where);
 
         if (numberOfFeatures == 0) {
             tile.Available = false;
@@ -99,8 +101,9 @@ public class QuadtreeTiler
 
             if (!skipCreateTiles) {
 
-                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, translation, tile.BoundingBox, epsg, colorColumn, attributesColumn, where);
-                var bytes = TileWriter.ToTile(geometries, copyright, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
+                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, to_epsg, colorColumn, attributesColumn, where);
+                
+                var bytes = TileWriter.ToTile(geometries, center, copyright, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
                 tile.Lod = lod;
 
                 File.WriteAllBytes($"{outputFolder}{Path.AltDirectorySeparatorChar}{file}", bytes);
@@ -120,7 +123,7 @@ public class QuadtreeTiler
                 }
 
                 // next code is used to fix geometries that have centroid in the tile, but some parts outside...
-                var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, tile, where);
+                var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, source_epsg, to_epsg, tile, where);
                 tile.BoundingBox = bbox_geometries;
 
             }

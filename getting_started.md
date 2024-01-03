@@ -145,40 +145,41 @@ $ dotnet tool install --global pg2b3dm
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-Tool: pg2b3dm 1.8.0.0
+Tool: pg2b3dm 2.0.0.0
 Password for user postgres:
-Start processing 2023-09-26T12:09:01....
-Input table: delaware_buildings_cesium
+Start processing 2023-12-28T14:24:31....
+Input table: delaware_buildings
 Input geometry column: geom_triangle
-Spatial reference of delaware_buildings_cesium.geom_triangle: 4978
-Spatial index detected on delaware_buildings_cesium.geom_triangle
-Query bounding box of delaware_buildings_cesium.geom_triangle...
-Bounding box for delaware_buildings_cesium.geom_triangle (in WGS84): -75.6145, 39.0771, -75.4353, 39.2319
+Spatial reference of delaware_buildings.geom_triangle: 4326
+Spatial index detected on delaware_buildings.geom_triangle
+Query bounding box of delaware_buildings.geom_triangle...
+Bounding box for delaware_buildings.geom_triangle (in WGS84): -75.59158711, 39.08939264, -75.44656349, 39.23050979
 Default color: #FFFFFF
 Default metallic roughness: #008000
 Doublesided: True
 Create glTF tiles: True
-Attribute columns: height,ogc_fid,description
+Attribute columns: ogc_fid
 Starting Cesium mode...
-Translation: 1237929.375,-4795306,4005629.75
+Translation: 1238318.875,-4794808.5,4006101.5
 Lod column:
 Geometric errors: 2000,0
+Refinement: REPLACE
 Geometric error used for implicit tiling: 2000
 Heights for bounding volume: [0 m, 100 m]
 Add outlines: False
 Use 3D Tiles 1.1 implicit tiling: True
 Maximum features per tile: 1000
 Start generating tiles...
-Creating tile: 3_5_5.glb
-Tiles created: 59
-Writing 29 subtree files...
+Creating tile: 3_5_4.glb
+Tiles created: 60
+Writing 33 subtree files...
 Available Levels: 5
 Subtree Levels: 3
 SubdivisionScheme: QUADTREE
 Writing output/tileset.json...
 
-Elapsed: 6 seconds, 457 milliseconds
-Program finished 2023-09-26T12:09:08.
+Elapsed: 4 seconds, 893 milliseconds
+Program finished 2023-12-28T14:24:36.
 ```
 
 ## Visualize in CesiumJS

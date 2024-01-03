@@ -18,9 +18,9 @@ public class GeometryRecord
 
     public ShaderColors Shader { get; set; }
 
-    public List<Triangle> GetTriangles(double areaTolerance=0.01)
+    public List<Triangle> GetTriangles(double areaTolerance=0.01, Point center = null)
     {
-        var triangles = GeometryProcessor.GetTriangles(Geometry, BatchId, Shader, areaTolerance);
+        var triangles = GeometryProcessor.GetTriangles(Geometry, BatchId, Shader, areaTolerance, center);
 
         return triangles;
     }

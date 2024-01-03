@@ -40,18 +40,21 @@ Convert 3D Data (Multipolygon Z) to 3D Tiles
 
 Result: 7-480-624.gpkg (18 MB)
 
-- Import in PostGIS database, convert to Cesium coordinates
+    - Import in PostGIS database, convert to EPSG:4979 (WGS84 ellipsoidal heights). Note: in the Cesium client viewer the terrain 
+    should be added to see the buildings on the correct height.
 
 ```
-$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4978 7-480-624.gpkg lod22_3d
+$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4979 7-480-624.gpkg lod22_3d
 ```
+
+When the terrain is not used, omit the -t_srs parameter (in this case the Dutch EPSG code EPSG:7415 of the input data will be used).
 
 - Convert to 3D Tiles using pg2b3dm
 
 ```
 $ pg2b3dm -h localhost -U postgres -c geom -d postgres -t lod22_3d -a identificatie
 ```
-- Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/tienhoven/  
+- Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/  
 
 Older getting started documents:
 
@@ -135,8 +138,6 @@ If --username and/or --dbname are not specified the current username is used as 
   --shaderscolumn                 (Default: '') shaders column (Cesium)
 
   --use_implicit_tiling           (Default: true) use 1.1 implicit tiling (Cesium)
-
-  --boundingvolume_heights        (Default: 0,100) Tile boundingVolume heights (min, max) in meters (Cesium)
 
   --add_outlines                  (Default: false) Add outlines (Cesium)
 
@@ -232,13 +233,19 @@ For Cesium support (tiling schema, LODS, outlines) see [Cesium notes](cesium_not
 
 ## Mapbox support
 
-For Mapbox support see [Mapbox notes](mapbox_notes.md) 
+MapBox GL JS v3 beta (experimental) support is not yet available in this version.
+
+For previous Mapbox support notes see [Mapbox notes](mapbox_notes.md) 
 
 ## QGIS support
 
 In QGIS 3.34 support for 3D Tiles is added see https://cesium.com/blog/2023/11/07/qgis-now-supports-3d-tiles/
 
 To create 3D Tiles for QGIS use parameters '--create_gltf false --use_implicit_tiling false' as 3D Tiles 1.1 features are not supported yet. 
+
+## Game engines Unity3D / Unreal / Omniverse support
+
+To create 3D Tiles for game engines use parameters '--create_gltf false --use_implicit_tiling false' as 3D Tiles 1.1 features are not supported yet. 
 
 ## Run from Docker
 
@@ -339,6 +346,14 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2023-12-28: release 2.0.0, 
+
+- glTF transformation is defined in tileset.json (instead of in glTF asset). As a result, the glTF assets are no longer 'skewed' when visualized in a glTF viewer.
+
+- removed input coordinate system requirement (EPSG:4978), use EPSG:4326/EPSG:4979 or local coordinate system instead. 
+
+- removed parameter 'boundingvolume_heights', heights are calculated from the input data 
 
 2023-11-13: release 1.8.5, fix for dataset with geometries on 1 location
 

@@ -13,11 +13,11 @@ namespace B3dm.Tileset;
 
 public static class GeometryRepository
 {
-    public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Tile t, string query = "")
+    public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, int epsg, int to_epsg, Tile t, string query = "")
     {
-        var sqlSelect = $"select st_asbinary(st_extent(st_transform({geometry_column}, 4326))) ";
+        var sqlSelect = $"select st_Asbinary(st_extent(st_transform({geometry_column}, {to_epsg}))) ";
         var b = GetTileBoundingBox(t.BoundingBox);
-        var sqlWhere = GetWhere(geometry_column, 4978, b.xmin, b.ymin, b.xmax, b.ymax, query);
+        var sqlWhere = GetWhere(geometry_column, epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
         var sql = $"{sqlSelect} from {geometry_table} {sqlWhere}";
 
         conn.Open();
@@ -35,14 +35,14 @@ public static class GeometryRepository
         return result;
     }
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] translation, double[] bbox, int epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int to_epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
     {
-        var sqlselect = GetSqlSelect(geometry_column, translation, shaderColumn, attributesColumns);
+        var sqlselect = GetSqlSelect(geometry_column, to_epsg, shaderColumn, attributesColumns);
         var sqlFrom = "FROM " + geometry_table;
 
         var b = GetTileBoundingBox(bbox);
 
-        var sqlWhere = GetWhere(geometry_column, epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
+        var sqlWhere = GetWhere(geometry_column, source_epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
 
         var sql = sqlselect + sqlFrom + sqlWhere;
 
@@ -59,17 +59,17 @@ public static class GeometryRepository
         return(xmin, ymin, xmax, ymax);
     }
 
-    public static string GetWhere(string geometry_column, int epsg, string xmin, string ymin, string xmax, string ymax, string query = "")
+    public static string GetWhere(string geometry_column, int source_epsg, string xmin, string ymin, string xmax, string ymax, string query = "")
     {
         return $" WHERE  ST_Intersects(" +
             $"ST_Centroid(ST_Envelope({geometry_column})), " +
-            $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326), {epsg}) " +
+            $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326), {source_epsg}) " +
             $") {query}";
     }
 
-    public static string GetSqlSelect(string geometry_column, double[] translation, string shaderColumn, string attributesColumns)
+    public static string GetSqlSelect(string geometry_column, int to_epsg, string shaderColumn, string attributesColumns)
     {
-        var g = GetGeometryColumn(geometry_column, translation);
+        var g = GetGeometryColumn(geometry_column, to_epsg);
         var sqlselect = $"SELECT ST_AsBinary({g})";
         if (shaderColumn != String.Empty) {
             sqlselect = $"{sqlselect}, {shaderColumn} ";
@@ -81,9 +81,9 @@ public static class GeometryRepository
         return sqlselect;
     }
 
-    public static string GetGeometryColumn(string geometry_column, double[] translation)
+    public static string GetGeometryColumn(string geometry_column, int to_epsg)
     {
-        return $"ST_Translate({geometry_column}, {translation[0].ToString(CultureInfo.InvariantCulture)}*-1,{translation[1].ToString(CultureInfo.InvariantCulture)}*-1 , {translation[2].ToString(CultureInfo.InvariantCulture)}*-1)";
+        return $"st_transform({geometry_column}, {to_epsg})";
     }
 
     public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql)

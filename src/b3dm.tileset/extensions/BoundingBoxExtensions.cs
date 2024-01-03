@@ -27,7 +27,7 @@ public static class BoundingBoxExtensions
     {
         var x = (bb.XMax + bb.XMin) / 2;
         var y = (bb.YMax + bb.YMin) / 2;
-        return new Point(x, y, 0);
+        return new Point(x, y);
     }
 
     public static double[] ToArray(this BoundingBox bb)
