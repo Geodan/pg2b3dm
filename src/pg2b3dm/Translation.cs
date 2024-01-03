@@ -7,7 +7,7 @@ public static class Translation
     public static double[] GetTranslation(Point center_wgs84)
     {
         double[] translation;
-        var v3 = SpatialConverter.GeodeticToEcef((double)center_wgs84.X, (double)center_wgs84.Y, (double)center_wgs84.Z);
+        var v3 = SpatialConverter.GeodeticToEcef((double)center_wgs84.X, (double)center_wgs84.Y, 0);
         translation = new double[] { v3.X, v3.Y, v3.Z };
 
         return translation;

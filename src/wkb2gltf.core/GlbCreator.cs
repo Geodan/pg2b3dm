@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
@@ -52,6 +53,7 @@ public static class GlbCreator
         }
         var model = scene.ToGltf2();
         model.Asset.Copyright = copyright;
+        model.Asset.Generator = $"pg2b3dm {Assembly.GetEntryAssembly().GetName().Version}";
 
         var localTransform = new Matrix4x4(
 1, 0, 0, 0,

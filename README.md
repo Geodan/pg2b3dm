@@ -47,14 +47,14 @@ Result: 7-480-624.gpkg (18 MB)
 $ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4979 7-480-624.gpkg lod22_3d
 ```
 
-When the terrain is not used, omit the -t_srs parameter (Dutch EPSG code EPSG:7415 will be used).
+When the terrain is not used, omit the -t_srs parameter (in this case the Dutch EPSG code EPSG:7415 of the input data will be used).
 
 - Convert to 3D Tiles using pg2b3dm
 
 ```
 $ pg2b3dm -h localhost -U postgres -c geom -d postgres -t lod22_3d -a identificatie
 ```
-- Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/tienhoven/  
+- Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/  
 
 Older getting started documents:
 
@@ -233,13 +233,19 @@ For Cesium support (tiling schema, LODS, outlines) see [Cesium notes](cesium_not
 
 ## Mapbox support
 
-For Mapbox support see [Mapbox notes](mapbox_notes.md) 
+MapBox GL JS v3 beta (experimental) support is not yet available in this version.
+
+For previous Mapbox support notes see [Mapbox notes](mapbox_notes.md) 
 
 ## QGIS support
 
 In QGIS 3.34 support for 3D Tiles is added see https://cesium.com/blog/2023/11/07/qgis-now-supports-3d-tiles/
 
 To create 3D Tiles for QGIS use parameters '--create_gltf false --use_implicit_tiling false' as 3D Tiles 1.1 features are not supported yet. 
+
+## Game engines Unity3D / Unreal / Omniverse support
+
+To create 3D Tiles for game engines use parameters '--create_gltf false --use_implicit_tiling false' as 3D Tiles 1.1 features are not supported yet. 
 
 ## Run from Docker
 
@@ -343,7 +349,9 @@ Press F5 to start debugging.
 
 2023-12-28: release 2.0.0, 
 
-- removed input coordinate system requirement (EPSG:4978), use EPSG:4326 or local coordinate system instead. 
+- glTF transformation is defined in tileset.json (instead of in glTF asset). As a result, the glTF assets are no longer 'skewed' when visualized in a glTF viewer.
+
+- removed input coordinate system requirement (EPSG:4978), use EPSG:4326/EPSG:4979 or local coordinate system instead. 
 
 - removed parameter 'boundingvolume_heights', heights are calculated from the input data 
 
