@@ -40,8 +40,7 @@ Convert 3D Data (Multipolygon Z) to 3D Tiles
 
 Result: 7-688-32.gpkg (34 MB)
 
-    - Import in PostGIS database, convert to EPSG:4979 (WGS84 ellipsoidal heights). Note: in the Cesium client viewer the terrain 
-    should be added to see the buildings on the correct height.
+- Import in PostGIS database, convert to EPSG:4979 (WGS84 ellipsoidal heights). Note: in the Cesium client viewer the terrain should be added to see the buildings on the correct height.
 
 ```
 $ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4979 7-688-32.gpkg lod22_3d
@@ -54,6 +53,7 @@ When the terrain is not used, omit the -t_srs parameter (in this case the Dutch 
 ```
 $ pg2b3dm -h localhost -U postgres -c geom -d postgres -t lod22_3d -a identificatie
 ```
+
 - Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/  
 
 Older getting started documents:
