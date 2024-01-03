@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.113.0/Cesium.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.113.0/Widgets/widgets.min.css" rel="stylesheet">
+  
+    <style>
+      html, body, #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .toolbar-left {
+            display: block;
+            position: absolute;
+            top: 5px;
+            left: 5px;
+        }
+  </style>
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+  <script type="module">
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiNDc1ZjQwMS1hOGI2LTQyNmUtYmYxMi1jODlhNDNlMjViZTkiLCJpZCI6NDc4OSwic2NvcGVzIjpbImFzciIsImdjIl0sImlhdCI6MTU0MTYyNTg3OX0.mNoGLdYuwqsnRRkQtdYNMbJfMBoZF2hPkbc4SRVVqNw';
+    var viewer = new Cesium.Viewer('cesiumContainer', {
+      //terrain: Cesium.Terrain.fromWorldTerrain(),
+    });
+
+  var terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl('https://3d.kadaster.nl/dtm/ahn4');
+  viewer.scene.terrainProvider = terrainProvider;
+  viewer.scene.globe.depthTestAgainstTerrain=true;
+
+viewer.scene.light = new Cesium.DirectionalLight({
+  direction: viewer.scene.camera.directionWC,
+});
+viewer.scene.preRender.addEventListener(function (scene, time) {
+  viewer.scene.light.direction = Cesium.Cartesian3.clone(
+    viewer.scene.camera.directionWC,
+    viewer.scene.light.direction
+  );
+});
+
+
+//viewer.camera.flyTo({
+//    destination: Cesium.Cartesian3.fromDegrees(5.6481455, 51.9585143, 300.0),
+//});
+
+    const tileset = await Cesium.Cesium3DTileset.fromUrl(
+      "tileset.json"
+    );  
+    viewer.scene.primitives.add(tileset);
+  var terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl('https://3d.kadaster.nl/dtm/ahn4');
+  // viewer.scene.terrainProvider = terrainProvider;
+  viewer.scene.globe.depthTestAgainstTerrain=true;
+
+
+    // tileset.debugShowBoundingVolume = true;
+    // tileset.debugColorizeTiles = true;
+    viewer.scene.globe.depthTestAgainstTerrain = true;
+    viewer.scene.globe.enableLighting = false;
+    viewer.scene.highDynamicRange = false;
+    viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(0, -0.5, 0));
+    var handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+    handler.setInputAction(function(movement) {
+      var feature = viewer.scene.pick(movement.position);
+      if (!Cesium.defined(feature)) {
+          return;
+
+      }
+      var propertyNames = feature.getPropertyNames();
+      var length = propertyNames.length;
+        for (var i = 0; i < length; ++i) {
+            var propertyName = propertyNames[i];
+            console.log(propertyName + ': ' + feature.getProperty(propertyName));
+        }
+  }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+
+  </script>
+</body>
+</html>
