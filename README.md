@@ -347,7 +347,7 @@ Press F5 to start debugging.
 
 ## History
 
-2023-12-28: release 2.0.0, 
+2024-01-03: release 2.0.0, 
 
 - glTF transformation is defined in tileset.json (instead of in glTF asset). As a result, the glTF assets are no longer 'skewed' when visualized in a glTF viewer.
 
