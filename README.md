@@ -36,9 +36,9 @@ Tileset.json and b3dm tiles are by default created in the 'output/content' subdi
 
 Convert 3D Data (Multipolygon Z) to 3D Tiles
 
-- Download Geopackage from https://3dbag.nl/, for example https://3dbag.nl/nl/download?tid=7-480-624
+- Download Geopackage from https://3dbag.nl/, for example Sibbe [https://3dbag.nl/nl/download?tid=7-688-32](https://3dbag.nl/nl/download?tid=7-688-32)
 
-Result: 7-480-624.gpkg (18 MB)
+Result: 7-480-624.gpkg (34 MB)
 
     - Import in PostGIS database, convert to EPSG:4979 (WGS84 ellipsoidal heights). Note: in the Cesium client viewer the terrain 
     should be added to see the buildings on the correct height.
