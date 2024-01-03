@@ -349,9 +349,9 @@ Press F5 to start debugging.
 
 2024-01-03: release 2.0.0, 
 
-- glTF transformation is defined in tileset.json (instead of in glTF asset). As a result, the glTF assets are no longer 'skewed' when visualized in a glTF viewer.
+- Breaking change: removed input coordinate system requirement (EPSG:4978), use EPSG:4326/EPSG:4979 or local coordinate system instead. 
 
-- removed input coordinate system requirement (EPSG:4978), use EPSG:4326/EPSG:4979 or local coordinate system instead. 
+- glTF transformation is defined in tileset.json (instead of in glTF asset). As a result, the glTF assets are no longer 'skewed' when visualized in a glTF viewer.
 
 - removed parameter 'boundingvolume_heights', heights are calculated from the input data 
 
