@@ -92,10 +92,14 @@ Note: For Mapbox GL JS v3 beta support use '-f mapbox' in the following step.
 
 ```
 $ tesselate_building -h localhost -U postgres -d postgres -f cesium -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --shaderscolumn shaders
-Tool: Tesselate buildings 0.2.0.0
+Tool: Tesselate buildings 0.3.0.0
 Password for user postgres:
+
+Connected to database.
+
+Table: delaware_buildings
 Progress: 100.00%
-Elapsed: 74 seconds
+Elapsed: 190 seconds
 Program finished.
 ```
 
@@ -145,27 +149,33 @@ $ dotnet tool install --global pg2b3dm
 Run pg2b3dm, the program will make a connection to the database and 1 tileset.json and 927 b3dm's will be created in the output directory.
 
 ```
-Tool: pg2b3dm 2.0.0.0
+$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -a ogc_fid --shaderscolumn shaders
+```
+
+Output:
+
+```Tool: pg2b3dm 2.0.0.0
 Password for user postgres:
-Start processing 2023-12-28T14:24:31....
+Start processing 2024-01-04T10:55:13....
 Input table: delaware_buildings
 Input geometry column: geom_triangle
 Spatial reference of delaware_buildings.geom_triangle: 4326
 Spatial index detected on delaware_buildings.geom_triangle
 Query bounding box of delaware_buildings.geom_triangle...
 Bounding box for delaware_buildings.geom_triangle (in WGS84): -75.59158711, 39.08939264, -75.44656349, 39.23050979
+Height values: [0 m - 76.58 m]
 Default color: #FFFFFF
 Default metallic roughness: #008000
 Doublesided: True
 Create glTF tiles: True
 Attribute columns: ogc_fid
+Center (wgs84): -75.51907530249994, 39.15995121350005
 Starting Cesium mode...
-Translation: 1238318.875,-4794808.5,4006101.5
+Translation ECEF: 1238318.875,-4794808.5,4006101.5
 Lod column:
 Geometric errors: 2000,0
 Refinement: REPLACE
 Geometric error used for implicit tiling: 2000
-Heights for bounding volume: [0 m, 100 m]
 Add outlines: False
 Use 3D Tiles 1.1 implicit tiling: True
 Maximum features per tile: 1000
@@ -178,8 +188,8 @@ Subtree Levels: 3
 SubdivisionScheme: QUADTREE
 Writing output/tileset.json...
 
-Elapsed: 4 seconds, 893 milliseconds
-Program finished 2023-12-28T14:24:36.
+Elapsed: 9 seconds, 982 milliseconds
+Program finished 2024-01-04T10:55:23.
 ```
 
 ## Visualize in CesiumJS
@@ -195,6 +205,8 @@ If all goes well in Delaware - Dover you can find some 3D Tiles buildings.
 Sample live demo in Cesium: https://geodan.github.io/pg2b3dm/sample_data/delaware/cesium/
 
 ## Visualize in Cesium for Unity3D
+
+In pg2b3dm use options --create_gltf false --use_implicit_tiling false
 
 Required: 
 
@@ -218,8 +230,9 @@ Copy the generated tiles to webserver (for example $ python3 -m http.server)
 
 - In the Hierarchy go to CesiumGeoReference DynamicCamera, in the Inspector go to 'Cesium Globe Anchor' and change the Latitude, Longitude to 39.15, -75.51
 
-In the Game View the buildings should be visisble, when using --create-gltf false as option in pg2b3dm (so b3dm's are created), the metadata 
-also shows up. 
+In the Game View the buildings should be visible.
+
+
 
 ![image](https://github.com/Geodan/pg2b3dm/assets/538812/5c99a8bd-8e4e-453e-a442-02fa181d6322)
 
@@ -228,6 +241,8 @@ also shows up.
 See demo https://geodan.github.io/pg2b3dm/sample_data/delaware/mapboxv3
 
 ## Visualize in Cesium for Unreal
+
+In pg2b3dm use options --create_gltf false --use_implicit_tiling false
 
 Required: 
 
