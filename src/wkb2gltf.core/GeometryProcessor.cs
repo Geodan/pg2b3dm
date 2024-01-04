@@ -7,7 +7,7 @@ namespace Wkb2Gltf;
 
 public static class GeometryProcessor
 {
-    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, ShaderColors shadercolors = null, double areaTolerence = 0.01, Point center = null)
+    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, ShaderColors shadercolors = null, Point center = null)
     {
         if (geometry is not MultiPolygon && geometry is not PolyhedralSurface) {
             throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
@@ -32,11 +32,11 @@ public static class GeometryProcessor
         }
 
 
-        return GetTriangles(batchId, shadercolors, areaTolerence, geometries, center);
+        return GetTriangles(batchId, shadercolors, geometries, center);
 
     }
 
-    private static List<Triangle> GetTriangles(int batchId, ShaderColors shadercolors, double areaTolerence, List<Polygon> geometries, Point center)
+    private static List<Triangle> GetTriangles(int batchId, ShaderColors shadercolors, List<Polygon> geometries, Point center)
     {
         var degenerated_triangles = 0;
         var allTriangles = new List<Triangle>();
@@ -44,7 +44,7 @@ public static class GeometryProcessor
             var geometry = geometries[i];
             var triangle = GetTriangle(geometry, batchId, center);
 
-            if (triangle != null && shadercolors != null && triangle.Area() > areaTolerence) {
+            if (triangle != null && shadercolors != null) {
                 shadercolors.Validate(geometries.Count);
                 triangle.Shader = shadercolors.ToShader(i);
             }
@@ -63,11 +63,7 @@ public static class GeometryProcessor
     public static Triangle GetTriangle(Polygon geometry, int batchId, Point center = null)
     {
         var triangle = ToTriangle(geometry, batchId, center);
-
-        if (!triangle.IsDegenerated()) {
-            return triangle;
-        }
-        return null;
+        return triangle;
     }
 
     private static Triangle ToTriangle(Polygon geometry, int batchId, Point center = null)

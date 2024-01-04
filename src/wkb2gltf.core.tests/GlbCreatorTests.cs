@@ -117,7 +117,7 @@ public class GlbCreatorTests
         var model = ModelRoot.Load(fileName);
 
         // there are 8 small triangles (area) that are removed.
-        Assert.That(model.LogicalMeshes[0].Primitives.Count , Is.EqualTo(13));
+        Assert.That(model.LogicalMeshes[0].Primitives.Count , Is.EqualTo(30));
     }
 
     [Test]

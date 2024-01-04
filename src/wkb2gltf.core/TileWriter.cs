@@ -5,9 +5,9 @@ namespace pg2b3dm;
 
 public static class TileWriter
 {
-    public static byte[] ToTile(List<GeometryRecord> geometries, Wkx.Point center, string copyright = "", bool addOutlines = false, double areaTolerance = 0.01, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, bool createGltf = false)
+    public static byte[] ToTile(List<GeometryRecord> geometries, Wkx.Point center, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, bool createGltf = false)
     {
-        var triangles = GetTriangles(geometries, areaTolerance, center);
+        var triangles = GetTriangles(geometries, center);
         var attributes = GetAttributes(geometries);
 
         var bytes = TileCreator.GetTile(attributes, triangles, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
@@ -32,13 +32,13 @@ public static class TileWriter
         return res;
     }
 
-    private static List<List<Triangle>> GetTriangles(List<GeometryRecord> geomrecords, double areaTolerance = 0.01, Wkx.Point center = null)
+    private static List<List<Triangle>> GetTriangles(List<GeometryRecord> geomrecords, Wkx.Point center = null)
     {
         var triangles = new List<List<Triangle>>();
         foreach (var g in geomrecords) {
             var geomTriangles = new List<Triangle>() { };
 
-            geomTriangles.AddRange(g.GetTriangles(areaTolerance, center));
+            geomTriangles.AddRange(g.GetTriangles(center));
             triangles.Add(geomTriangles);
         }
 
