@@ -19,7 +19,6 @@ class Program
 {
     static string password = string.Empty;
     static bool skipCreateTiles = false; // could be useful for debugging purposes
-    private static double areaTolerance = 0.01; // This program filters triangles with area smaller then areaTolerance.
     private static AppMode appMode;
     static void Main(string[] args)
     {
@@ -181,7 +180,7 @@ class Program
                 tile.BoundingBox = bbox.ToArray();
                 Console.WriteLine($"Start generating tiles...");
                 var quadtreeTiler = new QuadtreeTiler(conn, table, source_epsg, to_epsg, geometryColumn, o.MaxFeaturesPerTile, query, center_wgs84, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
-                var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, areaTolerance, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
+                var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
@@ -248,7 +247,7 @@ class Program
                             var centerTileTranslation = new Point(center[0], center[1], 0); ;
 
                             var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, bounds, source_epsg, to_epsg, o.ShadersColumn, o.AttributeColumns, query);
-                            var bytes = TileWriter.ToTile(geometries, center_wgs84, o.Copyright, false, areaTolerance, defaultColor, defaultMetallicRoughness);
+                            var bytes = TileWriter.ToTile(geometries, center_wgs84, o.Copyright, false, defaultColor, defaultMetallicRoughness);
                             File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.Z}-{t.X}-{t.Y}.b3dm", bytes);
                             Console.Write(".");
                         }

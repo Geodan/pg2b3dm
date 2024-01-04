@@ -52,28 +52,12 @@ public class Triangle
 
     public Shader Shader { get; set; }
 
-    public bool IsDegenerated()
-    {
-        var v0 = new Vector3((float)p0.X, (float)p0.Y, (float)p0.Z);
-        var v1 = new Vector3((float)p1.X, (float)p1.Y, (float)p1.Z);
-        var v2 = new Vector3((float)p2.X, (float)p2.Y, (float)p2.Z);
-
-        var isDegenerated = (v0.Equals(v1) || v1.Equals(v2)) || v2.Equals(v0);
-        return isDegenerated;
-    }
-
     public (Vector3, Vector3, Vector3) ToVectors()
     {
         var v0 = new Vector3((float)p0.X, (float)p0.Y, (float)p0.Z);
         var v1 = new Vector3((float)p1.X, (float)p1.Y, (float)p1.Z);
         var v2 = new Vector3((float)p2.X, (float)p2.Y, (float)p2.Z);
         return (v0, v1, v2);
-    }
-
-    public double Area()
-    {
-        return Math.Abs((double)(p0.X * (p1.Y - p2.Y) + p1.X * (p2.Y - p0.Y) +
-          p2.X * (p0.Y - p1.Y)) / 2.0);
     }
 
     public List<Point> GetPoints()
