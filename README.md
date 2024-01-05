@@ -261,7 +261,9 @@ Sample dataset Sibbe https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/1.
 
 ## Game engines Unity3D / Unreal / Omniverse support
 
-To create 3D Tiles for game engines use parameters '--create_gltf false --use_implicit_tiling false' as 3D Tiles 1.1 features are not supported yet. 
+To create 3D Tiles for game engines use parameters '--create_gltf false --use_implicit_tiling false' as 3D Tiles 1.1 features are not supported yet.
+
+Sample dataset Sibbe: https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/1.0/tileset.json
 
 ## Run from Docker
 
