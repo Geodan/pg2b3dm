@@ -347,6 +347,8 @@ Press F5 to start debugging.
 
 ## History
 
+2024-01-10: release 2.0.1, fix for triangulator + add check on interrior rings (not supported)
+
 2024-01-03: release 2.0.0, 
 
 - Breaking change: removed input coordinate system requirement (EPSG:4978), use EPSG:4326/EPSG:4979 or local coordinate system instead. 
