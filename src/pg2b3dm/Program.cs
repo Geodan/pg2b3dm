@@ -8,7 +8,6 @@ using B3dm.Tileset;
 using CommandLine;
 using Npgsql;
 using Newtonsoft.Json;
-using Humanizer;
 using subtree;
 using B3dm.Tileset.Extensions;
 using Wkx;
@@ -24,7 +23,7 @@ class Program
     {
         var version = Assembly.GetEntryAssembly().GetName().Version;
         Console.WriteLine($"Tool: pg2b3dm {version}");
-
+        Console.WriteLine("Options: " + string.Join(" ", args));
         Parser.Default.ParseArguments<Options>(args).WithParsed(o => {
             o.User = string.IsNullOrEmpty(o.User) ? Environment.UserName : o.User;
             o.Database = string.IsNullOrEmpty(o.Database) ? Environment.UserName : o.Database;
@@ -260,7 +259,8 @@ class Program
             stopWatch.Stop();
 
             Console.WriteLine();
-            Console.WriteLine($"Elapsed: {TimeSpan.FromMilliseconds(stopWatch.ElapsedMilliseconds).Humanize(3)}");
+            var timeSpan = stopWatch.Elapsed;
+            Console.WriteLine("Time: {0}h {1}m {2}s {3}ms", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");
         });
     }
