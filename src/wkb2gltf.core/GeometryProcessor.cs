@@ -9,15 +9,10 @@ public static class GeometryProcessor
 {
     public static List<Triangle> GetTriangles(Geometry geometry, int batchId, ShaderColors shadercolors = null, Point center = null)
     {
-        if (geometry is not MultiPolygon && geometry is not PolyhedralSurface) {
+        if (geometry is not Polygon && geometry is not MultiPolygon && geometry is not PolyhedralSurface) {
             throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
         }
-
-        var isMultiPolygon = geometry is MultiPolygon;
-
-        var geometries = isMultiPolygon ?
-            ((MultiPolygon)geometry).Geometries :
-            ((PolyhedralSurface)geometry).Geometries;
+        var geometries = GetGeometries(geometry);
 
         var isTriangulated = IsTriangulated(geometries);
 
@@ -40,6 +35,23 @@ public static class GeometryProcessor
 
         return GetTriangles(batchId, shadercolors, geometries);
 
+    }
+
+    private static List<Polygon> GetGeometries(Geometry geometry)
+    {
+        // return the Geometries properties of the geometry, for polygon, multipolygon and polyhedral surface
+        if (geometry is Polygon) {
+            return new List<Polygon>() { (Polygon)geometry };
+        }
+        else if (geometry is MultiPolygon) {
+            return ((MultiPolygon)geometry).Geometries;
+        }
+        else if (geometry is PolyhedralSurface) {
+            return ((PolyhedralSurface)geometry).Geometries;
+        }
+        else {
+            throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
+        }
     }
 
     private static List<Polygon> GetRelativePolygons(List<Polygon> geometries, Point center)
