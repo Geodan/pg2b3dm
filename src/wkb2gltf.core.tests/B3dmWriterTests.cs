@@ -1,12 +1,19 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
 using pg2b3dm;
+using SharpGLTF.Schema2;
 using Wkx;
 
 namespace Wkb2Gltf.Tests;
 
 public class B3dmWriterTests
 {
+    [SetUp]
+    public void SetUp()
+    {
+        Tiles3DExtensions.RegisterExtensions();
+    }
+
     [Test]
     public void FirstB3dmWriterTest()
     {

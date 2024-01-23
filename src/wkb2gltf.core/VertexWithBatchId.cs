@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 
 using SharpGLTF.Geometry.VertexTypes;
+using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 
 namespace SharpGLTF.Geometry;
@@ -22,8 +23,12 @@ public struct VertexWithBatchId : IVertexCustom
 
     public const string CUSTOMATTRIBUTENAME = "_BATCHID";
 
-    [VertexAttribute(CUSTOMATTRIBUTENAME, EncodingType.FLOAT, false)]
     public float BatchId;
+
+    IEnumerable<KeyValuePair<string, AttributeFormat>> IVertexReflection.GetEncodingAttributes()
+    {
+        yield return new KeyValuePair<string, AttributeFormat>(CUSTOMATTRIBUTENAME, new AttributeFormat(DimensionType.SCALAR));
+    }
 
     public int MaxColors => 0;
 

@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using subtree;
 using B3dm.Tileset.Extensions;
 using Wkx;
+using SharpGLTF.Schema2;
 
 namespace pg2b3dm;
 
@@ -122,6 +123,8 @@ class Program
 
             // cesium specific
             if (appMode == AppMode.Cesium) {
+                Tiles3DExtensions.RegisterExtensions();
+
                 Console.WriteLine("Starting Cesium mode...");
 
                 var translation = Translation.GetTranslation(center_wgs84);

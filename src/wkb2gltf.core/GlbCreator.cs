@@ -8,6 +8,7 @@ using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
+using SharpGLTF.Schema2.Tiles3D;
 using Wkb2Gltf.extensions;
 using Wkb2Gltf.Extensions;
 
@@ -63,32 +64,45 @@ public static class GlbCreator
         model.LogicalNodes.First().LocalTransform = new SharpGLTF.Transforms.AffineTransform(localTransform);
 
         if (addOutlines) {
-            CesiumExtensions.RegisterExtensions();
             foreach (var primitive in model.LogicalMeshes[0].Primitives) {
                 primitive.AddOutlines();
             }
         }
 
         if (createGltf && attributes!=null && attributes.Count>0) {
-            var ext = model.InitializeMetadataExtension("propertyTable", attributes.First().Value.Count);
+
+            var rootMetadata = model.UseStructuralMetadata();
+            var schema = rootMetadata.UseEmbeddedSchema("schema");
+            var schemaClass = schema.UseClassMetadata("propertyTable");
+            var propertyTable = schemaClass.AddPropertyTable(attributes.First().Value.Count);
+
+            foreach (var primitive in model.LogicalMeshes[0].Primitives) {
+                var featureIdAttribute = new FeatureIDBuilder(attributes.First().Value.Count, 0, propertyTable);
+                primitive.AddMeshFeatureIds(featureIdAttribute);
+            }
+
             foreach (var attribute in attributes) {
                 var type = attribute.Value.FirstOrDefault().GetType();
                 // todo: do not cast all these types to float
                 if(type == typeof(decimal) || type == typeof(double) || type == typeof(float)) {
-                    var list = attribute.Value.ConvertAll(x => Convert.ToSingle(x));
-                    model.AddMetadata(ext, attribute.Key, list);
+                    var property = schemaClass.UseProperty(attribute.Key).WithFloat32Type();
+                    var list = attribute.Value.ConvertAll(x => Convert.ToSingle(x)).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(uint)) {
-                    var list = attribute.Value.ConvertAll(x => (uint)x);
-                    model.AddMetadata(ext, attribute.Key, list);
+                    var property = schemaClass.UseProperty(attribute.Key).WithUInt32Type();
+                    var list = attribute.Value.ConvertAll(x => (uint)x).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(int)) {
-                    var list = attribute.Value.ConvertAll(x => (int)x);
-                    model.AddMetadata(ext, attribute.Key, list);
+                    var property = schemaClass.UseProperty(attribute.Key).WithInt32Type();
+                    var list = attribute.Value.ConvertAll(x => (int)x).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
                 }
                 else {
-                    var list = attribute.Value.ConvertAll(x => x.ToString());
-                    model.AddMetadata(ext, attribute.Key, list);
+                    var property = schemaClass.UseProperty(attribute.Key).WithStringType();
+                    var list = attribute.Value.ConvertAll(x => x.ToString()).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
                 }
 
                 // todo add other types?
