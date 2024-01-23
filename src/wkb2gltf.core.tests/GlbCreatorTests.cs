@@ -38,6 +38,7 @@ public class GlbCreatorTests
         attributes.Add("id1", new List<object>() { 1 });
         attributes.Add("id2", new List<object>() { (uint)1 });
         attributes.Add("id3", new List<object>() { 1.1 });
+        attributes.Add("id4", new List<object>() { true });
 
         // act
         var bytes = TileCreator.GetTile(attributes, new List<List<Triangle>>() { triangles }, createGltf: true);

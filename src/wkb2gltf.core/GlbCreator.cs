@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -99,12 +100,16 @@ public static class GlbCreator
                     var list = attribute.Value.ConvertAll(x => (int)x).ToArray();
                     propertyTable.UseProperty(property).SetValues(list);
                 }
+                else if (type == typeof(bool)) {
+                    var property = schemaClass.UseProperty(attribute.Key).WithBooleanType();
+                    var list = attribute.Value.ConvertAll(x => (bool)x).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
+                }
                 else {
                     var property = schemaClass.UseProperty(attribute.Key).WithStringType();
                     var list = attribute.Value.ConvertAll(x => x.ToString()).ToArray();
                     propertyTable.UseProperty(property).SetValues(list);
                 }
-
                 // todo add other types?
             }
         }
