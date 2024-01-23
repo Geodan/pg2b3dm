@@ -365,6 +365,8 @@ Press F5 to start debugging.
 
 ## History
 
+2024-01-23: release 2.1.0, fix of offsets + add polygonZ support
+
 2024-01-10: release 2.0.1, fix for triangulator + add check on interrior rings (not supported)
 
 2024-01-03: release 2.0.0, 
