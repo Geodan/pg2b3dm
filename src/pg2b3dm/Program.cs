@@ -101,7 +101,7 @@ class Program
 
             var zmin = bbox_wgs84.zmin;
             var zmax = bbox_wgs84.zmax;
-            int to_epsg = 4326;
+            // int to_epsg = 4326;
 
             Console.WriteLine($"Height values: [{Math.Round(zmin, 2)} m - {Math.Round(zmax, 2)} m]");
             Console.WriteLine($"Default color: {defaultColor}");
@@ -178,7 +178,7 @@ class Program
                 var tile = new Tile(0, 0, 0);
                 tile.BoundingBox = bbox.ToArray();
                 Console.WriteLine($"Start generating tiles...");
-                var quadtreeTiler = new QuadtreeTiler(conn, table, source_epsg, to_epsg, geometryColumn, o.MaxFeaturesPerTile, query, center_wgs84, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
+                var quadtreeTiler = new QuadtreeTiler(conn, table, source_epsg, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles);
                 var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
@@ -245,8 +245,8 @@ class Program
                             var center = t.Center();
                             var centerTileTranslation = new Point(center[0], center[1], 0); ;
 
-                            var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, bounds, source_epsg, to_epsg, o.ShadersColumn, o.AttributeColumns, query);
-                            var bytes = TileWriter.ToTile(geometries, center_wgs84, o.Copyright, false, defaultColor, defaultMetallicRoughness);
+                            var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, bounds, source_epsg, o.ShadersColumn, o.AttributeColumns, query);
+                            var bytes = TileWriter.ToTile(geometries, new double[] {0,0,0}, o.Copyright, false, defaultColor, defaultMetallicRoughness);
                             File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.Z}-{t.X}-{t.Y}.b3dm", bytes);
                             Console.Write(".");
                         }

@@ -7,7 +7,7 @@ namespace Wkb2Gltf;
 
 public static class GeometryProcessor
 {
-    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, ShaderColors shadercolors = null, Point center = null)
+    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation, ShaderColors shadercolors = null)
     {
         if (geometry is not Polygon && geometry is not MultiPolygon && geometry is not PolyhedralSurface) {
             throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
@@ -16,7 +16,7 @@ public static class GeometryProcessor
 
         var isTriangulated = IsTriangulated(geometries);
 
-        var relativePolygons = GetRelativePolygons(geometries, center);
+        var relativePolygons = GetRelativePolygons(geometries, translation);
         var m1 = new MultiPolygon(relativePolygons);
 
         if (!isTriangulated) {
@@ -54,16 +54,13 @@ public static class GeometryProcessor
         }
     }
 
-    private static List<Polygon> GetRelativePolygons(List<Polygon> geometries, Point center)
+    private static List<Polygon> GetRelativePolygons(List<Polygon> geometries, double[] translation)
     {
-        if (center == null) {
-            return geometries;
-        }
         var relativePolygons = new List<Polygon>();
         foreach (var geometry in geometries) {
             var linearRing = new LinearRing();
             foreach (var point in geometry.ExteriorRing.Points) {
-                var relativePoint = ToRelativePoint(point, center);
+                var relativePoint = ToRelativePoint(point, translation);
                 linearRing.Points.Add(relativePoint);
             }
 
@@ -118,10 +115,11 @@ public static class GeometryProcessor
         return triangle;
     }
 
-    private static Point ToRelativePoint(Point pnt, Point center)
+    private static Point ToRelativePoint(Point pnt, double[] translation)
     {
-        var distances = Haversine.GetDistances((double)pnt.X, (double)pnt.Y, (double)center.X, (double)center.Y);
-        var res = new Point(distances.dx, distances.dy, pnt.Z);
+        // var trans = SpatialConverter.GeodeticToEcef((double)pnt.X, (double)pnt.Y, (double)pnt.Z);
+        // var res = new Point(translation[0] - trans.X, translation[1] - trans.Y, translation[2] - trans.Z );
+        var res = new Point((double)pnt.X - translation[0] , (double)pnt.Y - translation[1], pnt.Z - translation[2]);
         return res;
     }
 

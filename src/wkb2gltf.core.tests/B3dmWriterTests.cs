@@ -20,9 +20,11 @@ public class B3dmWriterTests
         attributes.Add("id", "testbuilding");
         geometryRecord.Attributes = attributes;
         var center = new Point(4.895654, 52.373949, 0);
+        var translation = SpatialConverter.GeodeticToEcef((double)center.X, (double)center.Y, (double)center.Z);
+        var trans = new double[] { translation.X, translation.Y, translation.Z };
 
         // act
-        var b3dmBytes = TileWriter.ToTile(new List<GeometryRecord> { geometryRecord }, center, addOutlines: true);
+        var b3dmBytes = TileWriter.ToTile(new List<GeometryRecord> { geometryRecord }, trans, addOutlines: true);
 
         // assert
         Assert.That(b3dmBytes != null, Is.True);

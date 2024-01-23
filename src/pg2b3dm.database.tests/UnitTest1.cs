@@ -3,6 +3,7 @@ using B3dm.Tileset.Extensions;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using subtree;
+using Wkb2Gltf;
 
 namespace pg2b3dm.database.tests;
 
@@ -49,9 +50,9 @@ public class UnitTest1
 
         var center_wgs84 = bbox_wgs84.bbox.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
-
-        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings", 4326, 4978, "geom_triangle", 50, string.Empty,
-            center_wgs84,
+        var trans = new double[] { translation.X, translation.Y, translation.Z };
+        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings", 4326, "geom_triangle", 50, string.Empty,
+            trans,
             "shaders",
             string.Empty,
             string.Empty,
@@ -80,9 +81,10 @@ public class UnitTest1
 
         var center_wgs84 = bbox_wgs84.bbox.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
+        var trans = new double[] { translation.X, translation.Y, translation.Z };
 
-        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings_lod", 4326, 4978, "geom_triangle", 10, string.Empty,
-            center_wgs84,
+        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings_lod", 4326, "geom_triangle", 10, string.Empty,
+            trans,
             "shaders",
             string.Empty,
             "lodcolumn",
@@ -94,6 +96,5 @@ public class UnitTest1
         new Tile(0, 0, 0),
         new List<Tile>());
         Assert.That(tiles.Count, Is.EqualTo(141));
-
     }
 }

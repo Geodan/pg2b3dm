@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using Wkx;
 
-namespace B3dm.Tileset.Tests;
+namespace Wkb2Gltf.Tests;
 
 public class EcefConverterTest
 {
