@@ -15,11 +15,10 @@ public class QuadtreeTiler
     private readonly string table;
     private readonly NpgsqlConnection conn;
     private readonly int source_epsg;
-    private readonly int to_epsg;
     private readonly string geometryColumn;
     private readonly int maxFeaturesPerTile;
     private readonly string query;
-    private readonly Point center;
+    private readonly double[] translation;
     private readonly string colorColumn;
     private readonly string attributesColumn;
     private readonly string lodColumn;
@@ -28,16 +27,15 @@ public class QuadtreeTiler
     private readonly string copyright;
     private readonly bool skipCreateTiles;
 
-    public QuadtreeTiler(NpgsqlConnection conn, string table, int source_epsg, int to_epsg, string geometryColumn, int maxFeaturesPerTile, string query, Point center, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false)
+    public QuadtreeTiler(NpgsqlConnection conn, string table, int source_epsg, string geometryColumn, int maxFeaturesPerTile, string query, double[] translation, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false)
     {
         this.table = table;
         this.conn = conn;
         this.source_epsg = source_epsg;
-        this.to_epsg = to_epsg;
         this.geometryColumn = geometryColumn;
         this.maxFeaturesPerTile = maxFeaturesPerTile;
         this.query = query;
-        this.center = center;
+        this.translation = translation;
         this.colorColumn = colorColumn;
         this.attributesColumn = attributesColumn;
         this.lodColumn = lodColumn;
@@ -101,9 +99,9 @@ public class QuadtreeTiler
 
             if (!skipCreateTiles) {
 
-                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, to_epsg, colorColumn, attributesColumn, where);
+                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, colorColumn, attributesColumn, where);
                 
-                var bytes = TileWriter.ToTile(geometries, center, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
+                var bytes = TileWriter.ToTile(geometries, translation, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
                 tile.Lod = lod;
 
                 File.WriteAllBytes($"{outputFolder}{Path.AltDirectorySeparatorChar}{file}", bytes);
@@ -123,7 +121,7 @@ public class QuadtreeTiler
                 }
 
                 // next code is used to fix geometries that have centroid in the tile, but some parts outside...
-                var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, source_epsg, to_epsg, tile, where);
+                var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, source_epsg, tile, where);
                 tile.BoundingBox = bbox_geometries;
 
             }

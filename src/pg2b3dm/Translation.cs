@@ -1,4 +1,4 @@
-﻿using B3dm.Tileset;
+﻿using Wkb2Gltf;
 using Wkx;
 
 namespace pg2b3dm;

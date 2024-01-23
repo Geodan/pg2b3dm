@@ -1,5 +1,4 @@
-﻿using System.IO;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Wkx;
 
 namespace Wkb2Gltf.Tests;
@@ -18,7 +17,7 @@ public class GeometryRecordTests
         geometryRecord.Geometry = multipolygon;
 
         // act
-        var triangles = geometryRecord.GetTriangles();
+        var triangles = geometryRecord.GetTriangles(new double[] {0,0,0});
 
         // assert
         Assert.That(g != null, Is.True);

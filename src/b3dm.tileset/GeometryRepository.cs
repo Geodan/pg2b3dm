@@ -13,9 +13,9 @@ namespace B3dm.Tileset;
 
 public static class GeometryRepository
 {
-    public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, int epsg, int to_epsg, Tile t, string query = "")
+    public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, int epsg, Tile t, string query = "")
     {
-        var sqlSelect = $"select st_Asbinary(st_extent(st_transform({geometry_column}, {to_epsg}))) ";
+        var sqlSelect = $"select st_Asbinary(st_extent(st_transform({geometry_column}, 4326))) ";
         var b = GetTileBoundingBox(t.BoundingBox);
         var sqlWhere = GetWhere(geometry_column, epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
         var sql = $"{sqlSelect} from {geometry_table} {sqlWhere}";
@@ -35,9 +35,9 @@ public static class GeometryRepository
         return result;
     }
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int to_epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
     {
-        var sqlselect = GetSqlSelect(geometry_column, to_epsg, shaderColumn, attributesColumns);
+        var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns);
         var sqlFrom = "FROM " + geometry_table;
 
         var b = GetTileBoundingBox(bbox);
@@ -67,9 +67,9 @@ public static class GeometryRepository
             $") {query}";
     }
 
-    public static string GetSqlSelect(string geometry_column, int to_epsg, string shaderColumn, string attributesColumns)
+    public static string GetSqlSelect(string geometry_column, string shaderColumn, string attributesColumns)
     {
-        var g = GetGeometryColumn(geometry_column, to_epsg);
+        var g = GetGeometryColumn(geometry_column);
         var sqlselect = $"SELECT ST_AsBinary({g})";
         if (shaderColumn != String.Empty) {
             sqlselect = $"{sqlselect}, {shaderColumn} ";
@@ -81,9 +81,9 @@ public static class GeometryRepository
         return sqlselect;
     }
 
-    public static string GetGeometryColumn(string geometry_column, int to_epsg)
+    public static string GetGeometryColumn(string geometry_column)
     {
-        return $"st_transform({geometry_column}, {to_epsg})";
+        return $"st_transform({geometry_column}, 4978)";
     }
 
     public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql)
