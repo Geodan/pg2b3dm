@@ -122,10 +122,10 @@ public static class GlbCreator
                         foreach (var item in attribute.Value) {
                             var array = (decimal[])item;
                             list.Add(new Matrix4x4(
-                                 Convert.ToSingle(array[0]), Convert.ToSingle(array[1]), Convert.ToSingle(array[2]), Convert.ToSingle(array[3]),
-                                 Convert.ToSingle(array[4]), Convert.ToSingle(array[5]), Convert.ToSingle(array[6]), Convert.ToSingle(array[7]),
-                                 Convert.ToSingle(array[8]), Convert.ToSingle(array[9]), Convert.ToSingle(array[10]), Convert.ToSingle(array[11]),
-                                 Convert.ToSingle(array[12]), Convert.ToSingle(array[13]), Convert.ToSingle(array[14]), Convert.ToSingle(array[15])
+                                 Convert.ToSingle(array[0]), Convert.ToSingle(array[4]), Convert.ToSingle(array[8]), Convert.ToSingle(array[12]),
+                                 Convert.ToSingle(array[1]), Convert.ToSingle(array[5]), Convert.ToSingle(array[9]), Convert.ToSingle(array[13]),
+                                 Convert.ToSingle(array[2]), Convert.ToSingle(array[6]), Convert.ToSingle(array[10]), Convert.ToSingle(array[14]),
+                                 Convert.ToSingle(array[3]), Convert.ToSingle(array[7]), Convert.ToSingle(array[11]), Convert.ToSingle(array[15])
                             ));
                         }
                         var property = schemaClass.UseProperty(attribute.Key).WithMatrix4x4Type();
