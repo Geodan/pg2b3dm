@@ -12,6 +12,7 @@ using subtree;
 using B3dm.Tileset.Extensions;
 using Wkx;
 using SharpGLTF.Schema2;
+using System.Data;
 
 namespace pg2b3dm;
 

@@ -17,7 +17,7 @@ namespace Wkb2Gltf;
 
 public static class GlbCreator
 {
-    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true, Dictionary<string, List<object>> attributes = null, bool createGltf = false, bool doubleSided=false)
+    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true, Dictionary<string, List<object>> attributes = null, bool createGltf = false, bool doubleSided = false)
     {
         var materialCache = new MaterialsCache();
         var shader = new Shader();
@@ -47,7 +47,7 @@ public static class GlbCreator
             }
         }
         var scene = new SceneBuilder();
-        if(createGltf) {
+        if (createGltf) {
             scene.AddRigidMesh(meshFeatureIds, Matrix4x4.Identity);
         }
         else {
@@ -70,7 +70,7 @@ public static class GlbCreator
             }
         }
 
-        if (createGltf && attributes!=null && attributes.Count>0) {
+        if (createGltf && attributes != null && attributes.Count > 0) {
 
             var rootMetadata = model.UseStructuralMetadata();
             var schema = rootMetadata.UseEmbeddedSchema("schema");
@@ -85,7 +85,7 @@ public static class GlbCreator
             foreach (var attribute in attributes) {
                 var type = attribute.Value.FirstOrDefault().GetType();
                 // todo: do not cast all these types to float
-                if(type == typeof(decimal) || type == typeof(double) || type == typeof(float)) {
+                if (type == typeof(decimal) || type == typeof(double) || type == typeof(float)) {
                     var property = schemaClass.UseProperty(attribute.Key).WithFloat32Type();
                     var list = attribute.Value.ConvertAll(x => Convert.ToSingle(x)).ToArray();
                     propertyTable.UseProperty(property).SetValues(list);
@@ -105,19 +105,46 @@ public static class GlbCreator
                     var list = attribute.Value.ConvertAll(x => (bool)x).ToArray();
                     propertyTable.UseProperty(property).SetValues(list);
                 }
-                else {
-                    var property = schemaClass.UseProperty(attribute.Key).WithStringType();
-                    var list = attribute.Value.ConvertAll(x => x.ToString()).ToArray();
-                    propertyTable.UseProperty(property).SetValues(list);
+                else if (type == typeof(decimal[])) {
+                    var count = ((decimal[])attribute.Value.FirstOrDefault()).Count();
+                    if (count == 3) {
+                        var list = new List<Vector3>();
+                        foreach (var item in attribute.Value) {
+                            var array = (decimal[])item;
+                            list.Add(new Vector3(Convert.ToSingle(array[0]), Convert.ToSingle(array[1]), Convert.ToSingle(array[2])));
+                        }
+
+                        var property = schemaClass.UseProperty(attribute.Key).WithVector3Type();
+                        propertyTable.UseProperty(property).SetValues(list.ToArray());
+                    }
+                    else if (count == 16) {
+                        var list = new List<Matrix4x4>();
+                        foreach (var item in attribute.Value) {
+                            var array = (decimal[])item;
+                            list.Add(new Matrix4x4(
+                                 Convert.ToSingle(array[0]), Convert.ToSingle(array[1]), Convert.ToSingle(array[2]), Convert.ToSingle(array[3]),
+                                 Convert.ToSingle(array[4]), Convert.ToSingle(array[5]), Convert.ToSingle(array[6]), Convert.ToSingle(array[7]),
+                                 Convert.ToSingle(array[8]), Convert.ToSingle(array[9]), Convert.ToSingle(array[10]), Convert.ToSingle(array[11]),
+                                 Convert.ToSingle(array[12]), Convert.ToSingle(array[13]), Convert.ToSingle(array[14]), Convert.ToSingle(array[15])
+                            ));
+                        }
+                        var property = schemaClass.UseProperty(attribute.Key).WithMatrix4x4Type();
+                        propertyTable.UseProperty(property).SetValues(list.ToArray());
+                    }
+                    else {
+                        var property = schemaClass.UseProperty(attribute.Key).WithStringType();
+                        var list = attribute.Value.ConvertAll(x => x.ToString()).ToArray();
+                        propertyTable.UseProperty(property).SetValues(list);
+                    }
+                    // todo add other types?
                 }
-                // todo add other types?
             }
         }
 
 
         var bytes = model.WriteGLB().Array;
-
         return bytes;
+
     }
 
     private static bool DrawTriangleWithBatchId(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty> mesh)
