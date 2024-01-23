@@ -16,6 +16,11 @@ namespace Wkb2Gltf.Tests;
 
 public class GlbCreatorTests
 {
+    [SetUp]
+    public void SetUp()
+    {
+        Tiles3DExtensions.RegisterExtensions();
+    }
 
     [Test]
     public void CreateGltfWithAttributesTest()
