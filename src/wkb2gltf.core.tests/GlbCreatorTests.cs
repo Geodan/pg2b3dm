@@ -34,10 +34,17 @@ public class GlbCreatorTests
         var triangles = new List<Triangle>() { triangle1 };
 
         var attributes = new Dictionary<string, List<object>>();
-        attributes.Add("id", new List<object>() { "1" });
-        attributes.Add("id1", new List<object>() { 1 });
-        attributes.Add("id2", new List<object>() { (uint)1 });
-        attributes.Add("id3", new List<object>() { 1.1 });
+        attributes.Add("id_int8", new List<object>() { (sbyte)100 });
+        attributes.Add("id_uint8", new List<object>() { (byte)100 });
+        attributes.Add("id_int16", new List<object>() { (short)100 });
+        attributes.Add("id_uint16", new List<object>() { (ushort)100 });
+        attributes.Add("id_int32", new List<object>() { 1 });
+        attributes.Add("id_uint32", new List<object>() { (uint)1 });
+        attributes.Add("id_int64", new List<object>() { (long)1 });
+        attributes.Add("id_uint64", new List<object>() { (ulong)1 });
+        attributes.Add("id_float", new List<object>() { (float)1 });
+        attributes.Add("id_double", new List<object>() { (double)1 });
+
         attributes.Add("id4", new List<object>() { true });
         attributes.Add("id5", new List<object>() { new decimal[] { 0, 1, 2 } }); ;
         attributes.Add("id6", new List<object>() { new decimal[] { 0, 1, 2, 3, 4, 5,6,7,8,9,10,11,12,13,14,15 } });

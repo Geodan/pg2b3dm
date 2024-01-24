@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -84,29 +83,71 @@ public static class GlbCreator
 
             foreach (var attribute in attributes) {
                 var type = attribute.Value.FirstOrDefault().GetType();
-                // todo: do not cast all these types to float
-                if (type == typeof(decimal) || type == typeof(double) || type == typeof(float)) {
-                    var property = schemaClass.UseProperty(attribute.Key).WithFloat32Type();
-                    var list = attribute.Value.ConvertAll(x => Convert.ToSingle(x)).ToArray();
-                    propertyTable.UseProperty(property).SetValues(list);
+                var objects = attribute.Value;
+                var property = schemaClass.UseProperty(attribute.Key);
+
+                // sbyte not available in postgres
+                if (type == typeof(sbyte)) {
+                    property = property.WithInt8Type();
+                    var array = ToTypedArray<sbyte>(objects);
+                    propertyTable.UseProperty(property).SetValues(array);
                 }
-                else if (type == typeof(uint)) {
-                    var property = schemaClass.UseProperty(attribute.Key).WithUInt32Type();
-                    var list = attribute.Value.ConvertAll(x => (uint)x).ToArray();
-                    propertyTable.UseProperty(property).SetValues(list);
+                // byte not available in postgres
+                else if (type == typeof(byte)) {
+                    property = property.WithUInt8Type();
+                    var array = ToTypedArray<byte>(objects);
+                    propertyTable.UseProperty(property).SetValues(array);
+                }
+                else if (type == typeof(short)) {
+                    property = property.WithInt16Type();
+                    var array = ToTypedArray<short>(objects);
+                    propertyTable.UseProperty(property).SetValues(array);
+                }
+                // ushort not available in postgres
+                else if (type == typeof(ushort)) {
+                    property = property.WithUInt16Type();
+                    var array = ToTypedArray<ushort>(objects);
+                    propertyTable.UseProperty(property).SetValues(array);
                 }
                 else if (type == typeof(int)) {
-                    var property = schemaClass.UseProperty(attribute.Key).WithInt32Type();
-                    var list = attribute.Value.ConvertAll(x => (int)x).ToArray();
+                    property = property.WithInt32Type();
+                    var list = objects.ConvertAll(x => (int)x).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
+                }
+                // uint not available in postgres
+                else if (type == typeof(uint)) {
+                    property = property.WithUInt32Type();
+                    var list = objects.ConvertAll(x => (uint)x).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
+                }
+                else if (type == typeof(long)) {
+                    property = property.WithInt64Type();
+                    var list = objects.ConvertAll(x => (long)x).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
+                }
+                // ulong not available in postgres
+                else if (type == typeof(ulong)) {
+                    property = property.WithUInt64Type();
+                    var list = objects.ConvertAll(x => (ulong)x).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
+                }
+                else if (type == typeof(float)) {
+                    property = property.WithFloat32Type();
+                    var list = objects.ConvertAll(x => (float)x).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
+                }
+                else if (type == typeof(double)) {
+                    property = property.WithFloat64Type();
+                    var list = objects.ConvertAll(x => (double)x).ToArray();
                     propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(bool)) {
-                    var property = schemaClass.UseProperty(attribute.Key).WithBooleanType();
-                    var list = attribute.Value.ConvertAll(x => (bool)x).ToArray();
+                    property = property.WithBooleanType();
+                    var list = objects.ConvertAll(x => (bool)x).ToArray();
                     propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(decimal[])) {
-                    var count = ((decimal[])attribute.Value.FirstOrDefault()).Count();
+                    var count = ((decimal[])objects.FirstOrDefault()).Count();
                     if (count == 3) {
                         var list = new List<Vector3>();
                         foreach (var item in attribute.Value) {
@@ -114,12 +155,12 @@ public static class GlbCreator
                             list.Add(new Vector3(Convert.ToSingle(array[0]), Convert.ToSingle(array[1]), Convert.ToSingle(array[2])));
                         }
 
-                        var property = schemaClass.UseProperty(attribute.Key).WithVector3Type();
+                        property = property.WithVector3Type();
                         propertyTable.UseProperty(property).SetValues(list.ToArray());
                     }
                     else if (count == 16) {
                         var list = new List<Matrix4x4>();
-                        foreach (var item in attribute.Value) {
+                        foreach (var item in objects) {
                             var array = (decimal[])item;
                             list.Add(new Matrix4x4(
                                  Convert.ToSingle(array[0]), Convert.ToSingle(array[4]), Convert.ToSingle(array[8]), Convert.ToSingle(array[12]),
@@ -128,12 +169,12 @@ public static class GlbCreator
                                  Convert.ToSingle(array[3]), Convert.ToSingle(array[7]), Convert.ToSingle(array[11]), Convert.ToSingle(array[15])
                             ));
                         }
-                        var property = schemaClass.UseProperty(attribute.Key).WithMatrix4x4Type();
+                        property = property.WithMatrix4x4Type();
                         propertyTable.UseProperty(property).SetValues(list.ToArray());
                     }
                     else {
-                        var property = schemaClass.UseProperty(attribute.Key).WithStringType();
-                        var list = attribute.Value.ConvertAll(x => x.ToString()).ToArray();
+                        property = property.WithStringType();
+                        var list = objects.ConvertAll(x => x.ToString()).ToArray();
                         propertyTable.UseProperty(property).SetValues(list);
                     }
                     // todo add other types?
@@ -145,6 +186,11 @@ public static class GlbCreator
         var bytes = model.WriteGLB().Array;
         return bytes;
 
+    }
+
+    private static T[] ToTypedArray<T>(List<object> objects)
+    {
+        return objects.ConvertAll(x => (T)x).ToArray();
     }
 
     private static bool DrawTriangleWithBatchId(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty> mesh)
