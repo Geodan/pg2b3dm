@@ -87,7 +87,12 @@ public static class GlbCreator
                 var property = schemaClass.UseProperty(attribute.Key);
 
                 // sbyte not available in postgres
-                if (type == typeof(sbyte)) {
+                if (type == typeof(bool)) {
+                    property = property.WithBooleanType();
+                    var list = objects.ConvertAll(x => (bool)x).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
+                }
+                else if (type == typeof(sbyte)) {
                     property = property.WithInt8Type();
                     var array = ToTypedArray<sbyte>(objects);
                     propertyTable.UseProperty(property).SetValues(array);
@@ -141,10 +146,25 @@ public static class GlbCreator
                     var list = objects.ConvertAll(x => (double)x).ToArray();
                     propertyTable.UseProperty(property).SetValues(list);
                 }
-                else if (type == typeof(bool)) {
-                    property = property.WithBooleanType();
-                    var list = objects.ConvertAll(x => (bool)x).ToArray();
-                    propertyTable.UseProperty(property).SetValues(list);
+                else if (type == typeof(bool[])) {
+                    var p = objects.Cast<bool[]>().Select(x => x.ToList()).ToList();
+                    property = property.WithArrayType(ElementType.BOOLEAN);
+                    propertyTable.UseProperty(property).SetArrayValues(p);
+                }
+                else if (type == typeof(short[])) {
+                    var p = objects.Cast<short[]>().Select(x => x.ToList()).ToList();
+                    property = property.WithArrayType(ElementType.SCALAR,DataType.INT16);
+                    propertyTable.UseProperty(property).SetArrayValues(p);
+                }
+                else if (type == typeof(int[])) {
+                    var p = objects.Cast<int[]>().Select(x => x.ToList()).ToList();
+                    property = property.WithArrayType(ElementType.SCALAR, DataType.INT32);
+                    propertyTable.UseProperty(property).SetArrayValues(p);
+                }
+                else if (type == typeof(long[])) {
+                    var p = objects.Cast<long[]>().Select(x => x.ToList()).ToList();
+                    property = property.WithArrayType(ElementType.SCALAR, DataType.INT64);
+                    propertyTable.UseProperty(property).SetArrayValues(p);
                 }
                 else if (type == typeof(decimal[])) {
                     var count = ((decimal[])objects.FirstOrDefault()).Count();
@@ -173,10 +193,13 @@ public static class GlbCreator
                         propertyTable.UseProperty(property).SetValues(list.ToArray());
                     }
                     else {
-                        property = property.WithStringType();
-                        var list = objects.ConvertAll(x => x.ToString()).ToArray();
-                        propertyTable.UseProperty(property).SetValues(list);
+                        // todo add regular decimal
                     }
+                }
+                else {
+                    property = property.WithStringType();
+                    var list = objects.ConvertAll(x => x.ToString()).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
                     // todo add other types?
                 }
             }
