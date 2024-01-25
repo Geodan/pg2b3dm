@@ -11,9 +11,9 @@ namespace B3dm.Tileset;
 
 public static class TreeSerializer
 {
-    public static string ToJson(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null, string refine = "ADD")
+    public static string ToJson(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null, string refine = "ADD", bool use10 = false)
     {
-        var tileset = ToTileset(tiles, transform, region, geometricErrors, minheight, maxheight, version, refine);
+        var tileset = ToTileset(tiles, transform, region, geometricErrors, minheight, maxheight, version, refine, use10);
         var json = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         return json; ;
     }
@@ -36,9 +36,9 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null, string refine="ADD")
+    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null, string refine="ADD", bool use10 = false)
     {
-        var tileset = GetTilesetObject(version, geometricErrors[0]);
+        var tileset = GetTilesetObject(version, geometricErrors[0], use10);
 
         var t = new double[] {   1.0, 0.0, 0.0, 0.0,
                                  0.0,1.0, 0.0, 0.0,
@@ -52,9 +52,10 @@ public static class TreeSerializer
         return tileset;
     }
 
-    private static TileSet GetTilesetObject(Version version, double geometricError)
+    private static TileSet GetTilesetObject(Version version, double geometricError, bool use10 = false)
     {
-        var tileset = new TileSet { asset = new Asset() { version = "1.1", generator = $"pg2b3dm {version}" } };
+        var version3DTiles = use10 ? "1.0" : "1.1"; 
+        var tileset = new TileSet { asset = new Asset() { version = $"{version3DTiles}", generator = $"pg2b3dm {version}" } };
         tileset.geometricError = geometricError;
         return tileset;
     }

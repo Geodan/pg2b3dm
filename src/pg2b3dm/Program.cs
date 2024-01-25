@@ -12,7 +12,6 @@ using subtree;
 using B3dm.Tileset.Extensions;
 using Wkx;
 using SharpGLTF.Schema2;
-using System.Data;
 
 namespace pg2b3dm;
 
@@ -103,7 +102,6 @@ class Program
 
             var zmin = bbox_wgs84.zmin;
             var zmax = bbox_wgs84.zmax;
-            // int to_epsg = 4326;
 
             Console.WriteLine($"Height values: [{Math.Round(zmin, 2)} m - {Math.Round(zmax, 2)} m]");
             Console.WriteLine($"Default color: {defaultColor}");
@@ -141,6 +139,9 @@ class Program
                         lodcolumn = String.Empty;
                     }
                 }
+                // if useImpliciting is false and createGlb is false, the set use10 to true
+                var use10 = !useImplicitTiling && !createGltf;
+                Console.WriteLine("3D Tiles version: " + (use10 ? "1.0" : "1.1"));
                 Console.WriteLine($"Lod column: {lodcolumn}");
                 Console.WriteLine($"Geometric errors: {String.Join(',', geometricErrors)}");
                 Console.WriteLine($"Refinement: {o.Refinement}");
@@ -214,7 +215,7 @@ class Program
                 }
                 else {
                     var refine = o.Refinement;
-                    var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, zmin, zmax, version, refine);
+                    var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, zmin, zmax, version, refine, use10);
                     File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
                 }
                 // end cesium specific code
