@@ -247,7 +247,10 @@ Also arrays of the above types are supported, like:
 
 bool[], smallint[], int[], bigint[], real[], numeric[][], double precision[] and varchar[]
 
-When the type is numeric[]/numeric[][], it is checked if all the items contain 3 or 16 values. If so, the vec3 or mat4 type is used.
+Arrays can be of fixed length or not.
+
+When the type is numeric[]/numeric[][], it is checked if all the items contain 3 (vector3) or 16 values (mat4)
+. If so, the vec3 or mat4 type is used.
 
 When other types are used, there will be a exception.
 
