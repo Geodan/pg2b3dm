@@ -220,10 +220,10 @@ Make sure to check the indexes when using large tables.
 
 ## Attributes
 
-With the -a attributecolumns parameter multiple columns with attributes can be specified. The attribute information is stored in the b3dm batch table of in the glTF 
+With the -a attributecolumns parameter multiple columns with attributes can be specified. The attribute information is stored in the b3dm batch table or in the glTF 
 (using EXT_Structural_Metadata extension).
-. 
-Multiple columns must be comma separated:
+
+Multiple columns must be comma separated (without spaces):
 
 Sample:  --attributescolumns col1,col2
 
@@ -238,13 +238,16 @@ When using 3D TIles 1.1 and EXT_Structural_Metadata, the following mapping betwe
 | real | scalar / float32 |
 | numeric | scalar / float32 |
 | double precision | scalar / float64 |
-| numeric[] of length 3 | vec3 / float32 |
-| numeric[] of length 16 | mat4 / float32 |
+| numeric[] all of length 3 | vec3 / float32 |
+| numeric[] all of length 16 | mat4 / float32 |
+| numeric[] | scalar / float32 |
 | varchar | string |
 
 Also arrays of the above types are supported, like: 
 
-bool[], smallint[], int[], bigint[], real[], numeric[], double precision[], varchar[]
+bool[], smallint[], int[], bigint[], real[], numeric[][], double precision[] and varchar[]
+
+When the type is numeric[]/numeric[][], it is checked if all the items contain 3 or 16 values. If so, the vec3 or mat4 type is used.
 
 When other types are used, there will be a exception.
 
