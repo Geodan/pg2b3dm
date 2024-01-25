@@ -220,12 +220,54 @@ Make sure to check the indexes when using large tables.
 
 ## Attributes
 
-With the -a attributecolumns parameter multiple columns with attributes can be specified. The attribute information is stored in the b3dm batch table. 
-Multiple columns must be comma separated:
+With the -a attributecolumns parameter multiple columns with attributes can be specified. The attribute information is stored in the b3dm batch table or in the glTF 
+(using EXT_Structural_Metadata extension).
+
+Multiple columns must be comma separated (without spaces):
 
 Sample:  --attributescolumns col1,col2
 
-Attribute columns can be of any type.
+When using 3D TIles 1.1 and EXT_Structural_Metadata, the following mapping between PostgreSQL data types and 3D Tiles data types is used:
+
+| PostgreSQL data type | 3D Tiles data type  (type / componenttype) |
+|----------------------|--------------------|
+| boolean | boolean / - |
+| smallint | scalar / int16 |
+| integer | scalar / int32 |
+| bigint | scalar / int64 |
+| real | scalar / float32 |
+| numeric | scalar / float32 |
+| double precision | scalar / float64 |
+| numeric[] all of length 3 | vec3 / float32 |
+| numeric[] all of length 16 | mat4 / float32 |
+| numeric[] | scalar / float32 |
+| varchar | string |
+
+Also arrays of the above types are supported, like: 
+
+bool[], smallint[], int[], bigint[], real[], numeric[][], double precision[] and varchar[]
+
+Arrays can be of fixed length or not.
+
+When the type is numeric[]/numeric[][], it is checked if all the items contain 3 (vector3) or 16 values (mat4)
+. If so, the vec3 or mat4 type is used.
+
+When other types are used, there will be a exception.
+
+Example creating string values in a column:
+
+```
+postgresql> alter table delaware_buildings add column random_string varchar not null default 'standaard waarde'
+```
+
+and for an array of strings:
+
+```
+postgresql> ALTER TABLE delaware_buildings  ADD COLUMN random_strings VARCHAR[] DEFAULT '{waarde1, waarde2}'
+```
+
+In the options you can now specify the column name 'random_string' and/or 'random_strings' to add the values.
+
 
 ## Cesium support
 
