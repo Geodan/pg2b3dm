@@ -92,6 +92,11 @@ public static class GlbCreator
                     var list = objects.ConvertAll(x => (bool)x).ToArray();
                     propertyTable.UseProperty(property).SetValues(list);
                 }
+                else if (type == typeof(string)) {
+                    property = property.WithStringType();
+                    var array = ToTypedArray<string>(objects);
+                    propertyTable.UseProperty(property).SetValues(array);
+                }
                 else if (type == typeof(sbyte)) {
                     property = property.WithInt8Type();
                     var array = ToTypedArray<sbyte>(objects);
@@ -141,6 +146,11 @@ public static class GlbCreator
                     var list = objects.ConvertAll(x => (float)x).ToArray();
                     propertyTable.UseProperty(property).SetValues(list);
                 }
+                else if (type == typeof(decimal)) {
+                    property = property.WithFloat32Type();
+                    var list = objects.ConvertAll(x => Convert.ToSingle(x)).ToArray();
+                    propertyTable.UseProperty(property).SetValues(list);
+                }
                 else if (type == typeof(double)) {
                     property = property.WithFloat64Type();
                     var list = objects.ConvertAll(x => (double)x).ToArray();
@@ -151,9 +161,14 @@ public static class GlbCreator
                     property = property.WithArrayType(ElementType.BOOLEAN);
                     propertyTable.UseProperty(property).SetArrayValues(p);
                 }
+                else if (type == typeof(string[])) {
+                    var p = objects.Cast<string[]>().Select(x => x.ToList()).ToList();
+                    property = property.WithArrayType(ElementType.STRING);
+                    propertyTable.UseProperty(property).SetArrayValues(p);
+                }
                 else if (type == typeof(short[])) {
                     var p = objects.Cast<short[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithArrayType(ElementType.SCALAR,DataType.INT16);
+                    property = property.WithArrayType(ElementType.SCALAR, DataType.INT16);
                     propertyTable.UseProperty(property).SetArrayValues(p);
                 }
                 else if (type == typeof(int[])) {
@@ -166,49 +181,118 @@ public static class GlbCreator
                     property = property.WithArrayType(ElementType.SCALAR, DataType.INT64);
                     propertyTable.UseProperty(property).SetArrayValues(p);
                 }
-                else if (type == typeof(decimal[])) {
-                    var count = ((decimal[])objects.FirstOrDefault()).Count();
-                    if (count == 3) {
-                        var list = new List<Vector3>();
-                        foreach (var item in attribute.Value) {
-                            var array = (decimal[])item;
-                            list.Add(new Vector3(Convert.ToSingle(array[0]), Convert.ToSingle(array[1]), Convert.ToSingle(array[2])));
+                else if (type == typeof(float[])) {
+                    var p = objects.Cast<float[]>().Select(x => x.ToList()).ToList();
+                    property = property.WithArrayType(ElementType.SCALAR, DataType.FLOAT32);
+                    propertyTable.UseProperty(property).SetArrayValues(p);
+                }
+                else if (type == typeof(double[])) {
+                    var p = objects.Cast<double[]>().Select(x => x.ToList()).ToList();
+                    property = property.WithArrayType(ElementType.SCALAR, DataType.FLOAT64);
+                    propertyTable.UseProperty(property).SetArrayValues(p);
+                }
+                else if (type == typeof(decimal[,])) {
+                    if (IsConstantArray(objects, 3)) {
+                        var result = objects.Cast<decimal[,]>()
+                            .Select(
+                                obj1 => Enumerable.Range(0, obj1.GetLength(0))
+                                .Select(j => new Vector3(Convert.ToSingle(obj1[j, 0]), Convert.ToSingle(obj1[j, 1]), Convert.ToSingle(obj1[j, 2])))
+                                .ToList()
+                                ).ToList();
+                        property = property.WithArrayType(ElementType.VEC3, DataType.FLOAT32);
+                        propertyTable.UseProperty(property).SetArrayValues(result);
+                    }
+                    else if (IsConstantArray(objects, 16)) {
+                        var result = objects.Cast<decimal[,]>()
+                            .Select(
+                                obj1 => Enumerable.Range(0, obj1.GetLength(0))
+                                .Select(j => ToMatrix4x4(obj1, j))
+                                .ToList()
+                                ).ToList();
+                        property = property.WithArrayType(ElementType.MAT4, DataType.FLOAT32);
+                        propertyTable.UseProperty(property).SetArrayValues(result);
+                    }
+                    else {
+                        // TODO: this dumps all values into one array, but we need to split it up into multiple arrays
+                        var result = new List<List<float>>();
+
+                        foreach(var obj in objects) {
+                            var array = (decimal[,])obj;
+                            var p = new List<float>();
+                            var items = array.GetLength(0);
+                            for (var j = 0; j < items; j++) {
+                                for (var k = 0; k < array.GetLength(1); k++) {
+                                    p.Add(Convert.ToSingle(array[j, k]));
+                                }
+                            }
+                            result.Add(p);
                         }
+
+                        property = property.WithArrayType(ElementType.SCALAR, DataType.FLOAT32);
+                        propertyTable.UseProperty(property).SetArrayValues(result);
+                    }
+                }
+                else if (type == typeof(decimal[])) {
+                    if (IsFixed(objects, 3)) {
+                        var list = attribute.Value.Select(item => {
+                            var array = (decimal[])item;
+                            return new Vector3(Convert.ToSingle(array[0]), Convert.ToSingle(array[1]), Convert.ToSingle(array[2]));
+                        }).ToList();
 
                         property = property.WithVector3Type();
                         propertyTable.UseProperty(property).SetValues(list.ToArray());
                     }
-                    else if (count == 16) {
-                        var list = new List<Matrix4x4>();
-                        foreach (var item in objects) {
-                            var array = (decimal[])item;
-                            list.Add(new Matrix4x4(
-                                 Convert.ToSingle(array[0]), Convert.ToSingle(array[4]), Convert.ToSingle(array[8]), Convert.ToSingle(array[12]),
-                                 Convert.ToSingle(array[1]), Convert.ToSingle(array[5]), Convert.ToSingle(array[9]), Convert.ToSingle(array[13]),
-                                 Convert.ToSingle(array[2]), Convert.ToSingle(array[6]), Convert.ToSingle(array[10]), Convert.ToSingle(array[14]),
-                                 Convert.ToSingle(array[3]), Convert.ToSingle(array[7]), Convert.ToSingle(array[11]), Convert.ToSingle(array[15])
-                            ));
-                        }
+                    else if (IsFixed(objects, 16)) {
+                        var list = objects.Select(item => ToMatrix4x4(item)).ToList();
                         property = property.WithMatrix4x4Type();
                         propertyTable.UseProperty(property).SetValues(list.ToArray());
                     }
                     else {
-                        // todo add regular decimal
+                        var result = objects.Cast<decimal[]>()
+                            .Select(arr => arr.Select(Convert.ToSingle).ToList())
+                            .ToList();
+                        property = property.WithArrayType(ElementType.SCALAR, DataType.FLOAT32);
+                        propertyTable.UseProperty(property).SetArrayValues(result);
                     }
                 }
                 else {
-                    property = property.WithStringType();
-                    var list = objects.ConvertAll(x => x.ToString()).ToArray();
-                    propertyTable.UseProperty(property).SetValues(list);
-                    // todo add other types?
+                    throw new NotSupportedException($"Type {type} not supported as metadata");
                 }
             }
         }
 
-
         var bytes = model.WriteGLB().Array;
         return bytes;
+    }
 
+    private static Matrix4x4 ToMatrix4x4(decimal[,] obj1, int j)
+    {
+        return new Matrix4x4(
+            Convert.ToSingle(obj1[j, 0]), Convert.ToSingle(obj1[j, 4]), Convert.ToSingle(obj1[j, 8]), Convert.ToSingle(obj1[j, 12]),
+            Convert.ToSingle(obj1[j, 1]), Convert.ToSingle(obj1[j, 5]), Convert.ToSingle(obj1[j, 9]), Convert.ToSingle(obj1[j, 13]),
+            Convert.ToSingle(obj1[j, 2]), Convert.ToSingle(obj1[j, 6]), Convert.ToSingle(obj1[j, 10]), Convert.ToSingle(obj1[j, 14]),
+            Convert.ToSingle(obj1[j, 3]), Convert.ToSingle(obj1[j, 7]), Convert.ToSingle(obj1[j, 11]), Convert.ToSingle(obj1[j, 15])
+        );
+    }
+
+    private static Matrix4x4 ToMatrix4x4(object item)
+    {
+        return new Matrix4x4(
+            Convert.ToSingle(((decimal[])item)[0]), Convert.ToSingle(((decimal[])item)[4]), Convert.ToSingle(((decimal[])item)[8]), Convert.ToSingle(((decimal[])item)[12]),
+            Convert.ToSingle(((decimal[])item)[1]), Convert.ToSingle(((decimal[])item)[5]), Convert.ToSingle(((decimal[])item)[9]), Convert.ToSingle(((decimal[])item)[13]),
+            Convert.ToSingle(((decimal[])item)[2]), Convert.ToSingle(((decimal[])item)[6]), Convert.ToSingle(((decimal[])item)[10]), Convert.ToSingle(((decimal[])item)[14]),
+            Convert.ToSingle(((decimal[])item)[3]), Convert.ToSingle(((decimal[])item)[7]), Convert.ToSingle(((decimal[])item)[11]), Convert.ToSingle(((decimal[])item)[15])
+        );
+    }
+
+    private static bool IsConstantArray(List<object> objects, int check)
+    {
+        return objects.All(item => ((decimal[,])item).GetLength(1) == check);
+    }
+
+    private static bool IsFixed(List<object> objects, int check)
+    {
+        return objects.All(x => ((decimal[])x).Count() == check);
     }
 
     private static T[] ToTypedArray<T>(List<object> objects)

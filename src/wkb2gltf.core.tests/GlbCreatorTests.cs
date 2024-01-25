@@ -34,6 +34,7 @@ public class GlbCreatorTests
         var triangles = new List<Triangle>() { triangle1 };
 
         var attributes = new Dictionary<string, List<object>>();
+        attributes.Add("id_bool", new List<object>() { true });
         attributes.Add("id_int8", new List<object>() { (sbyte)100 });
         attributes.Add("id_uint8", new List<object>() { (byte)100 });
         attributes.Add("id_int16", new List<object>() { (short)100 });
@@ -42,18 +43,40 @@ public class GlbCreatorTests
         attributes.Add("id_uint32", new List<object>() { (uint)1 });
         attributes.Add("id_int64", new List<object>() { (long)1 });
         attributes.Add("id_uint64", new List<object>() { (ulong)1 });
+        attributes.Add("id_decimal", new List<object>() { (decimal)1 });
         attributes.Add("id_float", new List<object>() { (float)1 });
         attributes.Add("id_double", new List<object>() { (double)1 });
         attributes.Add("id_string", new List<object>() { "1" });
+        attributes.Add("id_vector3", new List<object>() { new decimal[] { 0, 1, 2 } }); ;
+        attributes.Add("id_matrix4x4", new List<object>() { new decimal[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } });
         attributes.Add("id_shorts", new List<object>() { new short[] { 0, 1 } });
         attributes.Add("id_booleans", new List<object>() { new bool[] { true, false } });
+        attributes.Add("id_strings", new List<object>() { new string[] { "hallo", "hallo1"} });
+        attributes.Add("id_ints", new List<object>() { new [] { 1, 2 } });
+        attributes.Add("id_longs", new List<object>() { new long[] { 1, 2 } });
+        attributes.Add("id_floats", new List<object>() { new float[] { 1, 2 } });
+        attributes.Add("id_doubles", new List<object>() { new double[] { 1, 2 } });
+        attributes.Add("id_decimals", new List<object>() { new decimal[] { 1, 2 } });
 
+        decimal[,] array = new decimal[5, 3];
+        var random = new Random();
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 3; j++) {
+                array[i, j] = (decimal)random.NextDouble();
+            }
+        }
+        attributes.Add("idVector3s", new List<object>() { array });
 
-        attributes.Add("id4", new List<object>() { true });
-        attributes.Add("id5", new List<object>() { new decimal[] { 0, 1, 2 } }); ;
-        attributes.Add("id6", new List<object>() { new decimal[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } });
-        attributes.Add("id7", new List<object>() { new decimal[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 } });
+        var matrix = new decimal[2, 16];
+        for (var i = 0; i < matrix.GetLength(0); i++) {
+            for (var  j = 0; j < matrix.GetLength(1); j++) {
+                matrix[i, j] = (decimal)random.NextDouble();
+            }
+        }
+        attributes.Add("idMatrix4x4ss", new List<object>() { matrix});
 
+        var random_decimals = new decimal[,] { { 1.23m, 4.56m } };
+        attributes.Add("random_decimals", new List<object>() { random_decimals });
 
         // act
         var bytes = TileCreator.GetTile(attributes, new List<List<Triangle>>() { triangles }, createGltf: true);
