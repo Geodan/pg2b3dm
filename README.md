@@ -407,6 +407,9 @@ Press F5 to start debugging.
 
 ## History
 
+2024-01-25: release 2.2.0, add support for 3D Tiles 1.1 all EXT_Structural_Metadata types + create tileset.json file with 
+version 1.0 when create_gltf is false and use_implicit_tiling is false
+
 2024-01-23: release 2.1.0, fix of offsets + add polygonZ support
 
 2024-01-10: release 2.0.1, fix for triangulator + add check on interrior rings (not supported)
