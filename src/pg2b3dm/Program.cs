@@ -188,35 +188,37 @@ class Program
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
-                if (useImplicitTiling) {
-                    if (!Directory.Exists(subtreesDirectory)) {
-                        Directory.CreateDirectory(subtreesDirectory);
+                if (tiles.Count(tile => tile.Available) > 0) {
+                    if (useImplicitTiling) {
+                        if (!Directory.Exists(subtreesDirectory)) {
+                            Directory.CreateDirectory(subtreesDirectory);
+                        }
+
+                        var subtreeFiles = SubtreeCreator.GenerateSubtreefiles(tiles);
+                        Console.WriteLine($"Writing {subtreeFiles.Count} subtree files...");
+                        foreach (var s in subtreeFiles) {
+                            var t = s.Key;
+                            var subtreefile = $"{subtreesDirectory}{Path.AltDirectorySeparatorChar}{t.Z}_{t.X}_{t.Y}.subtree";
+                            File.WriteAllBytes(subtreefile, s.Value);
+                        }
+
+                        var subtreeLevels = subtreeFiles.Count > 1 ? ((Tile)subtreeFiles.ElementAt(1).Key).Z : 2;
+                        var availableLevels = tiles.Max(t => t.Z) + 1;
+                        Console.WriteLine("Available Levels: " + availableLevels);
+                        Console.WriteLine("Subtree Levels: " + subtreeLevels);
+                        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricErrors[0], availableLevels, subtreeLevels, version, createGltf);
+                        var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
+                        var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+                        Console.WriteLine("SubdivisionScheme: QUADTREE");
+                        Console.WriteLine($"Writing {file}...");
+                        File.WriteAllText(file, json);
+
                     }
-
-                    var subtreeFiles = SubtreeCreator.GenerateSubtreefiles(tiles);
-                    Console.WriteLine($"Writing {subtreeFiles.Count} subtree files...");
-                    foreach (var s in subtreeFiles) {
-                        var t = s.Key;
-                        var subtreefile = $"{subtreesDirectory}{Path.AltDirectorySeparatorChar}{t.Z}_{t.X}_{t.Y}.subtree";
-                        File.WriteAllBytes(subtreefile, s.Value);
+                    else {
+                        var refine = o.Refinement;
+                        var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, zmin, zmax, version, refine, use10);
+                        File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
                     }
-
-                    var subtreeLevels = subtreeFiles.Count > 1 ? ((Tile)subtreeFiles.ElementAt(1).Key).Z : 2;
-                    var availableLevels = tiles.Max(t => t.Z) + 1;
-                    Console.WriteLine("Available Levels: " + availableLevels);
-                    Console.WriteLine("Subtree Levels: " + subtreeLevels);
-                    var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricErrors[0], availableLevels, subtreeLevels, version, createGltf);
-                    var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
-                    var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-                    Console.WriteLine("SubdivisionScheme: QUADTREE");
-                    Console.WriteLine($"Writing {file}...");
-                    File.WriteAllText(file, json);
-
-                }
-                else {
-                    var refine = o.Refinement;
-                    var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, zmin, zmax, version, refine, use10);
-                    File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
                 }
                 // end cesium specific code
 
