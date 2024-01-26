@@ -11,6 +11,10 @@ public static class TileCreator
     {
         var bytes = GlbCreator.GetGlb(triangleCollection, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, attributes, createGltf, doubleSided);
 
+        if(bytes== null) {
+            return null;
+        }
+
         if(createGltf) {
             return bytes;
         }

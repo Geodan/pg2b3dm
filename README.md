@@ -407,6 +407,8 @@ Press F5 to start debugging.
 
 ## History
 
+2024-01-26: release 2.2.1, fix for degenerated triangles
+
 2024-01-25: release 2.2.0, add support for 3D Tiles 1.1 all EXT_Structural_Metadata types + create tileset.json file with 
 version 1.0 when create_gltf is false and use_implicit_tiling is false
 

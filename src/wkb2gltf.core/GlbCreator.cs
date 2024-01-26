@@ -61,6 +61,11 @@ public static class GlbCreator
 0, 0, -1, 0,
 0, 1, 0, 0,
 0, 0, 0, 1);
+        // When there are no triangles, the model is empty, return null
+        if (model.LogicalNodes.Count == 0) {
+            return null;
+        }
+
         model.LogicalNodes.First().LocalTransform = new SharpGLTF.Transforms.AffineTransform(localTransform);
 
         if (addOutlines) {
