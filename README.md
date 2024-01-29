@@ -198,6 +198,19 @@ When there the spatial index is not present the following warning is shown.
 
 ![image](https://user-images.githubusercontent.com/538812/261248327-c29b4520-a374-4441-83bf-2b60e8313c65.png)
 
+Lines are not supported directly , but in PostGIS we can make polygons from lines using ST_BUFFER.
+
+Sample for railroads:
+
+```
+$ wget https://biogeo.ucdavis.edu/data/diva/rrd/NLD_rrd.zip
+$ unzip NLD_rrd.zip
+$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres"  NLD_rails.shp nld_rails  -nlt promote_to_multi -dim xyz
+pgsql> alter table nld_rails add column geom_buffer geometry
+pgsql> update nld_rails set geom_buffer = ST_force3d(ST_Buffer(wkb_geometry, 0.001),5)
+$ pg2b3dm -U postgres -d postgres -c geom_buffer -t nld_rails
+```
+
 ## Query parameter
 
 The -q --query will be added to the 'where' part of all queries. 
