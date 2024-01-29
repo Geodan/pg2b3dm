@@ -30,7 +30,7 @@
       //terrain: Cesium.Terrain.fromWorldTerrain(),
     });
 
-  var terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl('https://3d.kadaster.nl/dtm/ahn4');
+  var terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl('https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh');
   viewer.scene.terrainProvider = terrainProvider;
   viewer.scene.globe.depthTestAgainstTerrain=true;
 
@@ -44,19 +44,10 @@ viewer.scene.preRender.addEventListener(function (scene, time) {
   );
 });
 
-
-//viewer.camera.flyTo({
-//    destination: Cesium.Cartesian3.fromDegrees(5.6481455, 51.9585143, 300.0),
-//});
-
     const tileset = await Cesium.Cesium3DTileset.fromUrl(
       "./1.1/tileset.json"
     );  
     viewer.scene.primitives.add(tileset);
-  var terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl('https://3d.kadaster.nl/dtm/ahn4');
-  // viewer.scene.terrainProvider = terrainProvider;
-  viewer.scene.globe.depthTestAgainstTerrain=true;
-
 
     // tileset.debugShowBoundingVolume = true;
     // tileset.debugColorizeTiles = true;
