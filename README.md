@@ -54,6 +54,14 @@ When the terrain is not used, omit the -t_srs parameter (in this case the Dutch 
 $ pg2b3dm -h localhost -U postgres -c geom -d postgres -t lod22_3d -a identificatie
 ```
 
+- The Dutch terrain can be used in CesiumJS using:
+
+```
+var terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl('https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh');
+viewer.scene.terrainProvider = terrainProvider;
+viewer.scene.globe.depthTestAgainstTerrain=true;
+```
+
 - Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/  
 
 Older getting started documents:
