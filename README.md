@@ -54,6 +54,15 @@ When the terrain is not used, omit the -t_srs parameter (in this case the Dutch 
 $ pg2b3dm -h localhost -U postgres -c geom -d postgres -t lod22_3d -a identificatie
 ```
 
+- The resulting tileset can be added to CesiumJS using:
+
+```
+   const tileset = await Cesium.Cesium3DTileset.fromUrl(
+      "./1.1/tileset.json"
+    );  
+    viewer.scene.primitives.add(tileset);
+```
+
 - The Dutch terrain can be used in CesiumJS using:
 
 ```
