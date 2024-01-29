@@ -63,7 +63,7 @@ $ pg2b3dm -h localhost -U postgres -c geom -d postgres -t lod22_3d -a identifica
     viewer.scene.primitives.add(tileset);
 ```
 
-- The Dutch terrain can be used in CesiumJS using:
+- The Dutch terrain can be added in CesiumJS using:
 
 ```
 var terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl('https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh');
