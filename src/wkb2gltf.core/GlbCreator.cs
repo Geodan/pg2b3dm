@@ -163,37 +163,37 @@ public static class GlbCreator
                 }
                 else if (type == typeof(bool[])) {
                     var p = objects.Cast<bool[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithArrayType(ElementType.BOOLEAN);
+                    property = property.WithBooleanArrayType();
                     propertyTable.UseProperty(property).SetArrayValues(p);
                 }
                 else if (type == typeof(string[])) {
                     var p = objects.Cast<string[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithArrayType(ElementType.STRING);
+                    property = property.WithStringArrayType();
                     propertyTable.UseProperty(property).SetArrayValues(p);
                 }
                 else if (type == typeof(short[])) {
                     var p = objects.Cast<short[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithArrayType(ElementType.SCALAR, DataType.INT16);
+                    property = property.WithInt16ArrayType();
                     propertyTable.UseProperty(property).SetArrayValues(p);
                 }
                 else if (type == typeof(int[])) {
                     var p = objects.Cast<int[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithArrayType(ElementType.SCALAR, DataType.INT32);
+                    property = property.WithInt32ArrayType();
                     propertyTable.UseProperty(property).SetArrayValues(p);
                 }
                 else if (type == typeof(long[])) {
                     var p = objects.Cast<long[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithArrayType(ElementType.SCALAR, DataType.INT64);
+                    property = property.WithInt64ArrayType();
                     propertyTable.UseProperty(property).SetArrayValues(p);
                 }
                 else if (type == typeof(float[])) {
                     var p = objects.Cast<float[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithArrayType(ElementType.SCALAR, DataType.FLOAT32);
+                    property = property.WithFloat32ArrayType();
                     propertyTable.UseProperty(property).SetArrayValues(p);
                 }
                 else if (type == typeof(double[])) {
                     var p = objects.Cast<double[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithArrayType(ElementType.SCALAR, DataType.FLOAT64);
+                    property = property.WithFloat64ArrayType();
                     propertyTable.UseProperty(property).SetArrayValues(p);
                 }
                 else if (type == typeof(decimal[,])) {
@@ -204,7 +204,7 @@ public static class GlbCreator
                                 .Select(j => new Vector3(Convert.ToSingle(obj1[j, 0]), Convert.ToSingle(obj1[j, 1]), Convert.ToSingle(obj1[j, 2])))
                                 .ToList()
                                 ).ToList();
-                        property = property.WithArrayType(ElementType.VEC3, DataType.FLOAT32);
+                        property = property.WithVector3ArrayType();
                         propertyTable.UseProperty(property).SetArrayValues(result);
                     }
                     else if (IsConstantArray(objects, 16)) {
@@ -214,7 +214,7 @@ public static class GlbCreator
                                 .Select(j => ToMatrix4x4(obj1, j))
                                 .ToList()
                                 ).ToList();
-                        property = property.WithArrayType(ElementType.MAT4, DataType.FLOAT32);
+                        property = property.WithMatrix4x4ArrayType();
                         propertyTable.UseProperty(property).SetArrayValues(result);
                     }
                     else {
@@ -233,7 +233,7 @@ public static class GlbCreator
                             result.Add(p);
                         }
 
-                        property = property.WithArrayType(ElementType.SCALAR, DataType.FLOAT32);
+                        property = property.WithFloat32ArrayType();
                         propertyTable.UseProperty(property).SetArrayValues(result);
                     }
                 }
@@ -256,7 +256,7 @@ public static class GlbCreator
                         var result = objects.Cast<decimal[]>()
                             .Select(arr => arr.Select(Convert.ToSingle).ToList())
                             .ToList();
-                        property = property.WithArrayType(ElementType.SCALAR, DataType.FLOAT32);
+                        property = property.WithFloat32ArrayType();
                         propertyTable.UseProperty(property).SetArrayValues(result);
                     }
                 }
