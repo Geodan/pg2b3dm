@@ -98,8 +98,10 @@ public static class GlbCreator
                     propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(string)) {
-                    property = property.WithStringType();
-                    var array = ToTypedArray<string>(objects);
+                    var stringNodata = "";
+                    var nullCount = objects.OfType<DBNull>().Count();
+                    var array = objects.Select(x => x ==  DBNull.Value ? stringNodata : x.ToString()).ToArray();
+                    property = property.WithStringType(nullCount > 0 ? stringNodata : null, nullCount > 0 ? "-" : null);
                     propertyTable.UseProperty(property).SetValues(array);
                 }
                 else if (type == typeof(sbyte)) {
@@ -221,7 +223,7 @@ public static class GlbCreator
                         // TODO: this dumps all values into one array, but we need to split it up into multiple arrays
                         var result = new List<List<float>>();
 
-                        foreach(var obj in objects) {
+                        foreach (var obj in objects) {
                             var array = (decimal[,])obj;
                             var p = new List<float>();
                             var items = array.GetLength(0);
