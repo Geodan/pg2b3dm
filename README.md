@@ -273,7 +273,7 @@ When using 3D TIles 1.1 and EXT_Structural_Metadata, the following mapping betwe
 | numeric[] | scalar / float32 |
 | varchar | string |
 
-When one of the above types (except boolean) is set to NULL in the database, the null values are converted
+When one of the above types (except boolean and array types) is set to NULL in the database, the null values are converted
 to a nodata value to be used in the 3D Tiles batch table.
 
 Also arrays of the above types are supported, like: 
