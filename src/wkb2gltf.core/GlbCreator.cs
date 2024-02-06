@@ -94,12 +94,12 @@ public static class GlbCreator
                 var shortNodata = short.MinValue;
                 var intNodata = int.MinValue;
                 var sbyteNodata = sbyte.MinValue;
-                var byteNodata = byte.MaxValue; // let's take the max value (255) as nodata
-                var ushortNodata = ushort.MaxValue; // let's take the max value (65535) as nodata
-                var uintNodata = uint.MaxValue; // let's take the max value as nodata
+                var byteNodata = byte.MaxValue; // let's take the byte max value (255) as nodata
+                var ushortNodata = ushort.MaxValue; // let's take the ushort max value (65535) as nodata
+                var uintNodata = uint.MaxValue; // let's take the uint max value as nodata
                 var longNodata = long.MinValue;
-                var ulongNodata = ulong.MaxValue; // let's take the max value as nodata
-                var doubleNodata = double.MinValue; // let's take the max value as nodata
+                var ulongNodata = ulong.MaxValue; // let's take the ulong max value as nodata
+                var doubleNodata = double.MinValue;
 
                 // in the attribute dictionary, find the type o the first value that is not dbnull
                 var firstType = attribute.Value.Where(x => x != DBNull.Value).FirstOrDefault();
