@@ -23,6 +23,42 @@ public class GlbCreatorTests
     }
 
     [Test]
+    public void CreateGltfWithNullAttributesTest()
+    {
+        // arrange
+        var p0 = new Point(0, 0, 0);
+        var p1 = new Point(1, 1, 0);
+        var p2 = new Point(1, 0, 0);
+
+        var triangle1 = new Triangle(p0, p1, p2, 0);
+        var triangle2 = new Triangle(p0, p1, p2, 1);
+
+        var triangles = new List<Triangle>() { triangle1, triangle2 };
+
+        var attributes = new Dictionary<string, List<object>>();
+        attributes.Add("id_string", new List<object>() { "1", DBNull.Value });
+        attributes.Add("id_int8", new List<object>() { (sbyte)100, DBNull.Value });
+        attributes.Add("id_uint8", new List<object>() { (byte)100, DBNull.Value });
+        attributes.Add("id_int16", new List<object>() { (short)100, DBNull.Value });
+        attributes.Add("id_uint16", new List<object>() { (ushort)100, DBNull.Value });
+        attributes.Add("id_uint32", new List<object>() { (uint)1, DBNull.Value });
+        attributes.Add("id_int64", new List<object>() { (long)1, DBNull.Value });
+        attributes.Add("id_uint64", new List<object>() { (ulong)1, DBNull.Value });
+        attributes.Add("id_float", new List<object>() { (float)1, DBNull.Value });
+        attributes.Add("id_decimal", new List<object>() { (decimal)1, DBNull.Value });
+        attributes.Add("id_double", new List<object>() { (double)1, DBNull.Value });
+        // note: null values are not supported for array types (including vector3 and matrix4x4)
+
+        var bytes = TileCreator.GetTile(attributes, new List<List<Triangle>>() { triangles }, createGltf: true);
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "gltf_withnullattributes.glb");
+        File.WriteAllBytes(fileName, bytes);
+
+        // assert
+        var model = ModelRoot.Load(fileName);
+        Assert.That(model.LogicalMeshes[0].Primitives.Count, Is.EqualTo(1));
+    }
+
+    [Test]
     public void CreateGltfWithAttributesTest()
     {
         // arrange
@@ -31,7 +67,8 @@ public class GlbCreatorTests
         var p2 = new Point(1, 0, 0);
 
         var triangle1 = new Triangle(p0, p1, p2, 0);
-        var triangles = new List<Triangle>() { triangle1 };
+
+        var triangles = new List<Triangle>() { triangle1};
 
         var attributes = new Dictionary<string, List<object>>();
         attributes.Add("id_bool", new List<object>() { true });
