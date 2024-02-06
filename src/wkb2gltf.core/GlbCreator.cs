@@ -87,10 +87,30 @@ public static class GlbCreator
             }
 
             foreach (var attribute in attributes) {
-                var type = attribute.Value.FirstOrDefault().GetType();
+                // the 3d tiles metadata spec does not allow for null values (but only 'nodata' values), so we need to determine the
+                // nodata value for each type. 
+                var stringNodata = "";
+                var floatNodata = (float)uint.MinValue; // bit of a workaround, to get around the fact that we can't use float.MinValue as nodata
+                var shortNodata = short.MinValue;
+                var intNodata = int.MinValue;
+                var sbyteNodata = sbyte.MinValue;
+                var byteNodata = byte.MaxValue; // let's take the max value (255) as nodata
+                var ushortNodata = ushort.MaxValue; // let's take the max value (65535) as nodata
+                var uintNodata = uint.MaxValue; // let's take the max value as nodata
+                var longNodata = long.MinValue;
+                var ulongNodata = ulong.MaxValue; // let's take the max value as nodata
+                var doubleNodata = double.MinValue; // let's take the max value as nodata
+
+                // in the attribute dictionary, find the type o the first value that is not dbnull
+                var firstType = attribute.Value.Where(x => x != DBNull.Value).FirstOrDefault();
+                if(firstType == null) {
+                    throw(new Exception($"All values of attribute '{attribute.Key}' are Null, can't determine type"));
+                }
+                var type = firstType.GetType();
                 var objects = attribute.Value;
                 var property = schemaClass.UseProperty(attribute.Key);
 
+                var nullCount = objects.OfType<DBNull>().Count();
                 // sbyte not available in postgres
                 if (type == typeof(bool)) {
                     property = property.WithBooleanType();
@@ -98,69 +118,67 @@ public static class GlbCreator
                     propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(string)) {
-                    var stringNodata = "";
-                    var nullCount = objects.OfType<DBNull>().Count();
                     var array = objects.Select(x => x ==  DBNull.Value ? stringNodata : x.ToString()).ToArray();
-                    property = property.WithStringType(nullCount > 0 ? stringNodata : null, nullCount > 0 ? "-" : null);
+                    property = property.WithStringType(nullCount > 0 ? stringNodata : null);
                     propertyTable.UseProperty(property).SetValues(array);
                 }
                 else if (type == typeof(sbyte)) {
-                    property = property.WithInt8Type();
-                    var array = ToTypedArray<sbyte>(objects);
-                    propertyTable.UseProperty(property).SetValues(array);
+                    var list = objects.Select(item => item is sbyte value ? value : sbyteNodata).ToArray();
+                    property = property.WithInt8Type(nullCount > 0 ? sbyteNodata : null);
+                    propertyTable.UseProperty(property).SetValues(list);
                 }
                 // byte not available in postgres
                 else if (type == typeof(byte)) {
-                    property = property.WithUInt8Type();
-                    var array = ToTypedArray<byte>(objects);
-                    propertyTable.UseProperty(property).SetValues(array);
+                    var list = objects.Select(item => item is byte value ? value : byteNodata).ToArray();
+                    property = property.WithUInt8Type(nullCount > 0 ? byteNodata : null);
+                    propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(short)) {
-                    property = property.WithInt16Type();
-                    var array = ToTypedArray<short>(objects);
-                    propertyTable.UseProperty(property).SetValues(array);
+                    var list = objects.Select(item => item is short value ? value : shortNodata).ToArray();
+                    property = property.WithInt16Type(nullCount > 0 ? shortNodata : null);
+                    propertyTable.UseProperty(property).SetValues(list);
                 }
                 // ushort not available in postgres
                 else if (type == typeof(ushort)) {
-                    property = property.WithUInt16Type();
-                    var array = ToTypedArray<ushort>(objects);
-                    propertyTable.UseProperty(property).SetValues(array);
+                    var list = objects.Select(item => item is ushort value ? value : ushortNodata).ToArray();
+                    property = property.WithUInt16Type(nullCount > 0 ? ushortNodata : null);
+                    propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(int)) {
-                    property = property.WithInt32Type();
-                    var list = objects.ConvertAll(x => (int)x).ToArray();
+                    var list = objects.Select(item => item is int value ? value : intNodata).ToArray();
+                    property = property.WithInt32Type(nullCount > 0 ? intNodata : null);
                     propertyTable.UseProperty(property).SetValues(list);
                 }
                 // uint not available in postgres
                 else if (type == typeof(uint)) {
-                    property = property.WithUInt32Type();
-                    var list = objects.ConvertAll(x => (uint)x).ToArray();
+                    var list = objects.Select(item => item is uint value ? value : uintNodata).ToArray();
+                    property = property.WithUInt32Type(nullCount > 0 ? uintNodata : null);
                     propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(long)) {
-                    property = property.WithInt64Type();
-                    var list = objects.ConvertAll(x => (long)x).ToArray();
+                    var list = objects.Select(item => item is long value ? value : longNodata).ToArray();
+                    property = property.WithInt64Type(nullCount > 0 ? longNodata : null);
                     propertyTable.UseProperty(property).SetValues(list);
                 }
                 // ulong not available in postgres
                 else if (type == typeof(ulong)) {
-                    property = property.WithUInt64Type();
-                    var list = objects.ConvertAll(x => (ulong)x).ToArray();
+                    var list = objects.Select(item => item is ulong value ? value : ulongNodata).ToArray();
+                    property = property.WithUInt64Type(nullCount > 0 ? ulongNodata : null);
                     propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(float)) {
-                    property = property.WithFloat32Type();
-                    var list = objects.ConvertAll(x => (float)x).ToArray();
+                    var list = objects.Select(item => item is float value ? value : floatNodata).ToArray();
+                    property = property.WithFloat32Type(nullCount > 0 ? floatNodata : null);
                     propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(decimal)) {
-                    property = property.WithFloat32Type();
-                    var list = objects.ConvertAll(x => Convert.ToSingle(x)).ToArray();
+                    var list = objects.Select(item => item is decimal value ? (float)value : floatNodata).ToArray();
+                    property = property.WithFloat32Type(nullCount > 0 ? floatNodata : null);
                     propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(double)) {
-                    property = property.WithFloat64Type();
-                    var list = objects.ConvertAll(x => (double)x).ToArray();
+                    var list = objects.Select(item => item is double value ? (float)value : doubleNodata).ToArray();
+                    property = property.WithFloat64Type(nullCount > 0 ? doubleNodata : null);
                     propertyTable.UseProperty(property).SetValues(list);
                 }
                 else if (type == typeof(bool[])) {
@@ -240,6 +258,9 @@ public static class GlbCreator
                     }
                 }
                 else if (type == typeof(decimal[])) {
+                    if (HasNull(objects)) {
+                        throw new NotSupportedException("Null values are not supported in arrays");
+                    }
                     if (IsFixed(objects, 3)) {
                         var list = attribute.Value.Select(item => {
                             var array = (decimal[])item;
@@ -297,14 +318,14 @@ public static class GlbCreator
         return objects.All(item => ((decimal[,])item).GetLength(1) == check);
     }
 
+    private static bool HasNull(List<object> objects)
+    {
+        return objects.Any(x => x == DBNull.Value);
+    }
+
     private static bool IsFixed(List<object> objects, int check)
     {
         return objects.All(x => ((decimal[])x).Count() == check);
-    }
-
-    private static T[] ToTypedArray<T>(List<object> objects)
-    {
-        return objects.ConvertAll(x => (T)x).ToArray();
     }
 
     private static bool DrawTriangleWithBatchId(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty> mesh)
