@@ -6,10 +6,10 @@
 	<PackageOutputPath>./nupkg</PackageOutputPath>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<ToolCommandName>pg2b3dm</ToolCommandName>
-	<Version>2.2.1</Version>
+	<Version>2.3.0</Version>
     <Description>Console tool for converting PostGIS geometries to B3dm tiles (3D Tiles)</Description>
-    <AssemblyVersion>2.2.1</AssemblyVersion>
-    <FileVersion>2.2.1</FileVersion>
+    <AssemblyVersion>2.3.0</AssemblyVersion>
+    <FileVersion>2.3.0</FileVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Company>Geodan</Company>
@@ -17,7 +17,7 @@
     <PackageProjectUrl>https://github.com/geodan/pg2b3dm</PackageProjectUrl>
     <RepositoryUrl>https://github.com/geodan/pg2b3dm</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>add multiple attributes columns</PackageReleaseNotes>
+    <PackageReleaseNotes>add support for null nodata values in attributes</PackageReleaseNotes>
     <PackageTags>3dtiles b3dm cesium mapbox</PackageTags>
   </PropertyGroup>
 
