@@ -20,11 +20,6 @@ public static class GeometryProcessor
         var m1 = new MultiPolygon(relativePolygons);
 
         if (!isTriangulated) {
-
-            if (HasInteriorRings(geometries)) {
-                throw new NotSupportedException("Geometries with interior rings are not supported. ");
-            }
-
             var triangles = Triangulator.Triangulate(m1);
             geometries = ((MultiPolygon)triangles).Geometries;
         }
@@ -57,16 +52,24 @@ public static class GeometryProcessor
     private static List<Polygon> GetRelativePolygons(List<Polygon> geometries, double[] translation)
     {
         var relativePolygons = new List<Polygon>();
+
         foreach (var geometry in geometries) {
-            var linearRing = new LinearRing();
+            var exteriorRing = new LinearRing();
+            var interiorRings = new List<LinearRing>();
             foreach (var point in geometry.ExteriorRing.Points) {
                 var relativePoint = ToRelativePoint(point, translation);
-                linearRing.Points.Add(relativePoint);
+                exteriorRing.Points.Add(relativePoint);
             }
 
-            // todo: add support for interrior rings
-
-            var relativePolygon = new Polygon(linearRing);
+            foreach(var interiorRing in geometry.InteriorRings) {
+                var relativeInteriorRing = new LinearRing();
+                foreach (var point in interiorRing.Points) {
+                    var relativePoint = ToRelativePoint(point, translation);
+                    relativeInteriorRing.Points.Add(relativePoint);
+                }
+                interiorRings.Add(relativeInteriorRing);
+            }
+            var relativePolygon = new Polygon(exteriorRing, interiorRings);
             relativePolygons.Add(relativePolygon);
         }
 
