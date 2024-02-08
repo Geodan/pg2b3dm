@@ -442,6 +442,8 @@ Press F5 to start debugging.
 
 ## History
 
+2024-02-08: release 2.4.0, add support for polygons with interior rings
+
 2024-01-26: release 2.3.0, add support for null values in attribute columns (except array types)
 
 2024-01-26: release 2.2.1, fix for degenerated triangles
