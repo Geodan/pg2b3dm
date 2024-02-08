@@ -202,8 +202,8 @@ For styling see [styling 3D Tiles](styling.md)
 
 ## Geometries
 
-Input geometries must be of type PolyhedralSurface or Multipolygon (with z values). When the geometry is not triangulated, pg2b3dm will perform
-triangulation.
+Input geometries must be of type Polygon/MultiPolygon/PolyhedralSurface (with z values). When the geometry is not triangulated, pg2b3dm will perform
+triangulation. Geometries with interior rings are supported.
 
 For large datasets create a spatial index on the geometry column:
 
@@ -441,6 +441,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2024-02-08: release 2.4.0, add support for polygons with interior rings
 
 2024-01-26: release 2.3.0, add support for null values in attribute columns (except array types)
 
