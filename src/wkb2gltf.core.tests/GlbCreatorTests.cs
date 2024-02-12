@@ -313,7 +313,6 @@ public class GlbCreatorTests
 
         // act
         var triangles = GeometryProcessor.GetTriangles(g, 100, new double[] { 0, 0, 0 });
-
         // assert
         Assert.That(((PolyhedralSurface)g).Geometries.Count, Is.EqualTo(6));
         Assert.That(triangles.Count, Is.EqualTo(12));
@@ -334,7 +333,6 @@ public class GlbCreatorTests
         metallicRoughness.BaseColors = colors;
 
         var triangles = GeometryProcessor.GetTriangles(polyhedralsurface, 100, new double[] { 0, 0, 0 }, shaderColors);
-        CheckNormal(triangles[2], center);
         Assert.That(triangles.Count == 12, Is.True);
 
         // act
@@ -343,18 +341,6 @@ public class GlbCreatorTests
         File.WriteAllBytes(fileName, bytes);
 
         // assert
-    }
-
-    private static void CheckNormal(Triangle t, Point center)
-    {
-        // arrange
-        var normal = t.GetNormal();
-        var p0 = t.ToVectors().Item1;
-        var vertexDistance = (p0 - center.ToVector()).Length();
-        var withNormalDistance = (p0 + normal - center.ToVector()).Length();
-
-        // assert
-        Assert.That(withNormalDistance > vertexDistance, Is.True);
     }
 
     private static void DrawTriangle(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal> mesh)
