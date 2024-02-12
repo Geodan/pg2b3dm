@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gavaghan.Geodesy;
 using Triangulate;
 using Wkx;
 
@@ -120,10 +121,25 @@ public static class GeometryProcessor
 
     private static Point ToRelativePoint(Point pnt, double[] translation)
     {
-        // var trans = SpatialConverter.GeodeticToEcef((double)pnt.X, (double)pnt.Y, (double)pnt.Z);
-        // var res = new Point(translation[0] - trans.X, translation[1] - trans.Y, translation[2] - trans.Z );
-        var res = new Point((double)pnt.X - translation[0] , (double)pnt.Y - translation[1], pnt.Z - translation[2]);
-        return res;
+        var reference = Ellipsoid.WGS84;
+        var geoCalc = new GeodeticCalculator();
+
+        var trans1 = new GlobalCoordinates(Angle.FromDegrees(translation[1]), Angle.FromDegrees(translation[0]));
+        var pnt1 = new GlobalCoordinates(Angle.FromDegrees(translation[1]), Angle.FromDegrees((double)pnt.X));
+        var distance_x = geoCalc.CalculateGeodeticCurve(reference, pnt1, trans1).EllipsoidalDistanceMeters;
+
+        var trans2 = new GlobalCoordinates(Angle.FromDegrees(translation[1]), Angle.FromDegrees(translation[0]));
+        var pnt2 = new GlobalCoordinates(Angle.FromDegrees((double)pnt.Y), Angle.FromDegrees(translation[0]));
+        var distance_y = geoCalc.CalculateGeodeticCurve(reference, pnt2, trans2).EllipsoidalDistanceMeters;
+
+        if (pnt.X < translation[0]) {
+            distance_x = -distance_x;
+        }
+        if (pnt.Y < translation[1]) {
+            distance_y = -distance_y;
+        }
+
+        return new Point(distance_x, distance_y, pnt.Z);
     }
 
     private static bool HasInteriorRings(List<Polygon> polygons)
