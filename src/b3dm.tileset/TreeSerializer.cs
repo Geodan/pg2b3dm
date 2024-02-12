@@ -5,7 +5,6 @@ using System.Linq;
 using B3dm.Tileset.Extensions;
 using Newtonsoft.Json;
 using subtree;
-using Wkb2Gltf;
 using Wkx;
 
 namespace B3dm.Tileset;
@@ -24,9 +23,10 @@ public static class TreeSerializer
         var ext = createGltf ? ".glb" : ".b3dm";
         var geometricError = maxGeometricError;
         var tileset = GetTilesetObject(version, maxGeometricError);
-        var v3 = SpatialConverter.GeodeticToEcef(transform[0], transform[1], transform[2]);
-        var matrix = SpatialConverter.EcefToEnu(v3);
-        var t = new double[] { matrix.M11, matrix.M12, matrix.M13, matrix.M14, matrix.M21, matrix.M22, matrix.M23, matrix.M24, matrix.M31, matrix.M32, matrix.M33, matrix.M34, matrix.M41, matrix.M42, matrix.M43, matrix.M44 };
+        var t = new double[] {   1.0, 0.0, 0.0, 0.0,
+                                 0.0,1.0, 0.0, 0.0,
+                                 0.0, 0.0, 1.0, 0.0,
+            transform[0], transform[1], transform[2], 1.0};
         var root = GetRoot(geometricError, t, box);
         var content = new Content() { uri = "content/{level}_{x}_{y}" + ext };
         root.content = content;
@@ -40,9 +40,11 @@ public static class TreeSerializer
     {
         var tileset = GetTilesetObject(version, geometricErrors[0], use10);
 
-        var v3 = SpatialConverter.GeodeticToEcef(transform[0], transform[1], transform[2]);
-        var matrix = SpatialConverter.EcefToEnu(v3);
-        var t = new double[] { matrix.M11, matrix.M12, matrix.M13, matrix.M14, matrix.M21, matrix.M22, matrix.M23, matrix.M24, matrix.M31, matrix.M32, matrix.M33, matrix.M34, matrix.M41, matrix.M42, matrix.M43, matrix.M44 };
+        var t = new double[] {   1.0, 0.0, 0.0, 0.0,
+                                 0.0,1.0, 0.0, 0.0,
+                                 0.0, 0.0, 1.0, 0.0,
+            transform[0], transform[1], transform[2], 1.0};
+
         var root = GetRoot(geometricErrors[0], t, region, refine);
         var children = GetChildren(tiles, geometricErrors.Skip(1).ToArray(), minheight, maxheight);
         root.children = children;

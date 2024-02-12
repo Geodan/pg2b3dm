@@ -83,7 +83,7 @@ public static class GeometryRepository
 
     public static string GetGeometryColumn(string geometry_column)
     {
-        return $"st_transform({geometry_column}, 4326)";
+        return $"st_transform({geometry_column}, 4978)";
     }
 
     public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql)

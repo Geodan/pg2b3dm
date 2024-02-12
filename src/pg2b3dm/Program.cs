@@ -126,10 +126,8 @@ class Program
 
                 Console.WriteLine("Starting Cesium mode...");
 
-                // var translation = Translation.GetTranslation(center_wgs84);
-                var z = center_wgs84.Z.HasValue ? (double)center_wgs84.Z : 0;
-                var translation = new double[] { (double)center_wgs84.X, (double)center_wgs84.Y, z};
-                // Console.WriteLine($"Translation : {String.Join(',', translation)}");
+                var translation = Translation.GetTranslation(center_wgs84);
+                Console.WriteLine($"Translation ECEF: {String.Join(',', translation)}");
 
                 var lodcolumn = o.LodColumn;
                 var addOutlines = (bool)o.AddOutlines;
