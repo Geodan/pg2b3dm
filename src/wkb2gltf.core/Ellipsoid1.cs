@@ -1,8 +1,8 @@
 ﻿namespace Wkb2Gltf;
 
-public class Ellipsoid
+public class Ellipsoid1
 {
-    public Ellipsoid()
+    public Ellipsoid1()
     {
         SemiMajorAxis = 6378137;
         SemiMinorAxis = 6356752.3142478326;
