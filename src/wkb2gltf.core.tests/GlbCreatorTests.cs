@@ -320,6 +320,16 @@ public class GlbCreatorTests
     }
 
     [Test]
+    public static void CreateGlbForLineString()
+    {
+        var pipelineWkt = "LINESTRING Z (3889684.581681901 332934.74905057804 5026963.34752543,3889660.4475074895 333024.45069048833 5026975.961092257,3889653.556938037 333049.9679558418 5026979.669808809,3889653.7643391364 333050.8015457351 5026979.4833347425)";
+        var g = Geometry.Deserialize<WktSerializer>(pipelineWkt);
+        var translation = new double[] { 3889587.5, 333387.5625, 5026956 };
+        var triangles = GeometryProcessor.GetTriangles(g, 100, translation);
+    }
+
+
+    [Test]
     public static void CreateGlbForSimpleBuilding()
     {
         // arrange

@@ -9,9 +9,31 @@ public static class GeometryProcessor
 {
     public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation, ShaderColors shadercolors = null)
     {
-        if (geometry is not Polygon && geometry is not MultiPolygon && geometry is not PolyhedralSurface) {
+        if (geometry is not Polygon && geometry is not MultiPolygon && geometry is not PolyhedralSurface && geometry is not LineString) {
             throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
         }
+
+        var geometries = geometry is LineString ? 
+            GetTrianglesFromLineString((LineString)geometry, translation) :
+            GetTrianglesFromPolygons(geometry, translation);
+
+        var result = GetTriangles(batchId, shadercolors, geometries);
+
+        return result;
+    }
+
+
+    private static List<Polygon> GetTrianglesFromLineString(LineString line, double[] translation)
+    {
+        var result = new List<Polygon>();
+        var relativeLine = GetRelativeLine(line, translation);
+        var wkt = relativeLine.AsText();
+        // todo: triangulate the line
+        // var triangles = Triangulator.Triangulate(relativeLine, radius);
+        return result;
+    }
+    private static List<Polygon> GetTrianglesFromPolygons(Geometry geometry, double[] translation)
+    {
         var geometries = GetGeometries(geometry);
 
         var isTriangulated = IsTriangulated(geometries);
@@ -27,13 +49,12 @@ public static class GeometryProcessor
             geometries = m1.Geometries;
         }
 
-
-        return GetTriangles(batchId, shadercolors, geometries);
-
+        return geometries;
     }
 
     private static List<Polygon> GetGeometries(Geometry geometry)
     {
+        var wkt = geometry.AsText();
         // return the Geometries properties of the geometry, for polygon, multipolygon and polyhedral surface
         if (geometry is Polygon) {
             return new List<Polygon>() { (Polygon)geometry };
@@ -47,6 +68,16 @@ public static class GeometryProcessor
         else {
             throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
         }
+    }
+
+    private static LineString GetRelativeLine(LineString line, double[] translation)
+    {
+        var result = new LineString();
+        foreach(var pnt in line.Points) {
+            var relativePoint = ToRelativePoint(pnt, translation);
+            result.Points.Add(relativePoint);
+        }
+        return result;
     }
 
     private static List<Polygon> GetRelativePolygons(List<Polygon> geometries, double[] translation)
