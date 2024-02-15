@@ -45,6 +45,17 @@ The amount of colors in the lists
 
 - or be 1, in which case the same color is used for all triangles in the geometry;
 
+Example:
+
+```
+update delaware_buildings set simple_shader = 
+'{
+    "PbrMetallicRoughness": {
+        "BaseColors": ["#ff0000"]
+    }
+}';
+```
+
 - otherwise an exception is thrown.
 
 
