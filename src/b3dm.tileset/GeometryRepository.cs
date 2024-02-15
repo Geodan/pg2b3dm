@@ -132,7 +132,7 @@ public static class GeometryRepository
                 geometryRecord.Attributes = attributes;
             }
             if (radiusColumn != string.Empty) {
-                geometryRecord.Radius = Decimal.ToSingle((decimal)reader.GetValue(radiusColumnId));
+                geometryRecord.Radius = (float)reader.GetValue(radiusColumnId);
             }
 
             geometries.Add(geometryRecord);
