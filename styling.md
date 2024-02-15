@@ -16,7 +16,7 @@ Metallic factor: 0, Roughness factor: 0.5019608 (128/255)
 
 - Alpha: 0 (hardcoded)
 
-Alternative option is to specify a shader per triangle in the ShadersColumn.
+Alternative option is to specify a shader using the ShadersColumn.
 
 Shaderscolumn is a column of type json. In this json document the shaders are defined like PbrMetallicRoughness and
 PbrSpecularGlossiness. Note: PbrSpecularGlossiness is deprecated by Khronos, so advise is to use PbrMetallicRoughness.
@@ -39,9 +39,16 @@ The json must have the following structure:
 }
 ```
 
-The amount of colors in the lists must correspond to the number of triangles in the geometry, otherwise an exception is thrown.
+The amount of colors in the lists 
 
-Warning: The input geometries must be triangulated for this to work. Otherwise pg2b3dm will triangulate the geometries and the number of triangles will be unknown.
+- must correspond to the number of triangles in the geometry;
+
+- or be 1, in which case the same color is used for all triangles in the geometry;
+
+- otherwise an exception is thrown.
+
+
+Warning: When using a shader per triangle, the input geometries must be triangulated for this to work. Otherwise pg2b3dm will triangulate the geometries and the number of triangles will be unknown.
 
 ## Sql
 
