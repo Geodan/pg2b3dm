@@ -225,6 +225,10 @@ postgresql> alter table delaware_buildings add column radius real;
 postgresql> update delaware_buildings set radius = 0.5 + random() * (1.5 - 0.5);
 ```
 
+Sample with pipes (green = data, blue = water, purple = sewage, yellow = gas, red = electricity):
+
+![image](https://github.com/Geodan/pg2b3dm/assets/538812/20280276-02a2-41f1-8b3d-4a893eb82db3)
+
 ## Query parameter
 
 The -q --query will be added to the 'where' part of all queries. 
