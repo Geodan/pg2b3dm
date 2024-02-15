@@ -43,6 +43,21 @@ The amount of colors in the lists must correspond to the number of triangles in 
 
 Warning: The input geometries must be triangulated for this to work. Otherwise pg2b3dm will triangulate the geometries and the number of triangles will be unknown.
 
+## Sql
+
+Sample query in SQL:
+
+```
+ALTER TABLE mytable ADD COLUMN simple_shader json;
+
+update mytable set simple_shader = 
+'{
+    "PbrMetallicRoughness": {
+        "BaseColors": ["#008000"]
+    }
+}';
+```
+
 ## Samples
 
 Sample for using shader PbrMetallicRoughness with BaseColor for 2 triangles:
