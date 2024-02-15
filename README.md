@@ -445,16 +445,11 @@ Press F5 to start debugging.
 
 2024-02-15: release 2.5.0 
 
-- add support for single shaders per geometry
+- add support for single shaders per geometry https://github.com/Geodan/pg2b3dm/pull/147
 
-https://github.com/Geodan/pg2b3dm/pull/147
-
-- add lines support, added option --radiuscolumn 
-
-https://github.com/Geodan/pg2b3dm/pull/146
+- add lines support, added option --radiuscolumn https://github.com/Geodan/pg2b3dm/pull/146
  
 - update triangulator for higher precision normals calculation
-
 
 2024-02-08: release 2.4.0, add support for polygons with interior rings
 
