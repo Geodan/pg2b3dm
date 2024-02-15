@@ -57,13 +57,19 @@ public class ShaderColors
 
     private void Check(List<string> colors, int expectedGeometries, string error, List<string> errors)
     {
-        if (colors != null && colors.Count != expectedGeometries) {
+        // check the amount of colors is not null, one or the same as the geometries or 1
+        if (colors != null && colors.Count != expectedGeometries && colors.Count!= 1) {
             errors.Add(error);
         }
     }
 
     private string GetItem(List<string> items, int i)
     {
+        // if there is only one item, always return the first
+        // use for having 1 shader per geometry
+        if(items!=null && items.Count == 1) {
+            i = 0;
+        }
         return items != null ? items[i] : null;
     }
 }
