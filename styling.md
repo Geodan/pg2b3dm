@@ -53,7 +53,7 @@ ALTER TABLE mytable ADD COLUMN simple_shader json;
 update mytable set simple_shader = 
 '{
     "PbrMetallicRoughness": {
-        "BaseColors": ["#008000"]
+        "BaseColors": ["#008000", "#008000"]
     }
 }';
 ```
