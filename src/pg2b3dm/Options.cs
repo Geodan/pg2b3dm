@@ -39,8 +39,10 @@ public class Options
     [Option("create_gltf", Required = false, Default = true, HelpText = "Create glTF")]
     public bool? CreateGltf { get; set; }
 
-    // cesium specific options
+    [Option("radiuscolumn", Required = false, Default = "", HelpText = "Radius column")]
+    public string RadiusColumn { get; set; }
 
+    // cesium specific options
     [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile (Cesium)", SetName = "Cesium")]
     public int MaxFeaturesPerTile { get; set; }
 

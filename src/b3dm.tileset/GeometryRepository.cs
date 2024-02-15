@@ -35,9 +35,9 @@ public static class GeometryRepository
         return result;
     }
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, string shaderColumn = "", string attributesColumns = "", string query = "")
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "")
     {
-        var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns);
+        var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn);
         var sqlFrom = "FROM " + geometry_table;
 
         var b = GetTileBoundingBox(bbox);
@@ -46,7 +46,7 @@ public static class GeometryRepository
 
         var sql = sqlselect + sqlFrom + sqlWhere;
 
-        var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql);
+        var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql, radiusColumn);
         return geometries;
     }
 
@@ -67,7 +67,7 @@ public static class GeometryRepository
             $") {query}";
     }
 
-    public static string GetSqlSelect(string geometry_column, string shaderColumn, string attributesColumns)
+    public static string GetSqlSelect(string geometry_column, string shaderColumn, string attributesColumns, string radiusColumn)
     {
         var g = GetGeometryColumn(geometry_column);
         var sqlselect = $"SELECT ST_AsBinary({g})";
@@ -76,6 +76,9 @@ public static class GeometryRepository
         }
         if (attributesColumns != String.Empty) {
             sqlselect = $"{sqlselect}, {attributesColumns} ";
+        }
+        if (radiusColumn != String.Empty) {
+            sqlselect = $"{sqlselect}, {radiusColumn} ";
         }
 
         return sqlselect;
@@ -86,7 +89,7 @@ public static class GeometryRepository
         return $"st_transform({geometry_column}, 4326)";
     }
 
-    public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql)
+    public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql, string radiusColumn)
     {
         var geometries = new List<GeometryRecord>();
         conn.Open();
@@ -94,6 +97,7 @@ public static class GeometryRepository
         var reader = cmd.ExecuteReader();
         var attributesColumnIds = new Dictionary<string, int>();
         var shadersColumnId = int.MinValue;
+        var radiusColumnId = int.MinValue;
 
         if (attributesColumns != String.Empty) {
             var attributesColumnsList = attributesColumns.Split(',').ToList();
@@ -105,6 +109,13 @@ public static class GeometryRepository
                 shadersColumnId = FindField(reader, shaderColumn).Value;
             }
         }
+        if (radiusColumn != String.Empty) {
+            var fld = FindField(reader, radiusColumn);
+            if (fld.HasValue) {
+                radiusColumnId = FindField(reader, radiusColumn).Value;
+            }
+        }
+
         var batchId = 0;
         while (reader.Read()) {
             var stream = reader.GetStream(0);
@@ -119,6 +130,9 @@ public static class GeometryRepository
             if (attributesColumns != string.Empty) {
                 var attributes = GetColumnValuesAsList(reader, attributesColumnIds);
                 geometryRecord.Attributes = attributes;
+            }
+            if (radiusColumn != string.Empty) {
+                geometryRecord.Radius = (float)reader.GetValue(radiusColumnId);
             }
 
             geometries.Add(geometryRecord);

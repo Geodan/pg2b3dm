@@ -22,7 +22,7 @@ Features:
 
 - Cesium: LOD support and Outlines support (using CESIUM_primitive_outline);
 
-- Triangulation of input geometries Polygon/MultiPolygon/PolyhedralSurface with Z values;
+- Triangulation of input geometries LineStrings/Polygon/MultiPolygon/PolyhedralSurface with Z values;
 
 - Docker support.
 
@@ -146,6 +146,8 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --create_gltf                   (Default: true) Create glTF files
 
+  --radiuscolumn                  (Default: '') Column with radius values for lines
+
   --max_features_per_tile         (Default: 1000) maximum features per tile (Cesium)
 
   -l, --lodcolumn                 (Default: '') LOD column (Cesium)
@@ -202,7 +204,7 @@ For styling see [styling 3D Tiles](styling.md)
 
 ## Geometries
 
-Input geometries must be of type Polygon/MultiPolygon/PolyhedralSurface (with z values). When the geometry is not triangulated, pg2b3dm will perform
+Input geometries must be of type LineString/Polygon/MultiPolygon/PolyhedralSurface (with z values). When the geometry is not triangulated, pg2b3dm will perform
 triangulation. Geometries with interior rings are supported.
 
 For large datasets create a spatial index on the geometry column:
@@ -215,18 +217,17 @@ When there the spatial index is not present the following warning is shown.
 
 ![image](https://user-images.githubusercontent.com/538812/261248327-c29b4520-a374-4441-83bf-2b60e8313c65.png)
 
-Lines are not supported directly , but in PostGIS we can make polygons from lines using ST_BUFFER.
-
-Sample for railroads:
+For line geometries a 3D tube is created with a radius of 1 meter. When a radius column is specified (option --radiuscolumn), the radius from that columns is 
+used for the tube. The radius column must be of type 'real', sample for random radius between 0.5 and 1.5:
 
 ```
-$ wget https://biogeo.ucdavis.edu/data/diva/rrd/NLD_rrd.zip
-$ unzip NLD_rrd.zip
-$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres"  NLD_rails.shp nld_rails  -nlt promote_to_multi -dim xyz
-pgsql> alter table nld_rails add column geom_buffer geometry
-pgsql> update nld_rails set geom_buffer = ST_force3d(ST_Buffer(wkb_geometry, 0.001),5)
-$ pg2b3dm -U postgres -d postgres -c geom_buffer -t nld_rails
+postgresql> alter table delaware_buildings add column radius real;
+postgresql> update delaware_buildings set radius = 0.5 + random() * (1.5 - 0.5);
 ```
+
+Sample with pipes (green = data, blue = water, purple = sewage, yellow = gas, red = electricity):
+
+![image](https://github.com/Geodan/pg2b3dm/assets/538812/20280276-02a2-41f1-8b3d-4a893eb82db3)
 
 ## Query parameter
 
@@ -441,6 +442,14 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2024-02-15: release 2.5.0 
+
+- add support for single shaders per geometry https://github.com/Geodan/pg2b3dm/pull/147
+
+- add lines support, added option --radiuscolumn https://github.com/Geodan/pg2b3dm/pull/146
+ 
+- update triangulator for higher precision normals calculation
 
 2024-02-08: release 2.4.0, add support for polygons with interior rings
 

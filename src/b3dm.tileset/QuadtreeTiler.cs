@@ -26,8 +26,9 @@ public class QuadtreeTiler
     private readonly List<int> lods;
     private readonly string copyright;
     private readonly bool skipCreateTiles;
+    private readonly string radiusColumn;
 
-    public QuadtreeTiler(NpgsqlConnection conn, string table, int source_epsg, string geometryColumn, int maxFeaturesPerTile, string query, double[] translation, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false)
+    public QuadtreeTiler(NpgsqlConnection conn, string table, int source_epsg, string geometryColumn, int maxFeaturesPerTile, string query, double[] translation, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false, string radiusColumn = "")
     {
         this.table = table;
         this.conn = conn;
@@ -43,6 +44,7 @@ public class QuadtreeTiler
         this.lods = lods;
         this.copyright = copyright;
         this.skipCreateTiles = skipCreateTiles;
+        this.radiusColumn = radiusColumn;
     }
 
     public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod = 0, bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, bool createGltf = false)
@@ -101,7 +103,7 @@ public class QuadtreeTiler
 
             if (!skipCreateTiles) {
 
-                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, colorColumn, attributesColumn, where);
+                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, colorColumn, attributesColumn, where, radiusColumn);
 
                 bytes = TileWriter.ToTile(geometries, translation, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
                 if (bytes != null) {

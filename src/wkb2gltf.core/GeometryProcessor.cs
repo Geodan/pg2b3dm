@@ -8,11 +8,36 @@ namespace Wkb2Gltf;
 
 public static class GeometryProcessor
 {
-    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation, ShaderColors shadercolors = null)
+    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation, ShaderColors shadercolors = null, float? radius = null)
     {
-        if (geometry is not Polygon && geometry is not MultiPolygon && geometry is not PolyhedralSurface) {
+        if (geometry is not Polygon && geometry is not MultiPolygon && geometry is not PolyhedralSurface && geometry is not LineString) {
             throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
         }
+
+        var r = radius.HasValue? radius.Value : (float)1.0f;
+
+        List<Polygon> geometries; 
+        if (geometry is LineString) {
+            geometries = GetTrianglesFromLines((LineString)geometry, translation, r);
+        }
+        else {
+            geometries = GetTrianglesFromPolygons(geometry, translation);
+        }
+
+        var result = GetTriangles(batchId, shadercolors, geometries);
+
+        return result;
+    }
+
+
+    private static List<Polygon> GetTrianglesFromLines(LineString line, double[] translation, float radius, int? tabularSegments = 64, int? radialSegments = 8)
+    {
+        var relativeLine = GetRelativeLine(line, translation);
+        var triangles = Triangulator.Triangulate(relativeLine, radius, tabularSegments, radialSegments);
+        return triangles.Geometries;
+    }
+    private static List<Polygon> GetTrianglesFromPolygons(Geometry geometry, double[] translation)
+    {
         var geometries = GetGeometries(geometry);
 
         var isTriangulated = IsTriangulated(geometries);
@@ -28,13 +53,12 @@ public static class GeometryProcessor
             geometries = m1.Geometries;
         }
 
-
-        return GetTriangles(batchId, shadercolors, geometries);
-
+        return geometries;
     }
 
     private static List<Polygon> GetGeometries(Geometry geometry)
     {
+        var wkt = geometry.AsText();
         // return the Geometries properties of the geometry, for polygon, multipolygon and polyhedral surface
         if (geometry is Polygon) {
             return new List<Polygon>() { (Polygon)geometry };
@@ -48,6 +72,16 @@ public static class GeometryProcessor
         else {
             throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
         }
+    }
+
+    private static LineString GetRelativeLine(LineString line, double[] translation)
+    {
+        var result = new LineString();
+        foreach(var pnt in line.Points) {
+            var relativePoint = ToRelativePoint(pnt, translation);
+            result.Points.Add(relativePoint);
+        }
+        return result;
     }
 
     private static List<Polygon> GetRelativePolygons(List<Polygon> geometries, double[] translation)
