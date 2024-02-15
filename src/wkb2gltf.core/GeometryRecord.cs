@@ -18,11 +18,14 @@ public class GeometryRecord
 
     public ShaderColors Shader { get; set; }
 
+    public float? Radius { get; set; }
+
     public List<Triangle> GetTriangles(double[] translation)
     {
-        var triangles = GeometryProcessor.GetTriangles(Geometry, BatchId, translation, Shader);
+        var triangles = GeometryProcessor.GetTriangles(Geometry, BatchId, translation, Shader, Radius);
 
         return triangles;
     }
+
 
 }
