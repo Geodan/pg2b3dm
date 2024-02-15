@@ -358,8 +358,8 @@ public class GlbCreatorTests
         var g = Geometry.Deserialize<WktSerializer>(pipelineWkt);
         var translation = new double[] { 3889587.5, 333387.5625, 5026956 };
         var triangles = GeometryProcessor.GetTriangles(g, 100, translation);
+        Assert.That(triangles.Count, Is.EqualTo(1024));
     }
-
 
     [Test]
     public static void CreateGlbForSimpleBuilding()
