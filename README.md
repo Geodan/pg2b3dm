@@ -22,7 +22,7 @@ Features:
 
 - Cesium: LOD support and Outlines support (using CESIUM_primitive_outline);
 
-- Triangulation of input geometries Polygon/MultiPolygon/PolyhedralSurface with Z values;
+- Triangulation of input geometries LineStrings/Polygon/MultiPolygon/PolyhedralSurface with Z values;
 
 - Docker support.
 
@@ -224,6 +224,10 @@ used for the tube. The radius column must be of type 'real', sample for random r
 postgresql> alter table delaware_buildings add column radius real;
 postgresql> update delaware_buildings set radius = 0.5 + random() * (1.5 - 0.5);
 ```
+
+Sample with pipes (green = data, blue = water, purple = sewage, yellow = gas, red = electricity):
+
+![image](https://github.com/Geodan/pg2b3dm/assets/538812/20280276-02a2-41f1-8b3d-4a893eb82db3)
 
 ## Query parameter
 
@@ -443,16 +447,11 @@ Press F5 to start debugging.
 
 2024-02-15: release 2.5.0 
 
-- add support for single shaders per geometry
+- add support for single shaders per geometry https://github.com/Geodan/pg2b3dm/pull/147
 
-https://github.com/Geodan/pg2b3dm/pull/147
-
-- add lines support, added option --radiuscolumn 
-
-https://github.com/Geodan/pg2b3dm/pull/146
+- add lines support, added option --radiuscolumn https://github.com/Geodan/pg2b3dm/pull/146
  
 - update triangulator for higher precision normals calculation
-
 
 2024-02-08: release 2.4.0, add support for polygons with interior rings
 
