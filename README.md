@@ -443,6 +443,8 @@ Press F5 to start debugging.
 
 ## History
 
+2024-02-20: release 2.5.1, add support for multiline strings
+
 2024-02-15: release 2.5.0 
 
 - add support for single shaders per geometry https://github.com/Geodan/pg2b3dm/pull/147

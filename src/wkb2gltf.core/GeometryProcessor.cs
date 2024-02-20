@@ -9,15 +9,15 @@ public static class GeometryProcessor
 {
     public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation, ShaderColors shadercolors = null, float? radius = null)
     {
-        if (geometry is not Polygon && geometry is not MultiPolygon && geometry is not PolyhedralSurface && geometry is not LineString) {
+        if (geometry is not Polygon && geometry is not MultiPolygon && geometry is not PolyhedralSurface && geometry is not LineString && geometry is not MultiLineString) {
             throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
         }
 
-        var r = radius.HasValue? radius.Value : (float)1.0f;
+        var r = radius.HasValue ? radius.Value : (float)1.0f;
 
-        List<Polygon> geometries; 
-        if (geometry is LineString) {
-            geometries = GetTrianglesFromLines((LineString)geometry, translation, r);
+        List<Polygon> geometries;
+        if (geometry is LineString || geometry is MultiLineString) {
+            geometries = GetTrianglesFromLines(geometry, translation, r);
         }
         else {
             geometries = GetTrianglesFromPolygons(geometry, translation);
@@ -29,12 +29,15 @@ public static class GeometryProcessor
     }
 
 
-    private static List<Polygon> GetTrianglesFromLines(LineString line, double[] translation, float radius, int? tabularSegments = 64, int? radialSegments = 8)
+    private static List<Polygon> GetTrianglesFromLines(Geometry line, double[] translation, float radius, int? tabularSegments = 64, int? radialSegments = 8)
     {
-        var relativeLine = GetRelativeLine(line, translation);
+        var relativeLine = line is LineString ?
+            GetRelativeLine((LineString)line, translation) :
+            GetRelativeLine((MultiLineString)line, translation);
         var triangles = Triangulator.Triangulate(relativeLine, radius, tabularSegments, radialSegments);
         return triangles.Geometries;
     }
+
     private static List<Polygon> GetTrianglesFromPolygons(Geometry geometry, double[] translation)
     {
         var geometries = GetGeometries(geometry);
@@ -57,8 +60,6 @@ public static class GeometryProcessor
 
     private static List<Polygon> GetGeometries(Geometry geometry)
     {
-        var wkt = geometry.AsText();
-        // return the Geometries properties of the geometry, for polygon, multipolygon and polyhedral surface
         if (geometry is Polygon) {
             return new List<Polygon>() { (Polygon)geometry };
         }
@@ -73,10 +74,22 @@ public static class GeometryProcessor
         }
     }
 
+    private static LineString GetRelativeLine(MultiLineString multiline, double[] translation)
+    {
+        var result = new LineString();
+        foreach (var line in multiline.Geometries) {
+            var relativeLine = GetRelativeLine(line, translation);
+            foreach (var pnt in relativeLine.Points) {
+                result.Points.Add(pnt);
+            }
+        }
+        return result;
+    }
+
     private static LineString GetRelativeLine(LineString line, double[] translation)
     {
         var result = new LineString();
-        foreach(var pnt in line.Points) {
+        foreach (var pnt in line.Points) {
             var relativePoint = ToRelativePoint(pnt, translation);
             result.Points.Add(relativePoint);
         }
@@ -95,7 +108,7 @@ public static class GeometryProcessor
                 exteriorRing.Points.Add(relativePoint);
             }
 
-            foreach(var interiorRing in geometry.InteriorRings) {
+            foreach (var interiorRing in geometry.InteriorRings) {
                 var relativeInteriorRing = new LinearRing();
                 foreach (var point in interiorRing.Points) {
                     var relativePoint = ToRelativePoint(point, translation);
@@ -156,7 +169,7 @@ public static class GeometryProcessor
     {
         // var trans = SpatialConverter.GeodeticToEcef((double)pnt.X, (double)pnt.Y, (double)pnt.Z);
         // var res = new Point(translation[0] - trans.X, translation[1] - trans.Y, translation[2] - trans.Z );
-        var res = new Point((double)pnt.X - translation[0] , (double)pnt.Y - translation[1], pnt.Z - translation[2]);
+        var res = new Point((double)pnt.X - translation[0], (double)pnt.Y - translation[1], pnt.Z - translation[2]);
         return res;
     }
 
