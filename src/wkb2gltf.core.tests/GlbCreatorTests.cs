@@ -352,6 +352,20 @@ public class GlbCreatorTests
     }
 
     [Test]
+    public static void CreateGlbForMultiLineString()
+    {
+        var pipelineWkt = "MULTILINESTRING Z((3763315.799271699 286413.6056370016 5124311.671963081, 3763266.342667458 286473.67236574384 5124344.414418806, 3763210.3960400973 286548.5078986015 5124381.765858143, 3763152.978906794 286621.42283605755 5124419.449608338, 3763101.929717718 286694.671551758 5124452.616537503))";
+        var g = Geometry.Deserialize<WktSerializer>(pipelineWkt);
+        var translation = new double[] { 3889587.5, 333387.5625, 5026956 };
+        var triangles = GeometryProcessor.GetTriangles(g, 100, translation);
+        Assert.That(triangles.Count, Is.EqualTo(1024));
+
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "multilinestring.glb");
+        File.WriteAllBytes(fileName, bytes);
+    }
+
+    [Test]
     public static void CreateGlbForLineString()
     {
         var pipelineWkt = "LINESTRING Z (3889684.581681901 332934.74905057804 5026963.34752543,3889660.4475074895 333024.45069048833 5026975.961092257,3889653.556938037 333049.9679558418 5026979.669808809,3889653.7643391364 333050.8015457351 5026979.4833347425)";
