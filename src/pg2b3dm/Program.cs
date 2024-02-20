@@ -143,6 +143,7 @@ class Program
                 var use10 = !useImplicitTiling && !createGltf;
                 Console.WriteLine("3D Tiles version: " + (use10 ? "1.0" : "1.1"));
                 Console.WriteLine($"Lod column: {lodcolumn}");
+                Console.WriteLine($"Radius column: {o.RadiusColumn}");
                 Console.WriteLine($"Geometric errors: {String.Join(',', geometricErrors)}");
                 Console.WriteLine($"Refinement: {o.Refinement}");
 
