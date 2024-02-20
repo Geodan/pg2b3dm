@@ -16,8 +16,11 @@ public static class GeometryProcessor
         var r = radius.HasValue ? radius.Value : (float)1.0f;
 
         List<Polygon> geometries;
-        if (geometry is LineString || geometry is MultiLineString) {
-            geometries = GetTrianglesFromLines(geometry, translation, r);
+        if (geometry is LineString) {
+            geometries = GetTrianglesFromLines((LineString)geometry, translation, r);
+        }
+        else if(geometry is MultiLineString) {
+            geometries = GetTrianglesFromLines((MultiLineString)geometry, translation, r);
         }
         else {
             geometries = GetTrianglesFromPolygons(geometry, translation);
@@ -28,12 +31,16 @@ public static class GeometryProcessor
         return result;
     }
 
-
-    private static List<Polygon> GetTrianglesFromLines(Geometry line, double[] translation, float radius, int? tabularSegments = 64, int? radialSegments = 8)
+    private static List<Polygon> GetTrianglesFromLines(MultiLineString line, double[] translation, float radius, int? tabularSegments = 64, int? radialSegments = 8)
     {
-        var relativeLine = line is LineString ?
-            GetRelativeLine((LineString)line, translation) :
-            GetRelativeLine((MultiLineString)line, translation);
+        var relativeLine = GetRelativeLine(line, translation);
+        var triangles = Triangulator.Triangulate(relativeLine, radius, tabularSegments, radialSegments);
+        return triangles.Geometries;
+    }
+
+    private static List<Polygon> GetTrianglesFromLines(LineString line, double[] translation, float radius, int? tabularSegments = 64, int? radialSegments = 8)
+    {
+        var relativeLine = GetRelativeLine(line, translation);
         var triangles = Triangulator.Triangulate(relativeLine, radius, tabularSegments, radialSegments);
         return triangles.Geometries;
     }
@@ -74,14 +81,12 @@ public static class GeometryProcessor
         }
     }
 
-    private static LineString GetRelativeLine(MultiLineString multiline, double[] translation)
+    private static MultiLineString GetRelativeLine(MultiLineString multiline, double[] translation)
     {
-        var result = new LineString();
+        var result = new MultiLineString();
         foreach (var line in multiline.Geometries) {
             var relativeLine = GetRelativeLine(line, translation);
-            foreach (var pnt in relativeLine.Points) {
-                result.Points.Add(pnt);
-            }
+            result.Geometries.Add(relativeLine);
         }
         return result;
     }
