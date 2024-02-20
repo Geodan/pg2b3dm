@@ -204,7 +204,7 @@ For styling see [styling 3D Tiles](styling.md)
 
 ## Geometries
 
-Input geometries must be of type LineString/Polygon/MultiPolygon/PolyhedralSurface (with z values). When the geometry is not triangulated, pg2b3dm will perform
+Input geometries must be of type LineString/MultilineString/Polygon/MultiPolygon/PolyhedralSurface (with z values). When the geometry is not triangulated, pg2b3dm will perform
 triangulation. Geometries with interior rings are supported.
 
 For large datasets create a spatial index on the geometry column:
