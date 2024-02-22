@@ -20,7 +20,7 @@ public static class BoundingBoxRepository
         var reader = cmd.ExecuteReader();
         reader.Read();
         // increase the boundingbox a little to avoid missing geometries at the edges
-        var delta = 0.000001;
+        var delta = 0.0001;
         var xmin = reader.GetDouble(0)-delta;
         var ymin = reader.GetDouble(1)-delta;
         var xmax = reader.GetDouble(2)+delta;

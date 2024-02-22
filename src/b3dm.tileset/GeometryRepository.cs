@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 using Npgsql;
-using subtree;
 using Wkb2Gltf;
 using Wkx;
 
@@ -13,36 +12,15 @@ namespace B3dm.Tileset;
 
 public static class GeometryRepository
 {
-    public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, int epsg, Tile t, string query = "")
-    {
-        var sqlSelect = $"select st_Asbinary(st_extent(st_transform({geometry_column}, 4326))) ";
-        var b = GetTileBoundingBox(t.BoundingBox);
-        var sqlWhere = GetWhere(geometry_column, epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
-        var sql = $"{sqlSelect} from {geometry_table} {sqlWhere}";
-
-        conn.Open();
-        var cmd = new NpgsqlCommand(sql, conn);
-        var reader = cmd.ExecuteReader();
-        reader.Read();
-        var stream = reader.GetStream(0);
-        var polygon = (Polygon)Geometry.Deserialize<WkbSerializer>(stream);
-        var points = polygon.ExteriorRing.Points;
-        var result = new double[] { (double)points[0].X, (double)points[0].Y, (double)points[2].X, (double)points[2].Y };
-
-        reader.Close();
-        conn.Close();
-
-        return result;
-    }
-
     public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "")
     {
-        var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn);
+        var b = GetTileBoundingBox(bbox);
+        var bbox1 = GetBbox(source_epsg, b.xmin, b.ymin, b.xmax, b.ymax);
+
+        var sqlselect = GetSqlSelect(geometry_column, bbox1, shaderColumn, attributesColumns, radiusColumn);
         var sqlFrom = "FROM " + geometry_table;
 
-        var b = GetTileBoundingBox(bbox);
-
-        var sqlWhere = GetWhere(geometry_column, source_epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
+        var sqlWhere = GetWhere(geometry_column, bbox1, query);
 
         var sql = sqlselect + sqlFrom + sqlWhere;
 
@@ -59,17 +37,22 @@ public static class GeometryRepository
         return(xmin, ymin, xmax, ymax);
     }
 
-    public static string GetWhere(string geometry_column, int source_epsg, string xmin, string ymin, string xmax, string ymax, string query = "")
+    public static string GetWhere(string geometry_column, string bbox, string query = "")
     {
         return $" WHERE  ST_Intersects(" +
-            $"ST_Centroid(ST_Envelope({geometry_column})), " +
-            $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326), {source_epsg}) " +
+            $"ST_Envelope({geometry_column}), " +
+            bbox +
             $") {query}";
     }
 
-    public static string GetSqlSelect(string geometry_column, string shaderColumn, string attributesColumns, string radiusColumn)
+    private static string GetBbox(int source_epsg, string xmin, string ymin, string xmax, string ymax)
     {
-        var g = GetGeometryColumn(geometry_column);
+        return $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326), {source_epsg}) ";
+    }
+
+    public static string GetSqlSelect(string geometry_column, string bbox, string shaderColumn, string attributesColumns, string radiusColumn)
+    {
+        var g = GetGeometryColumn(geometry_column, bbox);
         var sqlselect = $"SELECT ST_AsBinary({g})";
         if (shaderColumn != String.Empty) {
             sqlselect = $"{sqlselect}, {shaderColumn} ";
@@ -84,9 +67,9 @@ public static class GeometryRepository
         return sqlselect;
     }
 
-    public static string GetGeometryColumn(string geometry_column)
+    public static string GetGeometryColumn(string geometry_column, string bbox)
     {
-        return $"st_transform({geometry_column}, 4978)";
+        return $"st_transform(st_intersection({geometry_column},{bbox}), 4978)";
     }
 
     public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql, string radiusColumn)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Triangulate;
 using Wkx;
 
@@ -9,6 +10,11 @@ public static class GeometryProcessor
 {
     public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation, ShaderColors shadercolors = null, float? radius = null)
     {
+        // temporary hack for geometry collection
+        if(geometry is GeometryCollection) {
+            Debug.WriteLine("GeometryCollection not supported");
+            return new List<Triangle>();
+        }
         if (geometry is not Polygon && geometry is not MultiPolygon && geometry is not PolyhedralSurface && geometry is not LineString && geometry is not MultiLineString) {
             throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
         }
@@ -19,7 +25,7 @@ public static class GeometryProcessor
         if (geometry is LineString) {
             geometries = GetTrianglesFromLines((LineString)geometry, translation, r);
         }
-        else if(geometry is MultiLineString) {
+        else if (geometry is MultiLineString) {
             geometries = GetTrianglesFromLines((MultiLineString)geometry, translation, r);
         }
         else {
