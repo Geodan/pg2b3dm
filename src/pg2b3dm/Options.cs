@@ -2,6 +2,7 @@ using CommandLine;
 
 namespace pg2b3dm;
 
+
 public class Options
 {
     [Option('U', "username", Required = false, HelpText = "Database user")]
@@ -42,6 +43,9 @@ public class Options
     [Option("radiuscolumn", Required = false, Default = "", HelpText = "Radius column")]
     public string RadiusColumn { get; set; }
 
+    [Option("appmode", Required = false, Default = AppMode.Cesium, HelpText = "App mode (Mapbox or Cesium)")]
+    public AppMode AppMode { get; set; }
+
     // cesium specific options
     [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile (Cesium)", SetName = "Cesium")]
     public int MaxFeaturesPerTile { get; set; }
@@ -70,4 +74,5 @@ public class Options
     
     [Option("max_zoom", Required = false, Default = 15, HelpText = "Maximum zoom level (Mapbox) ", SetName = "Mapbox")]
     public int MaxZoom { get; set; }
+
 }

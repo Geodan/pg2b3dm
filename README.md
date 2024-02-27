@@ -148,6 +148,8 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --radiuscolumn                  (Default: '') Column with radius values for lines
 
+  --appmode					      (Default: Cesium) Application mode (Cesium/Mapbox)
+
   --max_features_per_tile         (Default: 1000) maximum features per tile (Cesium)
 
   -l, --lodcolumn                 (Default: '') LOD column (Cesium)
