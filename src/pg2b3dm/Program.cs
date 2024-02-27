@@ -19,7 +19,6 @@ class Program
 {
     static string password = string.Empty;
     static bool skipCreateTiles = false; // could be useful for debugging purposes
-    private static AppMode appMode;
     static void Main(string[] args)
     {
         var version = Assembly.GetEntryAssembly().GetName().Version;
@@ -74,7 +73,7 @@ class Program
                 Console.WriteLine("----------------------------------------------------------------------------");
             }
 
-            appMode = AppMode.Cesium;
+            Console.WriteLine("App mode: " + o.AppMode);
             Console.WriteLine($"Spatial reference of {table}.{geometryColumn}: {source_epsg}");
 
             // Check spatialIndex
@@ -121,7 +120,7 @@ class Program
             Console.WriteLine($"Center (wgs84): {center_wgs84.X}, {center_wgs84.Y}");
 
             // cesium specific
-            if (appMode == AppMode.Cesium) {
+            if (o.AppMode == AppMode.Cesium) {
                 Tiles3DExtensions.RegisterExtensions();
 
                 Console.WriteLine("Starting Cesium mode...");
@@ -228,7 +227,7 @@ class Program
                 // mapbox specific code
 
                 Console.WriteLine("Starting Experimental MapBox v3 mode...");
-                Console.WriteLine("Mapbox mode v3 is not available in this version, progrma will exit...");
+                Console.WriteLine("Mapbox mode v3 is not available in this version, program will exit...");
                 Environment.Exit(0);
 
                 var min_zoom = o.MinZoom;
