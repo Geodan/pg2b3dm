@@ -16,7 +16,7 @@ namespace Wkb2Gltf;
 
 public static class GlbCreator
 {
-    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true, Dictionary<string, List<object>> attributes = null, bool createGltf = false, bool doubleSided = false)
+    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true, Dictionary<string, List<object>> attributes = null, bool createGltf = false, bool doubleSided = false, bool YAxisUp = true)
     {
         var materialCache = new MaterialsCache();
         var shader = new Shader();
@@ -56,17 +56,18 @@ public static class GlbCreator
         model.Asset.Copyright = copyright;
         model.Asset.Generator = $"pg2b3dm {Assembly.GetEntryAssembly().GetName().Version}";
 
-        var localTransform = new Matrix4x4(
-1, 0, 0, 0,
-0, 0, -1, 0,
-0, 1, 0, 0,
-0, 0, 0, 1);
         // When there are no triangles, the model is empty, return null
         if (model.LogicalNodes.Count == 0) {
             return null;
         }
-
-        model.LogicalNodes.First().LocalTransform = new SharpGLTF.Transforms.AffineTransform(localTransform);
+        if(YAxisUp) {
+            var localTransform = new Matrix4x4(
+                1, 0, 0, 0,
+                0, 0, -1, 0,
+                0, 1, 0, 0,
+                0, 0, 0, 1);
+            model.LogicalNodes.First().LocalTransform = new SharpGLTF.Transforms.AffineTransform(localTransform);
+        }
 
         if (addOutlines) {
             foreach (var primitive in model.LogicalMeshes[0].Primitives) {

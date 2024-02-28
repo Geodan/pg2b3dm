@@ -7,7 +7,7 @@ namespace Wkb2Gltf;
 
 public static class GeometryProcessor
 {
-    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation, ShaderColors shadercolors = null, float? radius = null)
+    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation, double[] scale, ShaderColors shadercolors = null, float? radius = null)
     {
         if (geometry is not Polygon && geometry is not MultiPolygon && geometry is not PolyhedralSurface && geometry is not LineString && geometry is not MultiLineString) {
             throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
@@ -17,13 +17,13 @@ public static class GeometryProcessor
 
         List<Polygon> geometries;
         if (geometry is LineString) {
-            geometries = GetTrianglesFromLines((LineString)geometry, translation, r);
+            geometries = GetTrianglesFromLines((LineString)geometry, translation, scale, r);
         }
         else if(geometry is MultiLineString) {
-            geometries = GetTrianglesFromLines((MultiLineString)geometry, translation, r);
+            geometries = GetTrianglesFromLines((MultiLineString)geometry, translation, scale, r);
         }
         else {
-            geometries = GetTrianglesFromPolygons(geometry, translation);
+            geometries = GetTrianglesFromPolygons(geometry, translation, scale);
         }
 
         var result = GetTriangles(batchId, shadercolors, geometries);
@@ -31,27 +31,27 @@ public static class GeometryProcessor
         return result;
     }
 
-    private static List<Polygon> GetTrianglesFromLines(MultiLineString line, double[] translation, float radius, int? tabularSegments = 64, int? radialSegments = 8)
+    private static List<Polygon> GetTrianglesFromLines(MultiLineString line, double[] translation, double[] scale, float radius, int? tabularSegments = 64, int? radialSegments = 8)
     {
-        var relativeLine = GetRelativeLine(line, translation);
+        var relativeLine = GetRelativeLine(line, translation, scale);
         var triangles = Triangulator.Triangulate(relativeLine, radius, tabularSegments, radialSegments);
         return triangles.Geometries;
     }
 
-    private static List<Polygon> GetTrianglesFromLines(LineString line, double[] translation, float radius, int? tabularSegments = 64, int? radialSegments = 8)
+    private static List<Polygon> GetTrianglesFromLines(LineString line, double[] translation, double[] scale, float radius, int? tabularSegments = 64, int? radialSegments = 8)
     {
-        var relativeLine = GetRelativeLine(line, translation);
+        var relativeLine = GetRelativeLine(line, translation, scale);
         var triangles = Triangulator.Triangulate(relativeLine, radius, tabularSegments, radialSegments);
         return triangles.Geometries;
     }
 
-    private static List<Polygon> GetTrianglesFromPolygons(Geometry geometry, double[] translation)
+    private static List<Polygon> GetTrianglesFromPolygons(Geometry geometry, double[] translation, double[] scale)
     {
         var geometries = GetGeometries(geometry);
 
         var isTriangulated = IsTriangulated(geometries);
 
-        var relativePolygons = GetRelativePolygons(geometries, translation);
+        var relativePolygons = GetRelativePolygons(geometries, translation, scale);
         var m1 = new MultiPolygon(relativePolygons);
 
         if (!isTriangulated) {
@@ -81,27 +81,27 @@ public static class GeometryProcessor
         }
     }
 
-    private static MultiLineString GetRelativeLine(MultiLineString multiline, double[] translation)
+    private static MultiLineString GetRelativeLine(MultiLineString multiline, double[] translation, double[] scale)
     {
         var result = new MultiLineString();
         foreach (var line in multiline.Geometries) {
-            var relativeLine = GetRelativeLine(line, translation);
+            var relativeLine = GetRelativeLine(line, translation, scale);
             result.Geometries.Add(relativeLine);
         }
         return result;
     }
 
-    private static LineString GetRelativeLine(LineString line, double[] translation)
+    private static LineString GetRelativeLine(LineString line, double[] translation, double[] scale)
     {
         var result = new LineString();
         foreach (var pnt in line.Points) {
-            var relativePoint = ToRelativePoint(pnt, translation);
+            var relativePoint = ToRelativePoint(pnt, translation, scale);
             result.Points.Add(relativePoint);
         }
         return result;
     }
 
-    private static List<Polygon> GetRelativePolygons(List<Polygon> geometries, double[] translation)
+    private static List<Polygon> GetRelativePolygons(List<Polygon> geometries, double[] translation, double[] scale)
     {
         var relativePolygons = new List<Polygon>();
 
@@ -109,14 +109,14 @@ public static class GeometryProcessor
             var exteriorRing = new LinearRing();
             var interiorRings = new List<LinearRing>();
             foreach (var point in geometry.ExteriorRing.Points) {
-                var relativePoint = ToRelativePoint(point, translation);
+                var relativePoint = ToRelativePoint(point, translation, scale);
                 exteriorRing.Points.Add(relativePoint);
             }
 
             foreach (var interiorRing in geometry.InteriorRings) {
                 var relativeInteriorRing = new LinearRing();
                 foreach (var point in interiorRing.Points) {
-                    var relativePoint = ToRelativePoint(point, translation);
+                    var relativePoint = ToRelativePoint(point, translation, scale);
                     relativeInteriorRing.Points.Add(relativePoint);
                 }
                 interiorRings.Add(relativeInteriorRing);
@@ -170,22 +170,12 @@ public static class GeometryProcessor
         return triangle;
     }
 
-    private static Point ToRelativePoint(Point pnt, double[] translation)
+    private static Point ToRelativePoint(Point pnt, double[] translation, double[] scale)
     {
-        // var trans = SpatialConverter.GeodeticToEcef((double)pnt.X, (double)pnt.Y, (double)pnt.Z);
-        // var res = new Point(translation[0] - trans.X, translation[1] - trans.Y, translation[2] - trans.Z );
         var res = new Point((double)pnt.X - translation[0], (double)pnt.Y - translation[1], pnt.Z - translation[2]);
-        return res;
-    }
+        res = new Point((double)res.X * scale[0], (double)res.Y * scale[1], res.Z * scale[2]);
 
-    private static bool HasInteriorRings(List<Polygon> polygons)
-    {
-        foreach (var polygon in polygons) {
-            if (polygon.InteriorRings.Count > 0) {
-                return true;
-            }
-        }
-        return false;
+        return res;
     }
 
     private static bool IsTriangulated(List<Polygon> polygons)
@@ -197,5 +187,4 @@ public static class GeometryProcessor
         }
         return true;
     }
-
 }

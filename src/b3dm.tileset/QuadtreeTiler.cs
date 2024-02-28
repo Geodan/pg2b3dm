@@ -99,13 +99,15 @@ public class QuadtreeTiler
             Console.Write($"\rCreating tile: {file}  ");
             tile.ContentUri = file;
 
+            int target_srs = 4978;
+
             byte[] bytes = null;
 
             if (!skipCreateTiles) {
 
-                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, colorColumn, attributesColumn, where, radiusColumn);
-
-                bytes = TileWriter.ToTile(geometries, translation, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
+                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, target_srs, colorColumn, attributesColumn, where, radiusColumn);
+                var scale = new double[] { 1, 1, 1 };
+                bytes = TileWriter.ToTile(geometries, translation, scale, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
                 if (bytes != null) {
 
                     tile.Lod = lod;

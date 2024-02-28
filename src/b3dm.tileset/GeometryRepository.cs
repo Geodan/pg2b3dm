@@ -35,9 +35,9 @@ public static class GeometryRepository
         return result;
     }
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "")
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "")
     {
-        var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn);
+        var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn, target_srs);
         var sqlFrom = "FROM " + geometry_table;
 
         var b = GetTileBoundingBox(bbox);
@@ -67,9 +67,9 @@ public static class GeometryRepository
             $") {query}";
     }
 
-    public static string GetSqlSelect(string geometry_column, string shaderColumn, string attributesColumns, string radiusColumn)
+    public static string GetSqlSelect(string geometry_column, string shaderColumn, string attributesColumns, string radiusColumn, int target_srs)
     {
-        var g = GetGeometryColumn(geometry_column);
+        var g = GetGeometryColumn(geometry_column, target_srs);
         var sqlselect = $"SELECT ST_AsBinary({g})";
         if (shaderColumn != String.Empty) {
             sqlselect = $"{sqlselect}, {shaderColumn} ";
@@ -84,9 +84,9 @@ public static class GeometryRepository
         return sqlselect;
     }
 
-    public static string GetGeometryColumn(string geometry_column)
+    public static string GetGeometryColumn(string geometry_column, int target_srs)
     {
-        return $"st_transform({geometry_column}, 4978)";
+        return $"st_transform({geometry_column}, {target_srs})";
     }
 
     public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql, string radiusColumn)
