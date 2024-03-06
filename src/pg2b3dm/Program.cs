@@ -118,10 +118,10 @@ class Program
             }
             var center_wgs84 = bbox.GetCenter();
             Console.WriteLine($"Center (wgs84): {center_wgs84.X}, {center_wgs84.Y}");
+            Tiles3DExtensions.RegisterExtensions();
 
             // cesium specific
             if (o.AppMode == AppMode.Cesium) {
-                Tiles3DExtensions.RegisterExtensions();
 
                 Console.WriteLine("Starting Cesium mode...");
 
@@ -220,6 +220,8 @@ class Program
                         File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
                     }
                 }
+                Console.WriteLine();
+
                 // end cesium specific code
 
             }
@@ -227,45 +229,56 @@ class Program
                 // mapbox specific code
 
                 Console.WriteLine("Starting Experimental MapBox v3 mode...");
-                Console.WriteLine("Mapbox mode v3 is not available in this version, program will exit...");
-                Environment.Exit(0);
 
-                var min_zoom = o.MinZoom;
-                var max_zoom = o.MaxZoom;
+                var zoom = o.Zoom;
 
-                if (min_zoom > max_zoom) {
-                    Console.WriteLine("Error: min zoom level is higher than max zoom level");
-                    Environment.Exit(0);
-                }
+                var target_srs = 3857;
+                var tiles = Tiles.Tools.Tilebelt.GetTilesOnLevel(new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax }, zoom);
 
-                for (var level = min_zoom; level <= max_zoom; level++) {
-                    var tiles = Tiles.Tools.Tilebelt.GetTilesOnLevel(new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax }, level);
+                Console.WriteLine($"Creating tiles for level {zoom}: {tiles.Count()}");
 
-                    Console.WriteLine($"Creating tiles for level {level}: {tiles.Count()}");
+                foreach (var t in tiles) {
+                    var bounds = t.Bounds();
 
-                    foreach (var t in tiles) {
-                        var bounds = t.Bounds();
+                    var query1 = (query != string.Empty ? $" and {query}" : String.Empty);
 
-                        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bounds[0], bounds[1]), new Point(bounds[2], bounds[3]), query);
+                    var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bounds[0], bounds[1]), new Point(bounds[2], bounds[3]), query1);
 
-                        if (numberOfFeatures > 0) {
-                            var center = t.Center();
-                            var centerTileTranslation = new Point(center[0], center[1], 0); ;
+                    if (numberOfFeatures > 0) {
+                        var ul = t.BoundsUL();
+                        var ur = t.BoundsUR();
+                        var ll = t.BoundsLL();
 
-                            var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, bounds, source_epsg, o.ShadersColumn, o.AttributeColumns, query);
-                            var bytes = TileWriter.ToTile(geometries, new double[] {0,0,0}, o.Copyright, false, defaultColor, defaultMetallicRoughness);
-                            File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.Z}-{t.X}-{t.Y}.b3dm", bytes);
-                            Console.Write(".");
-                        }
+                        var ul_spherical = SphericalMercator.ToSphericalMercatorFromWgs84(ul.X, ul.Y);
+                        var ur_spherical = SphericalMercator.ToSphericalMercatorFromWgs84(ur.X, ur.Y);
+                        var ll_spherical = SphericalMercator.ToSphericalMercatorFromWgs84(ll.X, ll.Y);
+                        var width = ur_spherical[0] - ul_spherical[0];
+                        var height = ul_spherical[1] - ll_spherical[1];
+
+                        var ext = createGltf ? "glb" : "b3dm";
+                        var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, bounds, source_epsg, target_srs, o.ShadersColumn, o.AttributeColumns, query1);
+
+                        // in Mapbox mode, every tile has 2^13 = 8192 values
+                        // see https://github.com/mapbox/mapbox-gl-js/blob/main/src/style-spec/data/extent.js
+                        var extent = 8192;
+                        double[] scale = { extent / width, -1 * extent / height, 1 };
+                        // in Mapbox mode
+                        //  - we use YAxisUp = false
+                        //  - all coordinates are relative to the upperleft coordinate
+                        //  - Outlines is set to false because outlines extension is not supported (yet) in Mapbox client
+                        var bytes = TileWriter.ToTile(geometries, new double[] { ul_spherical[0], ul_spherical[1], 0 }, scale, o.Copyright, false, defaultColor, defaultMetallicRoughness, createGltf: (bool)o.CreateGltf, YAxisUp: false);
+                        File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.Z}-{t.X}-{t.Y}.{ext}", bytes);
+                        Console.Write(".");
+
                     }
                 }
+                Console.WriteLine();
+                Console.WriteLine("Warning: Draco compress the resulting tiles. If not compressed, visualization in Mapbox will not be correct (v3.2.0)");
                 // end mapbox specific code
-
             }
 
             stopWatch.Stop();
 
-            Console.WriteLine();
             var timeSpan = stopWatch.Elapsed;
             Console.WriteLine("Time: {0}h {1}m {2}s {3}ms", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");

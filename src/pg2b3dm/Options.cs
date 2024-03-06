@@ -43,8 +43,11 @@ public class Options
     [Option("radiuscolumn", Required = false, Default = "", HelpText = "Radius column")]
     public string RadiusColumn { get; set; }
 
-    [Option("appmode", Required = false, Default = AppMode.Cesium, HelpText = "App mode (Mapbox or Cesium)")]
+    [Option('f', "format", Required = false, Default = AppMode.Cesium, HelpText = "Format (Mapbox or Cesium)")]
     public AppMode AppMode { get; set; }
+
+    [Option("shaderscolumn", Required = false, Default = "", HelpText = "shaders column")]
+    public string ShadersColumn { get; set; }
 
     // cesium specific options
     [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile (Cesium)", SetName = "Cesium")]
@@ -56,9 +59,6 @@ public class Options
     [Option('g', "geometricerrors", Required = false, Default = "2000,0", HelpText = "Geometric errors (Cesium)", SetName = "Cesium")]
     public string GeometricErrors { get; set; }
 
-    [Option("shaderscolumn", Required = false, Default = "", HelpText = "shaders column (Cesium)", SetName = "Cesium")]
-    public string ShadersColumn { get; set; }
-
     [Option("use_implicit_tiling", Required = false, Default = true, HelpText = "use 1.1 implicit tiling (Cesium)", SetName = "Cesium")]
     public bool? UseImplicitTiling { get; set; }
 
@@ -69,10 +69,7 @@ public class Options
     public string Refinement{ get; set; }
 
     // mapbox specific options
-    [Option("min_zoom", Required = false, Default = 15, HelpText = "Minimum zoom level (Mapbox)", SetName = "Mapbox")]
-    public int MinZoom { get; set; }
-    
-    [Option("max_zoom", Required = false, Default = 15, HelpText = "Maximum zoom level (Mapbox) ", SetName = "Mapbox")]
-    public int MaxZoom { get; set; }
-
+    [Option("zoom", Required = false, Default = 15, HelpText = "Zoom level (Mapbox)", SetName = "Mapbox")]
+    public int Zoom { get; set; }
+ 
 }

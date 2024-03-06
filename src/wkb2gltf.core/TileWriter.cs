@@ -5,12 +5,12 @@ namespace pg2b3dm;
 
 public static class TileWriter
 {
-    public static byte[] ToTile(List<GeometryRecord> geometries, double[] translation, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, bool createGltf = false)
+    public static byte[] ToTile(List<GeometryRecord> geometries, double[] translation = null, double[] scale = null, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, bool createGltf = false, bool YAxisUp = true)
     {
-        var triangles = GetTriangles(geometries, translation);
+        var triangles = GetTriangles(geometries, translation, scale);
         var attributes = GetAttributes(geometries);
 
-        var bytes = TileCreator.GetTile(attributes, triangles, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
+        var bytes = TileCreator.GetTile(attributes, triangles, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf, YAxisUp);
 
         return bytes;
     }
@@ -32,13 +32,13 @@ public static class TileWriter
         return res;
     }
 
-    private static List<List<Triangle>> GetTriangles(List<GeometryRecord> geomrecords, double[] translation)
+    private static List<List<Triangle>> GetTriangles(List<GeometryRecord> geomrecords, double[] translation, double[] scale)
     {
         var triangles = new List<List<Triangle>>();
         foreach (var g in geomrecords) {
             var geomTriangles = new List<Triangle>() { };
 
-            geomTriangles.AddRange(g.GetTriangles(translation));
+            geomTriangles.AddRange(g.GetTriangles(translation, scale));
             triangles.Add(geomTriangles);
         }
 

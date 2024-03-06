@@ -1,10 +1,10 @@
 # pg2b3dm
  
  ![Build status](https://github.com/Geodan/pg2b3dm/actions/workflows/main.yml/badge.svg)[![Nuget](https://img.shields.io/nuget/vpre/pg2b3dm)](https://www.nuget.org/packages/pg2b3dm)
- [![NuGet](https://img.shields.io/nuget/dt/pg2b3dm.svg)][![Join the chat at https://discord.gg/gGCka4Nd](https://img.shields.io/discord/1013017110814932993?color=%237289DA&label=pg2b3dm&logo=discord&logoColor=white)](https://discord.gg/uSKvUwPgmG)
+ [NuGet](https://img.shields.io/nuget/dt/pg2b3dm.svg)[![Join the chat at https://discord.gg/gGCka4Nd](https://img.shields.io/discord/1013017110814932993?color=%237289DA&label=pg2b3dm&logo=discord&logoColor=white)](https://discord.gg/uSKvUwPgmG)
 
  Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles). The generated 
- 3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D, Cesium for Omniverse, Mapbox GL JS v3 beta (experimental) or other 3D Tiles client viewers.
+ 3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D, Cesium for Omniverse, QGIS, ArcGIS Pro, Mapbox GL JS v3 (experimental) or other 3D Tiles client viewers.
 
 ![image](https://user-images.githubusercontent.com/538812/227500590-bebe59b6-5697-462d-9ebd-b40fe9a2dc2b.png)
 
@@ -148,7 +148,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --radiuscolumn                  (Default: '') Column with radius values for lines
 
-  --appmode					      (Default: Cesium) Application mode (Cesium/Mapbox)
+  --format					      (Default: Cesium) Application mode (Cesium/Mapbox)
 
   --max_features_per_tile         (Default: 1000) maximum features per tile (Cesium)
 
@@ -164,9 +164,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -r, --refinement                (Default: REPLACE) Refinement ADD/REPLACE (Cesium)
 
-  --min_zoom                      (Default: 15) Minimum zoom level (Mapbox)
-
-  --max_zoom                      (Default: 15) Maximum zoom level (Mapbox)
+  --zoom                          (Default: 15) Zoom level (Mapbox)
 
   --help                          Display this help screen.
 
@@ -313,7 +311,40 @@ For Cesium support (tiling schema, LODS, outlines) see [Cesium notes](cesium_not
 
 ## Mapbox support
 
-MapBox GL JS v3 beta (experimental) support is not yet available in this version.
+MapBox GL JS v3 (experimental) support is available in this version.
+
+Use parameter "-f Mapbox" to create tiles for Mapbox.
+
+Tiles are written in format {z}-{x}-{y}.b3dm or {z}-{x}-{y}.glb in the content directory.
+
+The tiles should be Draco compressed, for example use gltf-pipeline (https://github.com/CesiumGS/gltf-pipeline)
+
+To load the tiles in Mapbox GL JS v3 (v3.2.0) use the following code:
+
+```
+ap.on('style.load', () => {
+
+map.addSource('bag-3d', {
+        "type": "batched-model",
+        "maxzoom": 15,
+        "minzoom": 15,
+        "tiles": [
+          "{url_to_tiles}/content/{z}-{x}-{y}.glb"
+        ]
+      }
+)});
+
+// add the custom style layer to the map
+map.on('style.load', () => {
+  map.addLayer({
+    id: 'bag-layer',
+    type: 'model',
+    source: 'bag-3d',          
+  });
+});
+
+
+```
 
 For previous Mapbox support notes see [Mapbox notes](mapbox_notes.md) 
 
@@ -444,6 +475,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2024-03-06: release 2.6.0, add support for Mapbox v3 (experimental), added parameter --format (default Cesium) Cesium/Mapbox
 
 2024-02-20: release 2.5.1, add support for multiline strings
 

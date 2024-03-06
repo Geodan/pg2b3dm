@@ -17,7 +17,7 @@ public class GeometryRecordTests
         geometryRecord.Geometry = multipolygon;
 
         // act
-        var triangles = geometryRecord.GetTriangles(new double[] {0,0,0});
+        var triangles = geometryRecord.GetTriangles();
 
         // assert
         Assert.That(g != null, Is.True);
