@@ -256,13 +256,21 @@ class Program
                         var ext = createGltf ? "glb" : "b3dm";
                         var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, bounds, source_epsg, target_srs, o.ShadersColumn, o.AttributeColumns, query1);
 
-                        var pixels = 8192;
-                        double[] scale = { pixels / width, -1 * pixels / height, 1 };
+                        // in Mapbox mode, every tile has 2^13 = 8192 values
+                        // see https://github.com/mapbox/mapbox-gl-js/blob/main/src/style-spec/data/extent.js
+                        var extent = 8192;
+                        double[] scale = { extent / width, -1 * extent / height, 1 };
+                        // in Mapbox mode
+                        //  - we use YAxisUp = false
+                        //  - all coordinates are relative to the upperleft coordinate
+                        //  - Outlines is set to false because outlines extension is not supported (yet) in Mapbox client
                         var bytes = TileWriter.ToTile(geometries, new double[] { ul_spherical[0], ul_spherical[1], 0 }, scale, o.Copyright, false, defaultColor, defaultMetallicRoughness, createGltf: (bool)o.CreateGltf, YAxisUp: false);
                         File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.Z}-{t.X}-{t.Y}.{ext}", bytes);
                         Console.Write(".");
+
                     }
                 }
+                Console.WriteLine("Warning: As a next step, Draco compress the resulting tiles. If not compressed, visualization in Mapbox will not be correct (v3.2.0)");
                 // end mapbox specific code
             }
 

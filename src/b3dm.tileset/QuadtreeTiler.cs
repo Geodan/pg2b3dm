@@ -106,8 +106,8 @@ public class QuadtreeTiler
             if (!skipCreateTiles) {
 
                 var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, target_srs, colorColumn, attributesColumn, where, radiusColumn);
-                var scale = new double[] { 1, 1, 1 };
-                bytes = TileWriter.ToTile(geometries, translation, scale, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
+                // var scale = new double[] { 1, 1, 1 };
+                bytes = TileWriter.ToTile(geometries, translation, copyright: copyright, addOutlines: addOutlines, defaultColor: defaultColor, defaultMetallicRoughness: defaultMetallicRoughness, doubleSided: doubleSided, createGltf: createGltf);
                 if (bytes != null) {
 
                     tile.Lod = lod;
