@@ -319,7 +319,7 @@ Tiles are written in format {z}-{x}-{y}.b3dm or {z}-{x}-{y}.glb in the content d
 
 The tiles should be Draco compressed, for example use gltf-pipeline (https://github.com/CesiumGS/gltf-pipeline)
 
-To load the tiles in Mapbox GL JS v3 (v3.1.2) use the following code:
+To load the tiles in Mapbox GL JS v3 (v3.2.0) use the following code:
 
 ```
 ap.on('style.load', () => {
@@ -475,6 +475,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2024-03-06: release 2.6.0, add support for Mapbox v3 (experimental), added parameter --format (default Cesium) Cesium/Mapbox
 
 2024-02-20: release 2.5.1, add support for multiline strings
 
