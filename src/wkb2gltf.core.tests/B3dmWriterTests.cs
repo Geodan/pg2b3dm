@@ -31,7 +31,7 @@ public class B3dmWriterTests
         var trans = new double[] { translation.X, translation.Y, translation.Z };
 
         // act
-        var b3dmBytes = TileWriter.ToTile(new List<GeometryRecord> { geometryRecord }, trans, new double[] { 1, 1, 1 }, addOutlines: true);
+        var b3dmBytes = TileWriter.ToTile(new List<GeometryRecord> { geometryRecord }, trans, addOutlines: true);
 
         // assert
         Assert.That(b3dmBytes != null, Is.True);

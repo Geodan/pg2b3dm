@@ -5,7 +5,7 @@ namespace pg2b3dm;
 
 public static class TileWriter
 {
-    public static byte[] ToTile(List<GeometryRecord> geometries, double[] translation, double[] scale, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, bool createGltf = false, bool YAxisUp = true)
+    public static byte[] ToTile(List<GeometryRecord> geometries, double[] translation = null, double[] scale = null, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, bool createGltf = false, bool YAxisUp = true)
     {
         var triangles = GetTriangles(geometries, translation, scale);
         var attributes = GetAttributes(geometries);
