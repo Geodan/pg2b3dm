@@ -220,6 +220,8 @@ class Program
                         File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
                     }
                 }
+                Console.WriteLine();
+
                 // end cesium specific code
 
             }
@@ -270,13 +272,13 @@ class Program
 
                     }
                 }
-                Console.WriteLine("Warning: As a next step, Draco compress the resulting tiles. If not compressed, visualization in Mapbox will not be correct (v3.2.0)");
+                Console.WriteLine();
+                Console.WriteLine("Warning: Draco compress the resulting tiles. If not compressed, visualization in Mapbox will not be correct (v3.2.0)");
                 // end mapbox specific code
             }
 
             stopWatch.Stop();
 
-            Console.WriteLine();
             var timeSpan = stopWatch.Elapsed;
             Console.WriteLine("Time: {0}h {1}m {2}s {3}ms", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");
