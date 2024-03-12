@@ -94,7 +94,7 @@ Note:
 
 - Add  --lodcolumn lods
 
-pg2b3dm -h localhost -U postgres -c geom -t werkhoven_lods -d postgres -a identificatie --lodcolumn lods --use_implicit_tiling false -g 2000,5,1,0
+$ pg2b3dm -h localhost -U postgres -c geom -t werkhoven_lods -d postgres -a identificatie --lodcolumn lods --use_implicit_tiling false -g 2000,5,1,0
 
 Tiles like 1_0_1_1.glb are created, last number is the lod level
 
