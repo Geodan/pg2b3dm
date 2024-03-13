@@ -41,9 +41,16 @@ public static class TreeSerializer
         var tileset = GetTilesetObject(version, geometricErrors[0], use10);
 
         var t = new double[] {   1.0, 0.0, 0.0, 0.0,
+                                     0.0,1.0, 0.0, 0.0,
+                                     0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0};
+
+        if (transform != null) {
+            t = new double[] {   1.0, 0.0, 0.0, 0.0,
                                  0.0,1.0, 0.0, 0.0,
                                  0.0, 0.0, 1.0, 0.0,
             transform[0], transform[1], transform[2], 1.0};
+        }
 
         var root = GetRoot(geometricErrors[0], t, region, refine);
         var children = GetChildren(tiles, geometricErrors.Skip(1).ToArray(), minheight, maxheight);

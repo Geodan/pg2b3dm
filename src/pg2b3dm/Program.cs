@@ -212,41 +212,52 @@ class Program
                         Console.WriteLine("SubdivisionScheme: QUADTREE");
                         Console.WriteLine($"Writing {file}...");
                         File.WriteAllText(file, json);
-
                     }
                     else {
-                        // create tileset.json
-                        var rootTilesetJson = TreeSerializer.GetTilesetObject(version, geometricErrors[0], use10);
-                        var tr = new double[] {   1.0, 0.0, 0.0, 0.0,
-                                 0.0,1.0, 0.0, 0.0,
-                                 0.0, 0.0, 1.0, 0.0,
-                                translation[0], translation[1], translation[2], 1.0};
+                        var splitLevel = (int)Math.Ceiling((tiles.Max((Tile s) => s.Z) + 1.0) / 2.0);
 
-                        var root = TreeSerializer.GetRoot(geometricErrors[0], tr, rootBoundingVolumeRegion, o.Refinement);
-                        root.children = new List<Child>();   
-                        rootTilesetJson.root = root;
+                        var rootTiles = TileSelector.Select(tiles, tile, 0, splitLevel);
+                        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricErrors, zmin, zmax, version, o.Refinement, use10);
 
-                        var splitLevel = (int)Math.Ceiling(((double)tiles.Max((Tile s) => s.Z) + 1.0) / 2.0);
+                        var maxlevel = tiles.Max((Tile s) => s.Z);
 
-                        // get unique z levels
-                        var zlevels = tiles.Select(t => t.Z).Distinct().ToList();
-                        foreach (var z in zlevels) {
-                            // get tiles for z level
-                            var tilesForZ = tiles.Where(t => t.Z == z && t.Available).ToList();
-                            if (tilesForZ.Count > 0) {
-                                if (z <= splitLevel) {
-                                    foreach (var t in tilesForZ) {
-                                        var child = TreeSerializer.GetChild(t, geometricErrors[0], zmin, zmax);
-                                        root.children.Add(child);
+                        if (maxlevel > splitLevel) {
+                            // now create the tileset.json files on splitLevel
+
+                            var width = Math.Pow(2, splitLevel);
+                            var height = Math.Pow(2, splitLevel);
+                            Console.WriteLine($"Writing tileset.json files...");
+
+                            for (var i = 0; i < width; i++) {
+                                for (var j = 0; j < height; j++) {
+                                    var splitLevelTile = new Tile(splitLevel, i, j);
+                                    var children = TileSelector.Select(tiles, splitLevelTile, splitLevel, maxlevel);
+                                    if (children.Count > 0) {
+                                        var childrenBoundingVolumeRegion = GetBoundingBox(children).ToRadians().ToRegion(zmin, zmax);
+
+                                        /// translation is the same as identiy matrix in case of child tileset
+                                        var tileset = TreeSerializer.ToTileset(children, null, childrenBoundingVolumeRegion, geometricErrors, zmin, zmax, version, o.Refinement, use10);
+                                        var detailedJson = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+                                        var filename = $"tileset_{splitLevel}_{i}_{j}.json";
+                                        Console.Write($"\rWriting {filename}...");
+
+                                        File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}{filename}", detailedJson);
+
+                                        // add the child tilesets to the root tileset
+                                        var child = new Child();
+                                        child.boundingVolume = new Boundingvolume() { region = childrenBoundingVolumeRegion };
+                                        child.refine = o.Refinement;
+                                        child.geometricError = geometricErrors[0];
+                                        child.content = new Content() { uri = filename };
+                                        rootTileset.root.children.Add(child);
                                     }
                                 }
                             }
                         }
-
-                        // create tileset json files on level splitlevel
-
-
-                        var rootJson = JsonConvert.SerializeObject(rootTilesetJson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+                        // write the root tileset
+                        Console.WriteLine();
+                        Console.WriteLine("Writing root tileset.json...");
+                        var rootJson = JsonConvert.SerializeObject(rootTileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
                         File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", rootJson);
                     }
                 }
@@ -313,5 +324,14 @@ class Program
             Console.WriteLine("Time: {0}h {1}m {2}s {3}ms", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");
         });
+    }
+
+    private static BoundingBox GetBoundingBox(List<Tile> children)
+    {
+        var minx = children.Min(t => t.BoundingBox[0]);
+        var maxx = children.Max(t => t.BoundingBox[2]);
+        var miny = children.Min(t => t.BoundingBox[1]);
+        var maxy = children.Max(t => t.BoundingBox[3]);
+        return new BoundingBox(minx, miny, maxx, maxy);
     }
 }
