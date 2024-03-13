@@ -52,7 +52,7 @@ public static class TreeSerializer
         return tileset;
     }
 
-    private static TileSet GetTilesetObject(Version version, double geometricError, bool use10 = false)
+    public static TileSet GetTilesetObject(Version version, double geometricError, bool use10 = false)
     {
         var version3DTiles = use10 ? "1.0" : "1.1"; 
         var tileset = new TileSet { asset = new Asset() { version = $"{version3DTiles}", generator = $"pg2b3dm {version}" } };
@@ -60,7 +60,7 @@ public static class TreeSerializer
         return tileset;
     }
 
-    private static Root GetRoot(double geometricError, double[] translation, double[] region, string refine="ADD")
+    public static Root GetRoot(double geometricError, double[] translation, double[] region, string refine="ADD")
     {
         var boundingVolume = new Boundingvolume {
             region = region

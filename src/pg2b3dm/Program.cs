@@ -215,9 +215,39 @@ class Program
 
                     }
                     else {
-                        var refine = o.Refinement;
-                        var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, zmin, zmax, version, refine, use10);
-                        File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
+                        // create tileset.json
+                        var rootTilesetJson = TreeSerializer.GetTilesetObject(version, geometricErrors[0], use10);
+                        var tr = new double[] {   1.0, 0.0, 0.0, 0.0,
+                                 0.0,1.0, 0.0, 0.0,
+                                 0.0, 0.0, 1.0, 0.0,
+                                translation[0], translation[1], translation[2], 1.0};
+
+                        var root = TreeSerializer.GetRoot(geometricErrors[0], tr, rootBoundingVolumeRegion, o.Refinement);
+                        root.children = new List<Child>();   
+                        rootTilesetJson.root = root;
+
+                        var splitLevel = (int)Math.Ceiling(((double)tiles.Max((Tile s) => s.Z) + 1.0) / 2.0);
+
+                        // get unique z levels
+                        var zlevels = tiles.Select(t => t.Z).Distinct().ToList();
+                        foreach (var z in zlevels) {
+                            // get tiles for z level
+                            var tilesForZ = tiles.Where(t => t.Z == z && t.Available).ToList();
+                            if (tilesForZ.Count > 0) {
+                                if (z <= splitLevel) {
+                                    foreach (var t in tilesForZ) {
+                                        var child = TreeSerializer.GetChild(t, geometricErrors[0], zmin, zmax);
+                                        root.children.Add(child);
+                                    }
+                                }
+                            }
+                        }
+
+                        // create tileset json files on level splitlevel
+
+
+                        var rootJson = JsonConvert.SerializeObject(rootTilesetJson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+                        File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", rootJson);
                     }
                 }
                 Console.WriteLine();
