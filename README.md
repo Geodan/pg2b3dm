@@ -26,11 +26,9 @@ Features:
 
 - Docker support.
 
-Resulting tilesets are validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
+Resulting tilesets can be validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
 
-To run this tool there must be a PostGIS table available containing polyhedralsurface/multipolygon geometries. 
-
-Tileset.json and b3dm tiles are by default created in the 'output/content' subdirectory (or specify output directory with   -o, --output).
+Tileset.json and glb/b3dm tiles are by default created in the 'output/content' subdirectory (or specify output directory with   -o, --output).
 
 ## Getting started
 
