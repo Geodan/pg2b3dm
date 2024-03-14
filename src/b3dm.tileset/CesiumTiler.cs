@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using B3dm.Tileset;
 using B3dm.Tileset.Extensions;
 using Newtonsoft.Json;
 using subtree;
 using Wkx;
 
-namespace pg2b3dm;
+namespace B3dm.Tileset;
 public static class CesiumTiler
 {
     public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double[] geometricErrors, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles)

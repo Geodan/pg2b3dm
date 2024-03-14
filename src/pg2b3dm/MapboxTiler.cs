@@ -12,17 +12,19 @@ public static class MapboxTiler
     {
         // mapbox specific code
 
-        Console.WriteLine("Starting Experimental MapBox v3 mode...");
+        Console.WriteLine("Starting Experimental Mapbox v3 mode...");
 
         var target_srs = 3857;
+        var extent = 8192;
+
         var tiles = Tiles.Tools.Tilebelt.GetTilesOnLevel(new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax }, zoom);
 
         Console.WriteLine($"Creating tiles for level {zoom}: {tiles.Count()}");
 
+        var query1 = (query != string.Empty ? $" and {query}" : String.Empty);
+
         foreach (var t in tiles) {
             var bounds = t.Bounds();
-
-            var query1 = (query != string.Empty ? $" and {query}" : String.Empty);
 
             var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bounds[0], bounds[1]), new Point(bounds[2], bounds[3]), query1);
 
@@ -42,7 +44,6 @@ public static class MapboxTiler
 
                 // in Mapbox mode, every tile has 2^13 = 8192 values
                 // see https://github.com/mapbox/mapbox-gl-js/blob/main/src/style-spec/data/extent.js
-                var extent = 8192;
                 double[] scale = { extent / width, -1 * extent / height, 1 };
                 // in Mapbox mode
                 //  - we use YAxisUp = false
@@ -51,7 +52,6 @@ public static class MapboxTiler
                 var bytes = TileWriter.ToTile(geometries, new double[] { ul_spherical[0], ul_spherical[1], 0 }, scale, copyright, false, defaultColor, defaultMetallicRoughness, createGltf: createGltf, YAxisUp: false);
                 File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.Z}-{t.X}-{t.Y}.{ext}", bytes);
                 Console.Write(".");
-
             }
         }
         Console.WriteLine();
