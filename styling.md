@@ -199,6 +199,11 @@ Example for styling buildings in a 3D Tileset based on attribute 'bouwjaar' in C
   );
 ```
 
+Example for showing a subset based on a query (show only buildings with bouwjaar > 1975):
+
+```
+buildings.style.show = "${feature['bouwjaar']} > 1975"
+```
 Remember to add attribute bouwjaar with '-a bouwjaar' when creating the 3D Tiles.
 
 For the specs of 3D Tiles Styling Language see https://github.com/CesiumGS/3d-tiles/tree/main/specification/Styling 
