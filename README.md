@@ -1,7 +1,7 @@
 # pg2b3dm
  
  ![Build status](https://github.com/Geodan/pg2b3dm/actions/workflows/main.yml/badge.svg)[![Nuget](https://img.shields.io/nuget/vpre/pg2b3dm)](https://www.nuget.org/packages/pg2b3dm)
- [NuGet](https://img.shields.io/nuget/dt/pg2b3dm.svg)[![Join the chat at https://discord.gg/gGCka4Nd](https://img.shields.io/discord/1013017110814932993?color=%237289DA&label=pg2b3dm&logo=discord&logoColor=white)](https://discord.gg/uSKvUwPgmG)
+[![NuGet](https://img.shields.io/nuget/dt/pg2b3dm.svg)][![Join the chat at https://discord.gg/gGCka4Nd](https://img.shields.io/discord/1013017110814932993?color=%237289DA&label=pg2b3dm&logo=discord&logoColor=white)](https://discord.gg/uSKvUwPgmG)
 
  Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles). The generated 
  3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D, Cesium for Omniverse, QGIS, ArcGIS Pro, Mapbox GL JS v3 (experimental) or other 3D Tiles client viewers.
@@ -26,11 +26,9 @@ Features:
 
 - Docker support.
 
-Resulting tilesets are validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
+Resulting tilesets can be validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
 
-To run this tool there must be a PostGIS table available containing polyhedralsurface/multipolygon geometries. 
-
-Tileset.json and b3dm tiles are by default created in the 'output/content' subdirectory (or specify output directory with   -o, --output).
+Tileset.json and glb/b3dm tiles are by default created in the 'output/content' subdirectory (or specify output directory with   -o, --output).
 
 ## Getting started
 
@@ -148,7 +146,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --radiuscolumn                  (Default: '') Column with radius values for lines
 
-  --format					      (Default: Cesium) Application mode (Cesium/Mapbox)
+  --format                        (Default: Cesium) Application mode (Cesium/Mapbox)
 
   --max_features_per_tile         (Default: 1000) maximum features per tile (Cesium)
 
@@ -477,6 +475,8 @@ Press F5 to start debugging.
 ## History
 
 2024-03-07: release 2.7.0, create more tileset.json files with explicit tiling
+
+2024-03-20: release 2.6.1, fix z of boundingvolumes
 
 2024-03-06: release 2.6.0, add support for Mapbox v3 (experimental), added parameter --format (default Cesium) Cesium/Mapbox
 

@@ -49,6 +49,57 @@ Demo 2 LODS https://bertt.github.io/cesium_3dtiles_samples/samples/lod_bag3d/
 
 ![bag_lods](https://github.com/Geodan/pg2b3dm/assets/538812/cc5bd11e-0302-4271-b39d-7065b98177ba)
 
+How to create Cesium viewer with multiple lods for Dutch Bag
+
+1] Download geopackage
+
+https://data.3dbag.nl/v20240228/tiles/7/512/560/7-512-560.gpkg
+
+2] Inspect
+
+Contains 
+
+lod12_3d
+lod13_3d
+lod22_3d
+
+3] Load in PostGIS
+
+
+$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4979 7-512-560.gpkg lod12_3d -nln werkhoven_lod12
+
+$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4979 7-512-560.gpkg lod13_3d -nln werkhoven_lod13
+
+$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4979 7-512-560.gpkg lod22_3d -nln werkhoven_lod22
+
+4] Combine the data in PostgreSQL
+
+```
+CREATE TABLE werkhoven_lods AS SELECT * FROM werkhoven_lod12 
+alter table werkhoven_lods add lods decimal
+update werkhoven_lods set lods=1
+
+insert into werkhoven_lods(fid, identificatie, b3_pand_deel_id, labels, geom, lods)
+select fid, identificatie, b3_pand_deel_id, labels, geom,  2 from werkhoven_lod13 
+
+insert into werkhoven_lods(fid, identificatie, b3_pand_deel_id, labels, geom, lods)
+select fid, identificatie, b3_pand_deel_id, labels, geom,  3 from werkhoven_lod22 
+```
+
+5] Tile the table
+
+Note: 
+
+- Use --use_implicit_tiling false
+
+- Add  --lodcolumn lods
+
+$ pg2b3dm -h localhost -U postgres -c geom -t werkhoven_lods -d postgres -a identificatie --lodcolumn lods --use_implicit_tiling false -g 2000,5,1,0
+
+Tiles like 1_0_1_1.glb are created, last number is the lod level
+
+6] View  https://bertt.github.io/cesium_3dtiles_samples/samples/lod_bag3d/
+
 Notes:
 
 - if there are no features within a tile boundingbox, the tile (including children) will not be generated. 
