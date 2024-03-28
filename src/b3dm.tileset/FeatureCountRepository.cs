@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using Npgsql;
 using Wkx;
 
@@ -14,7 +13,7 @@ public static class FeatureCountRepository
         var toX = to.X.Value.ToString(CultureInfo.InvariantCulture);
         var toY = to.Y.Value.ToString(CultureInfo.InvariantCulture);
 
-        var sql = $"select count({geometry_column}) from {geometry_table} where ST_Intersects(ST_Centroid(ST_Envelope(st_transform({geometry_column}, 4326))), ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 4326)) {query}";
+        var sql = $"select count({geometry_column}) from {geometry_table} where ST_Intersects(st_transform(ST_Centroid(ST_Envelope({geometry_column})),4326), ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 4326)) {query}";
         conn.Open();
         var cmd = new NpgsqlCommand(sql, conn);
         var reader = cmd.ExecuteReader();

@@ -474,6 +474,8 @@ Press F5 to start debugging.
 
 ## History
 
+2024-03-07: release 2.7.0, create more tileset.json files with explicit tiling
+
 2024-03-20: release 2.6.1, fix z of boundingvolumes
 
 2024-03-06: release 2.6.0, add support for Mapbox v3 (experimental), added parameter --format (default Cesium) Cesium/Mapbox

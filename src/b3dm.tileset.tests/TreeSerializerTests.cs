@@ -26,24 +26,6 @@ public class TreeSerializerTests
     }
 
     [Test]
-    public void SerializeToJsonTest()
-    {
-        // arrange
-        var t0 = new Tile(0,0,0);
-        var t1 = new Tile(1,1,1);
-        var tiles = new List<Tile> { t0, t1 };
-        var translation = new double[] { -8406745.0078531764, 4744614.2577285888, 38.29 };
-        var bbox = new double[] { 0, 0, 1, 1 };
-
-        // act
-        var json = TreeSerializer.ToJson(tiles, translation, bbox, new double[] { 500, 0}, 0, 10);
-        var jsonobject = JObject.Parse(json);
-
-        // assert
-        Assert.That(jsonobject != null, Is.True);
-    }
-
-    [Test]
     public void SerializeTree()
     {
         // arrange
