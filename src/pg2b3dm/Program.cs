@@ -208,7 +208,7 @@ class Program
             stopWatch.Stop();
 
             var timeSpan = stopWatch.Elapsed;
-            Console.WriteLine("Time: {0}h {1}m {2}s {3}ms", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
+            Console.WriteLine("Time: {0}h {1}m {2}s {3}ms", Math.Floor(timeSpan.TotalHours), timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");
         });
     }
