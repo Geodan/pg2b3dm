@@ -6,16 +6,14 @@ namespace B3dm.Tileset;
 
 public static class FeatureCountRepository
 {
-    public static int CountFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, string query, int source_epsg)
+    public static int CountFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, string query)
     {
         var fromX = from.X.Value.ToString(CultureInfo.InvariantCulture);
         var fromY = from.Y.Value.ToString(CultureInfo.InvariantCulture);
         var toX = to.X.Value.ToString(CultureInfo.InvariantCulture);
         var toY = to.Y.Value.ToString(CultureInfo.InvariantCulture);
 
-        // use && operator for faster count
-        var sql = $"select count({geometry_column}) from {geometry_table} where {geometry_column} && st_transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 4326), {source_epsg}) {query}";
-
+        var sql = $"select count({geometry_column}) from {geometry_table} where ST_Intersects(st_transform(ST_Centroid(ST_Envelope({geometry_column})),4326), ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 4326)) {query}";
         conn.Open();
         var cmd = new NpgsqlCommand(sql, conn);
         var reader = cmd.ExecuteReader();
@@ -25,4 +23,5 @@ public static class FeatureCountRepository
         conn.Close();
         return count;
     }
+
 }
