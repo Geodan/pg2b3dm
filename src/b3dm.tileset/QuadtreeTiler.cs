@@ -27,8 +27,9 @@ public class QuadtreeTiler
     private readonly string copyright;
     private readonly bool skipCreateTiles;
     private readonly string radiusColumn;
+    private readonly bool useImplicitTiling;
 
-    public QuadtreeTiler(NpgsqlConnection conn, string table, int source_epsg, string geometryColumn, int maxFeaturesPerTile, string query, double[] translation, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false, string radiusColumn = "")
+    public QuadtreeTiler(NpgsqlConnection conn, string table, int source_epsg, string geometryColumn, int maxFeaturesPerTile, string query, double[] translation, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false, string radiusColumn = "", bool useImplicitTiling = true)
     {
         this.table = table;
         this.conn = conn;
@@ -45,6 +46,7 @@ public class QuadtreeTiler
         this.copyright = copyright;
         this.skipCreateTiles = skipCreateTiles;
         this.radiusColumn = radiusColumn;
+        this.useImplicitTiling = useImplicitTiling;
     }
 
     public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod = 0, bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, bool createGltf = false)
@@ -57,7 +59,7 @@ public class QuadtreeTiler
             where += $" and {lodquery}";
         }
 
-        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bbox.XMin, bbox.YMin), new Point(bbox.XMax, bbox.YMax), where);
+        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bbox.XMin, bbox.YMin), new Point(bbox.XMax, bbox.YMax), where, source_epsg);
 
         if (numberOfFeatures == 0) {
             tile.Available = false;
@@ -129,8 +131,11 @@ public class QuadtreeTiler
                     }
 
                     // next code is used to fix geometries that have centroid in the tile, but some parts outside...
-                    var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, source_epsg, tile, where);
-                    tile.BoundingBox = bbox_geometries;
+                    // this is only used in explicit tiling for now, so we disable this for implicit tiling
+                    if (!useImplicitTiling) {
+                        var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, source_epsg, tile, where);
+                        tile.BoundingBox = bbox_geometries;
+                    }
                 }
             }
 

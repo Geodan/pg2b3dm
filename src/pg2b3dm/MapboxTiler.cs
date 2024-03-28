@@ -26,7 +26,7 @@ public static class MapboxTiler
         foreach (var t in tiles) {
             var bounds = t.Bounds();
 
-            var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bounds[0], bounds[1]), new Point(bounds[2], bounds[3]), query1);
+            var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bounds[0], bounds[1]), new Point(bounds[2], bounds[3]), query1, source_epsg);
 
             if (numberOfFeatures > 0) {
                 var ul = t.BoundsUL();
