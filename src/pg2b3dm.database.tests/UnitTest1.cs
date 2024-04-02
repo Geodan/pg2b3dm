@@ -95,6 +95,6 @@ public class UnitTest1
         bbox_wgs84.bbox,
         new Tile(0, 0, 0),
         new List<Tile>());
-        Assert.That(tiles.Count, Is.EqualTo(141));
+        Assert.That(tiles.Count, Is.EqualTo(145));
     }
 }
