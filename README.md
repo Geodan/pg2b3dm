@@ -480,7 +480,7 @@ Press F5 to start debugging.
 
 ## History
 
-2024-03-07: release 2.7.0, create more tileset.json files with explicit tiling
+2024-03-07: release 2.7.0, create more tileset.json files with explicit tiling + change spatial index check + performance improvement count features
 
 2024-03-20: release 2.6.1, fix z of boundingvolumes
 
