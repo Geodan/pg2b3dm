@@ -196,6 +196,12 @@ To run:
 $ pg2b3dm
 ```
 
+## Benchmarking
+
+| Source                   | Table    |  Size     | Features     | Time         | Tiles  | Tiles/Minute   |
+|--------------------------|----------|-----------|--------------|--------------|--------|----------------|
+| Dutch 3d BAG buildings   | lod12_3d | 12 GB     | 9.712.728    |   1h 54m 23s |  29098 | 255            |
+
 ## Styling
 
 For styling see [styling 3D Tiles](styling.md) 
@@ -473,6 +479,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2024-03-07: release 2.7.0, create more tileset.json files with explicit tiling + change spatial index check + performance improvement count features
 
 2024-03-20: release 2.6.1, fix z of boundingvolumes
 

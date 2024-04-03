@@ -41,9 +41,16 @@ public static class TreeSerializer
         var tileset = GetTilesetObject(version, geometricErrors[0], use10);
 
         var t = new double[] {   1.0, 0.0, 0.0, 0.0,
+                                     0.0,1.0, 0.0, 0.0,
+                                     0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0};
+
+        if (transform != null) {
+            t = new double[] {   1.0, 0.0, 0.0, 0.0,
                                  0.0,1.0, 0.0, 0.0,
                                  0.0, 0.0, 1.0, 0.0,
             transform[0], transform[1], transform[2], 1.0};
+        }
 
         var root = GetRoot(geometricErrors[0], t, region, refine);
         var children = GetChildren(tiles, geometricErrors.Skip(1).ToArray(), minheight, maxheight);
@@ -52,7 +59,7 @@ public static class TreeSerializer
         return tileset;
     }
 
-    private static TileSet GetTilesetObject(Version version, double geometricError, bool use10 = false)
+    public static TileSet GetTilesetObject(Version version, double geometricError, bool use10 = false)
     {
         var version3DTiles = use10 ? "1.0" : "1.1"; 
         var tileset = new TileSet { asset = new Asset() { version = $"{version3DTiles}", generator = $"pg2b3dm {version}" } };
@@ -60,7 +67,7 @@ public static class TreeSerializer
         return tileset;
     }
 
-    private static Root GetRoot(double geometricError, double[] translation, double[] region, string refine="ADD")
+    public static Root GetRoot(double geometricError, double[] translation, double[] region, string refine="ADD")
     {
         var boundingVolume = new Boundingvolume {
             region = region

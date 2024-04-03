@@ -7,10 +7,8 @@ using System.Reflection;
 using B3dm.Tileset;
 using CommandLine;
 using Npgsql;
-using Newtonsoft.Json;
 using subtree;
 using B3dm.Tileset.Extensions;
-using Wkx;
 using SharpGLTF.Schema2;
 
 namespace pg2b3dm;
@@ -59,6 +57,11 @@ class Program
             var defaultMetallicRoughness = o.DefaultMetallicRoughness;
             var doubleSided = (bool)o.DoubleSided;
             var createGltf = (bool)o.CreateGltf;
+            var outputDirectory = o.Output;
+            var zoom = o.Zoom;
+            var shadersColumn = o.ShadersColumn;
+            var attributeColumns = o.AttributeColumns;
+            var copyright = o.Copyright;
 
             var query = o.Query;
 
@@ -132,6 +135,7 @@ class Program
                 var addOutlines = (bool)o.AddOutlines;
                 var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse);
                 var useImplicitTiling = (bool)o.UseImplicitTiling;
+                var refinement = o.Refinement;
                 if (useImplicitTiling) {
                     if (!String.IsNullOrEmpty(lodcolumn)) {
                         Console.WriteLine("Warning: parameter -l --lodcolumn is ignored with implicit tiling");
@@ -144,7 +148,7 @@ class Program
                 Console.WriteLine($"Lod column: {lodcolumn}");
                 Console.WriteLine($"Radius column: {o.RadiusColumn}");
                 Console.WriteLine($"Geometric errors: {String.Join(',', geometricErrors)}");
-                Console.WriteLine($"Refinement: {o.Refinement}");
+                Console.WriteLine($"Refinement: {refinement}");
 
                 var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, table, lodcolumn, query) : new List<int> { 0 });
                 if ((geometricErrors.Length != lods.Count + 1) && lodcolumn == string.Empty) {
@@ -165,12 +169,6 @@ class Program
                     }
                 };
 
-                if (!useImplicitTiling) {
-                    Console.WriteLine("Geometric errors used: " + String.Join(',', geometricErrors));
-                }
-                else {
-                    Console.WriteLine("Geometric error used for implicit tiling: " + geometricErrors[0]);
-                }
                 Console.WriteLine($"Add outlines: {addOutlines}");
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
 
@@ -190,34 +188,12 @@ class Program
 
                 if (tiles.Count(tile => tile.Available) > 0) {
                     if (useImplicitTiling) {
-                        if (!Directory.Exists(subtreesDirectory)) {
-                            Directory.CreateDirectory(subtreesDirectory);
-                        }
-
-                        var subtreeFiles = SubtreeCreator.GenerateSubtreefiles(tiles);
-                        Console.WriteLine($"Writing {subtreeFiles.Count} subtree files...");
-                        foreach (var s in subtreeFiles) {
-                            var t = s.Key;
-                            var subtreefile = $"{subtreesDirectory}{Path.AltDirectorySeparatorChar}{t.Z}_{t.X}_{t.Y}.subtree";
-                            File.WriteAllBytes(subtreefile, s.Value);
-                        }
-
-                        var subtreeLevels = subtreeFiles.Count > 1 ? ((Tile)subtreeFiles.ElementAt(1).Key).Z : 2;
-                        var availableLevels = tiles.Max(t => t.Z) + 1;
-                        Console.WriteLine("Available Levels: " + availableLevels);
-                        Console.WriteLine("Subtree Levels: " + subtreeLevels);
-                        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricErrors[0], availableLevels, subtreeLevels, version, createGltf);
-                        var file = $"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json";
-                        var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-                        Console.WriteLine("SubdivisionScheme: QUADTREE");
-                        Console.WriteLine($"Writing {file}...");
-                        File.WriteAllText(file, json);
-
+                        Console.WriteLine("Geometric error used for implicit tiling: " + geometricErrors[0]);
+                        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, geometricErrors, rootBoundingVolumeRegion, subtreesDirectory, tiles);
                     }
                     else {
-                        var refine = o.Refinement;
-                        var json = TreeSerializer.ToJson(tiles, translation, rootBoundingVolumeRegion, geometricErrors, zmin, zmax, version, refine, use10);
-                        File.WriteAllText($"{o.Output}{Path.AltDirectorySeparatorChar}tileset.json", json);
+                        Console.WriteLine("Geometric errors used: " + String.Join(',', geometricErrors));
+                        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, zmin, zmax, translation, geometricErrors, refinement, use10, rootBoundingVolumeRegion, tile, tiles);
                     }
                 }
                 Console.WriteLine();
@@ -226,61 +202,13 @@ class Program
 
             }
             else {
-                // mapbox specific code
-
-                Console.WriteLine("Starting Experimental MapBox v3 mode...");
-
-                var zoom = o.Zoom;
-
-                var target_srs = 3857;
-                var tiles = Tiles.Tools.Tilebelt.GetTilesOnLevel(new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax }, zoom);
-
-                Console.WriteLine($"Creating tiles for level {zoom}: {tiles.Count()}");
-
-                foreach (var t in tiles) {
-                    var bounds = t.Bounds();
-
-                    var query1 = (query != string.Empty ? $" and {query}" : String.Empty);
-
-                    var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bounds[0], bounds[1]), new Point(bounds[2], bounds[3]), query1);
-
-                    if (numberOfFeatures > 0) {
-                        var ul = t.BoundsUL();
-                        var ur = t.BoundsUR();
-                        var ll = t.BoundsLL();
-
-                        var ul_spherical = SphericalMercator.ToSphericalMercatorFromWgs84(ul.X, ul.Y);
-                        var ur_spherical = SphericalMercator.ToSphericalMercatorFromWgs84(ur.X, ur.Y);
-                        var ll_spherical = SphericalMercator.ToSphericalMercatorFromWgs84(ll.X, ll.Y);
-                        var width = ur_spherical[0] - ul_spherical[0];
-                        var height = ul_spherical[1] - ll_spherical[1];
-
-                        var ext = createGltf ? "glb" : "b3dm";
-                        var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, bounds, source_epsg, target_srs, o.ShadersColumn, o.AttributeColumns, query1);
-
-                        // in Mapbox mode, every tile has 2^13 = 8192 values
-                        // see https://github.com/mapbox/mapbox-gl-js/blob/main/src/style-spec/data/extent.js
-                        var extent = 8192;
-                        double[] scale = { extent / width, -1 * extent / height, 1 };
-                        // in Mapbox mode
-                        //  - we use YAxisUp = false
-                        //  - all coordinates are relative to the upperleft coordinate
-                        //  - Outlines is set to false because outlines extension is not supported (yet) in Mapbox client
-                        var bytes = TileWriter.ToTile(geometries, new double[] { ul_spherical[0], ul_spherical[1], 0 }, scale, o.Copyright, false, defaultColor, defaultMetallicRoughness, createGltf: (bool)o.CreateGltf, YAxisUp: false);
-                        File.WriteAllBytes($@"{contentDirectory}{Path.AltDirectorySeparatorChar}{t.Z}-{t.X}-{t.Y}.{ext}", bytes);
-                        Console.Write(".");
-
-                    }
-                }
-                Console.WriteLine();
-                Console.WriteLine("Warning: Draco compress the resulting tiles. If not compressed, visualization in Mapbox will not be correct (v3.2.0)");
-                // end mapbox specific code
+                MapboxTiler.CreateMapboxTiles(table, geometryColumn, defaultColor, defaultMetallicRoughness, createGltf, zoom, shadersColumn, attributeColumns, copyright, query, conn, source_epsg, bbox, contentDirectory);
             }
 
             stopWatch.Stop();
 
             var timeSpan = stopWatch.Elapsed;
-            Console.WriteLine("Time: {0}h {1}m {2}s {3}ms", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
+            Console.WriteLine("Time: {0}h {1}m {2}s {3}ms", Math.Floor(timeSpan.TotalHours), timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");
         });
     }
