@@ -95,7 +95,9 @@ class Program
             }
 
             Console.WriteLine($"Query bounding box of {table}.{geometryColumn}...");
-            var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn);
+            var where = (query != string.Empty ? $" where {query}" : String.Empty);
+
+            var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn, where);
             var bbox = bbox_wgs84.bbox;
 
             Console.WriteLine($"Bounding box for {table}.{geometryColumn} (in WGS84): " +
