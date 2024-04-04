@@ -102,7 +102,7 @@ public static class TreeSerializer
 
         var bbox = tile.BoundingBox;
         var boundingBox = new BoundingBox(bbox[0], bbox[1], bbox[2], bbox[3]);
-        var region = boundingBox.ToRadians().ToRegion(tile.ZMin, tile.ZMax);
+        var region = boundingBox.ToRadians().ToRegion((double)tile.ZMin, (double)tile.ZMax);
         child.boundingVolume = new Boundingvolume {
             region = region
         };

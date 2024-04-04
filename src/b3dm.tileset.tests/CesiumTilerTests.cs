@@ -45,9 +45,18 @@ public class CesiumTilerTests
         var use10 = false;
         var rootBoundingVolumeRegion = new double[] { 0, 0, 0, 0, 0, 0, zmin, zmax };
         var tile0 = new Tile(0, 0, 0);
+        tile0.ZMin = zmin;
+        tile0.ZMax = zmax;
+
         var tile1 = new Tile(2, 0, 0);
+        tile1.ZMin = zmin;
+        tile1.ZMax = zmax;
         var tile2 = new Tile(2, 0, 0);
+        tile2.ZMin = zmin;
+        tile2.ZMax = zmax;
         var tile3 = new Tile(3, 0, 0) { Available = true, BoundingBox = new double[] { 5,50,6,55} };
+        tile3.ZMin = zmin;
+        tile3.ZMax = zmax;
 
         var tiles = new List<Tile>() { tile0, tile1, tile2, tile3};
 

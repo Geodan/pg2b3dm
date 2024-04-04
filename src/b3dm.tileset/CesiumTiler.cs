@@ -58,7 +58,7 @@ public static class CesiumTiler
                     var splitLevelTile = new Tile(splitLevel, i, j);
                     var children = TileSelector.Select(tiles, splitLevelTile, splitLevel, maxlevel);
                     if (children.Count > 0) {
-                        var zminmax = children.Select(t => new double[] { t.ZMin, t.ZMax }).SelectMany(t => t).ToArray();
+                        var zminmax = children.Select(t => new double[] { (double)t.ZMin, (double)t.ZMax }).SelectMany(t => t).ToArray();
                         var childrenBoundingVolumeRegion = GetBoundingBox(children).ToRadians().ToRegion(zminmax[0], zminmax[1]);
                         /// translation is the same as identity matrix in case of child tileset
                         var tileset = TreeSerializer.ToTileset(children, null, childrenBoundingVolumeRegion, geometricErrors, version, refinement, use10);
