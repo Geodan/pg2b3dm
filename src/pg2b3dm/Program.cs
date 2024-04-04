@@ -195,7 +195,7 @@ class Program
                     }
                     else {
                         Console.WriteLine("Geometric errors used: " + String.Join(',', geometricErrors));
-                        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, zmin, zmax, translation, geometricErrors, refinement, use10, rootBoundingVolumeRegion, tile, tiles);
+                        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, geometricErrors, refinement, use10, rootBoundingVolumeRegion, tile, tiles);
                     }
                 }
                 Console.WriteLine();

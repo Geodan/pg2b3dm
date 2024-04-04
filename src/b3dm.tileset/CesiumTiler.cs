@@ -36,12 +36,12 @@ public static class CesiumTiler
         File.WriteAllText(file, json);
     }
 
-    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double zmin, double zmax, double[] translation, double[] geometricErrors, string refinement, bool use10, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles)
+    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double[] geometricErrors, string refinement, bool use10, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles)
     {
         var splitLevel = (int)Math.Ceiling((tiles.Max((Tile s) => s.Z) + 1.0) / 2.0);
 
         var rootTiles = TileSelector.Select(tiles, tile, 0, splitLevel);
-        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricErrors, zmin, zmax, version, refinement, use10);
+        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricErrors, version, refinement, use10);
 
         var maxlevel = tiles.Max((Tile s) => s.Z);
 
@@ -58,10 +58,10 @@ public static class CesiumTiler
                     var splitLevelTile = new Tile(splitLevel, i, j);
                     var children = TileSelector.Select(tiles, splitLevelTile, splitLevel, maxlevel);
                     if (children.Count > 0) {
-                        var childrenBoundingVolumeRegion = GetBoundingBox(children).ToRadians().ToRegion(zmin, zmax);
-
+                        var zminmax = children.Select(t => new double[] { t.ZMin, t.ZMax }).SelectMany(t => t).ToArray();
+                        var childrenBoundingVolumeRegion = GetBoundingBox(children).ToRadians().ToRegion(zminmax[0], zminmax[1]);
                         /// translation is the same as identity matrix in case of child tileset
-                        var tileset = TreeSerializer.ToTileset(children, null, childrenBoundingVolumeRegion, geometricErrors, zmin, zmax, version, refinement, use10);
+                        var tileset = TreeSerializer.ToTileset(children, null, childrenBoundingVolumeRegion, geometricErrors, version, refinement, use10);
                         var detailedJson = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
                         var filename = $"tileset_{splitLevel}_{i}_{j}.json";
                         Console.Write($"\rWriting {filename}...");

@@ -13,9 +13,12 @@ namespace B3dm.Tileset;
 
 public static class GeometryRepository
 {
+    /// <summary>
+    /// Returns double array with 6 bounding box coordinates, xmin, ymin, xmax, ymax, zmin, zmax
+    /// </summary>
     public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, int epsg, Tile t, string query = "")
     {
-        var sqlSelect = $"select st_Asbinary(st_extent(st_transform({geometry_column}, 4326))) ";
+        var sqlSelect = $"select st_Asbinary(st_3dextent(st_transform({geometry_column}, 4979))) ";
         var b = GetTileBoundingBox(t.BoundingBox);
         var sqlWhere = GetWhere(geometry_column, epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
         var sql = $"{sqlSelect} from {geometry_table} {sqlWhere}";
@@ -25,9 +28,9 @@ public static class GeometryRepository
         var reader = cmd.ExecuteReader();
         reader.Read();
         var stream = reader.GetStream(0);
-        var polygon = (Polygon)Geometry.Deserialize<WkbSerializer>(stream);
-        var points = polygon.ExteriorRing.Points;
-        var result = new double[] { (double)points[0].X, (double)points[0].Y, (double)points[2].X, (double)points[2].Y };
+        var polyhedral = (PolyhedralSurface)Geometry.Deserialize<WkbSerializer>(stream);
+        var points = polyhedral.Geometries[0].ExteriorRing.Points;
+        var result = new double[] { (double)points[0].X, (double)points[0].Y, (double)points[2].X, (double)points[2].Y, (double)points[0].Z, (double)polyhedral.Geometries[1].ExteriorRing.Points[0].Z };
 
         reader.Close();
         conn.Close();
