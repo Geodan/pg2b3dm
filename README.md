@@ -4,7 +4,7 @@
 [![NuGet](https://img.shields.io/nuget/dt/pg2b3dm.svg)][![Join the chat at https://discord.gg/gGCka4Nd](https://img.shields.io/discord/1013017110814932993?color=%237289DA&label=pg2b3dm&logo=discord&logoColor=white)](https://discord.gg/uSKvUwPgmG)
 
  Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles). The generated 
- 3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D, Cesium for Omniverse, QGIS, ArcGIS Pro, Mapbox GL JS v3 (experimental) or other 3D Tiles client viewers.
+ 3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D, Cesium for Omniverse, QGIS, ArcGIS Pro, ArcGIS Maps SDK for JavaScript, Mapbox GL JS v3 (experimental) or other 3D Tiles client viewers.
 
 ![image](https://user-images.githubusercontent.com/538812/227500590-bebe59b6-5697-462d-9ebd-b40fe9a2dc2b.png)
 
