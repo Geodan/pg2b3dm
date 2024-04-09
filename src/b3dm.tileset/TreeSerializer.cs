@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using B3dm.Tileset.Extensions;
-using Newtonsoft.Json;
 using subtree;
 using Wkx;
 
@@ -11,13 +10,6 @@ namespace B3dm.Tileset;
 
 public static class TreeSerializer
 {
-    public static string ToJson(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null, string refine = "ADD", bool use10 = false)
-    {
-        var tileset = ToTileset(tiles, transform, region, geometricErrors, minheight, maxheight, version, refine, use10);
-        var json = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-        return json; ;
-    }
-
     public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false)
     {
         var ext = createGltf ? ".glb" : ".b3dm";
@@ -36,7 +28,7 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, double minheight, double maxheight, Version version = null, string refine="ADD", bool use10 = false)
+    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, Version version = null, string refine="ADD", bool use10 = false)
     {
         var tileset = GetTilesetObject(version, geometricErrors[0], use10);
 
@@ -53,7 +45,7 @@ public static class TreeSerializer
         }
 
         var root = GetRoot(geometricErrors[0], t, region, refine);
-        var children = GetChildren(tiles, geometricErrors.Skip(1).ToArray(), minheight, maxheight);
+        var children = GetChildren(tiles, geometricErrors.Skip(1).ToArray());
         root.children = children;
         tileset.root = root;
         return tileset;
@@ -83,15 +75,15 @@ public static class TreeSerializer
         return root;
     }
 
-    private static List<Child> GetChildren(List<Tile> tiles, double[] geometricError, double minheight, double maxheight)
+    private static List<Child> GetChildren(List<Tile> tiles, double[] geometricError)
     {
         var children = new List<Child>();
         foreach (var tile in tiles) {
             if (tile.Available) {
-                var child = GetChild(tile, geometricError[0], minheight, maxheight);
+                var child = GetChild(tile, geometricError[0]);
 
                 if (tile.Children != null) {
-                    child.children = GetChildren(tile.Children, geometricError.Skip(1).ToArray(), minheight, maxheight);
+                    child.children = GetChildren(tile.Children, geometricError.Skip(1).ToArray());
                 }
                 children.Add(child);
             }
@@ -100,7 +92,7 @@ public static class TreeSerializer
         return children;
     }
 
-    public static Child GetChild(Tile tile, double geometricError, double minheight, double maxheight)
+    public static Child GetChild(Tile tile, double geometricError)
     {
         var child = new Child {
             geometricError = geometricError,
@@ -110,7 +102,7 @@ public static class TreeSerializer
 
         var bbox = tile.BoundingBox;
         var boundingBox = new BoundingBox(bbox[0], bbox[1], bbox[2], bbox[3]);
-        var region = boundingBox.ToRadians().ToRegion(minheight,maxheight);
+        var region = boundingBox.ToRadians().ToRegion((double)tile.ZMin, (double)tile.ZMax);
         child.boundingVolume = new Boundingvolume {
             region = region
         };

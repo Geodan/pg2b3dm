@@ -130,7 +130,10 @@ public class QuadtreeTiler
 
                     // next code is used to fix geometries that have centroid in the tile, but some parts outside...
                     var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, source_epsg, tile, where);
-                    tile.BoundingBox = bbox_geometries;
+                    var bbox_tile = new double[] { bbox_geometries[0], bbox_geometries[1], bbox_geometries[2], bbox_geometries[3] };
+                    tile.BoundingBox = bbox_tile;
+                    tile.ZMin = bbox_geometries[4];
+                    tile.ZMax = bbox_geometries[5];
                 }
             }
 
