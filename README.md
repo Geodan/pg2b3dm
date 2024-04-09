@@ -62,7 +62,6 @@ Output should be as follows:
 
 <details>
   <summary>Output</summary>
-```
 Tool: pg2b3dm 2.8.0.0
 Options: -h localhost -U postgres -c geom -d postgres -t sibbe -a identificatie
 Password for user postgres:
@@ -103,7 +102,6 @@ Writing output/tileset.json...
 
 Time: 0h 0m 1s 945ms
 Program finished 2024-04-09T12:18:53.
-```
 </details>
 
 - The resulting tileset can be added to CesiumJS using:
