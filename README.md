@@ -60,51 +60,7 @@ $ pg2b3dm -h localhost -U postgres -c geom -d postgres -t sibbe -a identificatie
 
 Output should be as follows:
 
-<details>
-  <summary>Output</summary>
- ```js
-Tool: pg2b3dm 2.8.0.0
-Options: -h localhost -U postgres -c geom -d postgres -t sibbe -a identificatie
-Password for user postgres:
-Start processing 2024-04-09T12:18:51....
-Input table: sibbe
-Input geometry column: geom
-App mode: Cesium
-Spatial reference of sibbe.geom: 4979
-Spatial index detected on sibbe.geom
-Query bounding box of sibbe.geom...
-Bounding box for sibbe.geom (in WGS84): 5.82128489, 50.82295465, 5.87852978, 50.85905335
-Height values: [115.16 m - 228.5 m]
-Default color: #FFFFFF
-Default metallic roughness: #008000
-Doublesided: True
-Create glTF tiles: True
-Attribute columns: identificatie
-Center (wgs84): 5.849907331896136, 50.84100399849469
-Starting Cesium mode...
-Translation ECEF: 4014744.25,411336.28125,4922394.5
-3D Tiles version: 1.1
-Lod column:
-Radius column:
-Geometric errors: 2000,0
-Refinement: REPLACE
-Add outlines: False
-Use 3D Tiles 1.1 implicit tiling: True
-Maximum features per tile: 1000
-Start generating tiles...
-Creating tile: 2_3_3.glb
-Tiles created: 6
-Geometric error used for implicit tiling: 2000
-Writing 4 subtree files...
-Available Levels: 3
-Subtree Levels: 2
-SubdivisionScheme: QUADTREE
-Writing output/tileset.json...
-
-Time: 0h 0m 1s 945ms
-Program finished 2024-04-09T12:18:53.
-```
-</details>
+https://gist.github.com/bertt/fa084f55217dded35c6fb1607e81a9f3
 
 - The resulting tileset can be added to CesiumJS using:
 
