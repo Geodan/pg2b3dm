@@ -41,16 +41,70 @@ Result: 7-688-32.gpkg (34 MB)
 - Import in PostGIS database, convert to EPSG:4979 (WGS84 ellipsoidal heights). Note: in the Cesium client viewer the terrain should be added to see the buildings on the correct height.
 
 ```
-$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4979 7-688-32.gpkg lod22_3d
+$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" -t_srs epsg:4979 7-688-32.gpkg lod22_3d -nln sibbe
 ```
 
 When the terrain is not used, omit the -t_srs parameter (in this case the Dutch EPSG code EPSG:7415 of the input data will be used).
 
+- Optional: Add spatial index
+
+```
+postgresql> CREATE INDEX ON sibbe USING gist(st_centroid(st_envelope(geom)))
+```
+
 - Convert to 3D Tiles using pg2b3dm
 
 ```
-$ pg2b3dm -h localhost -U postgres -c geom -d postgres -t lod22_3d -a identificatie
+$ pg2b3dm -h localhost -U postgres -c geom -d postgres -t sibbe -a identificatie
 ```
+
+Output should be as follows:
+
+<details>
+  <summary>Output</summary>
+```
+Tool: pg2b3dm 2.8.0.0
+Options: -h localhost -U postgres -c geom -d postgres -t sibbe -a identificatie
+Password for user postgres:
+Start processing 2024-04-09T12:18:51....
+Input table: sibbe
+Input geometry column: geom
+App mode: Cesium
+Spatial reference of sibbe.geom: 4979
+Spatial index detected on sibbe.geom
+Query bounding box of sibbe.geom...
+Bounding box for sibbe.geom (in WGS84): 5.82128489, 50.82295465, 5.87852978, 50.85905335
+Height values: [115.16 m - 228.5 m]
+Default color: #FFFFFF
+Default metallic roughness: #008000
+Doublesided: True
+Create glTF tiles: True
+Attribute columns: identificatie
+Center (wgs84): 5.849907331896136, 50.84100399849469
+Starting Cesium mode...
+Translation ECEF: 4014744.25,411336.28125,4922394.5
+3D Tiles version: 1.1
+Lod column:
+Radius column:
+Geometric errors: 2000,0
+Refinement: REPLACE
+Add outlines: False
+Use 3D Tiles 1.1 implicit tiling: True
+Maximum features per tile: 1000
+Start generating tiles...
+Creating tile: 2_3_3.glb
+Tiles created: 6
+Geometric error used for implicit tiling: 2000
+Writing 4 subtree files...
+Available Levels: 3
+Subtree Levels: 2
+SubdivisionScheme: QUADTREE
+Writing output/tileset.json...
+
+Time: 0h 0m 1s 945ms
+Program finished 2024-04-09T12:18:53.
+```
+</details>
 
 - The resulting tileset can be added to CesiumJS using:
 
