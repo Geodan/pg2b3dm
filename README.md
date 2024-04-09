@@ -62,7 +62,7 @@ Output should be as follows:
 
 <details>
   <summary>Output</summary>
- ```
+ ```js
 Tool: pg2b3dm 2.8.0.0
 Options: -h localhost -U postgres -c geom -d postgres -t sibbe -a identificatie
 Password for user postgres:
