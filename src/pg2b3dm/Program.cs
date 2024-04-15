@@ -67,7 +67,7 @@ class Program
 
             var conn = new NpgsqlConnection(connectionString);
 
-            var source_epsg = SpatialReferenceRepository.GetSpatialReference(conn, table, geometryColumn);
+            var source_epsg = SpatialReferenceRepository.GetSpatialReference(conn, table, geometryColumn, query);
 
             if (source_epsg == 4978) {
                 Console.WriteLine("----------------------------------------------------------------------------");
