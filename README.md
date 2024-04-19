@@ -208,9 +208,10 @@ $ pg2b3dm
 
 ## Benchmarking
 
-| Source                   | Table    |  Size     | Features     | Time         | Tiles  | Tiles/Minute   |
-|--------------------------|----------|-----------|--------------|--------------|--------|----------------|
-| Dutch 3d BAG buildings   | lod12_3d | 12 GB     | 9.712.728    |   1h 54m 23s |  29098 | 255            |
+| Source                   | Table                 |  Size     | Features     | Time         | Tiles    | Tiles/Minute   | Tile uncompressed  | Tile compressed |
+|--------------------------|-----------------------|-----------|--------------|--------------|----------|----------------|--------------------|-----------------|
+| Dutch 3d BAG buildings   | lod12_3d              | 12 GB     | 9.712.728    |  1h 54m 23s  |  29098   | 255            |                    |                 |
+| French IGN buildings     | batiment_construction | 142 GB    | 46.286.334   |  3h 21m 33s  |  117745  | 585            | 92GB               | 11GB            |
 
 ## Styling
 
