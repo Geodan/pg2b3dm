@@ -28,9 +28,8 @@ public static class GeometryRepository
         var reader = cmd.ExecuteReader();
         reader.Read();
         var stream = reader.GetStream(0);
-        var polyhedral = (PolyhedralSurface)Geometry.Deserialize<WkbSerializer>(stream);
-        var points = polyhedral.Geometries[0].ExteriorRing.Points;
-        var result = new double[] { (double)points[0].X, (double)points[0].Y, (double)points[2].X, (double)points[2].Y, (double)points[0].Z, (double)polyhedral.Geometries[1].ExteriorRing.Points[0].Z };
+        var geometry = Geometry.Deserialize<WkbSerializer>(stream);
+        var result = BBox3D.GetBoundingBoxPoints(geometry);
 
         reader.Close();
         conn.Close();
