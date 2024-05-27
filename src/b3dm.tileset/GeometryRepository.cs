@@ -72,7 +72,7 @@ public static class GeometryRepository
     public static string GetSqlSelect(string geometry_column, string shaderColumn, string attributesColumns, string radiusColumn, int target_srs)
     {
         var g = GetGeometryColumn(geometry_column, target_srs);
-        var sqlselect = $"SELECT ST_AsBinary(st_simplify({g},0.001))";
+        var sqlselect = $"SELECT ST_AsBinary({g})";
         if (shaderColumn != String.Empty) {
             sqlselect = $"{sqlselect}, {shaderColumn} ";
         }
