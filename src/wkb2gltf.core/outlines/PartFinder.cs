@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 
 namespace Wkb2Gltf.outlines;
 public static class PartFinder
@@ -18,7 +19,9 @@ public static class PartFinder
         if (triangles.Count > 1) {
             for (var i = 1; i < triangles.Count; i++) {
                 var newNormal = triangles[i].GetNormal();
-                var isNormalEqual = Compare.IsAlmostEqual(normal, newNormal, normalTolerance) || Compare.IsAlmostEqual(normal, newNormal*-1, normalTolerance);
+                var dotProduct = Vector3.Dot(normal, newNormal);
+                var isNormalEqual = Compare.IsAlmostEqual(dotProduct,1.0f,normalTolerance);
+                
                 if (isNormalEqual) {
                     partIds.Add((uint)i);
                 }

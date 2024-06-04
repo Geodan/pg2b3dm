@@ -6,7 +6,7 @@ public static class MeshPrimitiveExtensions
 {
     public static void AddOutlines(this MeshPrimitive meshPrimitive)
     {
-        var normalTolerance = 0.2;
+        var normalTolerance = 0.5;
         var distanceTolerance = 0.01;
         var outlines = OutlineDetection.GetOutlines(meshPrimitive, normalTolerance: normalTolerance, distanceTolerance).ToArray();
         if (outlines.Length > 0) {

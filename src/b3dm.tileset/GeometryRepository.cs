@@ -45,7 +45,6 @@ public static class GeometryRepository
         var b = GetTileBoundingBox(bbox);
 
         var sqlWhere = GetWhere(geometry_column, source_epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
-
         var sql = sqlselect + sqlFrom + sqlWhere;
 
         var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql, radiusColumn);
