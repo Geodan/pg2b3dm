@@ -20,4 +20,11 @@ public static class Compare
         if (Math.Abs(a.Z - b.Z) > tolerance) return false;
         return true;
     }
+
+    public static bool IsAlmostEqual(float a, float b, double tolerance)
+    {
+        if (Math.Abs(a - b) > tolerance) return false;
+        return true;
+    }
+
 }
