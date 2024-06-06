@@ -27,6 +27,18 @@ Donwload zip, unzip. It contains a 'bldg_footprints.shp' shapefile with building
 
 - GDAL (ogr2ogr)
 
+Check PostGIS:
+
+```
+$ postgresql> select ST_AsText(ST_Transform(ST_GeomFromText('POINT(121302 487371 2.68)', 7415), 4979));
+POINT Z (4.892367035931109 52.37317920269912 45.66258579945144)
+```
+
+In this query a transformation from epsg:7415 to espg:4979 is performed. When the projection grids are installed the vertikal value = 2.68 is converted 
+to 45.66258579945144. 
+
+When the projection grids are not installed the vertikal value stays at 2.68. In this case the projection grids should be installed, using tool projsync --all (https://proj.org/en/9.3/apps/projsync.html)
+
 ## Import buildings to PostGIS
 
 Import the buildings to database using ogr2ogr.
