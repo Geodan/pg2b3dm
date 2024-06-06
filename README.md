@@ -34,9 +34,33 @@ Tileset.json and glb/b3dm tiles are by default created in the 'output/content' s
 
 Convert 3D Data (Multipolygon Z) to 3D Tiles
 
+### Prerequisites
+
+- PostGIS database
+
+- .NET 6.0 SDK https://dotnet.microsoft.com/download/dotnet/6.0
+
+- GDAL (ogr2ogr)
+
+Check PostGIS:
+
+```
+$ postgresql> select ST_AsText(ST_Transform(ST_GeomFromText('POINT(121302 487371 2.68)', 7415), 4979));
+POINT Z (4.892367035931109 52.37317920269912 45.66258579945144)
+```
+
+In this query a transformation from epsg:7415 to espg:4979 is performed. When the projection grids are installed the vertikal value = 2.68 is converted 
+to 45.66258579945144. 
+
+When the projection grids are not installed the vertikal value stays at 2.68. In this case the projection grids should be installed, using tool projsync --all (https://proj.org/en/9.3/apps/projsync.html)
+
+### Download data
+
 - Download Geopackage from https://3dbag.nl/, for example Sibbe [https://3dbag.nl/nl/download?tid=7-688-32](https://3dbag.nl/nl/download?tid=7-688-32)
 
 Result: 7-688-32.gpkg (34 MB)
+
+### Data processing
 
 - Import in PostGIS database, convert to EPSG:4979 (WGS84 ellipsoidal heights). Note: in the Cesium client viewer the terrain should be added to see the buildings on the correct height.
 
@@ -62,6 +86,8 @@ Output should be as follows:
 
 https://gist.github.com/bertt/fa084f55217dded35c6fb1607e81a9f3
 
+### Visualize
+
 - The resulting tileset can be added to CesiumJS using:
 
 ```
@@ -81,7 +107,7 @@ viewer.scene.globe.depthTestAgainstTerrain=true;
 
 - Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/  
 
-Older getting started documents:
+### Older getting started documents
 
 1] See [getting started](getting_started.md) for a tutorial how to convert a 2D shapefile of buildings with height attribute to 3D Tiles and visualize in CesiumJS/Cesium for Unreal/Unity3D.
 
