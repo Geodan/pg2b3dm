@@ -18,7 +18,6 @@ public static class GlbCreator
 {
     public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true, Dictionary<string, List<object>> attributes = null, bool createGltf = false, bool doubleSided = false, bool YAxisUp = true)
     {
-        var materialCache = new MaterialsCache();
         var shader = new Shader();
         shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = defaultColor, MetallicRoughness = defaultMetallicRoughness };
         var defaultMaterial = MaterialCreator.CreateMaterial(shader, defaultDoubleSided);
@@ -28,15 +27,11 @@ public static class GlbCreator
 
         foreach (var tri in triangles) {
             foreach (var triangle in tri) {
-                MaterialBuilder material;
-
-                material = defaultMaterial;
-
                 if (createGltf) {
-                    DrawTriangleWithFeatureId(triangle, material, meshFeatureIds);
+                    DrawTriangleWithFeatureId(triangle, defaultMaterial, meshFeatureIds);
                 }
                 else {
-                    DrawTriangleWithBatchId(triangle, material, meshBatchId);
+                    DrawTriangleWithBatchId(triangle, defaultMaterial, meshBatchId);
                 }
             }
         }
