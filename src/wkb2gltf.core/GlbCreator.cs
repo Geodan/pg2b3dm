@@ -30,12 +30,7 @@ public static class GlbCreator
             foreach (var triangle in tri) {
                 MaterialBuilder material;
 
-                if (triangle.Shader != null) {
-                    material = materialCache.GetMaterialBuilderByShader(triangle.Shader, doubleSided);
-                }
-                else {
-                    material = defaultMaterial;
-                }
+                material = defaultMaterial;
 
                 if (createGltf) {
                     DrawTriangleWithFeatureId(triangle, material, meshFeatureIds);

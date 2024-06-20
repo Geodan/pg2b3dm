@@ -8,7 +8,7 @@ using Wkx;
 namespace pg2b3dm;
 public static class MapboxTiler
 {
-    public static void CreateMapboxTiles(string table, string geometryColumn, string defaultColor, string defaultMetallicRoughness, bool createGltf, int zoom, string shadersColumn, string attributeColumns, string copyright, string query, NpgsqlConnection conn, int source_epsg, BoundingBox bbox, string contentDirectory)
+    public static void CreateMapboxTiles(string table, string geometryColumn, string defaultColor, string defaultMetallicRoughness, bool createGltf, int zoom, string attributeColumns, string copyright, string query, NpgsqlConnection conn, int source_epsg, BoundingBox bbox, string contentDirectory)
     {
         // mapbox specific code
 
@@ -40,7 +40,7 @@ public static class MapboxTiler
                 var height = ul_spherical[1] - ll_spherical[1];
 
                 var ext = createGltf ? "glb" : "b3dm";
-                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, bounds, source_epsg, target_srs, shadersColumn, attributeColumns, query1);
+                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, bounds, source_epsg, target_srs, attributeColumns, query1);
 
                 // in Mapbox mode, every tile has 2^13 = 8192 values
                 // see https://github.com/mapbox/mapbox-gl-js/blob/main/src/style-spec/data/extent.js

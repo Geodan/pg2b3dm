@@ -190,8 +190,6 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -g, --geometricerrors           (Default: 2000,0) Geometric errors (Cesium)
 
-  --shaderscolumn                 (Default: '') shaders column (Cesium)
-
   --use_implicit_tiling           (Default: true) use 1.1 implicit tiling (Cesium)
 
   --add_outlines                  (Default: false) Add outlines (Cesium)
@@ -208,7 +206,7 @@ If --username and/or --dbname are not specified the current username is used as 
 Sample command for running pg2b3dm:
 
 ```
--h localhost -U postgres -c geom_triangle --shaderscolumn shaders -t delaware_buildings -d postgres -g 100,0 
+-h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -g 100,0 
 ```
 
 ## Installation

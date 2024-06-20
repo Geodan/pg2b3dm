@@ -32,7 +32,7 @@ for example visualize a simplified geometry when the camera is far away, and a m
 Sample command for using LOD's:
 
 ```
--h localhost -U postgres -c geom_triangle --shaderscolumn shaders -t delaware_buildings_lod -d postgres -g 1000,100,0 --lodcolumn lodcolumn --use_implicit_tiling false --max_features_per_tile 1000
+-h localhost -U postgres -c geom_triangle -t delaware_buildings_lod -d postgres -g 1000,100,0 --lodcolumn lodcolumn --use_implicit_tiling false --max_features_per_tile 1000
 ```
 
 The LOD function will be enabled when parameter --lodcolumn is not empty.

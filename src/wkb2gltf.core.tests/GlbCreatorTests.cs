@@ -215,7 +215,7 @@ public class GlbCreatorTests
         shaderColors.PbrMetallicRoughnessColors = metallicRoughness;
 
         // act
-        var triangles = GeometryProcessor.GetTriangles(multipolygon, 100, shadercolors: shaderColors);
+        var triangles = GeometryProcessor.GetTriangles(multipolygon, 100);
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ams_building_multiple_colors.glb");
         File.WriteAllBytes(fileName, bytes);
@@ -250,16 +250,15 @@ public class GlbCreatorTests
         shaderColors.PbrMetallicRoughnessColors = metallicRoughness;
 
         // act
-        var triangles = GeometryProcessor.GetTriangles(multipolygon, 100, shadercolors: shaderColors);
+        var triangles = GeometryProcessor.GetTriangles(multipolygon, 100);
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ams_building_multiple_colors.glb");
         File.WriteAllBytes(fileName, bytes);
 
-        // assert (each triangle becomes a primitive because colors
         var model = ModelRoot.Load(fileName);
 
         // there are 8 small triangles (area) that are removed.
-        Assert.That(model.LogicalMeshes[0].Primitives.Count, Is.EqualTo(30));
+        Assert.That(model.LogicalMeshes[0].Primitives.Count, Is.EqualTo(1));
     }
 
     [Test]
@@ -288,7 +287,7 @@ public class GlbCreatorTests
 
         // act
         try {
-            var triangles = GeometryProcessor.GetTriangles(multipolygon, 100, shadercolors: shaderColors);
+            var triangles = GeometryProcessor.GetTriangles(multipolygon, 100);
         }
         catch (Exception ex) {
             // assert
@@ -389,7 +388,7 @@ public class GlbCreatorTests
         var metallicRoughness = new PbrMetallicRoughnessColors();
         metallicRoughness.BaseColors = colors;
 
-        var triangles = GeometryProcessor.GetTriangles(polyhedralsurface, 100, shadercolors: shaderColors);
+        var triangles = GeometryProcessor.GetTriangles(polyhedralsurface, 100);
         CheckNormal(triangles[2], center);
         Assert.That(triangles.Count == 12, Is.True);
 

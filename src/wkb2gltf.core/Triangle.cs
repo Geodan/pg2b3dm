@@ -50,8 +50,6 @@ public class Triangle
         return n;
     }
 
-    public Shader Shader { get; set; }
-
     public (Vector3, Vector3, Vector3) ToVectors()
     {
         var v0 = new Vector3((float)p0.X, (float)p0.Y, (float)p0.Z);

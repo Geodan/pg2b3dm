@@ -53,7 +53,6 @@ public class UnitTest1
         var trans = new double[] { translation.X, translation.Y, translation.Z };
         var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings", 4326, "geom_triangle", 50, string.Empty,
             trans,
-            "shaders",
             string.Empty,
             string.Empty,
             "output/content",
@@ -85,7 +84,6 @@ public class UnitTest1
 
         var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings_lod", 4326, "geom_triangle", 10, string.Empty,
             trans,
-            "shaders",
             string.Empty,
             "lodcolumn",
             "output/content",
