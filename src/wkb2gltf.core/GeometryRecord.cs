@@ -16,13 +16,11 @@ public class GeometryRecord
 
     public Dictionary<string,object> Attributes { get; set; }
 
-    public ShaderColors Shader { get; set; }
-
     public float? Radius { get; set; }
 
     public List<Triangle> GetTriangles(double[] translation = null, double[] scale = null)
     {
-        var triangles = GeometryProcessor.GetTriangles(Geometry, BatchId, translation, scale, Shader, Radius);
+        var triangles = GeometryProcessor.GetTriangles(Geometry, BatchId, translation, scale, Radius);
 
         return triangles;
     }

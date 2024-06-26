@@ -46,9 +46,6 @@ public class Options
     [Option('f', "format", Required = false, Default = AppMode.Cesium, HelpText = "Format (Mapbox or Cesium)")]
     public AppMode AppMode { get; set; }
 
-    [Option("shaderscolumn", Required = false, Default = "", HelpText = "shaders column")]
-    public string ShadersColumn { get; set; }
-
     // cesium specific options
     [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile (Cesium)", SetName = "Cesium")]
     public int MaxFeaturesPerTile { get; set; }

@@ -19,7 +19,6 @@ public class QuadtreeTiler
     private readonly int maxFeaturesPerTile;
     private readonly string query;
     private readonly double[] translation;
-    private readonly string colorColumn;
     private readonly string attributesColumn;
     private readonly string lodColumn;
     private readonly string outputFolder;
@@ -28,7 +27,7 @@ public class QuadtreeTiler
     private readonly bool skipCreateTiles;
     private readonly string radiusColumn;
 
-    public QuadtreeTiler(NpgsqlConnection conn, string table, int source_epsg, string geometryColumn, int maxFeaturesPerTile, string query, double[] translation, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false, string radiusColumn = "")
+    public QuadtreeTiler(NpgsqlConnection conn, string table, int source_epsg, string geometryColumn, int maxFeaturesPerTile, string query, double[] translation, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false, string radiusColumn = "")
     {
         this.table = table;
         this.conn = conn;
@@ -37,7 +36,6 @@ public class QuadtreeTiler
         this.maxFeaturesPerTile = maxFeaturesPerTile;
         this.query = query;
         this.translation = translation;
-        this.colorColumn = colorColumn;
         this.attributesColumn = attributesColumn;
         this.lodColumn = lodColumn;
         this.outputFolder = outputFolder;
@@ -105,7 +103,7 @@ public class QuadtreeTiler
 
             if (!skipCreateTiles) {
 
-                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, target_srs, colorColumn, attributesColumn, where, radiusColumn);
+                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, target_srs, attributesColumn, where, radiusColumn);
                 // var scale = new double[] { 1, 1, 1 };
                 bytes = TileWriter.ToTile(geometries, translation, copyright: copyright, addOutlines: addOutlines, defaultColor: defaultColor, defaultMetallicRoughness: defaultMetallicRoughness, doubleSided: doubleSided, createGltf: createGltf);
                 if (bytes != null) {
