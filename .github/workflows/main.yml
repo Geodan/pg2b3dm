@@ -10,9 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
     - name: Build with dotnet
@@ -30,7 +30,7 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/master'
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Build the Docker image
       run: docker build ./src --file ./src/Dockerfile --tag geodan/pg2b3dm:latest
     - name: Log in to Docker Hub
