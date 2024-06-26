@@ -24,6 +24,9 @@ jobs:
     - name: Testing tileset
       working-directory: src/b3dm.tileset.tests     
       run: dotnet test
+    - name: Testing database
+      working-directory: src/pg2b3dm.database.tests     
+      run: dotnet test
              
   publishdocker:
     runs-on: ubuntu-latest
