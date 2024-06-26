@@ -1,15 +1,4 @@
 ﻿# Database tests
 
-To run these tests, run the Docker database with test table first.
-
-Build:
-
-```
-$ docker build -t delaware .
-```
-
-Run:
-
-```
-$ docker run -e POSTGRES_PASSWORD=postgres -p 5433:5432 delaware
-```
+In these tests, a database is used containing some test data. The database is a PostgreSQL database with PostGIS extension. 
+The database is run in a Docker container and is managed by testcontainers (https://testcontainers.com/).

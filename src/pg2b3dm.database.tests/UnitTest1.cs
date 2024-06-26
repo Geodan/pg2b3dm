@@ -1,37 +1,53 @@
 ﻿using B3dm.Tileset;
 using B3dm.Tileset.Extensions;
-using Microsoft.Extensions.Configuration;
+using DotNet.Testcontainers.Builders;
 using Npgsql;
 using subtree;
+using Testcontainers.PostgreSql;
 using Wkb2Gltf;
 
 namespace pg2b3dm.database.tests;
 
 public class UnitTest1
 {
+    private PostgreSqlContainer _containerPostgres;
+
+    [SetUp]
+    public async Task Setup()
+    {
+        _containerPostgres = new PostgreSqlBuilder()
+        .WithImage("postgis/postgis:16-3.4-alpine")
+        .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(5432))
+        .Build();
+        await _containerPostgres.StartAsync();
+        var initScript1 = File.ReadAllText("./postgres-db/1_create_delaware_table.sql");
+        await _containerPostgres.ExecScriptAsync(initScript1);
+        var initScript2 = File.ReadAllText("./postgres-db/2_create_delaware_table.sql");
+        await _containerPostgres.ExecScriptAsync(initScript2);
+    }
+
+    [TearDown]
+    public async Task TeardownOnce()
+    {
+        await _containerPostgres.StopAsync();
+        await _containerPostgres.DisposeAsync();
+    }
+
     [Test]
-    public void HasSpatialIndexTest() {
-
-        var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .AddEnvironmentVariables()
-            .Build();
-
-        var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
+    public void HasSpatialIndexTest()
+    {
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
         var hasSpatialIndex = SpatialIndexChecker.HasSpatialIndex(conn, "delaware_buildings", "geom_triangle");
-        Assert.That(hasSpatialIndex==false);
+        Assert.That(hasSpatialIndex == false);
     }
 
 
     [Test]
     public void FirstTest()
     {
-        var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .AddEnvironmentVariables()
-            .Build();
-
-        var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
         var sql = "select count(*) from delaware_buildings";
         var records = DatabaseReader.ReadScalar(conn, sql);
         Assert.That(records, Is.EqualTo(360));
@@ -40,12 +56,8 @@ public class UnitTest1
     [Test]
     public void ImplicitTilingTest()
     {
-        var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .AddEnvironmentVariables()
-            .Build();
-
-        var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
         var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, "delaware_buildings", "geom_triangle");
 
         var center_wgs84 = bbox_wgs84.bbox.GetCenter();
@@ -58,11 +70,11 @@ public class UnitTest1
             string.Empty,
             "output/content",
             new List<int>() { 0 },
-            skipCreateTiles: true);        
-            var tiles = implicitTiler.GenerateTiles(
-            bbox_wgs84.bbox,
-            new Tile(0,0,0),
-            new List<Tile>());
+            skipCreateTiles: true);
+        var tiles = implicitTiler.GenerateTiles(
+        bbox_wgs84.bbox,
+        new Tile(0, 0, 0),
+        new List<Tile>());
         Assert.That(tiles.Count, Is.EqualTo(29));
     }
 
@@ -71,12 +83,8 @@ public class UnitTest1
     {
 
         Directory.CreateDirectory("output/content");
-        var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .AddEnvironmentVariables()
-            .Build();
-
-        var conn = new NpgsqlConnection(config["DB_CONNECTION_STRING"]);
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
         var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, "delaware_buildings_lod", "geom_triangle");
 
         var center_wgs84 = bbox_wgs84.bbox.GetCenter();
@@ -89,7 +97,7 @@ public class UnitTest1
             string.Empty,
             "lodcolumn",
             "output/content",
-            new List<int>() { 0,1 },
+            new List<int>() { 0, 1 },
             skipCreateTiles: true);
         var tiles = implicitTiler.GenerateTiles(
         bbox_wgs84.bbox,
