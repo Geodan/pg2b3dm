@@ -34,16 +34,6 @@ public class UnitTest1
     }
 
     [Test]
-    public void HasSpatialIndexTest()
-    {
-        var connectionString = _containerPostgres.GetConnectionString();
-        var conn = new NpgsqlConnection(connectionString);
-        var hasSpatialIndex = SpatialIndexChecker.HasSpatialIndex(conn, "delaware_buildings", "geom_triangle");
-        Assert.That(hasSpatialIndex == false);
-    }
-
-
-    [Test]
     public void FirstTest()
     {
         var connectionString = _containerPostgres.GetConnectionString();
@@ -51,6 +41,15 @@ public class UnitTest1
         var sql = "select count(*) from delaware_buildings";
         var records = DatabaseReader.ReadScalar(conn, sql);
         Assert.That(records, Is.EqualTo(360));
+    }
+
+    [Test]
+    public void HasSpatialIndexTest()
+    {
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
+        var hasSpatialIndex = SpatialIndexChecker.HasSpatialIndex(conn, "delaware_buildings", "geom_triangle");
+        Assert.That(hasSpatialIndex == false);
     }
 
     [Test]
