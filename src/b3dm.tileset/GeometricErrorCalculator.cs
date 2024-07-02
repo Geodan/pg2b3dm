@@ -23,6 +23,6 @@ public class GeometricErrorCalculator
             res.Add(0);
         }
 
-        return res.ToArray(); ;
+        return res.ToArray();
     } 
 }
