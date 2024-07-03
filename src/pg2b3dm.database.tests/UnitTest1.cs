@@ -115,7 +115,7 @@ public class UnitTest1
         var connectionString = _containerPostgres.GetConnectionString();
         var conn = new NpgsqlConnection(connectionString);
         var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, "geom_test", "geom3d");
-
+        Directory.CreateDirectory("output/content");
         var center_wgs84 = bbox_wgs84.bbox.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
         var trans = new double[] { translation.X, translation.Y, translation.Z };
