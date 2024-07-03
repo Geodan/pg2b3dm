@@ -19,6 +19,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0" />
     <PackageReference Include="Wkx" Version="0.5.1" />
   </ItemGroup>
 
