@@ -24,6 +24,8 @@ public class UnitTest1
         await _containerPostgres.ExecScriptAsync(initScript1);
         var initScript2 = File.ReadAllText("./postgres-db/2_create_delaware_table.sql");
         await _containerPostgres.ExecScriptAsync(initScript2);
+        var initScript3 = File.ReadAllText("./postgres-db/3_create_geom_table.sql");
+        await _containerPostgres.ExecScriptAsync(initScript3);
     }
 
     [TearDown]
@@ -105,4 +107,34 @@ public class UnitTest1
         new List<Tile>());
         Assert.That(tiles.Count, Is.EqualTo(145));
     }
+    
+    
+    [Test]
+    public void GeometryTest()
+    {
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
+        var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, "geom_test", "geom3d");
+
+        var center_wgs84 = bbox_wgs84.bbox.GetCenter();
+        var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
+        var trans = new double[] { translation.X, translation.Y, translation.Z };
+        var implicitTiler = new QuadtreeTiler(conn, "geom_test", 4326, "geom3d", 50, string.Empty,
+            trans,
+            string.Empty,
+            string.Empty,
+            string.Empty,
+            "output/content",
+            new List<int>() { 0 },
+            skipCreateTiles: false);
+        var tile = new Tile(0, 0, 0) {
+            BoundingBox = bbox_wgs84.bbox.ToArray()
+        };
+        var tiles = implicitTiler.GenerateTiles(
+            bbox_wgs84.bbox,
+            tile,
+            new List<Tile>());
+        Assert.That(tiles.Count, Is.EqualTo(1));
+    }
+
 }
