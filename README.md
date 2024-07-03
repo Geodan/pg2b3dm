@@ -22,7 +22,7 @@ Features:
 
 - Cesium: LOD support and Outlines support (using CESIUM_primitive_outline);
 
-- Triangulation of input geometries LineStrings/Polygon/MultiPolygon/PolyhedralSurface with Z values;
+- Triangulation of input geometries LineStrings/Polygon/MultiPolygon/PolyhedralSurface/TIN with Z values;
 
 - Docker support.
 
