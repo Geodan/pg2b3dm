@@ -133,7 +133,7 @@ public class UnitTest1
         var tiles = implicitTiler.GenerateTiles(
             bbox_wgs84.bbox,
             tile,
-            new List<Tile>());
+            new List<Tile>(), createGltf:true);
         Assert.That(tiles.Count, Is.EqualTo(1));
     }
 
