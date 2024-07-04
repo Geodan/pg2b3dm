@@ -208,8 +208,14 @@ If --username and/or --dbname are not specified the current username is used as 
 Sample command for running pg2b3dm:
 
 ```
--h localhost -U postgres -c geom_triangle --shaderscolumn shaders -t delaware_buildings -d postgres -g 100,0 
+$ pg2b3dm -h localhost -U postgres -c geom_triangle --shaderscolumn shaders -t delaware_buildings -d postgres -g 100,0 
 ```
+
+Database password will be asked to create the database connection, unless:
+
+- Trusted authentication is enabled;
+
+- Environment varianble 'PGPASSWORD' is set.
 
 ## Installation
 
