@@ -215,7 +215,7 @@ Database password will be asked to create the database connection, unless:
 
 - Trusted authentication is enabled;
 
-- Environment varianble 'PGPASSWORD' is set.
+- Environment variable 'PGPASSWORD' is set.
 
 ## Installation
 
