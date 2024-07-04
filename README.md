@@ -517,7 +517,7 @@ Press F5 to start debugging.
 
 ## History
 
-2024-07-04: release 2.9.0: add TIN geometry support (https://github.com/Geodan/pg2b3dm/pull/178 by @sebastianmattar)
+2024-07-04: release 2.9.0: add TIN geometry support (https://github.com/Geodan/pg2b3dm/pull/178 by [@sebastianmattar] (https://www.github.com/sebastianmattar))
 
 2024-06-20: release 2.8.2: fix lines with constant z values + improve outlines
 
