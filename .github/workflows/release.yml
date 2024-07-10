@@ -25,9 +25,14 @@ jobs:
     - name: Publish win-x64
       working-directory: src/pg2b3dm      
       run: dotnet publish -c Release -r win-x64 /p:PublishSingleFile=true
+    - name: Publish linux-x64
+      run: dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true
 
     - name: Zip win-x64
-      run: cd src/pg2b3dm/bin/Release/net6.0/win-x64/publish && zip -r ../../../../../../../src-Win64.zip *
+      run: cd src/pg2b3dm/bin/Release/net6.0/win-x64/publish && zip -r ../../../../../../../pg2b3dm-Win64.zip *
+      
+    - name: Zip linux-x64
+      run: cd src/pg2b3dm/bin/Release/net6.0/win-x64/publish && zip -r ../../../../../../../pg2b3dm-Linux64.zip *
 
     - name: LS
       run: ls -l
@@ -38,4 +43,6 @@ jobs:
       with:
         files: |
           Release.txt
-          src-Win64.zip
+          pg2b3dm-Win64.zip
+          pg2b3dm-Linux64.zip
+
