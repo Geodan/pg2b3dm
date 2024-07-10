@@ -33,7 +33,7 @@ jobs:
       run: cd src/pg2b3dm/bin/Release/net6.0/win-x64/publish && zip -r ../../../../../../../pg2b3dm-Win64.zip *
       
     - name: Zip linux-x64
-      run: cd src/pg2b3dm/bin/Release/net6.0/win-x64/publish && zip -r ../../../../../../../pg2b3dm-Linux64.zip *
+      run: cd src/pg2b3dm/bin/Release/net6.0/linux-x64/publish && zip -r ../../../../../../../pg2b3dm-Linux64.zip *
 
     - name: LS
       run: ls -l
