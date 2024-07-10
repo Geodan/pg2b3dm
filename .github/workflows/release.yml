@@ -26,6 +26,7 @@ jobs:
       working-directory: src/pg2b3dm      
       run: dotnet publish -c Release -r win-x64 /p:PublishSingleFile=true
     - name: Publish linux-x64
+      working-directory: src/pg2b3dm      
       run: dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true
 
     - name: Zip win-x64
