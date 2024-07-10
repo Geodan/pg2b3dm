@@ -219,6 +219,9 @@ Database password will be asked to create the database connection, unless:
 
 ## Installation
 
+See Releases for prebuilt binaries for Windows and Linux.
+
+As alternative use .NET 6.0 SDK to install the tool:
 
 Prerequisite: .NET 6.0 SDK is installed https://dotnet.microsoft.com/download/dotnet/6.0
 
@@ -522,6 +525,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2024-07-10: release 2.10.0: add Github releases for Windows and Linux
 
 2024-07-04: release 2.9.0: add TIN geometry support (https://github.com/Geodan/pg2b3dm/pull/178 by [@sebastianmattar] (https://www.github.com/sebastianmattar))
 
