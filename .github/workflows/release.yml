@@ -35,9 +35,6 @@ jobs:
     - name: Zip linux-x64
       run: cd src/pg2b3dm/bin/Release/net6.0/linux-x64/publish && zip -r ../../../../../../../pg2b3dm-Linux64.zip *
 
-    - name: LS
-      run: ls -l
-      
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
@@ -46,4 +43,3 @@ jobs:
           Release.txt
           pg2b3dm-Win64.zip
           pg2b3dm-Linux64.zip
-
