@@ -219,7 +219,7 @@ Database password will be asked to create the database connection, unless:
 
 ## Installation
 
-See Releases for prebuilt binaries for Windows and Linux.
+See Releases https://github.com/Geodan/pg2b3dm/releases for prebuilt binaries for Windows and Linux.
 
 Sample Linux installation (note use correct version):
 
