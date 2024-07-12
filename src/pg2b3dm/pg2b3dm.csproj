@@ -26,7 +26,11 @@
     <PackageReference Include="tilebelt" Version="2.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>none</DebugType>
+	</PropertyGroup>
+
+	<ItemGroup>
     <ProjectReference Include="..\b3dm.tileset\b3dm.tileset.csproj" />
   </ItemGroup>
 

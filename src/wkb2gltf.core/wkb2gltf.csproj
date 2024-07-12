@@ -7,7 +7,11 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-  <ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>none</DebugType>
+	</PropertyGroup>
+
+	<ItemGroup>
     <PackageReference Include="b3dm-tile" Version="1.1.2" />
     <PackageReference Include="bertt.triangulator" Version="1.4.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
