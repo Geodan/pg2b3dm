@@ -221,6 +221,22 @@ Database password will be asked to create the database connection, unless:
 
 See Releases for prebuilt binaries for Windows and Linux.
 
+Sample Linux installation (note use correct version):
+
+```
+$ wget https://github.com/Geodan/pg2b3dm/releases/download/v2.10.0/pg2b3dm-Linux64.zip
+$ unzip pg2b3dm-Linux64.zip
+$ ./pg2b3dm
+```
+
+Sample Windows installation (note use correct version):
+
+```
+$ wget https://github.com/Geodan/pg2b3dm/releases/download/v2.10.0/pg2b3dm-Win64.zip
+$ unzip pg2b3dm-Win64.zip
+$ pg2b3dm
+```
+
 As alternative use .NET 6.0 SDK to install the tool:
 
 Prerequisite: .NET 6.0 SDK is installed https://dotnet.microsoft.com/download/dotnet/6.0
