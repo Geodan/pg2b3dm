@@ -43,3 +43,15 @@ jobs:
           Release.txt
           pg2b3dm-Win64.zip
           pg2b3dm-Linux64.zip
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    # publish to docker
+    - name: Publish to Docker
+      run: |
+        docker build ./src --file ./src/Dockerfile --tag geodan/pg2b3dm:latest
+        docker push geodan/pg2b3dm:latest
