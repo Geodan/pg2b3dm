@@ -62,7 +62,15 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
     
+    - name: Get tag
+      id: tag
+      uses: dawidd6/action-get-tag@v1
+      with:
+        strip_v: true
+    
     - name: Publish to Docker
       run: |
         docker build ./src --file ./src/Dockerfile --tag geodan/pg2b3dm:latest
         docker push geodan/pg2b3dm:latest
+        docker tag geodan/pg2b3dm:latest geodan/pg2b3dm:${{ steps.tag.outputs.tag }}
+        docker push geodan/pg2b3dm:${{ steps.tag.outputs.tag }}
