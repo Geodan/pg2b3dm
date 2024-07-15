@@ -43,3 +43,18 @@ jobs:
           Release.txt
           pg2b3dm-Win64.zip
           pg2b3dm-Linux64.zip
+        
+    - name: Pack
+      working-directory: src/pg2b3dm
+      run: |
+        dotnet build pg2b3dm.csproj --configuration Release 
+        dotnet pack pg2b3dm.csproj --configuration Release -p:PackAsTool=true --output ./nupkg
+
+    - name: Publish to NuGet
+      working-directory: src/pg2b3dm
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push ./nupkg/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
+
+
+
