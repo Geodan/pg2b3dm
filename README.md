@@ -219,23 +219,19 @@ Database password will be asked to create the database connection, unless:
 
 ## Installation
 
-See Releases https://github.com/Geodan/pg2b3dm/releases for prebuilt binaries for Windows and Linux.
+### Pre-built binaries
 
-Sample Linux installation (note use correct version):
-
-```
-$ wget https://github.com/Geodan/pg2b3dm/releases/download/v2.10.0/pg2b3dm-Linux64.zip
-$ unzip pg2b3dm-Linux64.zip
-$ ./pg2b3dm
-```
+See Releases https://github.com/Geodan/pg2b3dm/releases for pre-built binaries for Windows, Linux and OSX. Binaries are available for X64 and ARM.
 
 Sample Windows installation (note use correct version):
 
 ```
-$ wget https://github.com/Geodan/pg2b3dm/releases/download/v2.10.0/pg2b3dm-Win64.zip
+$ wget https://github.com/Geodan/pg2b3dm/releases/download/{version}/pg2b3dm-win-x64.zip
 $ unzip pg2b3dm-Win64.zip
 $ pg2b3dm
 ```
+
+### .NET tool
 
 As alternative use .NET 6.0 SDK to install the tool:
 
@@ -255,6 +251,12 @@ To run:
 
 ```
 $ pg2b3dm
+```
+
+### Docker
+
+```
+$ docker run geodan/pg2b3dm
 ```
 
 ## Benchmarking
