@@ -42,7 +42,7 @@ Convert 3D Data (Multipolygon Z) to 3D Tiles
 
 - GDAL (ogr2ogr)
 
-Check PostGIS:
+Optional check PostGIS:
 
 ```
 $ postgresql> select ST_AsText(ST_Transform(ST_GeomFromText('POINT(121302 487371 2.68)', 7415), 4979));
