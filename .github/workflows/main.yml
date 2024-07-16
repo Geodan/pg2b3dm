@@ -2,7 +2,7 @@ name: Build server status
  
 on:
   push:
-    branches: [ master ]
+    branches: [ '**' ]
   pull_request:
     branches: [ '**' ]
   
@@ -18,12 +18,6 @@ jobs:
     - name: Build with dotnet
       working-directory: src      
       run: dotnet build --configuration Release
-    - name: Testing glb
-      working-directory: src/wkb2gltf.core.tests      
-      run: dotnet test
-    - name: Testing tileset
-      working-directory: src/b3dm.tileset.tests     
-      run: dotnet test
-    - name: Testing database
-      working-directory: src/pg2b3dm.database.tests     
+    - name: Testing
+      working-directory: src      
       run: dotnet test
