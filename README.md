@@ -255,7 +255,10 @@ $ pg2b3dm
 
 ### Docker
 
+To run the latest Docker image:
+
 ```
+$ docker pull geodan/pg2b3dm
 $ docker run geodan/pg2b3dm
 ```
 
