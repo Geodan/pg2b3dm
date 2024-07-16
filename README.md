@@ -36,9 +36,9 @@ Convert 3D Data (Multipolygon Z) to 3D Tiles
 
 ### Prerequisites
 
-- PostGIS database
+- Install latest executable pg2b3dm for your platform (see https://github.com/Geodan/pg2b3dm/releases) 
 
-- .NET 6.0 SDK https://dotnet.microsoft.com/download/dotnet/6.0
+- PostGIS database
 
 - GDAL (ogr2ogr)
 
