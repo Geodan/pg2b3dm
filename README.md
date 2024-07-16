@@ -544,6 +544,8 @@ Press F5 to start debugging.
 
 ## History
 
+2024-07-16: release 2.10.1: add pre-built release binaries for Windows/Linux/IOS (for X64 and ARM)
+
 2024-07-10: release 2.10.0: add Github releases for Windows and Linux
 
 2024-07-04: release 2.9.0: add TIN geometry support (https://github.com/Geodan/pg2b3dm/pull/178 by [@sebastianmattar] (https://www.github.com/sebastianmattar))
