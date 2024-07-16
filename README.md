@@ -227,7 +227,7 @@ Sample Windows installation (note use correct version):
 
 ```
 $ wget https://github.com/Geodan/pg2b3dm/releases/download/{version}/pg2b3dm-win-x64.zip
-$ unzip pg2b3dm-Win64.zip
+$ unzip pg2b3dm-win-x64.zip
 $ pg2b3dm
 ```
 
