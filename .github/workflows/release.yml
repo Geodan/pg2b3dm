@@ -22,18 +22,15 @@ jobs:
     - name: Test
       run: cat Release.txt
         
-    - name: Publish win-x64
-      working-directory: src/pg2b3dm      
-      run: dotnet publish -c Release -r win-x64 /p:PublishSingleFile=true
-    - name: Publish linux-x64
-      working-directory: src/pg2b3dm      
-      run: dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true
-
-    - name: Zip win-x64
-      run: cd src/pg2b3dm/bin/Release/net6.0/win-x64/publish && zip -r ../../../../../../../pg2b3dm-Win64.zip *
-      
-    - name: Zip linux-x64
-      run: cd src/pg2b3dm/bin/Release/net6.0/linux-x64/publish && zip -r ../../../../../../../pg2b3dm-Linux64.zip *
+    - name: Build and publish
+      run: |
+        architectures=(win-x64 osx-x64 linux-x64 win-arm64 osx-arm64 linux-arm64)
+        for arch in "${architectures[@]}"; do
+          dotnet publish src/pg2b3dm -c Release -r "$arch" /p:PublishSingleFile=true
+          cd src/pg2b3dm/bin/Release/net6.0/"$arch"/publish
+          zip -r ../../../../../../../pg2b3dm-"$arch".zip *
+          cd ../../../../../../..
+        done
 
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -41,8 +38,12 @@ jobs:
       with:
         files: |
           Release.txt
-          pg2b3dm-Win64.zip
-          pg2b3dm-Linux64.zip
+          pg2b3dm-win-x64.zip
+          pg2b3dm-win-arm64.zip
+          pg2b3dm-osx-x64.zip
+          pg2b3dm-osx-arm64.zip
+          pg2b3dm-linux-x64.zip
+          pg2b3dm-linux-arm64.zip
         
     - name: Pack
       working-directory: src/pg2b3dm
