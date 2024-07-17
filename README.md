@@ -233,9 +233,9 @@ $ pg2b3dm
 
 ### .NET tool
 
-As alternative use .NET 6.0 SDK to install the tool:
+As alternative use .NET 8.0 SDK to install the tool:
 
-Prerequisite: .NET 6.0 SDK is installed https://dotnet.microsoft.com/download/dotnet/6.0
+Prerequisite: .NET 8.0 SDK is installed https://dotnet.microsoft.com/download/dotnet/6.0
 
 ```
 $ dotnet tool install -g pg2b3dm
@@ -485,9 +485,9 @@ $ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_us
 
 ## Run from source
 
-Requirement: Install .NET 6.0 SDK
+Requirement: Install .NET 8.0 SDK
 
-https://dotnet.microsoft.com/download/dotnet/6.0
+https://dotnet.microsoft.com/download/dotnet/8.0
 
 Installation guide see https://docs.microsoft.com/en-us/dotnet/core/install/
 
@@ -546,6 +546,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2024-07-17: release 2.11: from .NET 6 .0 to .NET 8.0
 
 2024-07-16: release 2.10.1: add pre-built release binaries for Windows/Linux/IOS (for X64 and ARM)
 
