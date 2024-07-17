@@ -505,7 +505,7 @@ To create an self-contained executable '~/bin/pg2b3dm' for Linux:
 $ git clone https://github.com/Geodan/pg2b3dm.git
 $ cd pg2b3dm/src/pg2b3dm
 $ dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true
-$ cp ./bin/Release/net6.0/linux-x64/publish/pg2b3dm ~/bin
+$ cp ./bin/Release/net8.0/linux-x64/publish/pg2b3dm ~/bin
 $ ~/bin/pg2b3dm
 ```
 
@@ -546,6 +546,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2024-07-17: release 2.11.1: fix .NET 8.0 release 
 
 2024-07-17: release 2.11: from .NET 6 .0 to .NET 8.0
 
