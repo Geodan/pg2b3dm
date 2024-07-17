@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>B3dm.Tileset</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -11,7 +11,10 @@
     <PackageReference Include="subtree" Version="1.4.7" />
   </ItemGroup>
 
-  <ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>none</DebugType>
+	</PropertyGroup>
+	<ItemGroup>
     <ProjectReference Include="..\wkb2gltf.core\wkb2gltf.csproj" />
   </ItemGroup>
 

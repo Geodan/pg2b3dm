@@ -22,7 +22,7 @@ Features:
 
 - Cesium: LOD support and Outlines support (using CESIUM_primitive_outline);
 
-- Triangulation of input geometries LineStrings/Polygon/MultiPolygon/PolyhedralSurface with Z values;
+- Triangulation of input geometries LineStrings/Polygon/MultiPolygon/PolyhedralSurface/TIN with Z values;
 
 - Docker support.
 
@@ -36,13 +36,13 @@ Convert 3D Data (Multipolygon Z) to 3D Tiles
 
 ### Prerequisites
 
-- PostGIS database
+- Install latest executable pg2b3dm for your platform (see https://github.com/Geodan/pg2b3dm/releases) 
 
-- .NET 6.0 SDK https://dotnet.microsoft.com/download/dotnet/6.0
+- PostGIS database
 
 - GDAL (ogr2ogr)
 
-Check PostGIS:
+Optional check PostGIS:
 
 ```
 $ postgresql> select ST_AsText(ST_Transform(ST_GeomFromText('POINT(121302 487371 2.68)', 7415), 4979));
@@ -206,13 +206,34 @@ If --username and/or --dbname are not specified the current username is used as 
 Sample command for running pg2b3dm:
 
 ```
--h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -g 100,0 
+$ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d postgres -g 100,0 
 ```
+
+Database password will be asked to create the database connection, unless:
+
+- Trusted authentication is enabled;
+
+- Environment variable 'PGPASSWORD' is set.
 
 ## Installation
 
+### Pre-built binaries
 
-Prerequisite: .NET 6.0 SDK is installed https://dotnet.microsoft.com/download/dotnet/6.0
+See Releases https://github.com/Geodan/pg2b3dm/releases for pre-built binaries for Windows, Linux and OSX. Binaries are available for X64 and ARM.
+
+Sample Windows installation (note use correct version):
+
+```
+$ wget https://github.com/Geodan/pg2b3dm/releases/download/{version}/pg2b3dm-win-x64.zip
+$ unzip pg2b3dm-win-x64.zip
+$ pg2b3dm
+```
+
+### .NET tool
+
+As alternative use .NET 8.0 SDK to install the tool:
+
+Prerequisite: .NET 8.0 SDK is installed https://dotnet.microsoft.com/download/dotnet/6.0
 
 ```
 $ dotnet tool install -g pg2b3dm
@@ -228,6 +249,15 @@ To run:
 
 ```
 $ pg2b3dm
+```
+
+### Docker
+
+To run the latest Docker image:
+
+```
+$ docker pull geodan/pg2b3dm
+$ docker run geodan/pg2b3dm
 ```
 
 ## Benchmarking
@@ -453,9 +483,9 @@ $ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_us
 
 ## Run from source
 
-Requirement: Install .NET 6.0 SDK
+Requirement: Install .NET 8.0 SDK
 
-https://dotnet.microsoft.com/download/dotnet/6.0
+https://dotnet.microsoft.com/download/dotnet/8.0
 
 Installation guide see https://docs.microsoft.com/en-us/dotnet/core/install/
 
@@ -473,7 +503,7 @@ To create an self-contained executable '~/bin/pg2b3dm' for Linux:
 $ git clone https://github.com/Geodan/pg2b3dm.git
 $ cd pg2b3dm/src/pg2b3dm
 $ dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true
-$ cp ./bin/Release/net6.0/linux-x64/publish/pg2b3dm ~/bin
+$ cp ./bin/Release/net8.0/linux-x64/publish/pg2b3dm ~/bin
 $ ~/bin/pg2b3dm
 ```
 
@@ -514,6 +544,16 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2024-07-17: release 2.11.1: fix .NET 8.0 release 
+
+2024-07-17: release 2.11: from .NET 6 .0 to .NET 8.0
+
+2024-07-16: release 2.10.1: add pre-built release binaries for Windows/Linux/IOS (for X64 and ARM)
+
+2024-07-10: release 2.10.0: add Github releases for Windows and Linux
+
+2024-07-04: release 2.9.0: add TIN geometry support (https://github.com/Geodan/pg2b3dm/pull/178 by [@sebastianmattar] (https://www.github.com/sebastianmattar))
 
 2024-06-20: release 2.8.2: fix lines with constant z values + improve outlines
 

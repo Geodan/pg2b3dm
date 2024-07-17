@@ -1,0 +1,77 @@
+name: Publish
+
+permissions:
+    contents: write
+
+on:
+    push:
+      tags:
+        - v*
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Build
+      run: echo ${{ github.sha }} > Release.txt
+    - name: Test
+      run: cat Release.txt
+        
+    - name: Build and publish
+      run: |
+        architectures=(win-x64 osx-x64 linux-x64 win-arm64 osx-arm64 linux-arm64)
+        for arch in "${architectures[@]}"; do
+          dotnet publish src/pg2b3dm -c Release -r "$arch" /p:PublishSingleFile=true
+          cd src/pg2b3dm/bin/Release/net8.0/"$arch"/publish
+          zip -r ../../../../../../../pg2b3dm-"$arch".zip *
+          cd ../../../../../../..
+        done
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          Release.txt
+          pg2b3dm-win-x64.zip
+          pg2b3dm-win-arm64.zip
+          pg2b3dm-osx-x64.zip
+          pg2b3dm-osx-arm64.zip
+          pg2b3dm-linux-x64.zip
+          pg2b3dm-linux-arm64.zip
+        
+    - name: Pack
+      working-directory: src/pg2b3dm
+      run: |
+        dotnet build pg2b3dm.csproj --configuration Release 
+        dotnet pack pg2b3dm.csproj --configuration Release -p:PackAsTool=true --output ./nupkg
+
+    - name: Publish to NuGet
+      working-directory: src/pg2b3dm
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: dotnet nuget push ./nupkg/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
+      
+    - name: Log in to Docker Hub
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    - name: Get tag
+      id: tag
+      uses: dawidd6/action-get-tag@v1
+      with:
+        strip_v: true
+    
+    - name: Publish to Docker
+      run: |
+        docker build ./src --file ./src/Dockerfile --tag geodan/pg2b3dm:latest
+        docker push geodan/pg2b3dm:latest
+        docker tag geodan/pg2b3dm:latest geodan/pg2b3dm:${{ steps.tag.outputs.tag }}
+        docker push geodan/pg2b3dm:${{ steps.tag.outputs.tag }}

@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
 	<PackageOutputPath>./nupkg</PackageOutputPath>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<ToolCommandName>pg2b3dm</ToolCommandName>
-	<Version>2.8.2</Version>
+	<Version>2.11.1</Version>
     <Description>Console tool for converting PostGIS geometries to 3D Tiles</Description>
-    <AssemblyVersion>2.8.2</AssemblyVersion>
-    <FileVersion>2.8.2</FileVersion>
+    <AssemblyVersion>2.11.1</AssemblyVersion>
+    <FileVersion>2.11.1</FileVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Company>Geodan</Company>
@@ -17,7 +17,7 @@
     <PackageProjectUrl>https://github.com/geodan/pg2b3dm</PackageProjectUrl>
     <RepositoryUrl>https://github.com/geodan/pg2b3dm</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>improve outlines + fix lines with constant z values</PackageReleaseNotes>
+    <PackageReleaseNotes>Add TIN support</PackageReleaseNotes>
     <PackageTags>3dtiles b3dm gltf cesium</PackageTags>
   </PropertyGroup>
 
@@ -26,7 +26,11 @@
     <PackageReference Include="tilebelt" Version="2.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>none</DebugType>
+	</PropertyGroup>
+
+	<ItemGroup>
     <ProjectReference Include="..\b3dm.tileset\b3dm.tileset.csproj" />
   </ItemGroup>
 

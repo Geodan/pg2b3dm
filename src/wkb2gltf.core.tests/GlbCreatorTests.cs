@@ -260,6 +260,20 @@ public class GlbCreatorTests
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "multilinestring.glb");
         File.WriteAllBytes(@"multilinestring.glb", bytes);
     }
+    
+    [Test]
+    public static void CreateGlbForTin()
+    {
+        var pipelineWkt = "TIN Z (((0 0 0,0 0 1,0 1 0,0 0 0)),((0 0 0,0 1 0,1 1 0,0 0 0)))";
+        var g = Geometry.Deserialize<WktSerializer>(pipelineWkt);
+        var translation = new double[] { 0, 0, 0 };
+        var triangles = GeometryProcessor.GetTriangles(g, 100, translation);
+        Assert.That(triangles.Count, Is.EqualTo(2));
+
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "tin.glb");
+        File.WriteAllBytes(@"tin.glb", bytes);
+    }
 
     [Test]
     public static void CreateGlbForLineString()

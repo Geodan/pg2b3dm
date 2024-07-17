@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Triangulate;
 using Wkx;
 
@@ -9,21 +10,28 @@ public static class GeometryProcessor
 {
     public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation = null, double[] scale = null, float? radius = null)
     {
-        if (geometry is not Polygon && geometry is not MultiPolygon && geometry is not PolyhedralSurface && geometry is not LineString && geometry is not MultiLineString) {
-            throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
-        }
-
         var r = radius.HasValue ? radius.Value : (float)1.0f;
 
         List<Polygon> geometries;
-        if (geometry is LineString) {
-            geometries = GetTrianglesFromLines((LineString)geometry, r, translation, scale);
-        }
-        else if (geometry is MultiLineString) {
-            geometries = GetTrianglesFromLines((MultiLineString)geometry, r, translation, scale);
-        }
-        else {
-            geometries = GetTrianglesFromPolygons(geometry, translation, scale);
+        switch (geometry)
+        {
+            case LineString lineString:
+                geometries = GetTrianglesFromLines(lineString, r, translation, scale);
+                break;
+            case MultiLineString multiLineString:
+                geometries = GetTrianglesFromLines(multiLineString, r, translation, scale);
+                break;
+            case Polygon:
+            case MultiPolygon:
+            case PolyhedralSurface:
+                geometries = GetTrianglesFromPolygons(geometry, translation);
+                break;
+            case Tin tin:
+                var nmp = new PolyhedralSurface(tin.Geometries.Select(t => new Polygon(t.ExteriorRing.Points)));
+                geometries = GetTrianglesFromPolygons(nmp, translation);
+                break;
+            default:
+                throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
         }
 
         var result = GetTriangles(batchId, geometries);
@@ -67,17 +75,16 @@ public static class GeometryProcessor
 
     private static List<Polygon> GetGeometries(Geometry geometry)
     {
-        if (geometry is Polygon) {
-            return new List<Polygon>() { (Polygon)geometry };
-        }
-        else if (geometry is MultiPolygon) {
-            return ((MultiPolygon)geometry).Geometries;
-        }
-        else if (geometry is PolyhedralSurface) {
-            return ((PolyhedralSurface)geometry).Geometries;
-        }
-        else {
-            throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
+        switch (geometry)
+        {
+            case Polygon polygon:
+                return new List<Polygon>() { polygon };
+            case MultiPolygon multiPolygon:
+                return multiPolygon.Geometries;
+            case PolyhedralSurface surface:
+                return surface.Geometries;
+            default:
+                throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
         }
     }
 
