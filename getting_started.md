@@ -23,7 +23,7 @@ Donwload zip, unzip. It contains a 'bldg_footprints.shp' shapefile with building
 
 - PostGIS database
 
-- .NET 6.0 SDK https://dotnet.microsoft.com/download/dotnet/6.0
+- .NET 8.0 SDK https://dotnet.microsoft.com/download/dotnet/8.0
 
 - GDAL (ogr2ogr)
 
