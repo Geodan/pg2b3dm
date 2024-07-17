@@ -121,7 +121,6 @@ public class UnitTest1
             trans,
             string.Empty,
             string.Empty,
-            string.Empty,
             "output/content",
             new List<int>() { 0 },
             skipCreateTiles: false);
