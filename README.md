@@ -547,6 +547,8 @@ Press F5 to start debugging.
 
 ## History
 
+2024-07-30: release 2.12.0: use LineCurve instead of Catmullrom curve for lines (better performance + more accurate)
+
 2024-07-17: release 2.11.1: fix .NET 8.0 release 
 
 2024-07-17: release 2.11: from .NET 6 .0 to .NET 8.0

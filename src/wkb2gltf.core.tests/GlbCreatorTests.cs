@@ -358,7 +358,7 @@ public class GlbCreatorTests
         var g = Geometry.Deserialize<WktSerializer>(pipelineWkt);
         var translation = new double[] { 0, 0, 0 };
         var triangles = GeometryProcessor.GetTriangles(g, 100, translation);
-        Assert.That(triangles.Count, Is.EqualTo(2048));
+        Assert.That(triangles.Count, Is.EqualTo(48));
 
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "multilinestring.glb");
@@ -386,7 +386,7 @@ public class GlbCreatorTests
         var g = Geometry.Deserialize<WktSerializer>(pipelineWkt);
         var translation = new double[] { 3889587.5, 333387.5625, 5026956 };
         var triangles = GeometryProcessor.GetTriangles(g, 100, translation);
-        Assert.That(triangles.Count, Is.EqualTo(1024));
+        Assert.That(triangles.Count, Is.EqualTo(48));
     }
 
     [Test]

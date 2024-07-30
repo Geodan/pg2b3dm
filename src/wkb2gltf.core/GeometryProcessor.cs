@@ -42,16 +42,17 @@ public static class GeometryProcessor
     private static List<Polygon> GetTrianglesFromLines(MultiLineString line, float radius, double[] translation = null, double[] scale = null, int? tabularSegments = 64, int? radialSegments = 8)
     {
         var relativeLine = GetRelativeLine(line, translation, scale);
-        var triangles = Triangulator.Triangulate(relativeLine, radius, tabularSegments, radialSegments);
+        var triangles = Triangulator.Triangulate(relativeLine, radius, radialSegments: radialSegments);
         return triangles.Geometries;
     }
 
     private static List<Polygon> GetTrianglesFromLines(LineString line, float radius, double[] translation = null, double[] scale = null, int? tabularSegments = 64, int? radialSegments = 8)
     {
         var relativeLine = GetRelativeLine(line, translation, scale);
-        var triangles = Triangulator.Triangulate(relativeLine, radius, tabularSegments, radialSegments);
+        var triangles = Triangulator.Triangulate(relativeLine, radius, radialSegments: radialSegments);
         return triangles.Geometries;
     }
+
 
     private static List<Polygon> GetTrianglesFromPolygons(Geometry geometry, double[] translation = null, double[] scale = null)
     {
