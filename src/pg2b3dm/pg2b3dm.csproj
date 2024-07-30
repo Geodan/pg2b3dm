@@ -19,6 +19,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>Add TIN support</PackageReleaseNotes>
     <PackageTags>3dtiles b3dm gltf cesium</PackageTags>
+	<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>
