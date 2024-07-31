@@ -8,7 +8,7 @@ namespace Wkb2Gltf;
 
 public static class GeometryProcessor
 {
-    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation = null, double[] scale = null, ShaderColors shadercolors = null, float? radius = null)
+    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation = null, double[] scale = null, ShaderColor shadercolor = null, float? radius = null)
     {
         var r = radius.HasValue ? radius.Value : (float)1.0f;
 
@@ -34,7 +34,7 @@ public static class GeometryProcessor
                 throw new NotSupportedException($"Geometry type {geometry.GeometryType} is not supported");
         }
 
-        var result = GetTriangles(batchId, shadercolors, geometries);
+        var result = GetTriangles(batchId, shadercolor, geometries);
 
         return result;
     }
@@ -136,7 +136,7 @@ public static class GeometryProcessor
         return relativePolygons;
     }
 
-    private static List<Triangle> GetTriangles(int batchId, ShaderColors shadercolors, List<Polygon> geometries)
+    private static List<Triangle> GetTriangles(int batchId, ShaderColor shadercolors, List<Polygon> geometries)
     {
         var degenerated_triangles = 0;
         var allTriangles = new List<Triangle>();
@@ -145,7 +145,6 @@ public static class GeometryProcessor
             var triangle = GetTriangle(geometry, batchId);
 
             if (triangle != null && shadercolors != null) {
-                shadercolors.Validate(geometries.Count);
                 triangle.Shader = shadercolors.ToShader(i);
             }
 

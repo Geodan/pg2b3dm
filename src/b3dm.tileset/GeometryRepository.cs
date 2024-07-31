@@ -126,7 +126,22 @@ public static class GeometryRepository
 
             if (shaderColumn != string.Empty) {
                 var json = GetJson(reader, shadersColumnId);
-                geometryRecord.Shader = JsonConvert.DeserializeObject<ShaderColors>(json);
+                if(json.Contains("EmissiveColors") || json.Contains("BaseColors") || json.Contains("DiffuseColors")) {
+                    var message = $"Starting version 3, Shaders should be in the format: {{" +
+                        "\"EmissiveColor\": \"#000000\"," +
+                        "\"PbrSpecularGlossiness\": {" +
+                        "\"DiffuseColor\": \"#000000\"," +
+                        "\"SpecularGlossiness\": \"#000000\"" +
+                        "}," +
+                        "\"PbrMetallicRoughness\": {" +
+                        "\"MetallicRoughness\": \"#000000\"," +
+                        "\"BaseColor\": \"#000000\"" +
+                        "}" +
+                        "}";
+
+                    throw new Exception(message);
+                }
+                geometryRecord.Shader = JsonConvert.DeserializeObject<ShaderColor>(json);
             }
             if (attributesColumns != string.Empty) {
                 var attributes = GetColumnValuesAsList(reader, attributesColumnIds);

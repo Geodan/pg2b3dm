@@ -27,23 +27,17 @@ The json must have the following structure:
 
 ```
 {
-    "EmissiveColors": [list_of_emissivecolors in hex],
+    "EmissiveColor": emissivecolor in hex,
     "PbrMetallicRoughness": {
-        "BaseColors": [ list_of_basecolors in hex],
-        "MetallicRoughness": [list_of_metallic_roughness in hex]
+        "BaseColor": basecolor in hex,
+        "MetallicRoughness": metallic_roughness in hex
     },
     "PbrSpecularGlossiness": {
-        "DiffuseColors": [list_of_diffuse in hex],
-        "SpecularGlossiness": [list_of_specular_glossiness in hex]
+        "DiffuseColor": diffuse in hex,
+        "SpecularGlossiness": specular_glossiness in hex
     }
 }
 ```
-
-The amount of colors in the lists 
-
-- must correspond to the number of triangles in the geometry;
-
-- or be 1, in which case the same color is used for all triangles in the geometry;
 
 Example:
 
@@ -51,15 +45,10 @@ Example:
 update delaware_buildings set simple_shader = 
 '{
     "PbrMetallicRoughness": {
-        "BaseColors": ["#ff0000"]
+        "BaseColor": "#ff0000"
     }
 }';
 ```
-
-- otherwise an exception is thrown.
-
-
-Warning: When using a shader per triangle, the input geometries must be triangulated for this to work. Otherwise pg2b3dm will triangulate the geometries and the number of triangles will be unknown.
 
 ## Sql
 
@@ -71,30 +60,30 @@ ALTER TABLE mytable ADD COLUMN simple_shader json;
 update mytable set simple_shader = 
 '{
     "PbrMetallicRoughness": {
-        "BaseColors": ["#008000", "#008000"]
+        "BaseColor": "#008000"
     }
 }';
 ```
 
 ## Samples
 
-Sample for using shader PbrMetallicRoughness with BaseColor for 2 triangles:
+Sample for using shader PbrMetallicRoughness with BaseColor:
 
 ```
 {
     "PbrMetallicRoughness": {
-        "BaseColors": ["#008000","#008000"]
+        "BaseColor": "#008000"
     }
 }
 ```
 
-Sample for Specular Glossiness with Diffuse and SpecularGlossiness for 2 triangles :
+Sample for Specular Glossiness with Diffuse and SpecularGlossiness:
 
 ```
 {
     "PbrSpecularGlossiness": {
-        "DiffuseColors": ["#E6008000","#E6008000"],
-        "SpecularGlossiness": ["#4D0000ff", "#4D0000ff"]
+        "DiffuseColor": "#E6008000",
+        "SpecularGlossiness": "#4D0000ff"
     }
 }
 ```

@@ -16,7 +16,7 @@ public class GeometryRecord
 
     public Dictionary<string,object> Attributes { get; set; }
 
-    public ShaderColors Shader { get; set; }
+    public ShaderColor Shader { get; set; }
 
     public float? Radius { get; set; }
 

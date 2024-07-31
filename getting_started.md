@@ -118,25 +118,12 @@ The shaders column contains json information like:
 ```
 {
   "PbrMetallicRoughness": {
-    "BaseColors": [
-      "#008000",
-      "#008000",
-      "#FF0000",
-      "#FF0000",
-      "#EEC900",
-      "#EEC900",
-      "#EEC900",
-      "#EEC900",
-      "#EEC900",
-      "#EEC900",
-      "#EEC900",
-      "#EEC900"
-    ]
+    "BaseColors": "#008000"
   }
 }
 ```
 
-In this case PbrMetallicRoughness shader will be used, for all the triangles there is a color code.
+In this case PbrMetallicRoughness shader will be used, with red color
 
 ## Run pg2b3dm
 
@@ -154,7 +141,7 @@ $ pg2b3dm -h localhost -U postgres -c geom_triangle -t delaware_buildings -d pos
 
 Output:
 
-```Tool: pg2b3dm 2.0.0.0
+```Tool: pg2b3dm 3.0.0.0
 Password for user postgres:
 Start processing 2024-01-04T10:55:13....
 Input table: delaware_buildings

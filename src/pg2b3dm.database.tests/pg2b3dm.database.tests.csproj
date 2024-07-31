@@ -35,12 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="postgres-db\1_create_delaware_table.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="postgres-db\2_create_delaware_table.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="postgres-db\3_create_geom_table.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
