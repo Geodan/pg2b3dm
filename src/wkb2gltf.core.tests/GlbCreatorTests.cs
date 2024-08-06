@@ -23,6 +23,22 @@ public class GlbCreatorTests
     }
 
     [Test]
+    public void CreateGlbForTinWith2Shaders()
+    {
+        var pipelineWkt = "TIN Z (((0 0 0,0 0 1,0 1 0,0 0 0)),((0 0 0,0 1 0,1 1 0,0 0 0)))";
+        var g = Geometry.Deserialize<WktSerializer>(pipelineWkt);
+        var translation = new double[] { 0, 0, 0 };
+        var shaderColors = GetShaderColors(2);
+
+        var triangles = GeometryProcessor.GetTriangles(g, 100, shadercolors: shaderColors);
+        Assert.That(triangles.Count, Is.EqualTo(2));
+
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "tin.glb");
+        File.WriteAllBytes(@"tin.glb", bytes);
+    }
+
+
     public void CreateGlbFromMultilineWith1Shader()
     {
         var wkt = "MULTILINESTRING ((0 0 0, 1 1 0), (2 2 0, 3 3 0))";
@@ -499,11 +515,12 @@ public class GlbCreatorTests
     }
     
     [Test]
-    public static void CreateGlbForTin()
+    public static void CreateGlbForTin1()
     {
         var pipelineWkt = "TIN Z (((0 0 0,0 0 1,0 1 0,0 0 0)),((0 0 0,0 1 0,1 1 0,0 0 0)))";
         var g = Geometry.Deserialize<WktSerializer>(pipelineWkt);
         var translation = new double[] { 0, 0, 0 };
+
         var triangles = GeometryProcessor.GetTriangles(g, 100, translation);
         Assert.That(triangles.Count, Is.EqualTo(2));
 
