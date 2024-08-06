@@ -39,11 +39,10 @@ The json must have the following structure:
 }
 ```
 
-The amount of colors in the lists 
+Rules for amount of shaders:
 
-- must correspond to the number of triangles in the geometry;
-
-- or be 1, in which case the same color is used for all triangles in the geometry;
+- The amount of colors in the lists for Polygon geometry types must be 1, in 
+which case the same color is used for all triangles in the geometry;
 
 Example:
 
@@ -56,9 +55,10 @@ update delaware_buildings set simple_shader =
 }';
 ```
 
-- For collection types (like MultiPolygon, MultiLine or PolyhedralSurface) the number of geometries can be equal to the number of shaders. In this case each 
-geometry is styled with the corresponding shader. 
+- For collection types (like MultiPolygon, MultiLine or PolyhedralSurface) the number of shaders can be equal to the number of inner geometries . In this case each 
+inner geometry is styled with the corresponding shader. 
 
+- For all geometries the number of shaders can be equal to the number of triangles (of the generated mesh).
 
 - otherwise an exception is thrown.
 
@@ -75,9 +75,46 @@ The number of shaders can be:
 
     - 1: all triangles are styled with the same shader;
 
+```
+{
+  "PbrMetallicRoughness": {
+    "BaseColors": [
+      "#008000"
+    ]
+  }
+}
+```
+
+
     - 2: each square is styled with a different shader;
 
+```
+{
+  "PbrMetallicRoughness": {
+    "BaseColors": [
+      "#008000", 
+      "#FF0000"
+    ]
+  }
+}
+```
+
+
+
     - 4: each triangle is styled with a different shader.
+
+```
+{
+  "PbrMetallicRoughness": {
+    "BaseColors": [
+        "#008000",
+        "#FF0000",
+        "#EEC900",
+        "#EEC900"
+    ]
+  }
+}
+```
 
 Warning: 
 

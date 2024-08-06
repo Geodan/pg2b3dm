@@ -23,6 +23,57 @@ public class GlbCreatorTests
     }
 
     [Test]
+    public void CreateGlbFromMultilineWith1Shader()
+    {
+        var wkt = "MULTILINESTRING ((0 0 0, 1 1 0), (2 2 0, 3 3 0))";
+        var g = Geometry.Deserialize<WktSerializer>(wkt);
+
+        var shaderColors = GetShaderColors(32);
+
+        var triangles = GeometryProcessor.GetTriangles(g, 100, shadercolors: shaderColors);
+
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles }, createGltf: true, doubleSided: true);
+        File.WriteAllBytes(@"multiline_32_shader.glb", bytes);
+    }
+
+
+    [Test]
+    public void CreateGlbFromlineWith32Shader()
+    {
+        var wkt = "LINESTRING (0 0 0, 0 1 0, 1 2 0)";
+        var g = Geometry.Deserialize<WktSerializer>(wkt);
+
+        var shaderColors = GetShaderColors(32);
+
+        var triangles = GeometryProcessor.GetTriangles(g, 100, shadercolors: shaderColors);
+
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles }, createGltf: true, doubleSided: true);
+        File.WriteAllBytes(@"multipolygon_32_shader.glb", bytes);
+    }
+
+
+    [Test]
+    public void CreateGlbFromPolygonWith1Shader()
+    {
+        var wkt = "POLYGON Z((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0))";
+        var g = Geometry.Deserialize<WktSerializer>(wkt);
+
+        var shaderColors = GetShaderColors(1);
+
+        var triangles = GeometryProcessor.GetTriangles(g, 100, shadercolors: shaderColors);
+        var i = 0;
+        foreach (var triangle in triangles) {
+            Assert.That(triangle.Shader.PbrMetallicRoughness.BaseColor.Equals(shaderColors.PbrMetallicRoughnessColors.BaseColors[0]));
+            i++;
+        }
+
+        Assert.That(triangles.Count, Is.EqualTo(2));
+
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles }, createGltf: true, doubleSided: true);
+        File.WriteAllBytes(@"multipolygon_1_shader.glb", bytes);
+    }
+
+    [Test]
     public void CreateGlbFromMultipolygonWith1Shaders()
     {
         var wkt = "MULTIPOLYGON Z(((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)),((2 2 0, 2 3 0, 3 3 0, 3 2 0, 2 2 0)))";
