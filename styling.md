@@ -56,10 +56,32 @@ update delaware_buildings set simple_shader =
 }';
 ```
 
+- For collection types (like MultiPolygon, MultiLine or PolyhedralSurface) the number of geometries can be equal to the number of shaders. In this case each 
+geometry is styled with the corresponding shader. 
+
+
 - otherwise an exception is thrown.
 
 
-Warning: When using a shader per triangle, the input geometries must be triangulated for this to work. Otherwise pg2b3dm will triangulate the geometries and the number of triangles will be unknown.
+Example: 
+
+Consider a Multipolygon geometry of 2 squares:
+
+```
+MULTIPOLYGON Z(((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)),((2 2 0, 2 3 0, 3 3 0, 3 2 0, 2 2 0)))
+```
+
+The number of shaders can be:
+
+    - 1: all triangles are styled with the same shader;
+
+    - 2: each square is styled with a different shader;
+
+    - 4: each triangle is styled with a different shader.
+
+Warning: 
+
+When using non triangulated geometries, the number of resulting triangles is unknown in most cases.  
 
 ## Sql
 

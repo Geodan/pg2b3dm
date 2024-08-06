@@ -8,11 +8,53 @@ namespace Wkb2Gltf;
 
 public static class GeometryProcessor
 {
+    private static Geometry GetGeometry(Geometry multiGeometry, int i)
+    {
+        switch (multiGeometry) {
+            case MultiPolygon multiPolygon:
+                return multiPolygon.Geometries[i];
+            case MultiLineString multiLineString:
+                return multiLineString.Geometries[i];
+            case PolyhedralSurface polyhedralSurface:
+                return polyhedralSurface.Geometries[i];
+            default:
+                throw new NotSupportedException($"Geometry type {multiGeometry.GeometryType} is not supported");
+        }
+    }
+
+    private static int Count (Geometry multiGeometry)
+    {
+       switch (multiGeometry)
+        {
+            case MultiPolygon multiPolygon:
+                return multiPolygon.Geometries.Count;
+            case MultiLineString multiLineString:
+                return multiLineString.Geometries.Count;
+            case PolyhedralSurface polyhedralSurface:
+                return polyhedralSurface.Geometries.Count;
+            default:
+                throw new NotSupportedException($"Geometry type {multiGeometry.GeometryType} is not supported");
+        }
+    }
+
     public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation = null, double[] scale = null, ShaderColors shadercolors = null, float? radius = null)
     {
         var r = radius.HasValue ? radius.Value : (float)1.0f;
 
+        if (geometry is MultiPolygon || geometry is MultiLineString || geometry is PolyhedralSurface)
+        {
+            if(shadercolors != null)
+            {
+                var numberOfGeometries = Count(geometry);
+
+                if (numberOfGeometries == shadercolors.Count()) {
+                    return GetTrianglesForMultiGeometries(geometry, batchId, translation, scale, shadercolors, r, numberOfGeometries);
+                }
+            }
+        }
+
         List<Polygon> geometries;
+
         switch (geometry)
         {
             case LineString lineString:
@@ -23,6 +65,8 @@ public static class GeometryProcessor
                 break;
             case Polygon:
             case MultiPolygon:
+                geometries = GetTrianglesFromPolygons(geometry, translation);
+                break;
             case PolyhedralSurface:
                 geometries = GetTrianglesFromPolygons(geometry, translation);
                 break;
@@ -38,6 +82,26 @@ public static class GeometryProcessor
 
         return result;
     }
+
+    private static List<Triangle> GetTrianglesForMultiGeometries(Geometry geometry, int batchId, double[] translation, double[] scale, ShaderColors shadercolors, float? radius, int numberOfGeometries)
+    {
+        var result1 = new List<Triangle>();
+        // Do special treatment
+        for (var i = 0; i < numberOfGeometries; i++) {
+            var geom = GetGeometry(geometry, i);
+            var shader = shadercolors.ToShader(i);
+            var shaderColor = ShaderColors.ToShaderColors(shader);
+
+            var geometryRecord = new GeometryRecord(batchId) {
+                Geometry = geom,
+                Shader = shaderColor,
+                Radius = radius
+            };
+            result1.AddRange(geometryRecord.GetTriangles(translation, scale));
+        }
+        return result1;
+    }
+
 
     private static List<Polygon> GetTrianglesFromLines(MultiLineString line, float radius, double[] translation = null, double[] scale = null, int? tabularSegments = 64, int? radialSegments = 8)
     {
@@ -161,12 +225,6 @@ public static class GeometryProcessor
     }
 
     public static Triangle GetTriangle(Polygon geometry, int batchId)
-    {
-        var triangle = ToTriangle(geometry, batchId);
-        return triangle;
-    }
-
-    private static Triangle ToTriangle(Polygon geometry, int batchId)
     {
         var pnts = geometry.ExteriorRing.Points;
         if (pnts.Count != 4) {

@@ -23,6 +23,88 @@ public class GlbCreatorTests
     }
 
     [Test]
+    public void CreateGlbFromMultipolygonWith1Shaders()
+    {
+        var wkt = "MULTIPOLYGON Z(((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)),((2 2 0, 2 3 0, 3 3 0, 3 2 0, 2 2 0)))";
+        var g = Geometry.Deserialize<WktSerializer>(wkt);
+
+        var shaderColors = GetShaderColors(1);
+
+        var triangles = GeometryProcessor.GetTriangles(g, 100, shadercolors : shaderColors );
+        var i = 0;
+        foreach (var triangle in triangles) {
+            Assert.That(triangle.Shader.PbrMetallicRoughness.BaseColor.Equals(shaderColors.PbrMetallicRoughnessColors.BaseColors[0]));
+            i++;
+        }
+
+        Assert.That(triangles.Count, Is.EqualTo(4));
+
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles }, createGltf: true, doubleSided : true);
+        File.WriteAllBytes(@"multipolygon_1_shader.glb", bytes);
+    }
+
+
+    [Test]
+    public void CreateGlbFromMultipolygonWith4Shaders()
+    {
+        // arrange multipolygon of 2 squares
+        var wkt = "MULTIPOLYGON Z(((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)),((2 2 0, 2 3 0, 3 3 0, 3 2 0, 2 2 0)))";
+        var g = Geometry.Deserialize<WktSerializer>(wkt);
+
+        var shaderColors = GetShaderColors(4);
+
+        var triangles = GeometryProcessor.GetTriangles(g, 100, shadercolors: shaderColors);
+
+        Assert.That(triangles.Count, Is.EqualTo(4));
+        var i = 0;
+        foreach(var triangle in triangles)
+        {
+            Assert.That(triangle.Shader.PbrMetallicRoughness.BaseColor.Equals(shaderColors.PbrMetallicRoughnessColors.BaseColors[i]));
+            i++;
+        }
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles }, createGltf: true, doubleSided: true);
+        File.WriteAllBytes(@"multipolygon_4_shader.glb", bytes);
+
+    }
+
+    [Test]
+    public void CreateGlbFromMultipolygonWith2Shaders()
+    {
+        // arrange multipolygon of 2 squares
+        var wkt = "MULTIPOLYGON Z(((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)),((2 2 0, 2 3 0, 3 3 0, 3 2 0, 2 2 0)))";
+        var g = Geometry.Deserialize<WktSerializer>(wkt);
+
+        var shaderColors = GetShaderColors(2);
+
+        var triangles = GeometryProcessor.GetTriangles(g, 100, shadercolors: shaderColors);
+        Assert.That(triangles.Count, Is.EqualTo(4));
+
+        Assert.That(triangles[0].Shader.PbrMetallicRoughness.BaseColor.Equals(shaderColors.PbrMetallicRoughnessColors.BaseColors[0]));
+        Assert.That(triangles[1].Shader.PbrMetallicRoughness.BaseColor.Equals(shaderColors.PbrMetallicRoughnessColors.BaseColors[0]));
+        Assert.That(triangles[2].Shader.PbrMetallicRoughness.BaseColor.Equals(shaderColors.PbrMetallicRoughnessColors.BaseColors[1]));
+        Assert.That(triangles[3].Shader.PbrMetallicRoughness.BaseColor.Equals(shaderColors.PbrMetallicRoughnessColors.BaseColors[1]));
+
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles }, createGltf: true, doubleSided: true);
+        File.WriteAllBytes(@"multipolygon_2_shader.glb", bytes);
+    }
+
+
+    private ShaderColors GetShaderColors(int amount)
+    {
+        var shaderColors = new ShaderColors();
+        var metallicRoughness = new PbrMetallicRoughnessColors();
+        var random = new Random();
+        var baseColors = new List<string>();
+        for (var i = 0; i < amount; i++) {
+            var color = string.Format("#{0:X6}", random.Next(0x1000000));
+            baseColors.Add(color);
+        }
+        metallicRoughness.BaseColors = baseColors;
+        shaderColors.PbrMetallicRoughnessColors = metallicRoughness;
+        return shaderColors;
+    }
+
+    [Test]
     public void CreateGltfWithNullAttributesTest()
     {
         // arrange
@@ -137,7 +219,7 @@ public class GlbCreatorTests
         // act
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ogc_fid_13967.glb");
-        File.WriteAllBytes(@"test.glb", bytes);
+        File.WriteAllBytes(@"d:\aaa\test.glb", bytes);
         File.WriteAllBytes(fileName, bytes);
 
         // assert
@@ -402,6 +484,7 @@ public class GlbCreatorTests
         var shaderColors = new ShaderColors();
         var metallicRoughness = new PbrMetallicRoughnessColors();
         metallicRoughness.BaseColors = colors;
+        shaderColors.PbrMetallicRoughnessColors = metallicRoughness;
 
         var triangles = GeometryProcessor.GetTriangles(polyhedralsurface, 100, shadercolors: shaderColors);
         CheckNormal(triangles[2], center);
