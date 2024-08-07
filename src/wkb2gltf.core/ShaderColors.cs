@@ -13,7 +13,12 @@ public class ShaderColors
     [JsonProperty(PropertyName = "PbrMetallicRoughness")]
     public PbrMetallicRoughnessColors PbrMetallicRoughnessColors { get; set; }
 
-
+    public int Count()
+    {
+        if (PbrMetallicRoughnessColors!= null) return PbrMetallicRoughnessColors.BaseColors.Count;
+        if (EmissiveColors!=null) return EmissiveColors.Count;
+        return PbrSpecularGlossinessColors.SpecularGlossinessColors.Count;
+    }
     public Shader ToShader(int i)
     {
         var shader = new Shader();
@@ -33,6 +38,27 @@ public class ShaderColors
             } :
             null);
         return shader;
+    }
+
+
+    public static ShaderColors ToShaderColors(Shader shader)
+    {
+        var shaderColor = new ShaderColors();
+        if (shader.EmissiveColor != null) {
+            shaderColor.EmissiveColors = new List<string> { shader.EmissiveColor };
+        }
+        if (shader.PbrSpecularGlossiness != null) {
+            shaderColor.PbrSpecularGlossinessColors = new PbrSpecularGlossinessColors();
+            shaderColor.PbrSpecularGlossinessColors.DiffuseColors = new List<string> { shader.PbrSpecularGlossiness.DiffuseColor };
+            shaderColor.PbrSpecularGlossinessColors.SpecularGlossinessColors = new List<string> { shader.PbrSpecularGlossiness.SpecularGlossiness };
+        }
+        if (shader.PbrMetallicRoughness != null) {
+            shaderColor.PbrMetallicRoughnessColors = new PbrMetallicRoughnessColors();
+            shaderColor.PbrMetallicRoughnessColors.MetallicRoughnessColors = new List<string> { shader.PbrMetallicRoughness.MetallicRoughness };
+            shaderColor.PbrMetallicRoughnessColors.BaseColors = new List<string> { shader.PbrMetallicRoughness.BaseColor };
+        }
+
+        return shaderColor;
     }
 
     public void Validate(int expectedGeometries)
