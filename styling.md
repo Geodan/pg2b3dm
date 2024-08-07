@@ -1,8 +1,56 @@
 # Styling 3D Tiles
 
-## Shaders
+There are 2 ways to style 3D Tiles:
 
-By default (when option --shaderscolumn is not used), the following PbrMetallicRoughness shader is used with parameters for all triangles:
+1] Client side styling
+
+The 3D Tiles are styled on the client side (in the browser) using the CesiumJS API.
+
+2] Server side styling
+
+The 3D Tiles are styled on the server side (in the database) using a json document.
+
+
+## Client side styling
+
+When using client side styling the 3D Tiles are styled in the client. In CesiumJS there is a 3D Tiles Styling Language.
+For the specs of 3D Tiles Styling Language see https://github.com/CesiumGS/3d-tiles/tree/main/specification/Styling 
+
+Example for styling buildings in a 3D Tileset based on attribute 'bouwjaar' in CesiumJS:
+
+```
+   var buildings = new Cesium.Cesium3DTileset({
+        url : './buildings/tileset.json'
+    });
+
+    buildings.style = new Cesium.Cesium3DTileStyle({
+      color: {
+        conditions: [
+        ["${feature['bouwjaar']} <= 1700", "color('#430719')"],
+        ["${feature['bouwjaar']} > 1700", "color('#740320')"],
+        ]
+      }
+    }
+  );
+```
+
+Example for showing a subset based on a query (show only buildings with bouwjaar > 1975):
+
+```
+buildings.style.show = "${feature['bouwjaar']} > 1975"
+```
+Remember to add attribute bouwjaar with '-a bouwjaar' when creating the 3D Tiles.
+
+
+## Server side styling
+
+When using server side styling the 3D Tiles are styled in the database. 
+The styling is stored in a json document in a column of type json.
+
+The json document contains the shaders for the 3D Tiles. When the option --shaderscolumn is used, the shaders are read from the column specified in the option.
+
+When the option --shaderscolumn is not used, a default PbrMetallicRoughness shader is used for all triangles in the geometry, 
+witht following properties:
 
 - BaseColor: #FFFFFF (option --default_color)
 
@@ -12,16 +60,16 @@ R = 255, G = 255, B = 255, A = 1
 
 Metallic factor: 0, Roughness factor: 0.5019608 (128/255)
 
-- Doubleside: true (hardcoded)
+- Doubleside: true (option double_sided)
 
 - Alpha: 0 (hardcoded)
 
 Alternative option is to specify a shader using the ShadersColumn.
 
-Shaderscolumn is a column of type json. In this json document the shaders are defined like PbrMetallicRoughness and
+Shaderscolumn is a column of type json. In the json documents the shaders are defined like PbrMetallicRoughness and
 PbrSpecularGlossiness. Note: PbrSpecularGlossiness is deprecated by Khronos, so advise is to use PbrMetallicRoughness.
 
-## JSON Structure
+### JSON Structure
 
 The json must have the following structure:
 
@@ -39,10 +87,10 @@ The json must have the following structure:
 }
 ```
 
-Rules for amount of shaders:
+### Rules for amount of shaders
 
-- The amount of colors in the lists for Polygon geometry types must be 1, in 
-which case the same color is used for all triangles in the geometry;
+- The amount of colors in the lists can be 1, in  which case the same color is used for all 
+triangles in the geometry;
 
 Example:
 
@@ -55,13 +103,13 @@ update delaware_buildings set simple_shader =
 }';
 ```
 
-- For collection types (like MultiPolygon, MultiLine or PolyhedralSurface) the number of shaders can be equal to the number of inner geometries . In this case each 
-inner geometry is styled with the corresponding shader. 
+- For collection types (like MultiPolygon, MultiLine or PolyhedralSurface) the number of shaders can be equal to the number of 
+inner geometries . In this case each inner geometry is styled with the corresponding shader. 
 
-- For all geometries the number of shaders can be equal to the number of triangles (of the generated mesh).
+- The number of shaders can be equal to the number of triangles (of the generated mesh). The amount of triangles must
+    be known in advance.
 
-- otherwise an exception is thrown.
-
+If the amount of colors is otherwise an exception is thrown.
 
 Example: 
 
@@ -73,7 +121,7 @@ MULTIPOLYGON Z(((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)),((2 2 0, 2 3 0, 3 3 0, 3 2 
 
 The number of shaders can be:
 
-    - 1: all triangles are styled with the same shader;
+- 1: all triangles are styled with the same shader;
 
 ```
 {
@@ -86,7 +134,7 @@ The number of shaders can be:
 ```
 
 
-    - 2: each square is styled with a different shader;
+- 2: each square is styled with a different shader;
 
 ```
 {
@@ -99,9 +147,7 @@ The number of shaders can be:
 }
 ```
 
-
-
-    - 4: each triangle is styled with a different shader.
+- 4: each triangle is styled with a different shader.
 
 ```
 {
@@ -116,11 +162,7 @@ The number of shaders can be:
 }
 ```
 
-Warning: 
-
-When using non triangulated geometries, the number of resulting triangles is unknown in most cases.  
-
-## Sql
+### Sql
 
 Sample query in SQL:
 
@@ -135,7 +177,7 @@ update mytable set simple_shader =
 }';
 ```
 
-## Samples
+### Samples
 
 Sample for using shader PbrMetallicRoughness with BaseColor for 2 triangles:
 
@@ -229,40 +271,10 @@ Converted to RGBA:
 
 So Diffuse Red = 230, Diffuse Green = 0, Diffuse Blue = 128, Alpha = 0
 
-## Remarks
+### Remarks
 
 - Fallback scenario from SpecularGlossiness to MetallicRoughness shader for clients that do not support 
 SpecularGlossiness is not supported (yet)
 
 - Shader 'unlit' is not supported (yet)
 
-## Client side styling
-
-An alternative option is to style the 3D Tiles on runtime (in the client).
-
-Example for styling buildings in a 3D Tileset based on attribute 'bouwjaar' in CesiumJS:
-
-```
-   var buildings = new Cesium.Cesium3DTileset({
-        url : './buildings/tileset.json'
-    });
-
-    buildings.style = new Cesium.Cesium3DTileStyle({
-      color: {
-        conditions: [
-        ["${feature['bouwjaar']} <= 1700", "color('#430719')"],
-        ["${feature['bouwjaar']} > 1700", "color('#740320')"],
-        ]
-      }
-    }
-  );
-```
-
-Example for showing a subset based on a query (show only buildings with bouwjaar > 1975):
-
-```
-buildings.style.show = "${feature['bouwjaar']} > 1975"
-```
-Remember to add attribute bouwjaar with '-a bouwjaar' when creating the 3D Tiles.
-
-For the specs of 3D Tiles Styling Language see https://github.com/CesiumGS/3d-tiles/tree/main/specification/Styling 
