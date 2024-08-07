@@ -29,7 +29,6 @@ public class GlbCreatorTests
         var g = Geometry.Deserialize<WktSerializer>(pipelineWkt);
         var translation = new double[] { 0, 0, 0 };
         var shaderColors = GetShaderColors(2);
-
         var triangles = GeometryProcessor.GetTriangles(g, 100, shadercolors: shaderColors);
         Assert.That(triangles.Count, Is.EqualTo(2));
 
@@ -38,20 +37,19 @@ public class GlbCreatorTests
         File.WriteAllBytes(@"tin.glb", bytes);
     }
 
-
-    public void CreateGlbFromMultilineWith1Shader()
+    [Test]
+    public void CreateGlbFromMultilineWith2Shaders()
     {
         var wkt = "MULTILINESTRING ((0 0 0, 1 1 0), (2 2 0, 3 3 0))";
         var g = Geometry.Deserialize<WktSerializer>(wkt);
 
-        var shaderColors = GetShaderColors(32);
+        var shaderColors = GetShaderColors(2);
 
         var triangles = GeometryProcessor.GetTriangles(g, 100, shadercolors: shaderColors);
 
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles }, createGltf: true, doubleSided: true);
-        File.WriteAllBytes(@"multiline_32_shader.glb", bytes);
+        File.WriteAllBytes(@"multiline_2_shader.glb", bytes);
     }
-
 
     [Test]
     public void CreateGlbFromlineWith32Shader()

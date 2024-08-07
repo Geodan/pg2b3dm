@@ -65,8 +65,6 @@ public static class GeometryProcessor
                 break;
             case Polygon:
             case MultiPolygon:
-                geometries = GetTrianglesFromPolygons(geometry, translation);
-                break;
             case PolyhedralSurface:
                 geometries = GetTrianglesFromPolygons(geometry, translation);
                 break;
