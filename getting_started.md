@@ -43,6 +43,7 @@ In PostGIS, a spatial table 'delaware_buildings' is created.
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN  geom_triangle geometry;
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN style json;
 postgres=# ALTER TABLE delaware_buildings ADD COLUMN shaders json;
+postgres=# ALTER TABLE delaware_buildings ADD COLUMN elevation real default 0.0;
 ```
 
 ## Shaders
