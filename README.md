@@ -289,7 +289,9 @@ When there the spatial index is not present the following warning is shown.
 ![image](https://user-images.githubusercontent.com/538812/261248327-c29b4520-a374-4441-83bf-2b60e8313c65.png)
 
 For line geometries a 3D tube is created with a radius of 1 meter. When a radius column is specified (option --radiuscolumn), the radius from that columns is 
-used for the tube. The radius column must be of type 'real', sample for random radius between 0.5 and 1.5:
+used for the tube. 
+
+Sample for random radius between 0.5 and 1.5:
 
 ```
 postgresql> alter table delaware_buildings add column radius real;
