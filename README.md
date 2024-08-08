@@ -547,6 +547,12 @@ Press F5 to start debugging.
 
 ## History
 
+2024-08-08: release 2.14.0: 
+
+- add support for lines without z values
+
+- add support for multiple postgres types for the radius column (not only real)
+
 2024-08-07: release 2.13.0: add support for shaders per inner geometry of collections
 
 2024-07-30: release 2.12.0: use LineCurve instead of Catmullrom curve for lines (better performance + more accurate)
