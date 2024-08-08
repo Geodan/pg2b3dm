@@ -28,7 +28,7 @@ jobs:
         for arch in "${architectures[@]}"; do
           dotnet publish src/pg2b3dm -c Release -r "$arch" /p:PublishSingleFile=true
           cd src/pg2b3dm/bin/Release/net8.0/"$arch"/publish
-          zip -r ../../../../../../../pg2b3dm-"$arch".zip *
+          zip -r ../../../../../../../pg2b3dm-"$arch".zip pg2b3dm*
           cd ../../../../../../..
         done
 
