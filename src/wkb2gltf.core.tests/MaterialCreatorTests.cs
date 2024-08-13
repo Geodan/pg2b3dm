@@ -71,7 +71,7 @@ public class MaterialCreatorTests
         Assert.That(Math.Round(emissiveVector3.X * 255), Is.EqualTo(emissive.X));
         Assert.That(Math.Round(emissiveVector3.Y * 255), Is.EqualTo(emissive.Y));
         Assert.That(Math.Round(emissiveVector3.Z * 255), Is.EqualTo(emissive.Z));
-        SaveSampleModel(material, "basecolor");
+        SaveSampleModel(material, "emmisive");
     }
 
 
