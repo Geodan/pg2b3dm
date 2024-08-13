@@ -56,6 +56,7 @@ class Program
             var defaultColor = o.DefaultColor;
             var defaultMetallicRoughness = o.DefaultMetallicRoughness;
             var doubleSided = (bool)o.DoubleSided;
+            var defaultAlphaMode = o.DefaultAlphaMode;
             var createGltf = (bool)o.CreateGltf;
             var outputDirectory = o.Output;
             var zoom = o.Zoom;
@@ -111,6 +112,7 @@ class Program
             Console.WriteLine($"Default color: {defaultColor}");
             Console.WriteLine($"Default metallic roughness: {defaultMetallicRoughness}");
             Console.WriteLine($"Doublesided: {doubleSided}");
+            Console.WriteLine($"Default AlphaMode: {defaultAlphaMode}");
             Console.WriteLine($"Create glTF tiles: {createGltf}");
 
             var att = !string.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
@@ -184,7 +186,7 @@ class Program
                 tile.BoundingBox = bbox.ToArray();
                 Console.WriteLine($"Start generating tiles...");
                 var quadtreeTiler = new QuadtreeTiler(conn, table, source_epsg, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles, o.RadiusColumn);
-                var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
+                var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 

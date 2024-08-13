@@ -1,4 +1,5 @@
 using CommandLine;
+using AlphaMode = SharpGLTF.Materials.AlphaMode;
 
 namespace pg2b3dm;
 
@@ -36,6 +37,9 @@ public class Options
 
     [Option("double_sided", Required = false, Default = true, HelpText = "double sided")]
     public bool? DoubleSided { get; set; }
+    
+    [Option("default_alpha_mode", Required = false, Default = AlphaMode.OPAQUE, HelpText = "Default AlphaMode")]
+    public AlphaMode DefaultAlphaMode { get; set; }
 
     [Option("create_gltf", Required = false, Default = true, HelpText = "Create glTF")]
     public bool? CreateGltf { get; set; }

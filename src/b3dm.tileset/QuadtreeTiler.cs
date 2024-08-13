@@ -5,6 +5,7 @@ using System.Linq;
 using B3dm.Tileset;
 using B3dm.Tileset.Extensions;
 using Npgsql;
+using SharpGLTF.Materials;
 using subtree;
 using Wkx;
 
@@ -47,7 +48,7 @@ public class QuadtreeTiler
         this.radiusColumn = radiusColumn;
     }
 
-    public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod = 0, bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, bool createGltf = false)
+    public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod = 0, bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, AlphaMode defaultAlphaMode = AlphaMode.OPAQUE, bool createGltf = false)
     {
         var where = (query != string.Empty ? $" and {query}" : String.Empty);
 
@@ -83,7 +84,7 @@ public class QuadtreeTiler
                     var bboxQuad = new BoundingBox(xstart, ystart, xend, yend);
                     var new_tile = new Tile(z, tile.X * 2 + x, tile.Y * 2 + y);
                     new_tile.BoundingBox = bboxQuad.ToArray();
-                    GenerateTiles(bboxQuad, new_tile, tiles, lod, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
+                    GenerateTiles(bboxQuad, new_tile, tiles, lod, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf);
                 }
             }
         }
@@ -107,7 +108,7 @@ public class QuadtreeTiler
 
                 var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, target_srs, colorColumn, attributesColumn, where, radiusColumn);
                 // var scale = new double[] { 1, 1, 1 };
-                bytes = TileWriter.ToTile(geometries, translation, copyright: copyright, addOutlines: addOutlines, defaultColor: defaultColor, defaultMetallicRoughness: defaultMetallicRoughness, doubleSided: doubleSided, createGltf: createGltf);
+                bytes = TileWriter.ToTile(geometries, translation, copyright: copyright, addOutlines: addOutlines, defaultColor: defaultColor, defaultMetallicRoughness: defaultMetallicRoughness, doubleSided: doubleSided, defaultAlphaMode: defaultAlphaMode, createGltf: createGltf);
                 if (bytes != null) {
 
                     tile.Lod = lod;
@@ -123,7 +124,7 @@ public class QuadtreeTiler
                             // make a copy of the tile 
                             var t2 = new Tile(tile.Z, tile.X, tile.Y);
                             t2.BoundingBox = tile.BoundingBox;
-                            var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, createGltf);
+                            var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf);
                             tile.Children = lodNextTiles;
                         };
                     }

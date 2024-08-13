@@ -29,12 +29,12 @@ public class MaterialCreatorTests
     {
         // arrange
         var shader = new Shader();
-        // #008000 = green https://www.color-hex.com/color/008000 (0,128,0))
-        shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = "#008000", MetallicRoughness = "" };
+        // #008000 = green https://www.color-hex.com/color/008000 (0,128,0)), 81 as Alpha value
+        shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = "#81008000", MetallicRoughness = "" };
 
 
         // act
-        var material = MaterialCreator.CreateMaterial(shader);
+        var material = MaterialCreator.CreateMaterial(shader, true, AlphaMode.BLEND);
 
         // asssert
         Assert.That(material != null);
@@ -42,7 +42,7 @@ public class MaterialCreatorTests
         Assert.That(rgba.X == 0, Is.True);
         Assert.That(Math.Round(rgba.Y * 255) == 128, Is.True);
         Assert.That(rgba.Z == 0, Is.True);
-        Assert.That(rgba.W == 1, Is.True);
+        Assert.That(Math.Round(rgba.W * 255) == 129, Is.True);
 
         SaveSampleModel(material, "basecolor");
     }
