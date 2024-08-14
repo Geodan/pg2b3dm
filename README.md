@@ -172,11 +172,15 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --copyright                     (Default: '') glTF asset copyright
 
-  --default_color                 (Default: #FFFFFF) Default color
+  --default_color                 (Default: #FFFFFF) Default color, in (A)RGB order
 
   --default_metallic_roughness    (Default: #008000) Default metallic roughness
 
   --double_sided                  (Default: true) Default double sided
+  
+  --default_alpha_mode            (Default: OPAQUE) Default glTF material
+                                  AlphaMode. Other values: BLEND and MASK.
+                                  Defines how the alpha value is interpreted.
 
   --create_gltf                   (Default: true) Create glTF files
 

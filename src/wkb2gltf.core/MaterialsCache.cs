@@ -12,11 +12,11 @@ public class MaterialsCache
         materials = new List<MaterialAndShader>();
     }
 
-    public MaterialBuilder GetMaterialBuilderByShader(Shader shader, bool doubleSided = false)
+    public MaterialBuilder GetMaterialBuilderByShader(Shader shader, bool doubleSided = false, AlphaMode defaultAlphaMode = AlphaMode.OPAQUE)
     {
         var res = (from m in materials where m.Shader.Equals(shader) select m).FirstOrDefault();
         if (res == null) {
-            var materialBuilder = MaterialCreator.CreateMaterial(shader, doubleSided);
+            var materialBuilder = MaterialCreator.CreateMaterial(shader, doubleSided, defaultAlphaMode);
 
             res = new MaterialAndShader { Shader = shader, MaterialBuilder = materialBuilder };
             materials.Add(res);

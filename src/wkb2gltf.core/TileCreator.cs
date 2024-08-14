@@ -2,14 +2,15 @@
 using System.Linq;
 using B3dmCore;
 using Newtonsoft.Json;
+using SharpGLTF.Materials;
 
 namespace Wkb2Gltf;
 
 public static class TileCreator
 {
-    public static byte[] GetTile(Dictionary<string, List<object>> attributes, List<List<Triangle>> triangleCollection, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, bool createGltf = false, bool YAxisUp = true)
+    public static byte[] GetTile(Dictionary<string, List<object>> attributes, List<List<Triangle>> triangleCollection, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, AlphaMode defaultAlphaMode = AlphaMode.OPAQUE, bool createGltf = false, bool YAxisUp = true)
     {
-        var bytes = GlbCreator.GetGlb(triangleCollection, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, attributes, createGltf, doubleSided, YAxisUp);
+        var bytes = GlbCreator.GetGlb(triangleCollection, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, attributes, createGltf, defaultAlphaMode, doubleSided, YAxisUp);
 
         if(bytes== null) {
             return null;
