@@ -11,13 +11,12 @@ using SharpGLTF.Schema2;
 using SharpGLTF.Schema2.Tiles3D;
 using Wkb2Gltf.extensions;
 using Wkb2Gltf.Extensions;
-using AlphaMode = SharpGLTF.Materials.AlphaMode;
 
 namespace Wkb2Gltf;
 
 public static class GlbCreator
 {
-    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true, Dictionary<string, List<object>> attributes = null, bool createGltf = false, AlphaMode defaultAlphaMode = AlphaMode.OPAQUE, bool doubleSided = false, bool YAxisUp = true)
+    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true, Dictionary<string, List<object>> attributes = null, bool createGltf = false, SharpGLTF.Materials.AlphaMode defaultAlphaMode = SharpGLTF.Materials.AlphaMode.OPAQUE, bool doubleSided = false, bool YAxisUp = true)
     {
         var materialCache = new MaterialsCache();
         var shader = new Shader();

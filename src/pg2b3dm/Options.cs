@@ -1,5 +1,5 @@
 using CommandLine;
-using AlphaMode = SharpGLTF.Materials.AlphaMode;
+using SharpGLTF.Materials;
 
 namespace pg2b3dm;
 
