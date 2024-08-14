@@ -13,7 +13,7 @@ public class MaterialCreator
             WithAlpha(defaultAlphaMode);
 
         if (!string.IsNullOrEmpty(shader.EmissiveColor)) {
-            material.WithEmissive(ColorToVector3(ColorTranslator.FromHtml(shader.EmissiveColor)));
+            material.WithEmissive(ColorToVector3(RgbaColor.FromHex(shader.EmissiveColor)));
         }
         if (shader.PbrSpecularGlossiness != null) {
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -22,11 +22,11 @@ public class MaterialCreator
 
             if (!string.IsNullOrEmpty(shader.PbrSpecularGlossiness.DiffuseColor)) {
 #pragma warning disable CS0618 // Type or member is obsolete
-                material.WithDiffuse(ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.DiffuseColor)));
+                material.WithDiffuse(ColorToVector4(RgbaColor.FromHex(shader.PbrSpecularGlossiness.DiffuseColor)));
 #pragma warning restore CS0618 // Type or member is obsolete
             }
             if (!string.IsNullOrEmpty(shader.PbrSpecularGlossiness.SpecularGlossiness)) {
-                var c = ColorToVector4(ColorTranslator.FromHtml(shader.PbrSpecularGlossiness.SpecularGlossiness));
+                var c = ColorToVector4(RgbaColor.FromHex(shader.PbrSpecularGlossiness.SpecularGlossiness));
                 var specular = new Vector3(c.X, c.Y, c.Z);
                 var glossiness = c.Z;
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -37,11 +37,11 @@ public class MaterialCreator
         else if (shader.PbrMetallicRoughness != null) {
             material.WithMetallicRoughnessShader();
             if (!string.IsNullOrEmpty(shader.PbrMetallicRoughness.BaseColor)) {
-                material.WithBaseColor(ColorToVector4(ColorTranslator.FromHtml(shader.PbrMetallicRoughness.BaseColor)));
+                material.WithBaseColor(ColorToVector4(RgbaColor.FromHex(shader.PbrMetallicRoughness.BaseColor)));
             }
 
             if (!string.IsNullOrEmpty(shader.PbrMetallicRoughness.MetallicRoughness)) {
-                var html = ColorTranslator.FromHtml(shader.PbrMetallicRoughness.MetallicRoughness);
+                var html = RgbaColor.FromHex(shader.PbrMetallicRoughness.MetallicRoughness);
                 var c = ColorToVector4(html);
                 material.WithMetallicRoughness(c.X, c.Y);
             }

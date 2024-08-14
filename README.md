@@ -172,7 +172,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --copyright                     (Default: '') glTF asset copyright
 
-  --default_color                 (Default: #FFFFFF) Default color, in (A)RGB order
+  --default_color                 (Default: #FFFFFF) Default color, in RGB(A) order
 
   --default_metallic_roughness    (Default: #008000) Default metallic roughness
 

@@ -14,14 +14,12 @@ public class MaterialCreatorTests
     [Test]
     public void ColorConvertTest()
     {
-        var hex = "#E6008000";
-        var color = ColorTranslator.FromHtml(hex);
-        Assert.That(color.A == 230, Is.True);
-        Assert.That(color.R == 0, Is.True);
-        Assert.That(color.G == 128, Is.True);
+        var hex = "#FF000055";
+        var color = RgbaColor.FromHex(hex);
+        Assert.That(color.A == 85);
+        Assert.That(color.R == 255, Is.True);
+        Assert.That(color.G == 0, Is.True);
         Assert.That(color.B == 0, Is.True);
-        var hex2 = ColorTranslator.ToHtml(color);
-        Assert.That(hex.EndsWith(hex2.Substring(1, hex2.Length - 1)), Is.True);
     }
 
     [Test]
@@ -29,9 +27,7 @@ public class MaterialCreatorTests
     {
         // arrange
         var shader = new Shader();
-        // #008000 = green https://www.color-hex.com/color/008000 (0,128,0)), 81 as Alpha value
-        shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = "#81008000", MetallicRoughness = "" };
-
+        shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = "#00800081", MetallicRoughness = "" };
 
         // act
         var material = MaterialCreator.CreateMaterial(shader, true, AlphaMode.BLEND);
@@ -55,7 +51,7 @@ public class MaterialCreatorTests
         var emissive = new Vector3(10, 20, 30);
         // #008000 = green https://www.color-hex.com/color/008000 (0,128,0))
         shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = "#008000" };
-        shader.EmissiveColor = ColorTranslator.ToHtml(Color.FromArgb(10, 20, 30));
+        shader.EmissiveColor = RgbaColor.ToHex(Color.FromArgb(10, 20, 30));
         // act
         var material = MaterialCreator.CreateMaterial(shader);
 
@@ -85,7 +81,7 @@ public class MaterialCreatorTests
         var roughnessFactor = 0.4f;
 
         var c = Color.FromArgb((int)(metallicFactor * 255), ((int)(roughnessFactor * 255)), 0);
-        var hex = ColorTranslator.ToHtml(c);
+        var hex = RgbaColor.ToHex(c);
 
         shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = "#008000", MetallicRoughness = hex };
 
@@ -108,7 +104,7 @@ public class MaterialCreatorTests
         var shader = new Shader();
         var diffuse = Color.FromArgb(10, 20, 30, 40); // diffuse rgb + alpha
         var specularGlossiness = Color.FromArgb(50, 60, 70, 80); // specular red, green, blue + glossiness
-        shader.PbrSpecularGlossiness = new PbrSpecularGlossiness() { DiffuseColor = ColorTranslator.ToHtml(diffuse), SpecularGlossiness = ColorTranslator.ToHtml(specularGlossiness) };
+        shader.PbrSpecularGlossiness = new PbrSpecularGlossiness() { DiffuseColor = RgbaColor.ToHex(diffuse), SpecularGlossiness = RgbaColor.ToHex(specularGlossiness) };
         // act
         var material = MaterialCreator.CreateMaterial(shader);
 
@@ -124,7 +120,7 @@ public class MaterialCreatorTests
     {
         var shader = new Shader();
         var specularGlossiness = Color.FromArgb(50, 60, 70, 80); // specular red, green, blue + glossiness
-        shader.PbrSpecularGlossiness = new PbrSpecularGlossiness() { SpecularGlossiness = ColorTranslator.ToHtml(specularGlossiness) };
+        shader.PbrSpecularGlossiness = new PbrSpecularGlossiness() { SpecularGlossiness = RgbaColor.ToHex(specularGlossiness) };
         // act
         var material = MaterialCreator.CreateMaterial(shader);
 
