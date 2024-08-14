@@ -553,6 +553,8 @@ Press F5 to start debugging.
 
 ## History
 
+2024-08-14: release 2.15: add alpha blending support. Parameter --default_alpha_mode (default OPAQUE, options OPAQUE/BLEND/MASK)
+
 2024-08-08: release 2.14.1: make zip releases smaller
 
 2024-08-08: release 2.14.0: 

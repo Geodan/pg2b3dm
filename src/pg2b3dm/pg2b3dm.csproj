@@ -6,10 +6,10 @@
 	<PackageOutputPath>./nupkg</PackageOutputPath>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<ToolCommandName>pg2b3dm</ToolCommandName>
-	<Version>2.14.1</Version>
+	<Version>2.15.0</Version>
     <Description>Console tool for converting PostGIS geometries to 3D Tiles</Description>
-    <AssemblyVersion>2.14.1</AssemblyVersion>
-    <FileVersion>2.14.1</FileVersion>
+    <AssemblyVersion>2.15.0</AssemblyVersion>
+    <FileVersion>2.15.0</FileVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Company>Geodan</Company>
@@ -17,7 +17,7 @@
     <PackageProjectUrl>https://github.com/geodan/pg2b3dm</PackageProjectUrl>
     <RepositoryUrl>https://github.com/geodan/pg2b3dm</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>Add TIN support</PackageReleaseNotes>
+    <PackageReleaseNotes>Add alpha blending support</PackageReleaseNotes>
     <PackageTags>3dtiles b3dm gltf cesium</PackageTags>
 	<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
