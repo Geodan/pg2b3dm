@@ -62,7 +62,6 @@ Metallic factor: 0, Roughness factor: 0.5019608 (128/255)
 
 - Doubleside: true (option double_sided)
 
-- Alpha: 0 (hardcoded)
 
 Alternative option is to specify a shader using the ShadersColumn.
 
@@ -270,6 +269,11 @@ Converted to RGBA:
 (230, 0, 128, 0)
 
 So Diffuse Red = 230, Diffuse Green = 0, Diffuse Blue = 128, Alpha = 0
+
+### AlphaMode
+
+It is possible to specify glTF material alphaMode property (see: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#alpha-coverage) using `--default_alpha_mode` option for all materials. By default it is set to OPAQUE. Other options are BLEND and MASK.
+Using non OPAQUE default alpha mode for all materials might affect rendering performance. It should be used only when most of the materials have alpha value different than 1. 
 
 ### Remarks
 

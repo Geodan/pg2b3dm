@@ -29,7 +29,7 @@ public class Options
     [Option("copyright", Required = false, Default = "", HelpText = "glTF asset copyright")]
     public string Copyright { get; set; }
 
-    [Option("default_color", Required = false, Default = "#FFFFFF", HelpText = "Default color")]
+    [Option("default_color", Required = false, Default = "#FFFFFF", HelpText = "Default color, in (A)RGB order")]
     public string DefaultColor { get; set; }
 
     [Option("default_metallic_roughness", Required = false, Default = "#008000", HelpText = "Default metallic roughness")]
@@ -38,7 +38,7 @@ public class Options
     [Option("double_sided", Required = false, Default = true, HelpText = "double sided")]
     public bool? DoubleSided { get; set; }
     
-    [Option("default_alpha_mode", Required = false, Default = AlphaMode.OPAQUE, HelpText = "Default AlphaMode")]
+    [Option("default_alpha_mode", Required = false, Default = AlphaMode.OPAQUE, HelpText = "Default glTF material AlphaMode. Other values: BLEND and MASK. Defines how the alpha value is interpreted.")]
     public AlphaMode DefaultAlphaMode { get; set; }
 
     [Option("create_gltf", Required = false, Default = true, HelpText = "Create glTF")]
