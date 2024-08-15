@@ -45,7 +45,12 @@ Remember to add attribute bouwjaar with '-a bouwjaar' when creating the 3D Tiles
 ## Server side styling
 
 When using server side styling the 3D Tiles are styled in the database. 
-The styling is stored in a json document in a column of type json.
+
+The styling is stored in a json document in a column of type json. 
+
+A hex color notation is used for the colors, in the form of #RRGGBBAA. Sample:
+
+Hex code #FF000055 is Color red (r,g,b = 255,0,0) + Alpha = 85
 
 The json document contains the shaders for the 3D Tiles. When the option --shaderscolumn is used, the shaders are read from the column specified in the option.
 
@@ -61,7 +66,6 @@ R = 255, G = 255, B = 255, A = 1
 Metallic factor: 0, Roughness factor: 0.5019608 (128/255)
 
 - Doubleside: true (option double_sided)
-
 
 Alternative option is to specify a shader using the ShadersColumn.
 
