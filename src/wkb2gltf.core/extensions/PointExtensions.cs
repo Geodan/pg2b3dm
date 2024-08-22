@@ -15,9 +15,6 @@ public static class PointExtensions
         var x = p.X - other.X;
         var y = p.Y - other.Y;
         var z = p.Z - other.Z;
-        if (z == null) {
-            z = 0;
-        }
         return new Vector3((float)x,(float)y,(float)z);
     }
 }
