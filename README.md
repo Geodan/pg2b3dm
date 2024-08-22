@@ -192,11 +192,11 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -l, --lodcolumn                 (Default: '') LOD column (Cesium)
 
-  -g, --geometricerrors           (Default: 2000,0) Geometric errors (Cesium)
+  -g, --geometricerrors           (Default: 1000,0) Geometric errors (Cesium)
 
   --shaderscolumn                 (Default: '') shaders column (Cesium)
 
-  --use_implicit_tiling           (Default: true) use 1.1 implicit tiling (Cesium)
+  --use_implicit_tiling           (Default: false) use 1.1 implicit tiling (Cesium)
 
   --add_outlines                  (Default: false) Add outlines (Cesium)
 

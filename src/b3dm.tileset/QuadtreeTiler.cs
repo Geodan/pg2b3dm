@@ -139,6 +139,9 @@ public class QuadtreeTiler
             }
 
             tile.Available = bytes != null ? true : false;
+            if(skipCreateTiles) {
+                tile.Available = true;
+            }
             tiles.Add(tile);
         }
 
