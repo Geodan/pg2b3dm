@@ -104,41 +104,44 @@ public class QuadtreeTiler
 
             byte[] bytes = null;
 
-            if (!skipCreateTiles) {
+            var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, target_srs, colorColumn, attributesColumn, where, radiusColumn);
+            // var scale = new double[] { 1, 1, 1 };
+            if (geometries.Count > 0) {
 
-                var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, target_srs, colorColumn, attributesColumn, where, radiusColumn);
-                // var scale = new double[] { 1, 1, 1 };
-                bytes = TileWriter.ToTile(geometries, translation, copyright: copyright, addOutlines: addOutlines, defaultColor: defaultColor, defaultMetallicRoughness: defaultMetallicRoughness, doubleSided: doubleSided, defaultAlphaMode: defaultAlphaMode, createGltf: createGltf);
-                if (bytes != null) {
+                tile.Lod = lod;
 
-                    tile.Lod = lod;
-
+                if (!skipCreateTiles) {
+                    bytes = TileWriter.ToTile(geometries, translation, copyright: copyright, addOutlines: addOutlines, defaultColor: defaultColor, defaultMetallicRoughness: defaultMetallicRoughness, doubleSided: doubleSided, defaultAlphaMode: defaultAlphaMode, createGltf: createGltf);
                     File.WriteAllBytes($"{outputFolder}{Path.AltDirectorySeparatorChar}{file}", bytes);
-
-                    if (lodColumn != String.Empty) {
-                        if (lod < lods.Max()) {
-                            // take the next lod
-                            var currentIndex = lods.FindIndex(p => p == lod);
-                            var nextIndex = currentIndex + 1;
-                            var nextLod = lods[nextIndex];
-                            // make a copy of the tile 
-                            var t2 = new Tile(tile.Z, tile.X, tile.Y);
-                            t2.BoundingBox = tile.BoundingBox;
-                            var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf);
-                            tile.Children = lodNextTiles;
-                        };
-                    }
-
-                    // next code is used to fix geometries that have centroid in the tile, but some parts outside...
-                    var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, source_epsg, tile, where);
-                    var bbox_tile = new double[] { bbox_geometries[0], bbox_geometries[1], bbox_geometries[2], bbox_geometries[3] };
-                    tile.BoundingBox = bbox_tile;
-                    tile.ZMin = bbox_geometries[4];
-                    tile.ZMax = bbox_geometries[5];
                 }
-            }
+                if (lodColumn != String.Empty) {
+                    if (lod < lods.Max()) {
+                        // take the next lod
+                        var currentIndex = lods.FindIndex(p => p == lod);
+                        var nextIndex = currentIndex + 1;
+                        var nextLod = lods[nextIndex];
+                        // make a copy of the tile 
+                        var t2 = new Tile(tile.Z, tile.X, tile.Y);
+                        t2.BoundingBox = tile.BoundingBox;
+                        var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf);
+                        tile.Children = lodNextTiles;
+                    };
+                }
 
-            tile.Available = bytes != null ? true : false;
+                // next code is used to fix geometries that have centroid in the tile, but some parts outside...
+                var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, source_epsg, tile, where);
+                var bbox_tile = new double[] { bbox_geometries[0], bbox_geometries[1], bbox_geometries[2], bbox_geometries[3] };
+                tile.BoundingBox = bbox_tile;
+                tile.ZMin = bbox_geometries[4];
+                tile.ZMax = bbox_geometries[5];
+
+                tile.Available = true;
+
+                if (skipCreateTiles) { tile.Available = true; }
+            }
+            else {
+                tile.Available = false;
+            }
             tiles.Add(tile);
         }
 
