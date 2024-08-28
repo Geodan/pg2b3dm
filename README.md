@@ -200,7 +200,7 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --add_outlines                  (Default: false) Add outlines (Cesium)
 
-  -r, --refinement                (Default: REPLACE) Refinement ADD/REPLACE (Cesium)
+  -r, --refinement                (Default: ADD) Refinement ADD/REPLACE (Cesium)
 
   --zoom                          (Default: 15) Zoom level (Mapbox)
 

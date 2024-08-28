@@ -69,7 +69,7 @@ public class Options
     [Option("add_outlines", Required = false, Default = false, HelpText = "Add outlines (Cesium)", SetName = "Cesium")]
     public bool? AddOutlines { get; set; }
 
-    [Option('r', "refinement", Required = false, Default = "REPLACE", HelpText = "Refinement option REPLACE/ADD (Cesium)", SetName = "Cesium")]
+    [Option('r', "refinement", Required = false, Default = "ADD", HelpText = "Refinement option REPLACE/ADD (Cesium)", SetName = "Cesium")]
     public string Refinement{ get; set; }
 
     // mapbox specific options
