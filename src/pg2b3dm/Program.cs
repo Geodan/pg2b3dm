@@ -16,7 +16,7 @@ namespace pg2b3dm;
 class Program
 {
     static string password = string.Empty;
-    static bool skipCreateTiles = true; // could be useful for debugging purposes
+    static bool skipCreateTiles = false; // could be useful for debugging purposes
     static void Main(string[] args)
     {
         var version = Assembly.GetEntryAssembly().GetName().Version;
