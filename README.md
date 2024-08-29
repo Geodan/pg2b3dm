@@ -192,7 +192,9 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -l, --lodcolumn                 (Default: '') LOD column (Cesium)
 
-  -g, --geometricerrors           (Default: 2000,0) Geometric errors (Cesium)
+  -g, --geometricerror            (Default: 2000) Geometric error (Cesium)
+
+  --geometricerrorfactor          (Default: 2) Geometric error factor (Cesium)
 
   --shaderscolumn                 (Default: '') shaders column (Cesium)
 

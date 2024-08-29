@@ -137,7 +137,6 @@ class Program
 
                 var lodcolumn = o.LodColumn;
                 var addOutlines = (bool)o.AddOutlines;
-                var geometricErrors = Array.ConvertAll(o.GeometricErrors.Split(','), double.Parse);
                 var useImplicitTiling = (bool)o.UseImplicitTiling;
                 var refinement = o.Refinement;
                 if (useImplicitTiling) {
@@ -151,26 +150,13 @@ class Program
                 Console.WriteLine("3D Tiles version: " + (use10 ? "1.0" : "1.1"));
                 Console.WriteLine($"Lod column: {lodcolumn}");
                 Console.WriteLine($"Radius column: {o.RadiusColumn}");
-                Console.WriteLine($"Geometric errors: {String.Join(',', geometricErrors)}");
+                Console.WriteLine($"Geometric error: {o.GeometricError}");
+                Console.WriteLine($"Geometric error factor: {o.GeometricErrorFactor}");
                 Console.WriteLine($"Refinement: {refinement}");
 
                 var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, table, lodcolumn, query) : new List<int> { 0 });
-                if ((geometricErrors.Length != lods.Count + 1) && lodcolumn == string.Empty) {
-                    Console.WriteLine($"Lod levels from database column {lodcolumn}: [{String.Join(',', lods)}]");
-                    Console.WriteLine($"Geometric errors: {o.GeometricErrors}");
-
-                    Console.WriteLine("Error: parameter -g --geometricerrors is wrongly specified...");
-                    Console.WriteLine("end of program...");
-                    Environment.Exit(0);
-                }
                 if (lodcolumn != String.Empty) {
                     Console.WriteLine($"Lod levels: {String.Join(',', lods)}");
-
-                    if (lods.Count >= geometricErrors.Length) {
-                        Console.WriteLine($"Calculating geometric errors starting from {geometricErrors[0]}");
-                        geometricErrors = GeometricErrorCalculator.GetGeometricErrors(geometricErrors[0], lods);
-                        Console.WriteLine($"Calculated geometric errors (for {lods.Count} levels): {String.Join(',', geometricErrors)}");
-                    }
                 };
 
                 Console.WriteLine($"Add outlines: {addOutlines}");
@@ -192,12 +178,10 @@ class Program
 
                 if (tiles.Count(tile => tile.Available) > 0) {
                     if (useImplicitTiling) {
-                        Console.WriteLine("Geometric error used for implicit tiling: " + geometricErrors[0]);
-                        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, geometricErrors, rootBoundingVolumeRegion, subtreesDirectory, tiles);
+                        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles);
                     }
                     else {
-                        Console.WriteLine("Geometric errors used: " + String.Join(',', geometricErrors));
-                        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, geometricErrors, refinement, use10, rootBoundingVolumeRegion, tile, tiles);
+                        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles);
                     }
                 }
                 Console.WriteLine();

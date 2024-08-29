@@ -46,7 +46,7 @@ public class TreeSerializerTests
         var bbox = new double[] { 0, 0, 1, 1, 0, 10 };
 
         // assert
-        var tileset = TreeSerializer.ToTileset(tiles, translation, bbox, new double[] { 500, 0 });
+        var tileset = TreeSerializer.ToTileset(tiles, translation, bbox, 500, 2);
         Assert.That(tileset.root.children.Count == 2, Is.True);
     }
 
@@ -76,11 +76,10 @@ public class TreeSerializerTests
         var bbox = new double[] { 0, 0, 1, 1, 0, 10 };
 
         // assert
-        var tileset = TreeSerializer.ToTileset(tiles, translation, bbox, new double[] {500,100,0});
+        var tileset = TreeSerializer.ToTileset(tiles, translation, bbox, 500);
         Assert.That(tileset.root.children[0].children.Count == 1, Is.True);
-        Assert.That(tileset.root.geometricError==500, Is.True);
-        Assert.That(tileset.root.children[0].geometricError == 100, Is.True);
-        Assert.That(tileset.root.children[0].children[0].geometricError == 0, Is.True);
-
+        Assert.That(tileset.root.geometricError==250, Is.True);
+        Assert.That(tileset.root.children[0].geometricError == 125, Is.True);
+        Assert.That(tileset.root.children[0].children[0].geometricError == 15.625, Is.True);
     }
 }

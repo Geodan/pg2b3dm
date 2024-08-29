@@ -60,8 +60,11 @@ public class Options
     [Option('l', "lodcolumn", Required = false, Default = "", HelpText = "LOD column (Cesium)", SetName = "Cesium")]
     public string LodColumn { get; set; }
 
-    [Option('g', "geometricerrors", Required = false, Default = "2000,0", HelpText = "Geometric errors (Cesium)", SetName = "Cesium")]
-    public string GeometricErrors { get; set; }
+    [Option('g', "geometricerror", Required = false, Default = 2000, HelpText = "Geometric error (Cesium)", SetName = "Cesium")]
+    public double GeometricError{ get; set; }
+
+    [Option("geometricerrorfactor", Required = false, Default = 2, HelpText = "Geometric Error factor (Cesium)", SetName = "Cesium")]
+    public double GeometricErrorFactor { get; set; }
 
     [Option("use_implicit_tiling", Required = false, Default = true, HelpText = "use 1.1 implicit tiling (Cesium)", SetName = "Cesium")]
     public bool? UseImplicitTiling { get; set; }
