@@ -555,6 +555,14 @@ Press F5 to start debugging.
 
 ## History
 
+2024-08-29: release 2.16.0: 
+
+- Parameter -g --geometricerrors changed to -g, --geometricerror;
+
+- Added parameter --geometricerrorfactor;
+
+- Parameter -r --refinement default changed from REPLACE to ADD;
+
 2024-08-15: release 2.15.1: assume RGBA format for hex color values, not ARGB
 
 2024-08-14: release 2.15: add alpha blending support. Parameter --default_alpha_mode (default OPAQUE, options OPAQUE/BLEND/MASK)
