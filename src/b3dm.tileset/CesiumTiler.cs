@@ -10,7 +10,7 @@ using Wkx;
 namespace B3dm.Tileset;
 public static class CesiumTiler
 {
-    public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double[] geometricErrors, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles)
+    public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double geometricError, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles)
     {
         if (!Directory.Exists(subtreesDirectory)) {
             Directory.CreateDirectory(subtreesDirectory);
@@ -28,7 +28,7 @@ public static class CesiumTiler
         var availableLevels = tiles.Max(t => t.Z) + 1;
         Console.WriteLine("Available Levels: " + availableLevels);
         Console.WriteLine("Subtree Levels: " + subtreeLevels);
-        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricErrors[0], availableLevels, subtreeLevels, version, createGltf);
+        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricError, availableLevels, subtreeLevels, version, createGltf);
         var file = $"{outputDirectory}{Path.AltDirectorySeparatorChar}tileset.json";
         var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         Console.WriteLine("SubdivisionScheme: QUADTREE");
@@ -36,12 +36,12 @@ public static class CesiumTiler
         File.WriteAllText(file, json);
     }
 
-    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double[] geometricErrors, string refinement, bool use10, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles)
+    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, string refinement, bool use10, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles)
     {
         var splitLevel = (int)Math.Ceiling((tiles.Max((Tile s) => s.Z) + 1.0) / 2.0);
 
         var rootTiles = TileSelector.Select(tiles, tile, 0, splitLevel);
-        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricErrors, version, refinement, use10);
+        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, use10);
 
         var maxlevel = tiles.Max((Tile s) => s.Z);
 
@@ -61,7 +61,11 @@ public static class CesiumTiler
                         var zminmax = children.Select(t => new double[] { (double)t.ZMin, (double)t.ZMax }).SelectMany(t => t).ToArray();
                         var childrenBoundingVolumeRegion = GetBoundingBox(children).ToRadians().ToRegion(zminmax[0], zminmax[1]);
                         /// translation is the same as identity matrix in case of child tileset
-                        var tileset = TreeSerializer.ToTileset(children, null, childrenBoundingVolumeRegion, geometricErrors, version, refinement, use10);
+                        var tileset = TreeSerializer.ToTileset(children, null, childrenBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, use10);
+                       
+                        var childGeometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, splitLevel);
+                        tileset.geometricError = childGeometricError;
+                        tileset.root.geometricError = GeometricErrorCalculator.GetGeometricError(childGeometricError,geometricErrorFactor,1);
                         var detailedJson = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
                         var filename = $"tileset_{splitLevel}_{i}_{j}.json";
                         Console.Write($"\rWriting {filename}...");
@@ -72,7 +76,8 @@ public static class CesiumTiler
                         var child = new Child();
                         child.boundingVolume = new Boundingvolume() { region = childrenBoundingVolumeRegion };
                         child.refine = refinement;
-                        child.geometricError = geometricErrors[0];
+                        child.geometricError = tileset.root.geometricError;
+                        
                         child.content = new Content() { uri = filename };
                         rootTileset.root.children.Add(child);
                     }

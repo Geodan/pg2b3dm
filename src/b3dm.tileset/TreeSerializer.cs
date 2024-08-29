@@ -28,9 +28,9 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double[] geometricErrors, Version version = null, string refine="ADD", bool use10 = false)
+    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, string refine="ADD", bool use10 = false)
     {
-        var tileset = GetTilesetObject(version, geometricErrors[0], use10);
+        var tileset = GetTilesetObject(version, geometricError, use10);
 
         var t = new double[] {   1.0, 0.0, 0.0, 0.0,
                                      0.0,1.0, 0.0, 0.0,
@@ -44,9 +44,13 @@ public static class TreeSerializer
             transform[0], transform[1], transform[2], 1.0};
         }
 
-        var root = GetRoot(geometricErrors[0], t, region, refine);
-        var children = GetChildren(tiles, geometricErrors.Skip(1).ToArray());
+        var root = GetRoot(geometricError, t, region, refine);
+        tileset.geometricError = geometricError;
+        root.geometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, 1);
+        var childrenGeometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, 2);
+        var children = GetChildren(tiles, childrenGeometricError, geometricErrorFactor);
         root.children = children;
+
         tileset.root = root;
         return tileset;
     }
@@ -75,15 +79,16 @@ public static class TreeSerializer
         return root;
     }
 
-    private static List<Child> GetChildren(List<Tile> tiles, double[] geometricError)
+    private static List<Child> GetChildren(List<Tile> tiles, double geometricError, double geometricErrorFactor)
     {
         var children = new List<Child>();
         foreach (var tile in tiles) {
             if (tile.Available) {
-                var child = GetChild(tile, geometricError[0]);
+                var ge = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, tile.Z, tile.Lod);
+                var child = GetChild(tile, ge);
 
                 if (tile.Children != null) {
-                    child.children = GetChildren(tile.Children, geometricError.Skip(1).ToArray());
+                    child.children = GetChildren(tile.Children, geometricError, geometricErrorFactor);
                 }
                 children.Add(child);
             }

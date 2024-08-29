@@ -16,14 +16,14 @@ public class CesiumTilerTests
         var outputDirectory = "test";
         Directory.CreateDirectory(outputDirectory);
         var translation = new double[] { 0, 0, 0 };
-        var geometricErrors = new double[] { 0.1 };
+        var geometricError = 100;
         var rootBoundingVolumeRegion = new double[] { 0, 0, 0, 0, 0, 0 };
         var subtreesDirectory = "output";
         var tile1 = new Tile(1, 1, 1);
         var tiles = new List<Tile>() { tile1 };
 
         // Act
-        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, geometricErrors, rootBoundingVolumeRegion, subtreesDirectory, tiles);
+        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, geometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles);
 
         // Assert
         var json = File.ReadAllText("test/tileset.json");
@@ -40,7 +40,8 @@ public class CesiumTilerTests
         var zmin = 0.0;
         var zmax = 1.0;
         var translation = new double[] { 0, 0, 0 };
-        var geometricErrors = new double[] { 100,0 };
+        var geometricError = 100;
+        var geometricErrorFactor = 2;
         var refinement = "add";
         var use10 = false;
         var rootBoundingVolumeRegion = new double[] { 0, 0, 0, 0, 0, 0, zmin, zmax };
@@ -61,7 +62,7 @@ public class CesiumTilerTests
         var tiles = new List<Tile>() { tile0, tile1, tile2, tile3};
 
         // Act
-        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, geometricErrors, refinement, use10, rootBoundingVolumeRegion, tile1, tiles);
+        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, geometricError, geometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile1, tiles);
 
         // Assert
         var json = File.ReadAllText("testExplicit/tileset.json");
