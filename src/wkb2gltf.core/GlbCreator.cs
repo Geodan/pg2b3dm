@@ -284,6 +284,13 @@ public static class GlbCreator
                         propertyTable.UseProperty(property).SetArrayValues(result);
                     }
                 }
+                else if(type == typeof(DateTime)) {
+                    // convert to iso8601 string
+                    var list = objects.Select(item => item is DateTime value ? value.ToString("o") : stringNodata).ToArray();
+                    property = property.WithStringType(nullCount > 0 ? stringNodata : null);
+                    propertyTable.UseProperty(property).SetValues(list);
+
+                }
                 else {
                     throw new NotSupportedException($"Type {type} not supported as metadata");
                 }
