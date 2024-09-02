@@ -204,6 +204,8 @@ If --username and/or --dbname are not specified the current username is used as 
 
   -r, --refinement                (Default: ADD) Refinement ADD/REPLACE (Cesium)
 
+  --skip_create_tiles             (Default: false) Skip creating tiles (Cesium)
+
   --zoom                          (Default: 15) Zoom level (Mapbox)
 
   --help                          Display this help screen.
