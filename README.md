@@ -358,13 +358,16 @@ When using 3D TIles 1.1 and EXT_Structural_Metadata, the following mapping betwe
 | numeric[] all of length 16 | mat4 / float32 |
 | numeric[] | scalar / float32 |
 | varchar | string |
+| datetime | string |
+| datetime[] | string[] |
+
 
 When one of the above types (except boolean and array types) is set to NULL in the database, the null values are converted
 to a nodata value to be used in the 3D Tiles batch table.
 
 Also arrays of the above types are supported, like: 
 
-bool[], smallint[], int[], bigint[], real[], numeric[][], double precision[] and varchar[]
+bool[], smallint[], int[], bigint[], real[], numeric[][], double precision[], datetime[] and varchar[]
 
 Arrays can be of fixed length or not.
 
