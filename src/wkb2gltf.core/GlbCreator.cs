@@ -291,6 +291,12 @@ public static class GlbCreator
                     propertyTable.UseProperty(property).SetValues(list);
 
                 }
+                else if (type == typeof(DateTime[])) {
+                    var p = objects.Cast<DateTime[]>().Select(x => x.Select(y => y.ToString("o")).ToList()).ToList();
+                    property = property.WithStringArrayType();
+                    propertyTable.UseProperty(property).SetArrayValues(p);
+                }
+
                 else {
                     throw new NotSupportedException($"Type {type} not supported as metadata");
                 }
