@@ -29,11 +29,9 @@ public class GlbCreatorTests
         var g = Geometry.Deserialize<WktSerializer>(wkt);
         var translation = new double[] { 0, 0, 0 };
         var triangles = GeometryProcessor.GetTriangles(g, 0);
+        Assert.That(triangles.Count == 350);
 
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
-        // resulting glb does not look ok
-        // todo: fix triangulation
-        // see issue https://github.com/Geodan/pg2b3dm/issues/210
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "overtureissue210.glb");
         File.WriteAllBytes(fileName, bytes);
     }
