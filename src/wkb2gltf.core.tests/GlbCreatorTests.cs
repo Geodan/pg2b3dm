@@ -232,6 +232,7 @@ public class GlbCreatorTests
         attributes.Add("id_double", new List<object>() { (double)1 });
         attributes.Add("id_string", new List<object>() { "1" });
         attributes.Add("id_vector3", new List<object>() { new decimal[] { 0, 1, 2 } }); ;
+        attributes.Add("id_datetime", new List<object>() { DateTime.Now });
         attributes.Add("id_matrix4x4", new List<object>() { new decimal[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } });
         attributes.Add("id_shorts", new List<object>() { new short[] { 0, 1 } });
         attributes.Add("id_booleans", new List<object>() { new bool[] { true, false } });
@@ -241,6 +242,8 @@ public class GlbCreatorTests
         attributes.Add("id_floats", new List<object>() { new float[] { 1, 2 } });
         attributes.Add("id_doubles", new List<object>() { new double[] { 1, 2 } });
         attributes.Add("id_decimals", new List<object>() { new decimal[] { 1, 2 } });
+        attributes.Add("id_datetimes", new List<object>() { new DateTime[] { DateTime.Now, DateTime.Now} });
+
 
         decimal[,] array = new decimal[5, 3];
         var random = new Random();
