@@ -32,7 +32,7 @@ Tileset.json and glb/b3dm tiles are by default created in the 'output/content' s
 
 ## Getting started
 
-1] Minimal example to create 3D Tiles from a 100*100*100 meter polyhedralsurface cube on Dam square Amsterdam
+1] Minimal example to create 3D Tiles from a 100 * 100 * 100 meter polyhedralsurface cube on Dam square Amsterdam
 
 See https://github.com/bertt/3dtiles_cube
 
