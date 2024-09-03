@@ -16,7 +16,6 @@ namespace pg2b3dm;
 class Program
 {
     static string password = string.Empty;
-    static bool skipCreateTiles = false; // could be useful for debugging purposes
     static void Main(string[] args)
     {
         var version = Assembly.GetEntryAssembly().GetName().Version;
@@ -94,6 +93,9 @@ class Program
             else {
                 Console.WriteLine($"Spatial index detected on {table}.{geometryColumn}");
             }
+            
+            var skipCreateTiles = o.SkipCreateTiles;
+            Console.WriteLine("Skip create tiles: " + skipCreateTiles);
 
             Console.WriteLine($"Query bounding box of {table}.{geometryColumn}...");
             var where = (query != string.Empty ? $" where {query}" : String.Empty);

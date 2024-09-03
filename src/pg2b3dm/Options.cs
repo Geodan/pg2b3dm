@@ -75,6 +75,9 @@ public class Options
     [Option('r', "refinement", Required = false, Default = "ADD", HelpText = "Refinement option REPLACE/ADD (Cesium)", SetName = "Cesium")]
     public string Refinement{ get; set; }
 
+    [Option("skip_create_tiles", Required = false, Default = false, HelpText = "Skip creating tiles, only create tileset.json files (Cesium)", SetName = "Cesium")]
+    public bool SkipCreateTiles { get; set; }
+
     // mapbox specific options
     [Option("zoom", Required = false, Default = 15, HelpText = "Zoom level (Mapbox)", SetName = "Mapbox")]
     public int Zoom { get; set; }
