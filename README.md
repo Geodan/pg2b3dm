@@ -564,6 +564,14 @@ Press F5 to start debugging.
 
 ## History
 
+2024-09-04: release 2.17.0:
+
+- Add support for DateTime in 1.1 Metadata (EXT_Structural_Metadata)
+
+- Add option skip_create_tiles (default false)
+
+- Fix triangulation of polygons with multiple interior rings
+
 2024-08-29: release 2.16.0: 
 
 - Parameter -g --geometricerrors changed to -g, --geometricerror;
