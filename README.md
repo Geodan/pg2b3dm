@@ -247,7 +247,7 @@ $ pg2b3dm
 
 As alternative use .NET 8.0 SDK to install the tool:
 
-Prerequisite: .NET 8.0 SDK is installed https://dotnet.microsoft.com/download/dotnet/6.0
+Prerequisite: .NET 8.0 SDK is installed https://dotnet.microsoft.com/download/dotnet/8.0
 
 ```
 $ dotnet tool install -g pg2b3dm
