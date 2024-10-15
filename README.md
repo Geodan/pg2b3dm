@@ -202,6 +202,8 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --shaderscolumn                 (Default: '') shaders column (Cesium)
 
+  --tilesetVersion                (Default: '') Tileset version (Cesium)
+
   --use_implicit_tiling           (Default: true) use 1.1 implicit tiling (Cesium)
 
   --add_outlines                  (Default: false) Add outlines (Cesium)
@@ -563,6 +565,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2024-10-15: release 2.18.0 add option tilesetVersion
 
 2024-09-04: release 2.17.0:
 
