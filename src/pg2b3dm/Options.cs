@@ -54,6 +54,9 @@ public class Options
     public string ShadersColumn { get; set; }
 
     // cesium specific options
+    [Option("tileset_version", Required = false, Default = "", HelpText = "Tileset version (Cesium)", SetName = "Cesium")]
+    public string TilesetVersion { get; set; }
+
     [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile (Cesium)", SetName = "Cesium")]
     public int MaxFeaturesPerTile { get; set; }
 
@@ -77,6 +80,7 @@ public class Options
 
     [Option("skip_create_tiles", Required = false, Default = false, HelpText = "Skip creating tiles, only create tileset.json files (Cesium)", SetName = "Cesium")]
     public bool SkipCreateTiles { get; set; }
+
 
     // mapbox specific options
     [Option("zoom", Required = false, Default = 15, HelpText = "Zoom level (Mapbox)", SetName = "Mapbox")]

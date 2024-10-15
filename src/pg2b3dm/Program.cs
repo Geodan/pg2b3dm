@@ -62,6 +62,7 @@ class Program
             var shadersColumn = o.ShadersColumn;
             var attributeColumns = o.AttributeColumns;
             var copyright = o.Copyright;
+            var tilesetVersion = o.TilesetVersion;
 
             var query = o.Query;
 
@@ -163,6 +164,9 @@ class Program
 
                 Console.WriteLine($"Add outlines: {addOutlines}");
                 Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
+                if(!tilesetVersion.Equals(string.Empty)) {
+                    Console.WriteLine($"Tileset version: {tilesetVersion}");
+                }
 
                 var rootBoundingVolumeRegion = bbox.ToRadians().ToRegion(zmin, zmax);
 
@@ -180,10 +184,10 @@ class Program
 
                 if (tiles.Count(tile => tile.Available) > 0) {
                     if (useImplicitTiling) {
-                        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles);
+                        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion);
                     }
                     else {
-                        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles);
+                        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles, tilesetVersion);
                     }
                 }
                 Console.WriteLine();
