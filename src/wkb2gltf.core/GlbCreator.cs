@@ -87,6 +87,14 @@ public static class GlbCreator
                 primitive.AddMeshFeatureIds(featureIdAttribute);
             }
 
+            // remove the attributes that have only null values
+            foreach (var attribute in attributes) {
+                var firstType = attribute.Value.Where(x => x != DBNull.Value).FirstOrDefault();
+                if (firstType == null) {
+                    attributes.Remove(attribute.Key);
+                }
+            }
+
             foreach (var attribute in attributes) {
                 // the 3d tiles metadata spec does not allow for null values (but only 'nodata' values), so we need to determine the
                 // nodata value for each type. 
@@ -101,12 +109,7 @@ public static class GlbCreator
                 var longNodata = long.MinValue;
                 var ulongNodata = ulong.MaxValue; // let's take the ulong max value as nodata
                 var doubleNodata = double.MinValue;
-
-                // in the attribute dictionary, find the type o the first value that is not dbnull
                 var firstType = attribute.Value.Where(x => x != DBNull.Value).FirstOrDefault();
-                if(firstType == null) {
-                    throw(new Exception($"All values of attribute '{attribute.Key}' are Null, can't determine type"));
-                }
                 var type = firstType.GetType();
                 var objects = attribute.Value;
                 var property = schemaClass.UseProperty(attribute.Key);
