@@ -185,6 +185,50 @@ public class GlbCreatorTests
     }
 
     [Test]
+    public void CreateGltfWithAttributesAllNulls()
+    {
+        // arrange
+        var p0 = new Point(0, 0, 0);
+        var p1 = new Point(1, 1, 0);
+        var p2 = new Point(1, 0, 0);
+
+        var triangle1 = new Triangle(p0, p1, p2, 0);
+        var triangle2 = new Triangle(p0, p1, p2, 1);
+
+        var triangles = new List<Triangle>() { triangle1, triangle2 };
+
+        var attributes = new Dictionary<string, List<object>>();
+        attributes.Add("test", new List<object>() { DBNull.Value, DBNull.Value });
+
+        var bytes = TileCreator.GetTile(attributes, new List<List<Triangle>>() { triangles }, createGltf: true);
+
+        Assert.That(bytes != null);
+    }
+
+
+    [Test]
+    public void CreateGltfWithAttributeColumnAllNulls()
+    {
+        // arrange
+        var p0 = new Point(0, 0, 0);
+        var p1 = new Point(1, 1, 0);
+        var p2 = new Point(1, 0, 0);
+
+        var triangle1 = new Triangle(p0, p1, p2, 0);
+        var triangle2 = new Triangle(p0, p1, p2, 1);
+
+        var triangles = new List<Triangle>() { triangle1, triangle2 };
+
+        var attributes = new Dictionary<string, List<object>>();
+        attributes.Add("names", new List<object>() { "test0", "test1"});
+        attributes.Add("test", new List<object>() { DBNull.Value, DBNull.Value });
+
+        var bytes = TileCreator.GetTile(attributes, new List<List<Triangle>>() { triangles }, createGltf: true);
+
+        Assert.That(bytes != null);
+    }
+
+    [Test]
     public void CreateGltfWithNullAttributesTest()
     {
         // arrange

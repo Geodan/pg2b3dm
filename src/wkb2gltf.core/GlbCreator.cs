@@ -77,228 +77,234 @@ public static class GlbCreator
 
         if (createGltf && attributes != null && attributes.Count > 0) {
 
-            var rootMetadata = model.UseStructuralMetadata();
-            var schema = rootMetadata.UseEmbeddedSchema("schema");
-            var schemaClass = schema.UseClassMetadata("propertyTable");
-            var propertyTable = schemaClass.AddPropertyTable(attributes.First().Value.Count);
-
-            foreach (var primitive in model.LogicalMeshes[0].Primitives) {
-                var featureIdAttribute = new FeatureIDBuilder(attributes.First().Value.Count, 0, propertyTable);
-                primitive.AddMeshFeatureIds(featureIdAttribute);
+            // remove the attributes that have only null values
+            foreach (var attribute in attributes) {
+                var firstType = attribute.Value.Where(x => x != DBNull.Value).FirstOrDefault();
+                if (firstType == null) {
+                    attributes.Remove(attribute.Key);
+                }
             }
 
-            foreach (var attribute in attributes) {
-                // the 3d tiles metadata spec does not allow for null values (but only 'nodata' values), so we need to determine the
-                // nodata value for each type. 
-                var stringNodata = "";
-                var floatNodata = (float)uint.MinValue; // bit of a workaround, to get around the fact that we can't use float.MinValue as nodata
-                var shortNodata = short.MinValue;
-                var intNodata = int.MinValue;
-                var sbyteNodata = sbyte.MinValue;
-                var byteNodata = byte.MaxValue; // let's take the byte max value (255) as nodata
-                var ushortNodata = ushort.MaxValue; // let's take the ushort max value (65535) as nodata
-                var uintNodata = uint.MaxValue; // let's take the uint max value as nodata
-                var longNodata = long.MinValue;
-                var ulongNodata = ulong.MaxValue; // let's take the ulong max value as nodata
-                var doubleNodata = double.MinValue;
+            if (attributes.Count > 0) {
 
-                // in the attribute dictionary, find the type o the first value that is not dbnull
-                var firstType = attribute.Value.Where(x => x != DBNull.Value).FirstOrDefault();
-                if(firstType == null) {
-                    throw(new Exception($"All values of attribute '{attribute.Key}' are Null, can't determine type"));
-                }
-                var type = firstType.GetType();
-                var objects = attribute.Value;
-                var property = schemaClass.UseProperty(attribute.Key);
+                var rootMetadata = model.UseStructuralMetadata();
+                var schema = rootMetadata.UseEmbeddedSchema("schema");
+                var schemaClass = schema.UseClassMetadata("propertyTable");
+                var propertyTable = schemaClass.AddPropertyTable(attributes.First().Value.Count);
 
-                var nullCount = objects.OfType<DBNull>().Count();
-                // sbyte not available in postgres
-                if (type == typeof(bool)) {
-                    property = property.WithBooleanType();
-                    var list = objects.ConvertAll(x => (bool)x).ToArray();
-                    propertyTable.UseProperty(property).SetValues(list);
+                foreach (var primitive in model.LogicalMeshes[0].Primitives) {
+                    var featureIdAttribute = new FeatureIDBuilder(attributes.First().Value.Count, 0, propertyTable);
+                    primitive.AddMeshFeatureIds(featureIdAttribute);
                 }
-                else if (type == typeof(string)) {
-                    var array = objects.Select(x => x ==  DBNull.Value ? stringNodata : x.ToString()).ToArray();
-                    property = property.WithStringType(nullCount > 0 ? stringNodata : null);
-                    propertyTable.UseProperty(property).SetValues(array);
-                }
-                else if (type == typeof(sbyte)) {
-                    var list = objects.Select(item => item is sbyte value ? value : sbyteNodata).ToArray();
-                    property = property.WithInt8Type(nullCount > 0 ? sbyteNodata : null);
-                    propertyTable.UseProperty(property).SetValues(list);
-                }
-                // byte not available in postgres
-                else if (type == typeof(byte)) {
-                    var list = objects.Select(item => item is byte value ? value : byteNodata).ToArray();
-                    property = property.WithUInt8Type(nullCount > 0 ? byteNodata : null);
-                    propertyTable.UseProperty(property).SetValues(list);
-                }
-                else if (type == typeof(short)) {
-                    var list = objects.Select(item => item is short value ? value : shortNodata).ToArray();
-                    property = property.WithInt16Type(nullCount > 0 ? shortNodata : null);
-                    propertyTable.UseProperty(property).SetValues(list);
-                }
-                // ushort not available in postgres
-                else if (type == typeof(ushort)) {
-                    var list = objects.Select(item => item is ushort value ? value : ushortNodata).ToArray();
-                    property = property.WithUInt16Type(nullCount > 0 ? ushortNodata : null);
-                    propertyTable.UseProperty(property).SetValues(list);
-                }
-                else if (type == typeof(int)) {
-                    var list = objects.Select(item => item is int value ? value : intNodata).ToArray();
-                    property = property.WithInt32Type(nullCount > 0 ? intNodata : null);
-                    propertyTable.UseProperty(property).SetValues(list);
-                }
-                // uint not available in postgres
-                else if (type == typeof(uint)) {
-                    var list = objects.Select(item => item is uint value ? value : uintNodata).ToArray();
-                    property = property.WithUInt32Type(nullCount > 0 ? uintNodata : null);
-                    propertyTable.UseProperty(property).SetValues(list);
-                }
-                else if (type == typeof(long)) {
-                    var list = objects.Select(item => item is long value ? value : longNodata).ToArray();
-                    property = property.WithInt64Type(nullCount > 0 ? longNodata : null);
-                    propertyTable.UseProperty(property).SetValues(list);
-                }
-                // ulong not available in postgres
-                else if (type == typeof(ulong)) {
-                    var list = objects.Select(item => item is ulong value ? value : ulongNodata).ToArray();
-                    property = property.WithUInt64Type(nullCount > 0 ? ulongNodata : null);
-                    propertyTable.UseProperty(property).SetValues(list);
-                }
-                else if (type == typeof(float)) {
-                    var list = objects.Select(item => item is float value ? value : floatNodata).ToArray();
-                    property = property.WithFloat32Type(nullCount > 0 ? floatNodata : null);
-                    propertyTable.UseProperty(property).SetValues(list);
-                }
-                else if (type == typeof(decimal)) {
-                    var list = objects.Select(item => item is decimal value ? (float)value : floatNodata).ToArray();
-                    property = property.WithFloat32Type(nullCount > 0 ? floatNodata : null);
-                    propertyTable.UseProperty(property).SetValues(list);
-                }
-                else if (type == typeof(double)) {
-                    var list = objects.Select(item => item is double value ? (float)value : doubleNodata).ToArray();
-                    property = property.WithFloat64Type(nullCount > 0 ? doubleNodata : null);
-                    propertyTable.UseProperty(property).SetValues(list);
-                }
-                else if (type == typeof(bool[])) {
-                    var p = objects.Cast<bool[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithBooleanArrayType();
-                    propertyTable.UseProperty(property).SetArrayValues(p);
-                }
-                else if (type == typeof(string[])) {
-                    var p = objects.Cast<string[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithStringArrayType();
-                    propertyTable.UseProperty(property).SetArrayValues(p);
-                }
-                else if (type == typeof(short[])) {
-                    var p = objects.Cast<short[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithInt16ArrayType();
-                    propertyTable.UseProperty(property).SetArrayValues(p);
-                }
-                else if (type == typeof(int[])) {
-                    var p = objects.Cast<int[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithInt32ArrayType();
-                    propertyTable.UseProperty(property).SetArrayValues(p);
-                }
-                else if (type == typeof(long[])) {
-                    var p = objects.Cast<long[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithInt64ArrayType();
-                    propertyTable.UseProperty(property).SetArrayValues(p);
-                }
-                else if (type == typeof(float[])) {
-                    var p = objects.Cast<float[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithFloat32ArrayType();
-                    propertyTable.UseProperty(property).SetArrayValues(p);
-                }
-                else if (type == typeof(double[])) {
-                    var p = objects.Cast<double[]>().Select(x => x.ToList()).ToList();
-                    property = property.WithFloat64ArrayType();
-                    propertyTable.UseProperty(property).SetArrayValues(p);
-                }
-                else if (type == typeof(decimal[,])) {
-                    if (IsConstantArray(objects, 3)) {
-                        var result = objects.Cast<decimal[,]>()
-                            .Select(
-                                obj1 => Enumerable.Range(0, obj1.GetLength(0))
-                                .Select(j => new Vector3(Convert.ToSingle(obj1[j, 0]), Convert.ToSingle(obj1[j, 1]), Convert.ToSingle(obj1[j, 2])))
-                                .ToList()
-                                ).ToList();
-                        property = property.WithVector3ArrayType();
-                        propertyTable.UseProperty(property).SetArrayValues(result);
+
+                foreach (var attribute in attributes) {
+                    // the 3d tiles metadata spec does not allow for null values (but only 'nodata' values), so we need to determine the
+                    // nodata value for each type. 
+                    var stringNodata = "";
+                    var floatNodata = (float)uint.MinValue; // bit of a workaround, to get around the fact that we can't use float.MinValue as nodata
+                    var shortNodata = short.MinValue;
+                    var intNodata = int.MinValue;
+                    var sbyteNodata = sbyte.MinValue;
+                    var byteNodata = byte.MaxValue; // let's take the byte max value (255) as nodata
+                    var ushortNodata = ushort.MaxValue; // let's take the ushort max value (65535) as nodata
+                    var uintNodata = uint.MaxValue; // let's take the uint max value as nodata
+                    var longNodata = long.MinValue;
+                    var ulongNodata = ulong.MaxValue; // let's take the ulong max value as nodata
+                    var doubleNodata = double.MinValue;
+                    var firstType = attribute.Value.Where(x => x != DBNull.Value).FirstOrDefault();
+                    var type = firstType.GetType();
+                    var objects = attribute.Value;
+                    var property = schemaClass.UseProperty(attribute.Key);
+
+                    var nullCount = objects.OfType<DBNull>().Count();
+                    // sbyte not available in postgres
+                    if (type == typeof(bool)) {
+                        property = property.WithBooleanType();
+                        var list = objects.ConvertAll(x => (bool)x).ToArray();
+                        propertyTable.UseProperty(property).SetValues(list);
                     }
-                    else if (IsConstantArray(objects, 16)) {
-                        var result = objects.Cast<decimal[,]>()
-                            .Select(
-                                obj1 => Enumerable.Range(0, obj1.GetLength(0))
-                                .Select(j => ToMatrix4x4(obj1, j))
-                                .ToList()
-                                ).ToList();
-                        property = property.WithMatrix4x4ArrayType();
-                        propertyTable.UseProperty(property).SetArrayValues(result);
+                    else if (type == typeof(string)) {
+                        var array = objects.Select(x => x == DBNull.Value ? stringNodata : x.ToString()).ToArray();
+                        property = property.WithStringType(nullCount > 0 ? stringNodata : null);
+                        propertyTable.UseProperty(property).SetValues(array);
                     }
-                    else {
-                        // TODO: this dumps all values into one array, but we need to split it up into multiple arrays
-                        var result = new List<List<float>>();
-
-                        foreach (var obj in objects) {
-                            var array = (decimal[,])obj;
-                            var p = new List<float>();
-                            var items = array.GetLength(0);
-                            for (var j = 0; j < items; j++) {
-                                for (var k = 0; k < array.GetLength(1); k++) {
-                                    p.Add(Convert.ToSingle(array[j, k]));
-                                }
-                            }
-                            result.Add(p);
+                    else if (type == typeof(sbyte)) {
+                        var list = objects.Select(item => item is sbyte value ? value : sbyteNodata).ToArray();
+                        property = property.WithInt8Type(nullCount > 0 ? sbyteNodata : null);
+                        propertyTable.UseProperty(property).SetValues(list);
+                    }
+                    // byte not available in postgres
+                    else if (type == typeof(byte)) {
+                        var list = objects.Select(item => item is byte value ? value : byteNodata).ToArray();
+                        property = property.WithUInt8Type(nullCount > 0 ? byteNodata : null);
+                        propertyTable.UseProperty(property).SetValues(list);
+                    }
+                    else if (type == typeof(short)) {
+                        var list = objects.Select(item => item is short value ? value : shortNodata).ToArray();
+                        property = property.WithInt16Type(nullCount > 0 ? shortNodata : null);
+                        propertyTable.UseProperty(property).SetValues(list);
+                    }
+                    // ushort not available in postgres
+                    else if (type == typeof(ushort)) {
+                        var list = objects.Select(item => item is ushort value ? value : ushortNodata).ToArray();
+                        property = property.WithUInt16Type(nullCount > 0 ? ushortNodata : null);
+                        propertyTable.UseProperty(property).SetValues(list);
+                    }
+                    else if (type == typeof(int)) {
+                        var list = objects.Select(item => item is int value ? value : intNodata).ToArray();
+                        property = property.WithInt32Type(nullCount > 0 ? intNodata : null);
+                        propertyTable.UseProperty(property).SetValues(list);
+                    }
+                    // uint not available in postgres
+                    else if (type == typeof(uint)) {
+                        var list = objects.Select(item => item is uint value ? value : uintNodata).ToArray();
+                        property = property.WithUInt32Type(nullCount > 0 ? uintNodata : null);
+                        propertyTable.UseProperty(property).SetValues(list);
+                    }
+                    else if (type == typeof(long)) {
+                        var list = objects.Select(item => item is long value ? value : longNodata).ToArray();
+                        property = property.WithInt64Type(nullCount > 0 ? longNodata : null);
+                        propertyTable.UseProperty(property).SetValues(list);
+                    }
+                    // ulong not available in postgres
+                    else if (type == typeof(ulong)) {
+                        var list = objects.Select(item => item is ulong value ? value : ulongNodata).ToArray();
+                        property = property.WithUInt64Type(nullCount > 0 ? ulongNodata : null);
+                        propertyTable.UseProperty(property).SetValues(list);
+                    }
+                    else if (type == typeof(float)) {
+                        var list = objects.Select(item => item is float value ? value : floatNodata).ToArray();
+                        property = property.WithFloat32Type(nullCount > 0 ? floatNodata : null);
+                        propertyTable.UseProperty(property).SetValues(list);
+                    }
+                    else if (type == typeof(decimal)) {
+                        var list = objects.Select(item => item is decimal value ? (float)value : floatNodata).ToArray();
+                        property = property.WithFloat32Type(nullCount > 0 ? floatNodata : null);
+                        propertyTable.UseProperty(property).SetValues(list);
+                    }
+                    else if (type == typeof(double)) {
+                        var list = objects.Select(item => item is double value ? (float)value : doubleNodata).ToArray();
+                        property = property.WithFloat64Type(nullCount > 0 ? doubleNodata : null);
+                        propertyTable.UseProperty(property).SetValues(list);
+                    }
+                    else if (type == typeof(bool[])) {
+                        var p = objects.Cast<bool[]>().Select(x => x.ToList()).ToList();
+                        property = property.WithBooleanArrayType();
+                        propertyTable.UseProperty(property).SetArrayValues(p);
+                    }
+                    else if (type == typeof(string[])) {
+                        var p = objects.Cast<string[]>().Select(x => x.ToList()).ToList();
+                        property = property.WithStringArrayType();
+                        propertyTable.UseProperty(property).SetArrayValues(p);
+                    }
+                    else if (type == typeof(short[])) {
+                        var p = objects.Cast<short[]>().Select(x => x.ToList()).ToList();
+                        property = property.WithInt16ArrayType();
+                        propertyTable.UseProperty(property).SetArrayValues(p);
+                    }
+                    else if (type == typeof(int[])) {
+                        var p = objects.Cast<int[]>().Select(x => x.ToList()).ToList();
+                        property = property.WithInt32ArrayType();
+                        propertyTable.UseProperty(property).SetArrayValues(p);
+                    }
+                    else if (type == typeof(long[])) {
+                        var p = objects.Cast<long[]>().Select(x => x.ToList()).ToList();
+                        property = property.WithInt64ArrayType();
+                        propertyTable.UseProperty(property).SetArrayValues(p);
+                    }
+                    else if (type == typeof(float[])) {
+                        var p = objects.Cast<float[]>().Select(x => x.ToList()).ToList();
+                        property = property.WithFloat32ArrayType();
+                        propertyTable.UseProperty(property).SetArrayValues(p);
+                    }
+                    else if (type == typeof(double[])) {
+                        var p = objects.Cast<double[]>().Select(x => x.ToList()).ToList();
+                        property = property.WithFloat64ArrayType();
+                        propertyTable.UseProperty(property).SetArrayValues(p);
+                    }
+                    else if (type == typeof(decimal[,])) {
+                        if (IsConstantArray(objects, 3)) {
+                            var result = objects.Cast<decimal[,]>()
+                                .Select(
+                                    obj1 => Enumerable.Range(0, obj1.GetLength(0))
+                                    .Select(j => new Vector3(Convert.ToSingle(obj1[j, 0]), Convert.ToSingle(obj1[j, 1]), Convert.ToSingle(obj1[j, 2])))
+                                    .ToList()
+                                    ).ToList();
+                            property = property.WithVector3ArrayType();
+                            propertyTable.UseProperty(property).SetArrayValues(result);
                         }
+                        else if (IsConstantArray(objects, 16)) {
+                            var result = objects.Cast<decimal[,]>()
+                                .Select(
+                                    obj1 => Enumerable.Range(0, obj1.GetLength(0))
+                                    .Select(j => ToMatrix4x4(obj1, j))
+                                    .ToList()
+                                    ).ToList();
+                            property = property.WithMatrix4x4ArrayType();
+                            propertyTable.UseProperty(property).SetArrayValues(result);
+                        }
+                        else {
+                            // TODO: this dumps all values into one array, but we need to split it up into multiple arrays
+                            var result = new List<List<float>>();
 
-                        property = property.WithFloat32ArrayType();
-                        propertyTable.UseProperty(property).SetArrayValues(result);
-                    }
-                }
-                else if (type == typeof(decimal[])) {
-                    if (HasNull(objects)) {
-                        throw new NotSupportedException("Null values are not supported in arrays");
-                    }
-                    if (IsFixed(objects, 3)) {
-                        var list = attribute.Value.Select(item => {
-                            var array = (decimal[])item;
-                            return new Vector3(Convert.ToSingle(array[0]), Convert.ToSingle(array[1]), Convert.ToSingle(array[2]));
-                        }).ToList();
+                            foreach (var obj in objects) {
+                                var array = (decimal[,])obj;
+                                var p = new List<float>();
+                                var items = array.GetLength(0);
+                                for (var j = 0; j < items; j++) {
+                                    for (var k = 0; k < array.GetLength(1); k++) {
+                                        p.Add(Convert.ToSingle(array[j, k]));
+                                    }
+                                }
+                                result.Add(p);
+                            }
 
-                        property = property.WithVector3Type();
-                        propertyTable.UseProperty(property).SetValues(list.ToArray());
+                            property = property.WithFloat32ArrayType();
+                            propertyTable.UseProperty(property).SetArrayValues(result);
+                        }
                     }
-                    else if (IsFixed(objects, 16)) {
-                        var list = objects.Select(item => ToMatrix4x4(item)).ToList();
-                        property = property.WithMatrix4x4Type();
-                        propertyTable.UseProperty(property).SetValues(list.ToArray());
+                    else if (type == typeof(decimal[])) {
+                        if (HasNull(objects)) {
+                            throw new NotSupportedException("Null values are not supported in arrays");
+                        }
+                        if (IsFixed(objects, 3)) {
+                            var list = attribute.Value.Select(item => {
+                                var array = (decimal[])item;
+                                return new Vector3(Convert.ToSingle(array[0]), Convert.ToSingle(array[1]), Convert.ToSingle(array[2]));
+                            }).ToList();
+
+                            property = property.WithVector3Type();
+                            propertyTable.UseProperty(property).SetValues(list.ToArray());
+                        }
+                        else if (IsFixed(objects, 16)) {
+                            var list = objects.Select(item => ToMatrix4x4(item)).ToList();
+                            property = property.WithMatrix4x4Type();
+                            propertyTable.UseProperty(property).SetValues(list.ToArray());
+                        }
+                        else {
+                            var result = objects.Cast<decimal[]>()
+                                .Select(arr => arr.Select(Convert.ToSingle).ToList())
+                                .ToList();
+                            property = property.WithFloat32ArrayType();
+                            propertyTable.UseProperty(property).SetArrayValues(result);
+                        }
                     }
+                    else if (type == typeof(DateTime)) {
+                        // convert to iso8601 string
+                        var list = objects.Select(item => item is DateTime value ? value.ToString("o") : stringNodata).ToArray();
+                        property = property.WithStringType(nullCount > 0 ? stringNodata : null);
+                        propertyTable.UseProperty(property).SetValues(list);
+
+                    }
+                    else if (type == typeof(DateTime[])) {
+                        var p = objects.Cast<DateTime[]>().Select(x => x.Select(y => y.ToString("o")).ToList()).ToList();
+                        property = property.WithStringArrayType();
+                        propertyTable.UseProperty(property).SetArrayValues(p);
+                    }
+
                     else {
-                        var result = objects.Cast<decimal[]>()
-                            .Select(arr => arr.Select(Convert.ToSingle).ToList())
-                            .ToList();
-                        property = property.WithFloat32ArrayType();
-                        propertyTable.UseProperty(property).SetArrayValues(result);
+                        throw new NotSupportedException($"Type {type} not supported as metadata");
                     }
-                }
-                else if(type == typeof(DateTime)) {
-                    // convert to iso8601 string
-                    var list = objects.Select(item => item is DateTime value ? value.ToString("o") : stringNodata).ToArray();
-                    property = property.WithStringType(nullCount > 0 ? stringNodata : null);
-                    propertyTable.UseProperty(property).SetValues(list);
-
-                }
-                else if (type == typeof(DateTime[])) {
-                    var p = objects.Cast<DateTime[]>().Select(x => x.Select(y => y.ToString("o")).ToList()).ToList();
-                    property = property.WithStringArrayType();
-                    propertyTable.UseProperty(property).SetArrayValues(p);
-                }
-
-                else {
-                    throw new NotSupportedException($"Type {type} not supported as metadata");
                 }
             }
         }
