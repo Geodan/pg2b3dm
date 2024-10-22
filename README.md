@@ -566,6 +566,8 @@ Press F5 to start debugging.
 
 ## History
 
+2024-10-23: release 2.18.1 add null checking in attribute columns
+
 2024-10-15: release 2.18.0 add option tilesetVersion
 
 2024-09-04: release 2.17.0:
