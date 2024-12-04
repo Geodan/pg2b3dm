@@ -343,7 +343,7 @@ With the -a attributecolumns parameter multiple columns with attributes can be s
 
 Multiple columns must be comma separated (without spaces):
 
-Sample:  --attributescolumns col1,col2
+Sample:  --attributecolumns col1,col2
 
 When using 3D TIles 1.1 and EXT_Structural_Metadata, the following mapping between PostgreSQL data types and 3D Tiles data types is used:
 
