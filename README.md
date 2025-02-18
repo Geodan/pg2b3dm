@@ -347,21 +347,21 @@ Sample:  --attributecolumns col1,col2
 
 When using 3D TIles 1.1 and EXT_Structural_Metadata, the following mapping between PostgreSQL data types and 3D Tiles data types is used:
 
-| PostgreSQL data type | 3D Tiles data type  (type / componenttype) |
+| PostgreSQL data type | 3D Tiles data type  (type / componenttype) | 3D Tiles Nodata value |
 |----------------------|--------------------|
-| boolean | boolean / - |
-| smallint | scalar / int16 |
-| integer | scalar / int32 |
-| bigint | scalar / int64 |
-| real | scalar / float32 |
-| numeric | scalar / float32 |
-| double precision | scalar / float64 |
-| numeric[] all of length 3 | vec3 / float32 |
-| numeric[] all of length 16 | mat4 / float32 |
-| numeric[] | scalar / float32 |
-| varchar | string |
-| datetime | string |
-| datetime[] | string[] |
+| boolean | boolean / - | - |
+| smallint | scalar / int16 | Int16.MinValue |
+| integer | scalar / int32 | Int32.MinValue  |
+| bigint | scalar / int64 | Int64.MinValue 
+| real | scalar / float32 | UInt32.MinValue |
+| numeric | scalar / float32 |  UInt32.MinValue |
+| double precision | scalar / float64 | Double.MinValue |
+| numeric[] all of length 3 | vec3 / float32 | - |
+| numeric[] all of length 16 | mat4 / float32 | - |
+| numeric[] | scalar / float32 | - |
+| varchar | string | "" |
+| datetime | string | "" |
+| datetime[] | string[] | - |
 
 
 When one of the above types (except boolean and array types) is set to NULL in the database, the null values are converted
