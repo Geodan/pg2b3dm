@@ -348,11 +348,11 @@ Sample:  --attributecolumns col1,col2
 When using 3D TIles 1.1 and EXT_Structural_Metadata, the following mapping between PostgreSQL data types and 3D Tiles data types is used:
 
 | PostgreSQL data type | 3D Tiles data type  (type / componenttype) | 3D Tiles Nodata value |
-|----------------------|--------------------|
+|----------------------|--------------------|-------------------|
 | boolean | boolean / - | - |
 | smallint | scalar / int16 | Int16.MinValue |
 | integer | scalar / int32 | Int32.MinValue  |
-| bigint | scalar / int64 | Int64.MinValue 
+| bigint | scalar / int64 | Int64.MinValue |
 | real | scalar / float32 | UInt32.MinValue |
 | numeric | scalar / float32 |  UInt32.MinValue |
 | double precision | scalar / float64 | Double.MinValue |
