@@ -81,7 +81,8 @@ public class Options
     [Option("skip_create_tiles", Required = false, Default = false, HelpText = "Skip creating tiles, only create tileset.json files (Cesium)", SetName = "Cesium")]
     public bool SkipCreateTiles { get; set; }
 
-
+    [Option("enable_zoom_features", Required = false, Default = false, HelpText = "Creates extra tiles on lower zoom levels containing larger features", SetName = "Cesium")]
+    public bool EnableZoomFeatures{ get; set; }
     // mapbox specific options
     [Option("zoom", Required = false, Default = 15, HelpText = "Zoom level (Mapbox)", SetName = "Mapbox")]
     public int Zoom { get; set; }
