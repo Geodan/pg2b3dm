@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using B3dm.Tileset.Extensions;
 using subtree;
 using Wkx;
@@ -10,7 +9,7 @@ namespace B3dm.Tileset;
 
 public static class TreeSerializer
 {
-    public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "")
+    public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string refine = "")
     {
         var ext = createGltf ? ".glb" : ".b3dm";
         var geometricError = maxGeometricError;
@@ -19,7 +18,7 @@ public static class TreeSerializer
                                  0.0,1.0, 0.0, 0.0,
                                  0.0, 0.0, 1.0, 0.0,
             transform[0], transform[1], transform[2], 1.0};
-        var root = GetRoot(geometricError, t, box);
+        var root = GetRoot(geometricError, t, box,refine);
         var content = new Content() { uri = "content/{level}_{x}_{y}" + ext };
         root.content = content;
         var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };

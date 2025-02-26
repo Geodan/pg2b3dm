@@ -37,7 +37,7 @@ public static class GeometryRepository
         return result;
     }
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "")
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", string sqlPostFix = "")
     {
         var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn, target_srs);
         var sqlFrom = "FROM " + geometry_table;
@@ -45,7 +45,7 @@ public static class GeometryRepository
         var b = GetTileBoundingBox(bbox);
 
         var sqlWhere = GetWhere(geometry_column, source_epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
-        var sql = sqlselect + sqlFrom + sqlWhere;
+        var sql = sqlselect + sqlFrom + sqlWhere + sqlPostFix ;
 
         var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql, radiusColumn);
         return geometries;

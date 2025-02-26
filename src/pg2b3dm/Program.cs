@@ -117,6 +117,7 @@ class Program
             Console.WriteLine($"Doublesided: {doubleSided}");
             Console.WriteLine($"Default AlphaMode: {defaultAlphaMode}");
             Console.WriteLine($"Create glTF tiles: {createGltf}");
+            Console.WriteLine($"Enable zoom features: {o.EnableZoomFeatures}");
 
             var att = !string.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
             Console.WriteLine($"Attribute columns: {att}");
@@ -175,16 +176,42 @@ class Program
                 Console.WriteLine($"Maximum features per tile: " + o.MaxFeaturesPerTile);
 
                 var tile = new Tile(0, 0, 0);
+                var target_srs = 4978;
                 tile.BoundingBox = bbox.ToArray();
                 Console.WriteLine($"Start generating tiles...");
-                var quadtreeTiler = new QuadtreeTiler(conn, table, source_epsg, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles, o.RadiusColumn);
+                var quadtreeTiler = new QuadtreeTiler(conn, table, source_epsg, target_srs, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles, o.RadiusColumn);
                 var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
+
+                if (o.EnableZoomFeatures) {
+                    var level_min = tiles.Where(tiles => tiles.Available).Min(t => t.Z);
+                    var level_max = tiles.Where(tiles => tiles.Available).Max(t => t.Z);
+
+                    var extraTiles = new List<Tile>();
+                    foreach (var t in tiles) {
+                        if (!t.Available && t.Z >= level_min && t.Z < level_max) {
+                            var fileName = TileName.GetFileName(t, createGltf);
+                            Console.Write($"\rCreating extra tile: {fileName}");
+                            var postfixSql = $" ORDER BY ST_Area({geometryColumn}) DESC LIMIT {o.MaxFeaturesPerTile}";
+                            var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, target_srs, o.ShadersColumn, o.AttributeColumns, where, o.RadiusColumn, postfixSql);
+                            var bytes = TileWriter.ToTile(geometries, translation, copyright: copyright, addOutlines: addOutlines, defaultColor: defaultColor, defaultMetallicRoughness: defaultMetallicRoughness, doubleSided: doubleSided, defaultAlphaMode: defaultAlphaMode, createGltf: createGltf);
+                            File.WriteAllBytes($"{contentDirectory}{Path.AltDirectorySeparatorChar}{fileName}", bytes);
+                            t.Available = true;
+                            extraTiles.Add(t);
+                        }
+                    }
+                    Console.WriteLine();
+                    Console.WriteLine("Extra tiles created: " + extraTiles.Count);
+
+                    tiles.AddRange(extraTiles);
+                }
+
+
                 if (tiles.Count(tile => tile.Available) > 0) {
                     if (useImplicitTiling) {
-                        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion);
+                        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion, refinement);
                     }
                     else {
                         CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles, tilesetVersion);
