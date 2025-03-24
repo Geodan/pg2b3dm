@@ -16,6 +16,7 @@ public class QuadtreeTiler
     private readonly string table;
     private readonly NpgsqlConnection conn;
     private readonly int source_epsg;
+    private readonly int target_srs;
     private readonly string geometryColumn;
     private readonly int maxFeaturesPerTile;
     private readonly string query;
@@ -29,11 +30,12 @@ public class QuadtreeTiler
     private readonly bool skipCreateTiles;
     private readonly string radiusColumn;
 
-    public QuadtreeTiler(NpgsqlConnection conn, string table, int source_epsg, string geometryColumn, int maxFeaturesPerTile, string query, double[] translation, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false, string radiusColumn = "")
+    public QuadtreeTiler(NpgsqlConnection conn, string table, int source_epsg, int target_srs, string geometryColumn, int maxFeaturesPerTile, string query, double[] translation, string colorColumn, string attributesColumn, string lodColumn, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false, string radiusColumn = "")
     {
         this.table = table;
         this.conn = conn;
         this.source_epsg = source_epsg;
+        this.target_srs = target_srs;
         this.geometryColumn = geometryColumn;
         this.maxFeaturesPerTile = maxFeaturesPerTile;
         this.query = query;
@@ -89,18 +91,9 @@ public class QuadtreeTiler
             }
         }
         else {
-
-            var file = $"{tile.Z}_{tile.X}_{tile.Y}";
-            if (lodColumn != String.Empty) {
-                file += $"_{lod}";
-            }
-
-            var ext = createGltf ? ".glb" : ".b3dm";
-            file += ext;
+            var file = TileName.GetFileName(tile, createGltf, lodColumn, lod);
             Console.Write($"\rCreating tile: {file}  ");
             tile.ContentUri = file;
-
-            int target_srs = 4978;
 
             byte[] bytes = null;
 
@@ -125,7 +118,8 @@ public class QuadtreeTiler
                         t2.BoundingBox = tile.BoundingBox;
                         var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf);
                         tile.Children = lodNextTiles;
-                    };
+                    }
+                    ;
                 }
 
                 // next code is used to fix geometries that have centroid in the tile, but some parts outside...

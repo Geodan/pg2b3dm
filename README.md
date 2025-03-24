@@ -212,6 +212,8 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --skip_create_tiles             (Default: false) Skip creating tiles (Cesium)
 
+  --enable_zoom_features          (Default: false) Creates extra tiles on lower zoom levels containing larger features (Cesium)
+
   --zoom                          (Default: 15) Zoom level (Mapbox)
 
   --help                          Display this help screen.
