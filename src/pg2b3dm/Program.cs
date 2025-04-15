@@ -63,6 +63,7 @@ class Program
             var attributeColumns = o.AttributeColumns;
             var copyright = o.Copyright;
             var tilesetVersion = o.TilesetVersion;
+            var keepProjection = o.KeepProjection;
 
             var query = o.Query;
 
@@ -101,15 +102,16 @@ class Program
             Console.WriteLine($"Query bounding box of {table}.{geometryColumn}...");
             var where = (query != string.Empty ? $" where {query}" : String.Empty);
 
-            var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn, where);
-            var bbox = bbox_wgs84.bbox;
+            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn, where);
+            var bbox = bbox_table.bbox;
 
-            Console.WriteLine($"Bounding box for {table}.{geometryColumn} (in WGS84): " +
+            var proj = $"EPSG:4326 (WGS84)";
+            Console.WriteLine($"Bounding box for {table}.{geometryColumn} ({proj}): " +
                 $"{Math.Round(bbox.XMin, 8)}, {Math.Round(bbox.YMin, 8)}, " +
                 $"{Math.Round(bbox.XMax, 8)}, {Math.Round(bbox.YMax, 8)}");
 
-            var zmin = bbox_wgs84.zmin;
-            var zmax = bbox_wgs84.zmax;
+            var zmin = bbox_table.zmin;
+            var zmax = bbox_table.zmax;
 
             Console.WriteLine($"Height values: [{Math.Round(zmin, 2)} m - {Math.Round(zmax, 2)} m]");
             Console.WriteLine($"Default color: {defaultColor}");
@@ -128,6 +130,7 @@ class Program
             }
             var center_wgs84 = bbox.GetCenter();
             Console.WriteLine($"Center (wgs84): {center_wgs84.X}, {center_wgs84.Y}");
+
             Tiles3DExtensions.RegisterExtensions();
 
             // cesium specific
@@ -135,7 +138,9 @@ class Program
 
                 Console.WriteLine("Starting Cesium mode...");
 
-                var translation = Translation.GetTranslation(center_wgs84);
+                var translation =  keepProjection?
+                    Translation.GetTranslation(conn, center_wgs84, source_epsg):
+                    Translation.GetTranslation(center_wgs84);
                 Console.WriteLine($"Translation ECEF: {String.Join(',', translation)}");
 
                 var lodcolumn = o.LodColumn;
@@ -156,6 +161,7 @@ class Program
                 Console.WriteLine($"Geometric error: {o.GeometricError}");
                 Console.WriteLine($"Geometric error factor: {o.GeometricErrorFactor}");
                 Console.WriteLine($"Refinement: {refinement}");
+                Console.WriteLine($"Keep projection: {keepProjection}");
 
                 var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, table, lodcolumn, query) : new List<int> { 0 });
                 if (lodcolumn != String.Empty) {
@@ -178,7 +184,7 @@ class Program
                 tile.BoundingBox = bbox.ToArray();
                 Console.WriteLine($"Start generating tiles...");
                 var quadtreeTiler = new QuadtreeTiler(conn, table, source_epsg, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles, o.RadiusColumn);
-                var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf);
+                var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf, keepProjection);
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 

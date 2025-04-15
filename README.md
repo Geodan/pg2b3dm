@@ -212,6 +212,8 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --skip_create_tiles             (Default: false) Skip creating tiles (Cesium)
 
+  --keep_projection               (Default: false) Keep projection of input data (Cesium)
+
   --zoom                          (Default: 15) Zoom level (Mapbox)
 
   --help                          Display this help screen.

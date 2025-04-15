@@ -1,4 +1,5 @@
-﻿using B3dm.Tileset;
+﻿using System.Drawing;
+using B3dm.Tileset;
 using B3dm.Tileset.Extensions;
 using DotNet.Testcontainers.Builders;
 using Npgsql;
@@ -44,6 +45,18 @@ public class UnitTest1
         Assert.That(hasSpatialIndex == false);
     }
 
+    [Test]
+    public void PointTranslationTest()
+    {
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
+        // dom tower utrecht
+        var point = new Wkx.Point(5.121305, 52.090643);
+        var target_srs = 7415;
+        var translation = Translation.GetTranslation(conn, point, target_srs);
+        var expectedTranslation = new double[] { 136777.19187542467, 455853.82145509252, 0.0 };
+        Assert.That(translation, Is.EqualTo(expectedTranslation));
+    }
 
     [Test]
     public void FirstTest()

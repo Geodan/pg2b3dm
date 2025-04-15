@@ -48,7 +48,7 @@ public class QuadtreeTiler
         this.radiusColumn = radiusColumn;
     }
 
-    public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod = 0, bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, AlphaMode defaultAlphaMode = AlphaMode.OPAQUE, bool createGltf = false)
+    public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod = 0, bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, AlphaMode defaultAlphaMode = AlphaMode.OPAQUE, bool createGltf = false, bool keepProjection = false)
     {
         var where = (query != string.Empty ? $" and {query}" : String.Empty);
 
@@ -84,7 +84,7 @@ public class QuadtreeTiler
                     var bboxQuad = new BoundingBox(xstart, ystart, xend, yend);
                     var new_tile = new Tile(z, tile.X * 2 + x, tile.Y * 2 + y);
                     new_tile.BoundingBox = bboxQuad.ToArray();
-                    GenerateTiles(bboxQuad, new_tile, tiles, lod, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf);
+                    GenerateTiles(bboxQuad, new_tile, tiles, lod, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf, keepProjection);
                 }
             }
         }
@@ -101,6 +101,10 @@ public class QuadtreeTiler
             tile.ContentUri = file;
 
             int target_srs = 4978;
+
+            if(keepProjection) {
+                target_srs = source_epsg;
+            }
 
             byte[] bytes = null;
 
@@ -123,7 +127,7 @@ public class QuadtreeTiler
                         // make a copy of the tile 
                         var t2 = new Tile(tile.Z, tile.X, tile.Y);
                         t2.BoundingBox = tile.BoundingBox;
-                        var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf);
+                        var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf, keepProjection);
                         tile.Children = lodNextTiles;
                     };
                 }
