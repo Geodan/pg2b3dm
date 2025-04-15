@@ -60,7 +60,7 @@ When the projection grids are not installed the vertikal value stays at 2.68. In
 
 ### Download data
 
-- Download Geopackage from https://3dbag.nl/, for example Sibbe [https://3dbag.nl/nl/download?tid=7-688-32](https://3dbag.nl/nl/download?tid=7-688-32)
+- Download Geopackage from https://3dbag.nl/, for example Sibbe [https://3dbag.nl/nl/download?tid=8-688-40](https://3dbag.nl/nl/download?tid=8-688-40)
 
 Result: 7-688-32.gpkg (34 MB)
 
