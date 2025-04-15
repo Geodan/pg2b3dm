@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using B3dm.Tileset;
+﻿using B3dm.Tileset;
 using B3dm.Tileset.Extensions;
 using DotNet.Testcontainers.Builders;
 using Npgsql;
