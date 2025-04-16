@@ -212,6 +212,8 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --skip_create_tiles             (Default: false) Skip creating tiles (Cesium)
 
+  --keep_projection               (Default: false) Keep projection of input data (Cesium)
+
   --zoom                          (Default: 15) Zoom level (Mapbox)
 
   --help                          Display this help screen.
@@ -315,6 +317,15 @@ postgresql> update delaware_buildings set radius = 0.5 + random() * (1.5 - 0.5);
 Sample with pipes (green = data, blue = water, purple = sewage, yellow = gas, red = electricity):
 
 ![image](https://github.com/Geodan/pg2b3dm/assets/538812/20280276-02a2-41f1-8b3d-4a893eb82db3)
+
+## Keep projection parameter
+
+When using the keep_projection parameter (default false), no transformation to global coordinates (EPSG:4978) is performed. All 
+the coordinates are kept in the original coordinate system. 
+
+In tileset.json - Asset section there is extra property 'crs' for describing the coordinate system of the input data.
+
+The bounding volumes in tileset.json are in EPSG:4326 (in radians).
 
 ## Query parameter
 

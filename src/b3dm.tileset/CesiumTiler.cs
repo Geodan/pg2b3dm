@@ -10,7 +10,7 @@ using Wkx;
 namespace B3dm.Tileset;
 public static class CesiumTiler
 {
-    public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double geometricError, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles, string tilesetVersion="")
+    public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double geometricError, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles, string tilesetVersion="", string crs="")
     {
         if (!Directory.Exists(subtreesDirectory)) {
             Directory.CreateDirectory(subtreesDirectory);
@@ -28,7 +28,7 @@ public static class CesiumTiler
         var availableLevels = tiles.Max(t => t.Z) + 1;
         Console.WriteLine("Available Levels: " + availableLevels);
         Console.WriteLine("Subtree Levels: " + subtreeLevels);
-        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricError, availableLevels, subtreeLevels, version, createGltf, tilesetVersion);
+        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricError, availableLevels, subtreeLevels, version, createGltf, tilesetVersion, crs);
         var file = $"{outputDirectory}{Path.AltDirectorySeparatorChar}tileset.json";
         var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         Console.WriteLine("SubdivisionScheme: QUADTREE");
@@ -36,7 +36,7 @@ public static class CesiumTiler
         File.WriteAllText(file, json);
     }
 
-    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, string refinement, bool use10, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles, string tilesetVersion="")
+    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, string refinement, bool use10, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles, string tilesetVersion="", string crs="")
     {
         var splitLevel = (int)Math.Ceiling((tiles.Max((Tile s) => s.Z) + 1.0) / 2.0);
 
