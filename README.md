@@ -577,6 +577,8 @@ Press F5 to start debugging.
 
 ## History
 
+2025-04-16: release 2.19.0 add keep_projection parameter_
+
 2024-10-23: release 2.18.1 add null checking in attribute columns
 
 2024-10-15: release 2.18.0 add option tilesetVersion
