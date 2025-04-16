@@ -188,12 +188,16 @@ class Program
                 Console.WriteLine();
                 Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
+                var crs = keepProjection ?
+                    $"EPSG:{source_epsg}" :
+                    "";
+
                 if (tiles.Count(tile => tile.Available) > 0) {
                     if (useImplicitTiling) {
-                        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion);
+                        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion, crs);
                     }
                     else {
-                        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles, tilesetVersion);
+                        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles, tilesetVersion, crs);
                     }
                 }
                 Console.WriteLine();

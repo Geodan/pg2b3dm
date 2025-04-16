@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using B3dm.Tileset.Extensions;
 using subtree;
 using Wkx;
@@ -10,11 +9,11 @@ namespace B3dm.Tileset;
 
 public static class TreeSerializer
 {
-    public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "")
+    public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string crs="")
     {
         var ext = createGltf ? ".glb" : ".b3dm";
         var geometricError = maxGeometricError;
-        var tileset = GetTilesetObject(version, maxGeometricError, false, tilesetVersion);
+        var tileset = GetTilesetObject(version, maxGeometricError, false, tilesetVersion, crs);
         var t = new double[] {   1.0, 0.0, 0.0, 0.0,
                                  0.0,1.0, 0.0, 0.0,
                                  0.0, 0.0, 1.0, 0.0,
@@ -28,9 +27,9 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, string refine="ADD", bool use10 = false, string tilesetVersion = "")
+    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, string refine="ADD", bool use10 = false, string tilesetVersion = "", string crs="")
     {
-        var tileset = GetTilesetObject(version, geometricError, use10, tilesetVersion);
+        var tileset = GetTilesetObject(version, geometricError, use10, tilesetVersion, crs);
 
         var t = new double[] {   1.0, 0.0, 0.0, 0.0,
                                      0.0,1.0, 0.0, 0.0,
@@ -55,12 +54,15 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet GetTilesetObject(Version version, double geometricError, bool use10 = false, string tilesetVersion = "")
+    public static TileSet GetTilesetObject(Version version, double geometricError, bool use10 = false, string tilesetVersion = "", string crs="")
     {
         var version3DTiles = use10 ? "1.0" : "1.1"; 
         var tileset = new TileSet { asset = new Asset() { version = $"{version3DTiles}", generator = $"pg2b3dm {version}" } };
         if(!string.IsNullOrEmpty(tilesetVersion)) {
             tileset.asset.tilesetVersion = tilesetVersion;
+        }
+        if (!string.IsNullOrEmpty(crs)) {
+            tileset.asset.crs = crs;
         }
         tileset.geometricError = geometricError;
         return tileset;
