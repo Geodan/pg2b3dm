@@ -277,7 +277,53 @@ So Diffuse Red = 230, Diffuse Green = 0, Diffuse Blue = 128, Alpha = 0
 ### AlphaMode
 
 It is possible to specify glTF material alphaMode property (see: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#alpha-coverage) using `--default_alpha_mode` option for all materials. By default it is set to OPAQUE. Other options are BLEND and MASK.
-Using non OPAQUE default alpha mode for all materials might affect rendering performance. It should be used only when most of the materials have alpha value different than 1. 
+Using non OPAQUE default alpha mode for all materials might affect rendering performance. It should be used only when most of the materials have alpha value different than 1.
+
+Sample setting alpha mode to BLEND for 50% transparent polygon in Amsterdam:
+
+1] Create polygon table with 1 polygon, shading color #00FF0080 (50% transparent green)
+
+```
+CREATE TABLE towns (
+id SERIAL PRIMARY KEY,
+name TEXT,
+geom GEOMETRY(POLYGONZ, 28992)
+);
+
+INSERT INTO towns (name, geom)
+VALUES (
+'amsterdam',
+ST_GeomFromText(
+'POLYGONZ((
+114198.8883 485033.8681 10,
+129120.3625 485033.8681 10,
+129120.3625 492341.7244 10,
+114198.8883 492341.7244 10,
+114198.8883 485033.8681 10
+))',
+28992
+)
+);
+
+ALTER TABLE towns ADD COLUMN simple_shader json;
+
+update towns set simple_shader =
+'{
+"PbrMetallicRoughness": {
+"BaseColors": ["#00FF0080"]
+}
+}';
+```
+
+Creating 3D Tiles:
+
+```
+pg2b3dm -U postgres -d postgres -t towns -c geom --shaderscolumn simple_shader --default_alpha_mode BLEND
+```
+
+Result: 
+
+<img width="1370" height="633" alt="image" src="https://github.com/user-attachments/assets/793f9727-dafa-4f33-b972-5c59acb938ad" />
 
 ### Remarks
 
