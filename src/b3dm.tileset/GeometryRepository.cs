@@ -16,11 +16,13 @@ public static class GeometryRepository
     /// <summary>
     /// Returns double array with 6 bounding box coordinates, xmin, ymin, xmax, ymax, zmin, zmax
     /// </summary>
-    public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, int epsg, Tile t, string query = "")
+    public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, int epsg, Tile t, string query = "", bool keepProjection = false)
     {
-        var sqlSelect = $"select st_Asbinary(st_3dextent(st_transform({geometry_column}, 4979))) ";
+        var sqlSelect = keepProjection?
+            $"select st_Asbinary(st_3dextent({geometry_column})) ":
+            $"select st_Asbinary(st_3dextent(st_transform({geometry_column}, 4979))) ";
         var b = GetTileBoundingBox(t.BoundingBox);
-        var sqlWhere = GetWhere(geometry_column, epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
+        var sqlWhere = GetWhere(geometry_column, epsg, b.xmin, b.ymin, b.xmax, b.ymax, query, keepProjection);
         var sql = $"{sqlSelect} from {geometry_table} {sqlWhere}";
 
         conn.Open();
@@ -37,14 +39,14 @@ public static class GeometryRepository
         return result;
     }
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "")
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", bool keepProjection = false)
     {
         var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn, target_srs);
         var sqlFrom = "FROM " + geometry_table;
 
         var b = GetTileBoundingBox(bbox);
 
-        var sqlWhere = GetWhere(geometry_column, source_epsg, b.xmin, b.ymin, b.xmax, b.ymax, query);
+        var sqlWhere = GetWhere(geometry_column, source_epsg, b.xmin, b.ymin, b.xmax, b.ymax, query, keepProjection);
         var sql = sqlselect + sqlFrom + sqlWhere;
 
         var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql, radiusColumn);
@@ -60,12 +62,14 @@ public static class GeometryRepository
         return(xmin, ymin, xmax, ymax);
     }
 
-    public static string GetWhere(string geometry_column, int source_epsg, string xmin, string ymin, string xmax, string ymax, string query = "")
+    public static string GetWhere(string geometry_column, int source_epsg, string xmin, string ymin, string xmax, string ymax, string query = "", bool keepProjection = false)
     {
+
+        var poly = keepProjection ?
+            $"ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, {source_epsg}) " :
+            $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326), {source_epsg}) ";
         return $" WHERE  ST_Intersects(" +
-            $"ST_Centroid(ST_Envelope({geometry_column})), " +
-            $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326), {source_epsg}) " +
-            $") {query}";
+            $"ST_Centroid(ST_Envelope({geometry_column})), {poly}) {query}";
     }
 
     public static string GetSqlSelect(string geometry_column, string shaderColumn, string attributesColumns, string radiusColumn, int target_srs)

@@ -102,10 +102,10 @@ class Program
             Console.WriteLine($"Query bounding box of {table}.{geometryColumn}...");
             var where = (query != string.Empty ? $" where {query}" : String.Empty);
 
-            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn, where);
+            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn, keepProjection , where);
             var bbox = bbox_table.bbox;
 
-            var proj = $"EPSG:4326 (WGS84)";
+            var proj = keepProjection? $"EPSG:{source_epsg}": $"EPSG:4326 (WGS84)";
             Console.WriteLine($"Bounding box for {table}.{geometryColumn} ({proj}): " +
                 $"{Math.Round(bbox.XMin, 8)}, {Math.Round(bbox.YMin, 8)}, " +
                 $"{Math.Round(bbox.XMax, 8)}, {Math.Round(bbox.YMax, 8)}");
@@ -128,8 +128,8 @@ class Program
             if (!Directory.Exists(contentDirectory)) {
                 Directory.CreateDirectory(contentDirectory);
             }
-            var center_wgs84 = bbox.GetCenter();
-            Console.WriteLine($"Center (wgs84): {center_wgs84.X}, {center_wgs84.Y}");
+            var center = bbox.GetCenter();
+            Console.WriteLine($"Center ({proj}): {center.X}, {center.Y}");
 
             Tiles3DExtensions.RegisterExtensions();
 
@@ -139,9 +139,10 @@ class Program
                 Console.WriteLine("Starting Cesium mode...");
 
                 var translation =  keepProjection?
-                    Translation.GetTranslation(conn, center_wgs84, source_epsg):
-                    Translation.GetTranslation(center_wgs84);
-                Console.WriteLine($"Translation ECEF: {String.Join(',', translation)}");
+                    // new double[] { (double)center.X, (double)center.Y, 0 } :
+                    new double[] { 0, 0 , 0 } :
+                    Translation.ToEcef(center);
+                Console.WriteLine($"Translation: {String.Join(',', translation)}");
 
                 var lodcolumn = o.LodColumn;
                 var addOutlines = (bool)o.AddOutlines;
@@ -174,7 +175,10 @@ class Program
                     Console.WriteLine($"Tileset version: {tilesetVersion}");
                 }
 
-                var rootBoundingVolumeRegion = bbox.ToRadians().ToRegion(zmin, zmax);
+                var rootBoundingVolumeRegion = 
+                    keepProjection?
+                        bbox.ToRegion(zmin, zmax) : 
+                        bbox.ToRadians().ToRegion(zmin, zmax);
 
                 var subtreesDirectory = $"{output}{Path.AltDirectorySeparatorChar}subtrees";
 
