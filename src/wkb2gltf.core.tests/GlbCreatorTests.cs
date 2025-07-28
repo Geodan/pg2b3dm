@@ -346,7 +346,6 @@ public class GlbCreatorTests
         // act
         var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { triangles });
         var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "ogc_fid_13967.glb");
-        File.WriteAllBytes(@"d:\aaa\test.glb", bytes);
         File.WriteAllBytes(fileName, bytes);
 
         // assert

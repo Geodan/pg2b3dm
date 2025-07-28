@@ -15,8 +15,8 @@
     <PackageReference Include="b3dm-tile" Version="1.2.0" />
     <PackageReference Include="bertt.triangulator" Version="1.6.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="SharpGLTF.Ext.3DTiles" Version="1.0.3" />
-    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.3" />
+    <PackageReference Include="SharpGLTF.Ext.3DTiles" Version="1.0.5" />
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.5" />
     <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
     <PackageReference Include="Wkx" Version="0.5.1" />
   </ItemGroup>
