@@ -9,7 +9,7 @@ namespace B3dm.Tileset;
 
 public static class TreeSerializer
 {
-    public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string crs="")
+    public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string crs="", bool keepProjection = false)
     {
         var ext = createGltf ? ".glb" : ".b3dm";
         var geometricError = maxGeometricError;
@@ -18,7 +18,7 @@ public static class TreeSerializer
                                  0.0,1.0, 0.0, 0.0,
                                  0.0, 0.0, 1.0, 0.0,
         transform[0], transform[1], transform[2], 1.0};
-        var root = GetRoot(geometricError, t, box);
+        var root = GetRoot(geometricError, t, box, keepProjection: keepProjection);
         var content = new Content() { uri = "content/{level}_{x}_{y}" + ext };
         root.content = content;
         var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };
@@ -27,7 +27,7 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, string refine="ADD", bool use10 = false, string tilesetVersion = "", string crs="")
+    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, string refine="ADD", bool use10 = false, string tilesetVersion = "", string crs="", bool keepProjection = false)
     {
         var tileset = GetTilesetObject(version, geometricError, use10, tilesetVersion, crs);
 
@@ -43,7 +43,7 @@ public static class TreeSerializer
             transform[0], transform[1], transform[2], 1.0};
         }
 
-        var root = GetRoot(geometricError, t, region, refine);
+        var root = GetRoot(geometricError, t, region, refine, keepProjection);
         tileset.geometricError = geometricError;
         root.geometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, 1);
         var childrenGeometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, 2);
@@ -68,11 +68,36 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static Root GetRoot(double geometricError, double[] translation, double[] region, string refine="ADD")
+    private static double[] GetBBox(double[] region)
     {
-        var boundingVolume = new Boundingvolume {
-            region = region
+        // return Array of 12 double values representing the bounding box
+        var xmin = region[0];
+        var ymin = region[1];
+        var xmax = region[2];
+        var ymax = region[3];
+        var zmin = region[4];
+        var zmax = region[5];
+
+        var centre = new double[] {
+            (xmin + xmax) / 2.0, 
+            (ymin + ymax) / 2.0,
+            (zmin + zmax) / 2.0
         };
+
+        var res = new double[] {
+            centre[0], centre[1], centre[2],
+            (xmax - xmin) / 2, 0, 0,
+            0, (ymax - ymin) / 2, 0,
+            0, 0, (zmax - zmin) / 2
+            };
+        return res;
+    }
+
+    public static Root GetRoot(double geometricError, double[] translation, double[] region, string refine = "ADD", bool keepProjection = false)
+    {
+        var boundingVolume = keepProjection ?
+            new Boundingvolume { box = GetBBox(region) } :
+            new Boundingvolume { region = region };
 
         var root = new Root {
             geometricError = geometricError,
