@@ -140,7 +140,6 @@ class Program
 
                 var translation =  keepProjection?
                     new double[] { (double)center.X, (double)center.Y, 0 } :
-                    // new double[] { 0, 0 , 0 } :
                     Translation.ToEcef(center);
                 Console.WriteLine($"Translation: {String.Join(',', translation)}");
 
