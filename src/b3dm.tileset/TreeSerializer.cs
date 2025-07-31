@@ -68,27 +68,27 @@ public static class TreeSerializer
         return tileset;
     }
 
-    private static double[] GetBBox(double[] region)
+    private static double[] GetBBox(double[] region, double[] translation)
     {
         // return Array of 12 double values representing the bounding box
-        var xmin = region[0];
-        var ymin = region[1];
-        var xmax = region[2];
-        var ymax = region[3];
-        var zmin = region[4];
-        var zmax = region[5];
+        var xmin = region[0] - translation[12];
+        var ymin = region[1] - translation[13];
+        var xmax = region[2]- translation[12];
+        var ymax = region[3] - translation[13];
+        var zmin = region[4] - translation[14];
+        var zmax = region[5] - translation[14];
 
         var centre = new double[] {
-            (xmin + xmax) / 2.0, 
-            (ymin + ymax) / 2.0,
-            (zmin + zmax) / 2.0
+            Math.Round((xmin + xmax) / 2.0, 6), 
+            Math.Round((ymin + ymax) / 2.0, 6),
+            Math.Round((zmin + zmax) / 2.0, 6)
         };
 
         var res = new double[] {
             centre[0], centre[1], centre[2],
-            (xmax - xmin) / 2, 0, 0,
-            0, (ymax - ymin) / 2, 0,
-            0, 0, (zmax - zmin) / 2
+            (region[2] - region[0]) / 2, 0, 0,
+            0, (region[3] - region[1]) / 2, 0,
+            0, 0, (region[5] - region[4]) / 2
             };
         return res;
     }
@@ -96,7 +96,7 @@ public static class TreeSerializer
     public static Root GetRoot(double geometricError, double[] translation, double[] region, string refine = "ADD", bool keepProjection = false)
     {
         var boundingVolume = keepProjection ?
-            new Boundingvolume { box = GetBBox(region) } :
+            new Boundingvolume { box = GetBBox(region, translation) } :
             new Boundingvolume { region = region };
 
         var root = new Root {
