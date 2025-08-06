@@ -63,7 +63,7 @@ class Program
             var attributeColumns = o.AttributeColumns;
             var copyright = o.Copyright;
             var tilesetVersion = o.TilesetVersion;
-            var keepProjection = o.KeepProjection;
+            var keepProjection = (bool)o.KeepProjection;
 
             var query = o.Query;
 

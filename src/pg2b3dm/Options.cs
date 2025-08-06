@@ -82,7 +82,7 @@ public class Options
     public bool SkipCreateTiles { get; set; }
 
     [Option("keep_projection", Required = false, Default = false, HelpText = "Keep projection (Cesium)", SetName = "Cesium")]
-    public bool KeepProjection { get; set; }
+    public bool? KeepProjection { get; set; }
 
     // mapbox specific options
     [Option("zoom", Required = false, Default = 15, HelpText = "Zoom level (Mapbox)", SetName = "Mapbox")]
