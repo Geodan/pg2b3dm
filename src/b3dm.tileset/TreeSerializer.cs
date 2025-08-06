@@ -9,7 +9,7 @@ namespace B3dm.Tileset;
 
 public static class TreeSerializer
 {
-    public static TileSet ToImplicitTileset(double[] transform, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string crs="", bool keepProjection = false)
+    public static TileSet ToImplicitTileset(double[] translate, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string crs="", bool keepProjection = false)
     {
         var ext = createGltf ? ".glb" : ".b3dm";
         var geometricError = maxGeometricError;
@@ -17,7 +17,7 @@ public static class TreeSerializer
         var t = new double[] {   1.0, 0.0, 0.0, 0.0,
                                  0.0,1.0, 0.0, 0.0,
                                  0.0, 0.0, 1.0, 0.0,
-        transform[0], transform[1], transform[2], 1.0};
+        translate[0], translate[1], translate[2], 1.0};
         var root = GetRoot(geometricError, t, box, keepProjection: keepProjection);
         var content = new Content() { uri = "content/{level}_{x}_{y}" + ext };
         root.content = content;
@@ -27,7 +27,7 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, string refine="ADD", bool use10 = false, string tilesetVersion = "", string crs="")
+    public static TileSet ToTileset(List<Tile> tiles, double[] translate, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, string refine="ADD", bool use10 = false, string tilesetVersion = "", string crs="")
     {
         var tileset = GetTilesetObject(version, geometricError, use10, tilesetVersion, crs);
 
@@ -36,11 +36,11 @@ public static class TreeSerializer
                                      0.0, 0.0, 1.0, 0.0,
             0.0, 0.0, 0.0, 1.0};
 
-        if (transform != null) {
+        if (translate != null) {
             t = new double[] {   1.0, 0.0, 0.0, 0.0,
                                  0.0,1.0, 0.0, 0.0,
                                  0.0, 0.0, 1.0, 0.0,
-            transform[0], transform[1], transform[2], 1.0};
+            translate[0], translate[1], translate[2], 1.0};
         }
 
         var root = GetRoot(geometricError, t, region, refine);
