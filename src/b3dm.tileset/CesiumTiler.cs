@@ -36,12 +36,12 @@ public static class CesiumTiler
         File.WriteAllText(file, json);
     }
 
-    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, string refinement, bool use10, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles, string tilesetVersion="", string crs="", bool keepProjection = false)
+    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, string refinement, bool use10, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles, string tilesetVersion="", string crs="")
     {
         var splitLevel = (int)Math.Ceiling((tiles.Max((Tile s) => s.Z) + 1.0) / 2.0);
 
         var rootTiles = TileSelector.Select(tiles, tile, 0, splitLevel);
-        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, use10, tilesetVersion);
+        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, use10, tilesetVersion, crs);
 
         var maxlevel = tiles.Max((Tile s) => s.Z);
 

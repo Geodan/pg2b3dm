@@ -96,7 +96,7 @@ class Program
                 Console.WriteLine($"Spatial index detected on {table}.{geometryColumn}");
             }
             
-            var skipCreateTiles = o.SkipCreateTiles;
+            var skipCreateTiles = (bool)o.SkipCreateTiles;
             Console.WriteLine("Skip create tiles: " + skipCreateTiles);
 
             Console.WriteLine($"Query bounding box of {table}.{geometryColumn}...");
@@ -163,6 +163,12 @@ class Program
                 Console.WriteLine($"Refinement: {refinement}");
                 Console.WriteLine($"Keep projection: {keepProjection}");
 
+                if(keepProjection && !useImplicitTiling) {
+                    Console.WriteLine("Warning: keepProjection is not supported with explicit tiling.");
+                    Console.WriteLine("Program will exit now.");
+                    return;
+                }
+
                 var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, table, lodcolumn, query) : new List<int> { 0 });
                 if (lodcolumn != String.Empty) {
                     Console.WriteLine($"Lod levels: {String.Join(',', lods)}");
@@ -200,7 +206,7 @@ class Program
                         CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion, crs, keepProjection);
                     }
                     else {
-                        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles, tilesetVersion, crs, keepProjection);
+                        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles, tilesetVersion, crs);
                     }
                 }
                 Console.WriteLine();

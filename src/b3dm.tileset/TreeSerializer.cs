@@ -27,7 +27,7 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, string refine="ADD", bool use10 = false, string tilesetVersion = "", string crs="", bool keepProjection = false)
+    public static TileSet ToTileset(List<Tile> tiles, double[] transform, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, string refine="ADD", bool use10 = false, string tilesetVersion = "", string crs="")
     {
         var tileset = GetTilesetObject(version, geometricError, use10, tilesetVersion, crs);
 
@@ -43,7 +43,7 @@ public static class TreeSerializer
             transform[0], transform[1], transform[2], 1.0};
         }
 
-        var root = GetRoot(geometricError, t, region, refine, keepProjection);
+        var root = GetRoot(geometricError, t, region, refine);
         tileset.geometricError = geometricError;
         root.geometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, 1);
         var childrenGeometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, 2);
