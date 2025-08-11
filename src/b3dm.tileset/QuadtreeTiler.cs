@@ -58,7 +58,7 @@ public class QuadtreeTiler
             where += $" and {lodquery}";
         }
 
-        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bbox.XMin, bbox.YMin), new Point(bbox.XMax, bbox.YMax), where, source_epsg);
+        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, table, geometryColumn, new Point(bbox.XMin, bbox.YMin), new Point(bbox.XMax, bbox.YMax), where, source_epsg, keepProjection);
 
         if (numberOfFeatures == 0) {
             tile.Available = false;
@@ -108,7 +108,7 @@ public class QuadtreeTiler
 
             byte[] bytes = null;
 
-            var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, target_srs, colorColumn, attributesColumn, where, radiusColumn);
+            var geometries = GeometryRepository.GetGeometrySubset(conn, table, geometryColumn, tile.BoundingBox, source_epsg, target_srs, colorColumn, attributesColumn, where, radiusColumn, keepProjection);
             // var scale = new double[] { 1, 1, 1 };
             if (geometries.Count > 0) {
 
@@ -133,7 +133,7 @@ public class QuadtreeTiler
                 }
 
                 // next code is used to fix geometries that have centroid in the tile, but some parts outside...
-                var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, source_epsg, tile, where);
+                var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, table, geometryColumn, source_epsg, tile, where, keepProjection);
                 var bbox_tile = new double[] { bbox_geometries[0], bbox_geometries[1], bbox_geometries[2], bbox_geometries[3] };
                 tile.BoundingBox = bbox_tile;
                 tile.ZMin = bbox_geometries[4];

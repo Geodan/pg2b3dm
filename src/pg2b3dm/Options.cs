@@ -79,10 +79,10 @@ public class Options
     public string Refinement{ get; set; }
 
     [Option("skip_create_tiles", Required = false, Default = false, HelpText = "Skip creating tiles, only create tileset.json files (Cesium)", SetName = "Cesium")]
-    public bool SkipCreateTiles { get; set; }
+    public bool? SkipCreateTiles { get; set; }
 
     [Option("keep_projection", Required = false, Default = false, HelpText = "Keep projection (Cesium)", SetName = "Cesium")]
-    public bool KeepProjection { get; set; }
+    public bool? KeepProjection { get; set; }
 
     // mapbox specific options
     [Option("zoom", Required = false, Default = 15, HelpText = "Zoom level (Mapbox)", SetName = "Mapbox")]

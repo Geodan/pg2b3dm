@@ -63,7 +63,7 @@ class Program
             var attributeColumns = o.AttributeColumns;
             var copyright = o.Copyright;
             var tilesetVersion = o.TilesetVersion;
-            var keepProjection = o.KeepProjection;
+            var keepProjection = (bool)o.KeepProjection;
 
             var query = o.Query;
 
@@ -96,16 +96,16 @@ class Program
                 Console.WriteLine($"Spatial index detected on {table}.{geometryColumn}");
             }
             
-            var skipCreateTiles = o.SkipCreateTiles;
+            var skipCreateTiles = (bool)o.SkipCreateTiles;
             Console.WriteLine("Skip create tiles: " + skipCreateTiles);
 
             Console.WriteLine($"Query bounding box of {table}.{geometryColumn}...");
             var where = (query != string.Empty ? $" where {query}" : String.Empty);
 
-            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn, where);
+            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn, keepProjection , where);
             var bbox = bbox_table.bbox;
 
-            var proj = $"EPSG:4326 (WGS84)";
+            var proj = keepProjection? $"EPSG:{source_epsg}": $"EPSG:4326 (WGS84)";
             Console.WriteLine($"Bounding box for {table}.{geometryColumn} ({proj}): " +
                 $"{Math.Round(bbox.XMin, 8)}, {Math.Round(bbox.YMin, 8)}, " +
                 $"{Math.Round(bbox.XMax, 8)}, {Math.Round(bbox.YMax, 8)}");
@@ -128,8 +128,8 @@ class Program
             if (!Directory.Exists(contentDirectory)) {
                 Directory.CreateDirectory(contentDirectory);
             }
-            var center_wgs84 = bbox.GetCenter();
-            Console.WriteLine($"Center (wgs84): {center_wgs84.X}, {center_wgs84.Y}");
+            var center = bbox.GetCenter();
+            Console.WriteLine($"Center ({proj}): {center.X}, {center.Y}");
 
             Tiles3DExtensions.RegisterExtensions();
 
@@ -139,9 +139,9 @@ class Program
                 Console.WriteLine("Starting Cesium mode...");
 
                 var translation =  keepProjection?
-                    Translation.GetTranslation(conn, center_wgs84, source_epsg):
-                    Translation.GetTranslation(center_wgs84);
-                Console.WriteLine($"Translation ECEF: {String.Join(',', translation)}");
+                    new double[] { (double)center.X, (double)center.Y, 0 } :
+                    Translation.ToEcef(center);
+                Console.WriteLine($"Translation: {String.Join(',', translation)}");
 
                 var lodcolumn = o.LodColumn;
                 var addOutlines = (bool)o.AddOutlines;
@@ -163,6 +163,12 @@ class Program
                 Console.WriteLine($"Refinement: {refinement}");
                 Console.WriteLine($"Keep projection: {keepProjection}");
 
+                if(keepProjection && !useImplicitTiling) {
+                    Console.WriteLine("Warning: keepProjection is not supported with explicit tiling.");
+                    Console.WriteLine("Program will exit now.");
+                    return;
+                }
+
                 var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, table, lodcolumn, query) : new List<int> { 0 });
                 if (lodcolumn != String.Empty) {
                     Console.WriteLine($"Lod levels: {String.Join(',', lods)}");
@@ -174,7 +180,10 @@ class Program
                     Console.WriteLine($"Tileset version: {tilesetVersion}");
                 }
 
-                var rootBoundingVolumeRegion = bbox.ToRadians().ToRegion(zmin, zmax);
+                var rootBoundingVolumeRegion = 
+                    keepProjection?
+                        bbox.ToRegion(zmin, zmax) : 
+                        bbox.ToRadians().ToRegion(zmin, zmax);
 
                 var subtreesDirectory = $"{output}{Path.AltDirectorySeparatorChar}subtrees";
 
@@ -194,7 +203,7 @@ class Program
 
                 if (tiles.Count(tile => tile.Available) > 0) {
                     if (useImplicitTiling) {
-                        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion, crs);
+                        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion, crs, keepProjection);
                     }
                     else {
                         CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles, tilesetVersion, crs);

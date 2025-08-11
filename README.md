@@ -24,6 +24,8 @@ Features:
 
 - Triangulation of input geometries LineStrings/Polygon/MultiPolygon/PolyhedralSurface/TIN with Z values;
 
+- 3D Tiles in global coordinates (EPSG:4978) or in local coordinates;
+
 - Docker support.
 
 Resulting tilesets can be validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
@@ -323,9 +325,74 @@ Sample with pipes (green = data, blue = water, purple = sewage, yellow = gas, re
 When using the keep_projection parameter (default false), no transformation to global coordinates (EPSG:4978) is performed. All 
 the coordinates are kept in the original coordinate system. 
 
+In case of keep_projection, the boundingVolume box property is used instead of boundingVolume region in tileset.json.
+
 In tileset.json - Asset section there is extra property 'crs' for describing the coordinate system of the input data.
 
-The bounding volumes in tileset.json are in EPSG:4326 (in radians).
+Sample tileset.json when using keep_projection (for EPSG:5698 projection):
+
+```
+{
+  "asset": {
+    "generator": "pg2b3dm 2.19.0.0",
+    "version": "1.1",
+    "crs": "EPSG:5698"
+  },
+  "geometricError": 2000.0,
+  "root": {
+    "transform": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      842500.2491448976,
+      6518515.995238766,
+      0.0,
+      1.0
+    ],
+    "geometricError": 2000.0,
+    "refine": "ADD",
+    "boundingVolume": {
+      "box": [
+        0.0,
+        0.0,
+        181.9595,
+        525.9140009999974,
+        0.0,
+        0.0,
+        0.0,
+        530.0610010004602,
+        0.0,
+        0.0,
+        0.0,
+        26.622500000000002
+      ]
+    },
+    "content": {
+      "uri": "content/{level}_{x}_{y}.glb"
+    },
+    "implicitTiling": {
+      "availableLevels": 2,
+      "subdivisionScheme": "QUADTREE",
+      "subtreeLevels": 2,
+      "subtrees": {
+        "uri": "subtrees/{level}_{x}_{y}.subtree"
+      }
+    }
+  }
+}
+```
+
+Note: The keep_projection parameter is implemented for implicit tiling, not for explicit tiling. When using implicit tiling and keep_projection, 
+an error will show up and the program will exit.
 
 ## Query parameter
 

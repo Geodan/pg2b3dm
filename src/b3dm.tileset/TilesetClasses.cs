@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using subtree;
 
 namespace B3dm.Tileset;
 
@@ -65,4 +64,11 @@ public class Asset
     public string tilesetVersion { get; set; }
 
     public string crs { get; set; }
+}
+
+public class Boundingvolume
+{
+    public double[] region { get; set; }
+
+    public double[] box { get; set; }
 }

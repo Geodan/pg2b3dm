@@ -10,7 +10,7 @@ using Wkx;
 namespace B3dm.Tileset;
 public static class CesiumTiler
 {
-    public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double geometricError, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles, string tilesetVersion="", string crs="")
+    public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double geometricError, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles, string tilesetVersion="", string crs="", bool keepProjection = false)
     {
         if (!Directory.Exists(subtreesDirectory)) {
             Directory.CreateDirectory(subtreesDirectory);
@@ -28,7 +28,7 @@ public static class CesiumTiler
         var availableLevels = tiles.Max(t => t.Z) + 1;
         Console.WriteLine("Available Levels: " + availableLevels);
         Console.WriteLine("Subtree Levels: " + subtreeLevels);
-        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricError, availableLevels, subtreeLevels, version, createGltf, tilesetVersion, crs);
+        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricError, availableLevels, subtreeLevels, version, createGltf, tilesetVersion, crs, keepProjection);
         var file = $"{outputDirectory}{Path.AltDirectorySeparatorChar}tileset.json";
         var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         Console.WriteLine("SubdivisionScheme: QUADTREE");
@@ -41,7 +41,7 @@ public static class CesiumTiler
         var splitLevel = (int)Math.Ceiling((tiles.Max((Tile s) => s.Z) + 1.0) / 2.0);
 
         var rootTiles = TileSelector.Select(tiles, tile, 0, splitLevel);
-        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, use10, tilesetVersion);
+        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, use10, tilesetVersion, crs);
 
         var maxlevel = tiles.Max((Tile s) => s.Z);
 
