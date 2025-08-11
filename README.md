@@ -24,6 +24,8 @@ Features:
 
 - Triangulation of input geometries LineStrings/Polygon/MultiPolygon/PolyhedralSurface/TIN with Z values;
 
+- 3D Tiles in global coordinates (EPSG:4978) or in local coordinates;
+
 - Docker support.
 
 Resulting tilesets can be validated against 3D Tiles Validator (https://github.com/CesiumGS/3d-tiles-validator).
@@ -323,7 +325,7 @@ Sample with pipes (green = data, blue = water, purple = sewage, yellow = gas, re
 When using the keep_projection parameter (default false), no transformation to global coordinates (EPSG:4978) is performed. All 
 the coordinates are kept in the original coordinate system. 
 
-In case of keep_projection, the boundingVolume box property is used instead of boundingVolume region._
+In case of keep_projection, the boundingVolume box property is used instead of boundingVolume region in tileset.json.
 
 In tileset.json - Asset section there is extra property 'crs' for describing the coordinate system of the input data.
 

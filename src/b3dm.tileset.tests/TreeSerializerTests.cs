@@ -49,6 +49,25 @@ public class TreeSerializerTests
         Assert.That(box[11], Is.EqualTo(0.5 * (bbox[5] - bbox[4]))); ;
     }
 
+    [Test]
+    public void SerializeToImplicitTilingTestWithGlobalProjection()
+    {
+        // arrange
+        var translation = new double[] { 842500.24914489756, 6518515.9952387661, 0 };
+        var bbox = new double[] { 841974.33514389757, 6517985.9342377661, 843026.16314589756, 6519046.056239767, 155.337, 208.582 };
+        var crs = "EPSG:5698";
+        // act
+        var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 2, 2, crs: crs, keepProjection: false);
+        // assert
+        Assert.That(json != null, Is.True);
+        Assert.That(json.asset.crs, Is.EqualTo(crs));
+        // In case of global projection, we use region instead of region
+        Assert.That(json.root.boundingVolume.box, Is.Null);
+        Assert.That(json.root.boundingVolume.region, Is.Not.Null);
+
+        var region = json.root.boundingVolume.region;
+        Assert.That(region.Length, Is.EqualTo(6));
+    }
 
     [Test]
     public void SerializeToImplicitTilingTest()
