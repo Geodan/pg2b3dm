@@ -4,7 +4,7 @@
 [![NuGet](https://img.shields.io/nuget/dt/pg2b3dm.svg)][![Join the chat at https://discord.gg/gGCka4Nd](https://img.shields.io/discord/1013017110814932993?color=%237289DA&label=pg2b3dm&logo=discord&logoColor=white)](https://discord.gg/uSKvUwPgmG)
 
  Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles). The generated 
- 3D Tiles can be visualized in Cesium JS, Cesium for Unreal, Cesium for Unity3D, Cesium for Omniverse, QGIS, ArcGIS Pro, ArcGIS Maps SDK for JavaScript, Mapbox GL JS v3 (experimental) or other 3D Tiles client viewers.
+ 3D Tiles can be visualized in Cesium JS, Cesium for Unreal/Unity3D/Omniverse/Godot, QGIS, ArcGIS Pro, ArcGIS Maps SDK for JavaScript, Mapbox GL JS v3 (experimental) or other 3D Tiles client viewers.
 
 ![image](https://user-images.githubusercontent.com/538812/227500590-bebe59b6-5697-462d-9ebd-b40fe9a2dc2b.png)
 
@@ -329,68 +329,6 @@ In case of keep_projection, the boundingVolume box property is used instead of b
 
 In tileset.json - Asset section there is extra property 'crs' for describing the coordinate system of the input data.
 
-Sample tileset.json when using keep_projection (for EPSG:5698 projection):
-
-```
-{
-  "asset": {
-    "generator": "pg2b3dm 2.19.0.0",
-    "version": "1.1",
-    "crs": "EPSG:5698"
-  },
-  "geometricError": 2000.0,
-  "root": {
-    "transform": [
-      1.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      1.0,
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      1.0,
-      0.0,
-      842500.2491448976,
-      6518515.995238766,
-      0.0,
-      1.0
-    ],
-    "geometricError": 2000.0,
-    "refine": "ADD",
-    "boundingVolume": {
-      "box": [
-        0.0,
-        0.0,
-        181.9595,
-        525.9140009999974,
-        0.0,
-        0.0,
-        0.0,
-        530.0610010004602,
-        0.0,
-        0.0,
-        0.0,
-        26.622500000000002
-      ]
-    },
-    "content": {
-      "uri": "content/{level}_{x}_{y}.glb"
-    },
-    "implicitTiling": {
-      "availableLevels": 2,
-      "subdivisionScheme": "QUADTREE",
-      "subtreeLevels": 2,
-      "subtrees": {
-        "uri": "subtrees/{level}_{x}_{y}.subtree"
-      }
-    }
-  }
-}
-```
-
 Note: The keep_projection parameter is implemented for implicit tiling, not for explicit tiling. When using implicit tiling and keep_projection, 
 an error will show up and the program will exit.
 
@@ -644,7 +582,9 @@ Press F5 to start debugging.
 
 ## History
 
-2025-04-16: release 2.19.0 add keep_projection parameter_
+2025-11-08: release 2.20.0 improve keep_projection parameter for implicit tiling
+
+2025-04-16: release 2.19.0 add keep_projection parameter
 
 2024-10-23: release 2.18.1 add null checking in attribute columns
 
