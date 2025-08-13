@@ -329,7 +329,7 @@ In case of keep_projection, the boundingVolume box property is used instead of b
 
 In tileset.json - Asset section there is extra property 'crs' for describing the coordinate system of the input data.
 
-Note: The keep_projection parameter is implemented for implicit tiling, not for explicit tiling. When using implicit tiling and keep_projection, 
+Note: The keep_projection parameter is implemented for implicit tiling, not for explicit tiling. When using explicit tiling and keep_projection, 
 an error will show up and the program will exit.
 
 ## Query parameter
