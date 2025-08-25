@@ -3,7 +3,6 @@ using SharpGLTF.Materials;
 
 namespace pg2b3dm;
 
-
 public class Options
 {
     [Option('U', "username", Required = false, HelpText = "Database user")]
@@ -47,45 +46,36 @@ public class Options
     [Option("radiuscolumn", Required = false, Default = "", HelpText = "Radius column")]
     public string RadiusColumn { get; set; }
 
-    [Option('f', "format", Required = false, Default = AppMode.Cesium, HelpText = "Format (Mapbox or Cesium)")]
-    public AppMode AppMode { get; set; }
-
     [Option("shaderscolumn", Required = false, Default = "", HelpText = "shaders column")]
     public string ShadersColumn { get; set; }
 
-    // cesium specific options
-    [Option("tileset_version", Required = false, Default = "", HelpText = "Tileset version (Cesium)", SetName = "Cesium")]
+    [Option("tileset_version", Required = false, Default = "", HelpText = "Tileset version")]
     public string TilesetVersion { get; set; }
 
-    [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile (Cesium)", SetName = "Cesium")]
+    [Option("max_features_per_tile", Required = false, Default = 1000, HelpText = "maximum features per tile")]
     public int MaxFeaturesPerTile { get; set; }
 
-    [Option('l', "lodcolumn", Required = false, Default = "", HelpText = "LOD column (Cesium)", SetName = "Cesium")]
+    [Option('l', "lodcolumn", Required = false, Default = "", HelpText = "LOD column")]
     public string LodColumn { get; set; }
 
-    [Option('g', "geometricerror", Required = false, Default = 2000, HelpText = "Geometric error (Cesium)", SetName = "Cesium")]
+    [Option('g', "geometricerror", Required = false, Default = 2000, HelpText = "Geometric error (Cesium)")]
     public double GeometricError{ get; set; }
 
-    [Option("geometricerrorfactor", Required = false, Default = 2, HelpText = "Geometric Error factor (Cesium)", SetName = "Cesium")]
+    [Option("geometricerrorfactor", Required = false, Default = 2, HelpText = "Geometric Error factor")]
     public double GeometricErrorFactor { get; set; }
 
-    [Option("use_implicit_tiling", Required = false, Default = true, HelpText = "use 1.1 implicit tiling (Cesium)", SetName = "Cesium")]
+    [Option("use_implicit_tiling", Required = false, Default = true, HelpText = "use 1.1 implicit tiling")]
     public bool? UseImplicitTiling { get; set; }
 
-    [Option("add_outlines", Required = false, Default = false, HelpText = "Add outlines (Cesium)", SetName = "Cesium")]
+    [Option("add_outlines", Required = false, Default = false, HelpText = "Add outlines")]
     public bool? AddOutlines { get; set; }
 
-    [Option('r', "refinement", Required = false, Default = "ADD", HelpText = "Refinement option REPLACE/ADD (Cesium)", SetName = "Cesium")]
+    [Option('r', "refinement", Required = false, Default = "ADD", HelpText = "Refinement option REPLACE/ADD")]
     public string Refinement{ get; set; }
 
-    [Option("skip_create_tiles", Required = false, Default = false, HelpText = "Skip creating tiles, only create tileset.json files (Cesium)", SetName = "Cesium")]
+    [Option("skip_create_tiles", Required = false, Default = false, HelpText = "Skip creating tiles, only create tileset.json files")]
     public bool? SkipCreateTiles { get; set; }
 
-    [Option("keep_projection", Required = false, Default = false, HelpText = "Keep projection (Cesium)", SetName = "Cesium")]
+    [Option("keep_projection", Required = false, Default = false, HelpText = "Keep projection")]
     public bool? KeepProjection { get; set; }
-
-    // mapbox specific options
-    [Option("zoom", Required = false, Default = 15, HelpText = "Zoom level (Mapbox)", SetName = "Mapbox")]
-    public int Zoom { get; set; }
- 
 }

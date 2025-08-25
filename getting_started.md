@@ -3,7 +3,7 @@
 ## Introduction
 
 In this document we run pg2b3dm on a sample dataset, a shapefile from Delaware containing building footprints with a height attribute. 
-The generated 3D tiles are visualized in a CesiumJS/Mapbox GL JS v3 beta/Cesium for Unreal viewer.
+The generated 3D tiles are visualized in a CesiumJS/Cesium for Unreal viewer.
 
 ## Download data
 
@@ -88,8 +88,6 @@ Tool tesselate_building does the following:
 - writes geometries to column geom_triangle (as polyhedralsurface geometries);
 
 - writes shaders info (color code per triangle) into shaders column;
-
-Note: For Mapbox GL JS v3 beta support use '-f mapbox' in the following step.
 
 ```
 $ tesselate_building -h localhost -U postgres -d postgres -f cesium -t delaware_buildings -i wkb_geometry -o geom_triangle --idcolumn ogc_fid --stylecolumn style --shaderscolumn shaders
@@ -234,12 +232,7 @@ Copy the generated tiles to webserver (for example $ python3 -m http.server)
 In the Game View the buildings should be visible.
 
 
-
 ![image](https://github.com/Geodan/pg2b3dm/assets/538812/5c99a8bd-8e4e-453e-a442-02fa181d6322)
-
-## Visualize in Mapbox GL JS v3 beta
-
-See demo https://geodan.github.io/pg2b3dm/sample_data/delaware/mapboxv3
 
 ## Visualize in Cesium for Unreal
 
