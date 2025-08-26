@@ -4,7 +4,7 @@
 [![NuGet](https://img.shields.io/nuget/dt/pg2b3dm.svg)][![Join the chat at https://discord.gg/gGCka4Nd](https://img.shields.io/discord/1013017110814932993?color=%237289DA&label=pg2b3dm&logo=discord&logoColor=white)](https://discord.gg/uSKvUwPgmG)
 
  Tool for converting 3D geometries from PostGIS to [3D Tiles](https://github.com/AnalyticalGraphicsInc/3d-tiles). The generated 
- 3D Tiles can be visualized in Cesium JS, Cesium for Unreal/Unity3D/Omniverse/Godot, QGIS, ArcGIS Pro, ArcGIS Maps SDK for JavaScript, Mapbox GL JS v3 (experimental) or other 3D Tiles client viewers.
+ 3D Tiles can be visualized in Cesium JS, Cesium for Unreal/Unity3D/Omniverse/Godot, QGIS, ArcGIS Pro, ArcGIS Maps SDK for JavaScript or other 3D Tiles client viewers.
 
 ![image](https://user-images.githubusercontent.com/538812/227500590-bebe59b6-5697-462d-9ebd-b40fe9a2dc2b.png)
 
@@ -133,23 +133,11 @@ viewer.scene.globe.depthTestAgainstTerrain=true;
 
 Presentation at FOSS4G 2021: A fast web 3D viewer for 11 million buildings https://www.youtube.com/watch?v=1_JM2Xf5mDk
 
-Presentation at FOSS4G 2019: 3D geodata in the MapBox GL JS viewer with 3D Tiles https://www.youtube.com/watch?v=HXQJbyEnC9w
-
-- Texel - 3D Terrain, subsurface and buildings in MapBox GL JS: http://beta.geodan.nl/mapbox3d
-
-![texel](https://user-images.githubusercontent.com/538812/77528003-74f6d900-6e8d-11ea-968e-5c510b6a1ad3.png)
-
-- GeoTop Subsurface in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/geotop/mapbox/
-
-- Amsterdam Buildings in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/amsterdam/mapbox/
+Presentation at FOSS4G 2019: 3D geodata with 3D Tiles https://www.youtube.com/watch?v=HXQJbyEnC9w
 
 - Amsterdam Buildings in Cesium: https://geodan.github.io/pg2b3dm/sample_data/amsterdam/cesium/
 
-- Dover - Delaware buildings in MapBox GL JS: https://geodan.github.io/pg2b3dm/sample_data/delaware/mapbox/
-
 - Dover - Delaware buildings in Cesium: https://geodan.github.io/pg2b3dm/sample_data/delaware/cesium/
-
-- Duisburg buidings converted from CityGML in MapBox GL JS - https://geodan.github.io/pg2b3dm/sample_data/duisburg/mapbox/#15.62/51.430166/6.782675/0/45
 
 ## Command line options
 
@@ -192,31 +180,27 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --radiuscolumn                  (Default: '') Column with radius values for lines
 
-  --format                        (Default: Cesium) Application mode (Cesium/Mapbox)
+  --max_features_per_tile         (Default: 1000) maximum features per tile
 
-  --max_features_per_tile         (Default: 1000) maximum features per tile (Cesium)
+  -l, --lodcolumn                 (Default: '') LOD column
 
-  -l, --lodcolumn                 (Default: '') LOD column (Cesium)
+  -g, --geometricerror            (Default: 2000) Geometric error
 
-  -g, --geometricerror            (Default: 2000) Geometric error (Cesium)
+  --geometricerrorfactor          (Default: 2) Geometric error factor
 
-  --geometricerrorfactor          (Default: 2) Geometric error factor (Cesium)
+  --shaderscolumn                 (Default: '') shaders column
 
-  --shaderscolumn                 (Default: '') shaders column (Cesium)
+  --tilesetVersion                (Default: '') Tileset version
 
-  --tilesetVersion                (Default: '') Tileset version (Cesium)
+  --use_implicit_tiling           (Default: true) use 1.1 implicit tiling
 
-  --use_implicit_tiling           (Default: true) use 1.1 implicit tiling (Cesium)
+  --add_outlines                  (Default: false) Add outlines
 
-  --add_outlines                  (Default: false) Add outlines (Cesium)
+  -r, --refinement                (Default: ADD) Refinement ADD/REPLACE
 
-  -r, --refinement                (Default: ADD) Refinement ADD/REPLACE (Cesium)
+  --skip_create_tiles             (Default: false) Skip creating tiles
 
-  --skip_create_tiles             (Default: false) Skip creating tiles (Cesium)
-
-  --keep_projection               (Default: false) Keep projection of input data (Cesium)
-
-  --zoom                          (Default: 15) Zoom level (Mapbox)
+  --keep_projection               (Default: false) Keep projection of input data
 
   --help                          Display this help screen.
 
@@ -414,45 +398,6 @@ In the options you can now specify the column name 'random_string' and/or 'rando
 ## Cesium support
 
 For Cesium support (tiling schema, LODS, outlines) see [Cesium notes](cesium_notes.md) 
-
-## Mapbox support
-
-MapBox GL JS v3 (experimental) support is available in this version.
-
-Use parameter "-f Mapbox" to create tiles for Mapbox.
-
-Tiles are written in format {z}-{x}-{y}.b3dm or {z}-{x}-{y}.glb in the content directory.
-
-The tiles should be Draco compressed, for example use gltf-pipeline (https://github.com/CesiumGS/gltf-pipeline)
-
-To load the tiles in Mapbox GL JS v3 (v3.2.0) use the following code:
-
-```
-ap.on('style.load', () => {
-
-map.addSource('bag-3d', {
-        "type": "batched-model",
-        "maxzoom": 15,
-        "minzoom": 15,
-        "tiles": [
-          "{url_to_tiles}/content/{z}-{x}-{y}.glb"
-        ]
-      }
-)});
-
-// add the custom style layer to the map
-map.on('style.load', () => {
-  map.addLayer({
-    id: 'bag-layer',
-    type: 'model',
-    source: 'bag-3d',          
-  });
-});
-
-
-```
-
-For previous Mapbox support notes see [Mapbox notes](mapbox_notes.md) 
 
 ## ArcGIS Pro support
 

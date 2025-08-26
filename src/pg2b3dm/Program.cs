@@ -58,7 +58,6 @@ class Program
             var defaultAlphaMode = o.DefaultAlphaMode;
             var createGltf = (bool)o.CreateGltf;
             var outputDirectory = o.Output;
-            var zoom = o.Zoom;
             var shadersColumn = o.ShadersColumn;
             var attributeColumns = o.AttributeColumns;
             var copyright = o.Copyright;
@@ -78,7 +77,6 @@ class Program
                 Console.WriteLine("----------------------------------------------------------------------------");
             }
 
-            Console.WriteLine("App mode: " + o.AppMode);
             Console.WriteLine($"Spatial reference of {table}.{geometryColumn}: {source_epsg}");
 
             // Check spatialIndex
@@ -133,90 +131,80 @@ class Program
 
             Tiles3DExtensions.RegisterExtensions();
 
-            // cesium specific
-            if (o.AppMode == AppMode.Cesium) {
+            Console.WriteLine("Starting Cesium mode...");
 
-                Console.WriteLine("Starting Cesium mode...");
+            var translation =  keepProjection?
+                new double[] { (double)center.X, (double)center.Y, 0 } :
+                Translation.ToEcef(center);
+            Console.WriteLine($"Translation: {String.Join(',', translation)}");
 
-                var translation =  keepProjection?
-                    new double[] { (double)center.X, (double)center.Y, 0 } :
-                    Translation.ToEcef(center);
-                Console.WriteLine($"Translation: {String.Join(',', translation)}");
+            var lodcolumn = o.LodColumn;
+            var addOutlines = (bool)o.AddOutlines;
+            var useImplicitTiling = (bool)o.UseImplicitTiling;
+            var refinement = o.Refinement;
+            if (useImplicitTiling) {
+                if (!String.IsNullOrEmpty(lodcolumn)) {
+                    Console.WriteLine("Warning: parameter -l --lodcolumn is ignored with implicit tiling");
+                    lodcolumn = String.Empty;
+                }
+            }
+            // if useImpliciting is false and createGlb is false, the set use10 to true
+            var use10 = !useImplicitTiling && !createGltf;
+            Console.WriteLine("3D Tiles version: " + (use10 ? "1.0" : "1.1"));
+            Console.WriteLine($"Lod column: {lodcolumn}");
+            Console.WriteLine($"Radius column: {o.RadiusColumn}");
+            Console.WriteLine($"Geometric error: {o.GeometricError}");
+            Console.WriteLine($"Geometric error factor: {o.GeometricErrorFactor}");
+            Console.WriteLine($"Refinement: {refinement}");
+            Console.WriteLine($"Keep projection: {keepProjection}");
 
-                var lodcolumn = o.LodColumn;
-                var addOutlines = (bool)o.AddOutlines;
-                var useImplicitTiling = (bool)o.UseImplicitTiling;
-                var refinement = o.Refinement;
+            if(keepProjection && !useImplicitTiling) {
+                Console.WriteLine("Warning: keepProjection is not supported with explicit tiling.");
+                Console.WriteLine("Program will exit now.");
+                return;
+            }
+
+            var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, table, lodcolumn, query) : new List<int> { 0 });
+            if (lodcolumn != String.Empty) {
+                Console.WriteLine($"Lod levels: {String.Join(',', lods)}");
+            };
+
+            Console.WriteLine($"Add outlines: {addOutlines}");
+            Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
+            if(!tilesetVersion.Equals(string.Empty)) {
+                Console.WriteLine($"Tileset version: {tilesetVersion}");
+            }
+
+            var rootBoundingVolumeRegion = 
+                keepProjection?
+                    bbox.ToRegion(zmin, zmax) : 
+                    bbox.ToRadians().ToRegion(zmin, zmax);
+
+            var subtreesDirectory = $"{output}{Path.AltDirectorySeparatorChar}subtrees";
+
+            Console.WriteLine($"Maximum features per tile: " + o.MaxFeaturesPerTile);
+
+            var tile = new Tile(0, 0, 0);
+            tile.BoundingBox = bbox.ToArray();
+            Console.WriteLine($"Start generating tiles...");
+            var quadtreeTiler = new QuadtreeTiler(conn, table, source_epsg, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles, o.RadiusColumn);
+            var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf, keepProjection);
+            Console.WriteLine();
+            Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
+
+            var crs = keepProjection ?
+                $"EPSG:{source_epsg}" :
+                "";
+
+            if (tiles.Count(tile => tile.Available) > 0) {
                 if (useImplicitTiling) {
-                    if (!String.IsNullOrEmpty(lodcolumn)) {
-                        Console.WriteLine("Warning: parameter -l --lodcolumn is ignored with implicit tiling");
-                        lodcolumn = String.Empty;
-                    }
+                    CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion, crs, keepProjection);
                 }
-                // if useImpliciting is false and createGlb is false, the set use10 to true
-                var use10 = !useImplicitTiling && !createGltf;
-                Console.WriteLine("3D Tiles version: " + (use10 ? "1.0" : "1.1"));
-                Console.WriteLine($"Lod column: {lodcolumn}");
-                Console.WriteLine($"Radius column: {o.RadiusColumn}");
-                Console.WriteLine($"Geometric error: {o.GeometricError}");
-                Console.WriteLine($"Geometric error factor: {o.GeometricErrorFactor}");
-                Console.WriteLine($"Refinement: {refinement}");
-                Console.WriteLine($"Keep projection: {keepProjection}");
-
-                if(keepProjection && !useImplicitTiling) {
-                    Console.WriteLine("Warning: keepProjection is not supported with explicit tiling.");
-                    Console.WriteLine("Program will exit now.");
-                    return;
+                else {
+                    CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles, tilesetVersion, crs);
                 }
-
-                var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, table, lodcolumn, query) : new List<int> { 0 });
-                if (lodcolumn != String.Empty) {
-                    Console.WriteLine($"Lod levels: {String.Join(',', lods)}");
-                };
-
-                Console.WriteLine($"Add outlines: {addOutlines}");
-                Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
-                if(!tilesetVersion.Equals(string.Empty)) {
-                    Console.WriteLine($"Tileset version: {tilesetVersion}");
-                }
-
-                var rootBoundingVolumeRegion = 
-                    keepProjection?
-                        bbox.ToRegion(zmin, zmax) : 
-                        bbox.ToRadians().ToRegion(zmin, zmax);
-
-                var subtreesDirectory = $"{output}{Path.AltDirectorySeparatorChar}subtrees";
-
-                Console.WriteLine($"Maximum features per tile: " + o.MaxFeaturesPerTile);
-
-                var tile = new Tile(0, 0, 0);
-                tile.BoundingBox = bbox.ToArray();
-                Console.WriteLine($"Start generating tiles...");
-                var quadtreeTiler = new QuadtreeTiler(conn, table, source_epsg, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles, o.RadiusColumn);
-                var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf, keepProjection);
-                Console.WriteLine();
-                Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
-
-                var crs = keepProjection ?
-                    $"EPSG:{source_epsg}" :
-                    "";
-
-                if (tiles.Count(tile => tile.Available) > 0) {
-                    if (useImplicitTiling) {
-                        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion, crs, keepProjection);
-                    }
-                    else {
-                        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles, tilesetVersion, crs);
-                    }
-                }
-                Console.WriteLine();
-
-                // end cesium specific code
-
             }
-            else {
-                MapboxTiler.CreateMapboxTiles(table, geometryColumn, defaultColor, defaultMetallicRoughness, createGltf, zoom, shadersColumn, attributeColumns, copyright, query, conn, source_epsg, bbox, contentDirectory);
-            }
+            Console.WriteLine();
 
             stopWatch.Stop();
 
