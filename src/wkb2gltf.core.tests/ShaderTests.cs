@@ -5,6 +5,19 @@ namespace Wkb2Gltf.Tests;
 public class ShaderTests
 {
     [Test]
+    public void TestShaderOpaque()
+    {
+        var shader = new Shader();
+        shader.PbrMetallicRoughness = new PbrMetallicRoughness() {
+            BaseColor = "#ff0000ff"
+        };
+        var isOpaque = shader.PbrMetallicRoughness.IsBaseColorOpaque();
+
+        Assert.That(isOpaque, Is.True);
+    }
+
+
+    [Test]
 
     public void ShaderEqualsTest()
     {

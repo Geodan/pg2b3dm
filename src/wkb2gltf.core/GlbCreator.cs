@@ -21,6 +21,7 @@ public static class GlbCreator
         var materialCache = new MaterialsCache();
         var shader = new Shader();
         shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = defaultColor, MetallicRoughness = defaultMetallicRoughness };
+
         var defaultMaterial = MaterialCreator.CreateMaterial(shader, defaultDoubleSided, defaultAlphaMode);
 
         var meshBatchId = new MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty>("mesh");
@@ -31,6 +32,10 @@ public static class GlbCreator
                 MaterialBuilder material;
 
                 if (triangle.Shader != null) {
+                    if (triangle.Shader.PbrMetallicRoughness!=null && triangle.Shader.PbrMetallicRoughness.IsBaseColorOpaque()) {
+                        defaultAlphaMode = SharpGLTF.Materials.AlphaMode.OPAQUE;
+                    }
+
                     material = materialCache.GetMaterialBuilderByShader(triangle.Shader, doubleSided, defaultAlphaMode);
                 }
                 else {

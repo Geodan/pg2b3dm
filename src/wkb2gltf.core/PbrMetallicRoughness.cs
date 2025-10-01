@@ -21,4 +21,15 @@ public class PbrMetallicRoughness
         return base.GetHashCode();
     }
 
+    public bool IsBaseColorOpaque()
+    {
+        if (BaseColor.Length == 9) {
+            var alpha = BaseColor.Substring(7, 2);
+            if (alpha.ToUpper() == "FF") {
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
 }
