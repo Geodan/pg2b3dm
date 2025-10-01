@@ -7,13 +7,20 @@ public class ShaderTests
     [Test]
     public void TestShaderOpaque()
     {
-        var shader = new Shader();
-        shader.PbrMetallicRoughness = new PbrMetallicRoughness() {
+        var pbr = new PbrMetallicRoughness() {
             BaseColor = "#ff0000ff"
         };
-        var isOpaque = shader.PbrMetallicRoughness.IsBaseColorOpaque();
 
-        Assert.That(isOpaque, Is.True);
+        Assert.That(pbr.IsBaseColorOpaque(), Is.True);
+
+        pbr.BaseColor = "#ff0000";
+        Assert.That(pbr.IsBaseColorOpaque(), Is.True);
+
+        pbr.BaseColor = "#ff000053";
+        Assert.That(pbr.IsBaseColorOpaque(), Is.False);
+
+
+
     }
 
 
