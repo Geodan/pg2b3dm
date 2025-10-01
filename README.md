@@ -527,6 +527,8 @@ Press F5 to start debugging.
 
 ## History
 
+2025-10-01: release 2.21.0 use opaque mode when basecolor is opaque
+
 2025-11-08: release 2.20.0, 2.20.1, 2.20.2 improve keep_projection parameter for implicit tiling
 
 2025-04-16: release 2.19.0 add keep_projection parameter
