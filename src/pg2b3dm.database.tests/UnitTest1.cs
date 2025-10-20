@@ -17,7 +17,7 @@ public class UnitTest1
     {
         _containerPostgres = new PostgreSqlBuilder()
         .WithImage("postgis/postgis:16-3.4-alpine")
-        .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(5432))
+        .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(5432))
         .Build();
         await _containerPostgres.StartAsync();
         var initScript1 = File.ReadAllText("./postgres-db/1_create_delaware_table.sql");
