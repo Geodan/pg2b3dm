@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Npgsql" Version="9.0.4" />
-    <PackageReference Include="subtree" Version="1.5.0" />
+    <PackageReference Include="subtree" Version="1.6.0" />
   </ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
