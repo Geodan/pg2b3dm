@@ -52,7 +52,6 @@ class Program
             var doubleSided = (bool)o.DoubleSided;
             var defaultAlphaMode = o.DefaultAlphaMode;
             var createGltf = (bool)o.CreateGltf;
-            var outputDirectory = o.Output;
             var copyright = o.Copyright;
             var tilesetVersion = o.TilesetVersion;
             var keepProjection = (bool)o.KeepProjection;
@@ -96,17 +95,17 @@ class Program
             else {
                 Console.WriteLine($"Spatial index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
             }
-            
+
             var skipCreateTiles = (bool)o.SkipCreateTiles;
             Console.WriteLine("Skip create tiles: " + skipCreateTiles);
 
             Console.WriteLine($"Query bounding box of {inputTable.TableName}.{inputTable.GeometryColumn}...");
             var where = (inputTable.Query != string.Empty ? $" where {inputTable.Query}" : String.Empty);
 
-            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, inputTable.TableName, inputTable.GeometryColumn, keepProjection , where);
+            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, inputTable.TableName, inputTable.GeometryColumn, keepProjection, where);
             var bbox = bbox_table.bbox;
 
-            var proj = keepProjection? $"EPSG:{source_epsg}": $"EPSG:4326 (WGS84)";
+            var proj = keepProjection ? $"EPSG:{source_epsg}" : $"EPSG:4326 (WGS84)";
             Console.WriteLine($"Bounding box for {inputTable.TableName}.{inputTable.GeometryColumn} ({proj}): " +
                 $"{Math.Round(bbox.XMin, 8)}, {Math.Round(bbox.YMin, 8)}, " +
                 $"{Math.Round(bbox.XMax, 8)}, {Math.Round(bbox.YMax, 8)}");
@@ -130,7 +129,7 @@ class Program
 
             Tiles3DExtensions.RegisterExtensions();
 
-            var translation =  keepProjection?
+            var translation = keepProjection ?
                 new double[] { (double)center.X, (double)center.Y, 0 } :
                 Translation.ToEcef(center);
             Console.WriteLine($"Translation: {String.Join(',', translation)}");
@@ -156,7 +155,7 @@ class Program
             Console.WriteLine($"Keep projection: {keepProjection}");
             Console.WriteLine($"Subdivision scheme: {subdivisionScheme}");
 
-            if(keepProjection && !useImplicitTiling) {
+            if (keepProjection && !useImplicitTiling) {
                 Console.WriteLine("Warning: keepProjection is only supported with implicit tiling.");
                 Console.WriteLine("Program will exit now.");
                 return;
@@ -165,17 +164,18 @@ class Program
             var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, inputTable.TableName, lodcolumn, inputTable.Query) : new List<int> { 0 });
             if (lodcolumn != String.Empty) {
                 Console.WriteLine($"Lod levels: {String.Join(',', lods)}");
-            };
+            }
+            ;
 
             Console.WriteLine($"Add outlines: {addOutlines}");
             Console.WriteLine($"Use 3D Tiles 1.1 implicit tiling: {o.UseImplicitTiling}");
-            if(!tilesetVersion.Equals(string.Empty)) {
+            if (!tilesetVersion.Equals(string.Empty)) {
                 Console.WriteLine($"Tileset version: {tilesetVersion}");
             }
 
-            var rootBoundingVolumeRegion = 
-                keepProjection?
-                    bbox.ToRegion(zmin, zmax) : 
+            var rootBoundingVolumeRegion =
+                keepProjection ?
+                    bbox.ToRegion(zmin, zmax) :
                     bbox.ToRadians().ToRegion(zmin, zmax);
 
             Console.WriteLine($"Maximum features per tile: " + maxFeaturesPerTile);
@@ -192,26 +192,7 @@ class Program
             };
 
             var outputFolder = o.Output;
-            if (!Directory.Exists(outputFolder)) {
-                Directory.CreateDirectory(outputFolder);
-            }
-
-            var subtreesDirectory = $"{outputFolder}{Path.AltDirectorySeparatorChar}subtrees";
-            if (!Directory.Exists(subtreesDirectory)) {
-                Directory.CreateDirectory(subtreesDirectory);
-            }
-
-            var contentDirectory = $"{outputFolder}{Path.AltDirectorySeparatorChar}content";
-
-            if (!Directory.Exists(contentDirectory)) {
-                Directory.CreateDirectory(contentDirectory);
-            }
-
-            var outputSettings = new OutputSettings() {
-                OutputFolder = outputDirectory,
-                ContentFolder = contentDirectory,
-                SubtreesFolder = subtreesDirectory,
-            };
+            var outputSettings = OutputDirectoryCreator.GetFolders(outputFolder);
             var tilesetSettings = new TilesetSettings();
             tilesetSettings.OutputSettings = outputSettings;
             tilesetSettings.Version = version;
@@ -225,9 +206,9 @@ class Program
             tilesetSettings.RootBoundingVolumeRegion = rootBoundingVolumeRegion;
 
             if (subdivisionScheme == SubdivisionScheme.QUADTREE) {
-                QuadtreeTile(inputTable, stylingSettings, tilesetSettings, createGltf, 
-                    keepProjection,conn, skipCreateTiles, bbox, maxFeaturesPerTile, 
-                    useImplicitTiling, use10, 
+                QuadtreeTile(inputTable, stylingSettings, tilesetSettings, createGltf,
+                    keepProjection, conn, skipCreateTiles, bbox, maxFeaturesPerTile,
+                    useImplicitTiling, use10,
                     lods, crs);
             }
             else {
@@ -243,6 +224,7 @@ class Program
             Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");
         });
     }
+
 
     private static void QuadtreeTile(InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, bool createGltf, bool keepProjection, NpgsqlConnection conn, bool skipCreateTiles, Wkx.BoundingBox bbox, int maxFeaturesPerTile, bool useImplicitTiling, bool use10, List<int> lods, string crs)
     {
