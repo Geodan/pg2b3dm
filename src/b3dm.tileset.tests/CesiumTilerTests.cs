@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
+using pg2b3dm;
 using subtree;
 
 namespace B3dm.Tileset.Tests;
@@ -14,16 +15,15 @@ public class CesiumTilerTests
         var version = new Version(1, 0);
         var createGltf = true;
         var outputDirectory = "test";
-        Directory.CreateDirectory(outputDirectory);
+        var outputDirs = OutputDirectoryCreator.GetFolders(outputDirectory);
         var translation = new double[] { 0, 0, 0 };
         var geometricError = 100;
         var rootBoundingVolumeRegion = new double[] { 0, 0, 0, 0, 0, 0 };
-        var subtreesDirectory = "output";
         var tile1 = new Tile(1, 1, 1);
         var tiles = new List<Tile>() { tile1 };
 
         // Act
-        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, geometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles);
+        CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, geometricError, rootBoundingVolumeRegion, outputDirs.SubtreesFolder, tiles);
 
         // Assert
         var json = File.ReadAllText("test/tileset.json");
@@ -36,7 +36,7 @@ public class CesiumTilerTests
         // Arrange
         var version = new Version(1, 0);
         var outputDirectory = "testExplicit";
-        Directory.CreateDirectory(outputDirectory);
+        var outputDirs = OutputDirectoryCreator.GetFolders(outputDirectory);
         var zmin = 0.0;
         var zmax = 1.0;
         var translation = new double[] { 0, 0, 0 };
