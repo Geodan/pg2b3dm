@@ -63,6 +63,7 @@ class Program
             var copyright = o.Copyright;
             var tilesetVersion = o.TilesetVersion;
             var keepProjection = (bool)o.KeepProjection;
+            var subdivisionScheme = o.subdivisionScheme;
 
             var query = o.Query;
 
@@ -131,8 +132,6 @@ class Program
 
             Tiles3DExtensions.RegisterExtensions();
 
-            Console.WriteLine("Starting Cesium mode...");
-
             var translation =  keepProjection?
                 new double[] { (double)center.X, (double)center.Y, 0 } :
                 Translation.ToEcef(center);
@@ -157,9 +156,10 @@ class Program
             Console.WriteLine($"Geometric error factor: {o.GeometricErrorFactor}");
             Console.WriteLine($"Refinement: {refinement}");
             Console.WriteLine($"Keep projection: {keepProjection}");
+            Console.WriteLine($"Subdivision scheme: {subdivisionScheme}");
 
             if(keepProjection && !useImplicitTiling) {
-                Console.WriteLine("Warning: keepProjection is not supported with explicit tiling.");
+                Console.WriteLine("Warning: keepProjection is only supported with implicit tiling.");
                 Console.WriteLine("Program will exit now.");
                 return;
             }
@@ -198,7 +198,7 @@ class Program
 
             if (tiles.Count(tile => tile.Available) > 0) {
                 if (useImplicitTiling) {
-                    CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion, crs, keepProjection);
+                    CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion, crs, keepProjection, subdivisionScheme);
                 }
                 else {
                     CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles, tilesetVersion, crs);

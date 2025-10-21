@@ -9,7 +9,7 @@ namespace B3dm.Tileset;
 
 public static class TreeSerializer
 {
-    public static TileSet ToImplicitTileset(double[] translate, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string crs="", bool keepProjection = false)
+    public static TileSet ToImplicitTileset(double[] translate, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string crs="", bool keepProjection = false, SubdivisionScheme subDivisionScheme = SubdivisionScheme.QUADTREE)
     {
         var ext = createGltf ? ".glb" : ".b3dm";
         var geometricError = maxGeometricError;
@@ -22,7 +22,7 @@ public static class TreeSerializer
         var content = new Content() { uri = "content/{level}_{x}_{y}" + ext };
         root.content = content;
         var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };
-        root.implicitTiling = new Implicittiling() { subdivisionScheme = "QUADTREE", availableLevels = availableLevels, subtreeLevels = subtreeLevels, subtrees = subtrees };
+        root.implicitTiling = new Implicittiling() { subdivisionScheme = subDivisionScheme, availableLevels = availableLevels, subtreeLevels = subtreeLevels, subtrees = subtrees };
         tileset.root = root;
         return tileset;
     }

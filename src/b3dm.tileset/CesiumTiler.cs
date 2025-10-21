@@ -10,7 +10,7 @@ using Wkx;
 namespace B3dm.Tileset;
 public static class CesiumTiler
 {
-    public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double geometricError, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles, string tilesetVersion="", string crs="", bool keepProjection = false)
+    public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double geometricError, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles, string tilesetVersion="", string crs="", bool keepProjection = false, SubdivisionScheme subdivisionScheme = SubdivisionScheme.QUADTREE)
     {
         if (!Directory.Exists(subtreesDirectory)) {
             Directory.CreateDirectory(subtreesDirectory);
@@ -28,10 +28,9 @@ public static class CesiumTiler
         var availableLevels = tiles.Max(t => t.Z) + 1;
         Console.WriteLine("Available Levels: " + availableLevels);
         Console.WriteLine("Subtree Levels: " + subtreeLevels);
-        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricError, availableLevels, subtreeLevels, version, createGltf, tilesetVersion, crs, keepProjection);
+        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricError, availableLevels, subtreeLevels, version, createGltf, tilesetVersion, crs, keepProjection, subdivisionScheme);
         var file = $"{outputDirectory}{Path.AltDirectorySeparatorChar}tileset.json";
         var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-        Console.WriteLine("SubdivisionScheme: QUADTREE");
         Console.WriteLine($"Writing {file}...");
         File.WriteAllText(file, json);
     }

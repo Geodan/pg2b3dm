@@ -31,7 +31,7 @@ public class Child : ICloneable
 public class Implicittiling
 {
     public int availableLevels { get; set; }
-    public string subdivisionScheme { get; set; }
+    public SubdivisionScheme subdivisionScheme { get; set; }
     public int subtreeLevels { get; set; }
     public Subtrees subtrees { get; set; }
 }

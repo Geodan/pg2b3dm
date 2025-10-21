@@ -1,3 +1,4 @@
+using B3dm.Tileset;
 using CommandLine;
 using SharpGLTF.Materials;
 
@@ -78,4 +79,7 @@ public class Options
 
     [Option("keep_projection", Required = false, Default = false, HelpText = "Keep projection")]
     public bool? KeepProjection { get; set; }
+
+    [Option("subdivision", Required=false, Default=SubdivisionScheme.QUADTREE, HelpText = "Subdivision schema QUADTREE/OCTREE" )]
+    public SubdivisionScheme subdivisionScheme { get; set; }
 }
