@@ -71,8 +71,8 @@ public class Options
     [Option("add_outlines", Required = false, Default = false, HelpText = "Add outlines")]
     public bool? AddOutlines { get; set; }
 
-    [Option('r', "refinement", Required = false, Default = "ADD", HelpText = "Refinement option REPLACE/ADD")]
-    public string Refinement{ get; set; }
+    [Option('r', "refinement", Required = false, Default = RefinementType.ADD, HelpText = "Refinement option REPLACE/ADD")]
+    public RefinementType Refinement{ get; set; }
 
     [Option("skip_create_tiles", Required = false, Default = false, HelpText = "Skip creating tiles, only create tileset.json files")]
     public bool? SkipCreateTiles { get; set; }

@@ -40,10 +40,6 @@ class Program
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var output = o.Output;
-            if (!Directory.Exists(output)) {
-                Directory.CreateDirectory(output);
-            }
 
             Console.WriteLine($"Input table: {o.GeometryTable}");
             if (o.Query != String.Empty) {
@@ -51,40 +47,31 @@ class Program
             }
             Console.WriteLine($"Input geometry column: {o.GeometryColumn}");
 
-            var table = o.GeometryTable;
-            var geometryColumn = o.GeometryColumn;
             var defaultColor = o.DefaultColor;
             var defaultMetallicRoughness = o.DefaultMetallicRoughness;
             var doubleSided = (bool)o.DoubleSided;
             var defaultAlphaMode = o.DefaultAlphaMode;
             var createGltf = (bool)o.CreateGltf;
             var outputDirectory = o.Output;
-            var shadersColumn = o.ShadersColumn;
-            var radiusColumn = o.RadiusColumn;
-            var attributeColumns = o.AttributeColumns;
-            var lodColumn = o.LodColumn;
             var copyright = o.Copyright;
             var tilesetVersion = o.TilesetVersion;
             var keepProjection = (bool)o.KeepProjection;
             var subdivisionScheme = o.subdivisionScheme;
             var geometricError = o.GeometricError;
             var geometricErrorFactor = o.GeometricErrorFactor;
-            var query = o.Query;
 
             var inputTable = new InputTable();
-            inputTable.TableName = table;
-            inputTable.GeometryColumn = geometryColumn;
-            inputTable.Query = query;
-            inputTable.RadiusColumn = radiusColumn;
-            inputTable.ShadersColumn = shadersColumn;
-            inputTable.AttributeColumns = attributeColumns;
-            o.LodColumn = lodColumn;
+            inputTable.TableName = o.GeometryTable;
+            inputTable.GeometryColumn = o.GeometryColumn;
+            inputTable.Query = o.Query;
+            inputTable.RadiusColumn = o.RadiusColumn;
+            inputTable.ShadersColumn = o.ShadersColumn;
+            inputTable.AttributeColumns = o.AttributeColumns;
+            inputTable.LodColumn = o.LodColumn;
 
             var conn = new NpgsqlConnection(connectionString);
 
-            var source_epsg = SpatialReferenceRepository.GetSpatialReference(conn, table, geometryColumn, query);
-
-
+            var source_epsg = SpatialReferenceRepository.GetSpatialReference(conn, inputTable.TableName, inputTable.GeometryColumn, inputTable.Query);
             if (source_epsg == 4978) {
                 Console.WriteLine("----------------------------------------------------------------------------");
                 Console.WriteLine("WARNING: Input geometries in ECEF (epsg:4978) are not supported in version >= 2.0.0");
@@ -92,35 +79,35 @@ class Program
                 Console.WriteLine("----------------------------------------------------------------------------");
             }
 
-            Console.WriteLine($"Spatial reference of {table}.{geometryColumn}: {source_epsg}");
+            Console.WriteLine($"Spatial reference of {inputTable.TableName}.{inputTable.GeometryColumn}: {source_epsg}");
             inputTable.EPSGCode = source_epsg;
 
             // Check spatialIndex
-            var hasSpatialIndex = SpatialIndexChecker.HasSpatialIndex(conn, table, geometryColumn);
+            var hasSpatialIndex = SpatialIndexChecker.HasSpatialIndex(conn, inputTable.TableName, inputTable.GeometryColumn);
             if (!hasSpatialIndex) {
                 Console.WriteLine();
                 Console.WriteLine("-----------------------------------------------------------------------------");
-                Console.WriteLine($"WARNING: No spatial index detected on {table}.{geometryColumn}");
+                Console.WriteLine($"WARNING: No spatial index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
                 Console.WriteLine("Fix: add a spatial index, for example: ");
-                Console.WriteLine($"'CREATE INDEX ON {table} USING gist(st_centroid(st_envelope({geometryColumn})))'");
+                Console.WriteLine($"'CREATE INDEX ON {inputTable.TableName} USING gist(st_centroid(st_envelope({inputTable.GeometryColumn})))'");
                 Console.WriteLine("-----------------------------------------------------------------------------");
                 Console.WriteLine();
             }
             else {
-                Console.WriteLine($"Spatial index detected on {table}.{geometryColumn}");
+                Console.WriteLine($"Spatial index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
             }
             
             var skipCreateTiles = (bool)o.SkipCreateTiles;
             Console.WriteLine("Skip create tiles: " + skipCreateTiles);
 
-            Console.WriteLine($"Query bounding box of {table}.{geometryColumn}...");
-            var where = (query != string.Empty ? $" where {query}" : String.Empty);
+            Console.WriteLine($"Query bounding box of {inputTable.TableName}.{inputTable.GeometryColumn}...");
+            var where = (inputTable.Query != string.Empty ? $" where {inputTable.Query}" : String.Empty);
 
-            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, table, geometryColumn, keepProjection , where);
+            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, inputTable.TableName, inputTable.GeometryColumn, keepProjection , where);
             var bbox = bbox_table.bbox;
 
             var proj = keepProjection? $"EPSG:{source_epsg}": $"EPSG:4326 (WGS84)";
-            Console.WriteLine($"Bounding box for {table}.{geometryColumn} ({proj}): " +
+            Console.WriteLine($"Bounding box for {inputTable.TableName}.{inputTable.GeometryColumn} ({proj}): " +
                 $"{Math.Round(bbox.XMin, 8)}, {Math.Round(bbox.YMin, 8)}, " +
                 $"{Math.Round(bbox.XMax, 8)}, {Math.Round(bbox.YMax, 8)}");
 
@@ -138,11 +125,6 @@ class Program
             var att = !string.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
             Console.WriteLine($"Attribute columns: {att}");
 
-            var contentDirectory = $"{output}{Path.AltDirectorySeparatorChar}content";
-
-            if (!Directory.Exists(contentDirectory)) {
-                Directory.CreateDirectory(contentDirectory);
-            }
             var center = bbox.GetCenter();
             Console.WriteLine($"Center ({proj}): {center.X}, {center.Y}");
 
@@ -180,7 +162,7 @@ class Program
                 return;
             }
 
-            var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, table, lodcolumn, query) : new List<int> { 0 });
+            var lods = (lodcolumn != string.Empty ? LodsRepository.GetLods(conn, inputTable.TableName, lodcolumn, inputTable.Query) : new List<int> { 0 });
             if (lodcolumn != String.Empty) {
                 Console.WriteLine($"Lod levels: {String.Join(',', lods)}");
             };
@@ -196,8 +178,6 @@ class Program
                     bbox.ToRegion(zmin, zmax) : 
                     bbox.ToRadians().ToRegion(zmin, zmax);
 
-            var subtreesDirectory = $"{output}{Path.AltDirectorySeparatorChar}subtrees";
-
             Console.WriteLine($"Maximum features per tile: " + maxFeaturesPerTile);
 
             var crs = keepProjection ? $"EPSG:{source_epsg}" : "";
@@ -210,6 +190,22 @@ class Program
                 DoubleSided = doubleSided,
                 AddOutlines = addOutlines,
             };
+
+            var outputFolder = o.Output;
+            if (!Directory.Exists(outputFolder)) {
+                Directory.CreateDirectory(outputFolder);
+            }
+
+            var subtreesDirectory = $"{outputFolder}{Path.AltDirectorySeparatorChar}subtrees";
+            if (!Directory.Exists(subtreesDirectory)) {
+                Directory.CreateDirectory(subtreesDirectory);
+            }
+
+            var contentDirectory = $"{outputFolder}{Path.AltDirectorySeparatorChar}content";
+
+            if (!Directory.Exists(contentDirectory)) {
+                Directory.CreateDirectory(contentDirectory);
+            }
 
             var outputSettings = new OutputSettings() {
                 OutputFolder = outputDirectory,
@@ -251,7 +247,7 @@ class Program
         tile.BoundingBox = bbox.ToArray();
         var outputSettings = tilesetSettings.OutputSettings;
 
-        var quadtreeTiler = new QuadtreeTiler(conn, inputTable, stylingSettings, maxFeaturesPerTile, tilesetSettings.Translation, outputSettings.OutputFolder, lods, tilesetSettings.Copyright, skipCreateTiles);
+        var quadtreeTiler = new QuadtreeTiler(conn, inputTable, stylingSettings, maxFeaturesPerTile, tilesetSettings.Translation, outputSettings.ContentFolder, lods, tilesetSettings.Copyright, skipCreateTiles);
         var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), inputTable.LodColumn != string.Empty ? lods.First() : 0, createGltf, keepProjection);
         Console.WriteLine();
         Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
@@ -259,7 +255,7 @@ class Program
         if (tiles.Count(tile => tile.Available) > 0) {
             if (useImplicitTiling) {
                 CesiumTiler.CreateImplicitTileset(tilesetSettings.Version, createGltf, outputSettings.OutputFolder, tilesetSettings.Translation, 
-                    tilesetSettings.GeometricError, tilesetSettings.RootBoundingVolumeRegion, outputSettings.SubtreesFolder, tiles, tilesetSettings.TilesetVersion, crs, keepProjection, tilesetSettings.SubdivisionScheme);
+                    tilesetSettings.GeometricError, tilesetSettings.RootBoundingVolumeRegion, outputSettings.SubtreesFolder, tiles, tilesetSettings.TilesetVersion, crs, keepProjection, tilesetSettings.SubdivisionScheme, tilesetSettings.Refinement);
             }
             else {
                 CesiumTiler.CreateExplicitTilesetsJson(tilesetSettings.Version, outputSettings.OutputFolder, tilesetSettings.Translation, 

@@ -9,7 +9,7 @@ namespace B3dm.Tileset;
 
 public static class TreeSerializer
 {
-    public static TileSet ToImplicitTileset(double[] translate, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string crs="", bool keepProjection = false, SubdivisionScheme subDivisionScheme = SubdivisionScheme.QUADTREE)
+    public static TileSet ToImplicitTileset(double[] translate, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string crs="", bool keepProjection = false, SubdivisionScheme subDivisionScheme = SubdivisionScheme.QUADTREE, RefinementType refinement = RefinementType.ADD)
     {
         var ext = createGltf ? ".glb" : ".b3dm";
         var geometricError = maxGeometricError;
@@ -18,7 +18,7 @@ public static class TreeSerializer
                                  0.0,1.0, 0.0, 0.0,
                                  0.0, 0.0, 1.0, 0.0,
         translate[0], translate[1], translate[2], 1.0};
-        var root = GetRoot(geometricError, t, box, keepProjection: keepProjection);
+        var root = GetRoot(geometricError, t, box, refinement, keepProjection);
         var content = new Content() { uri = "content/{level}_{x}_{y}" + ext };
         root.content = content;
         var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };
@@ -27,7 +27,7 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet ToTileset(List<Tile> tiles, double[] translate, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, string refine="ADD", bool use10 = false, string tilesetVersion = "", string crs="")
+    public static TileSet ToTileset(List<Tile> tiles, double[] translate, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, RefinementType refine=RefinementType.ADD, bool use10 = false, string tilesetVersion = "", string crs="")
     {
         var tileset = GetTilesetObject(version, geometricError, use10, tilesetVersion, crs);
 
@@ -93,7 +93,7 @@ public static class TreeSerializer
         return res;
     }
 
-    public static Root GetRoot(double geometricError, double[] translation, double[] region, string refine = "ADD", bool keepProjection = false)
+    public static Root GetRoot(double geometricError, double[] translation, double[] region, RefinementType refine = RefinementType.ADD, bool keepProjection = false)
     {
         var boundingVolume = keepProjection ?
             new Boundingvolume { box = GetBBox(region, translation) } :

@@ -20,7 +20,7 @@ public class TilesetSettings
 
     public double GeometricErrorFactor { get; set; } = 2.0;
 
-    public string Refinement { get; set; } = "ADD";
+    public RefinementType Refinement { get; set; } = RefinementType.ADD;
 
     public double[] RootBoundingVolumeRegion { get; set; }  
 

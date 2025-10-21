@@ -15,7 +15,7 @@ public class Child : ICloneable
     public List<Child> children { get; set; }
     public double[] transform { get; set; }
     public double geometricError { get; set; }
-    public string refine { get; set; }
+    public RefinementType refine { get; set; }
     public Boundingvolume boundingVolume { get; set; }
     public Content content { get; set; }
     public object Clone()

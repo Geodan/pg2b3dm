@@ -4,8 +4,8 @@ using Newtonsoft.Json.Converters;
 namespace B3dm.Tileset;
 
 [JsonConverter(typeof(StringEnumConverter))]
-public enum SubdivisionScheme
+
+public enum RefinementType
 {
-    QUADTREE,
-    OCTREE
+    ADD, REPLACE
 }

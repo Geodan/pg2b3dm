@@ -10,12 +10,8 @@ using Wkx;
 namespace B3dm.Tileset;
 public static class CesiumTiler
 {
-    public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double geometricError, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles, string tilesetVersion="", string crs="", bool keepProjection = false, SubdivisionScheme subdivisionScheme = SubdivisionScheme.QUADTREE)
+    public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double geometricError, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles, string tilesetVersion="", string crs="", bool keepProjection = false, SubdivisionScheme subdivisionScheme = SubdivisionScheme.QUADTREE, RefinementType refinement = RefinementType.ADD)
     {
-        if (!Directory.Exists(subtreesDirectory)) {
-            Directory.CreateDirectory(subtreesDirectory);
-        }
-
         var subtreeFiles = SubtreeCreator.GenerateSubtreefiles(tiles);
         Console.WriteLine($"Writing {subtreeFiles.Count} subtree files...");
         foreach (var s in subtreeFiles) {
@@ -28,14 +24,14 @@ public static class CesiumTiler
         var availableLevels = tiles.Max(t => t.Z) + 1;
         Console.WriteLine("Available Levels: " + availableLevels);
         Console.WriteLine("Subtree Levels: " + subtreeLevels);
-        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricError, availableLevels, subtreeLevels, version, createGltf, tilesetVersion, crs, keepProjection, subdivisionScheme);
+        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricError, availableLevels, subtreeLevels, version, createGltf, tilesetVersion, crs, keepProjection, subdivisionScheme, refinement);
         var file = $"{outputDirectory}{Path.AltDirectorySeparatorChar}tileset.json";
         var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         Console.WriteLine($"Writing {file}...");
         File.WriteAllText(file, json);
     }
 
-    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, string refinement, bool use10, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles, string tilesetVersion="", string crs="")
+    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, RefinementType refinement, bool use10, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles, string tilesetVersion="", string crs="")
     {
         var splitLevel = (int)Math.Ceiling((tiles.Max((Tile s) => s.Z) + 1.0) / 2.0);
 
