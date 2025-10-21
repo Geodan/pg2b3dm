@@ -1,5 +1,6 @@
 ﻿using B3dm.Tileset;
 using B3dm.Tileset.Extensions;
+using B3dm.Tileset.settings;
 using DotNet.Testcontainers.Builders;
 using Npgsql;
 using subtree;
@@ -64,11 +65,19 @@ public class UnitTest1
         var center_wgs84 = bbox_wgs84.bbox.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
         var trans = new double[] { translation.X, translation.Y, translation.Z };
-        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings", 4326, "geom_triangle", 50, string.Empty,
+        var inputTable = new InputTable()
+        {
+            TableName = "delaware_buildings",
+            GeometryColumn = "geom_triangle",
+            EPSGCode = 4326
+        };
+
+
+        var stylingSettings = new StylingSettings();
+
+        var implicitTiler = new 
+            QuadtreeTiler(conn, inputTable, stylingSettings, 50,
             trans,
-            "shaders",
-            string.Empty,
-            string.Empty,
             "output/content",
             new List<int>() { 0 },
             skipCreateTiles: true);
@@ -91,12 +100,18 @@ public class UnitTest1
         var center_wgs84 = bbox_wgs84.bbox.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
         var trans = new double[] { translation.X, translation.Y, translation.Z };
-
-        var implicitTiler = new QuadtreeTiler(conn, "delaware_buildings_lod", 4326, "geom_triangle", 10, string.Empty,
+        var inputTable = new InputTable()
+        {
+            TableName = "delaware_buildings_lod",
+            GeometryColumn = "geom_triangle",
+            ShadersColumn = "shaders",
+            LodColumn = "lodcolumn",
+            EPSGCode = 4326
+        };
+        var stylingSettings = new StylingSettings();
+        var implicitTiler = new QuadtreeTiler(conn, 
+            inputTable, stylingSettings, 10,
             trans,
-            "shaders",
-            string.Empty,
-            "lodcolumn",
             "output/content",
             new List<int>() { 0, 1 },
             skipCreateTiles: true);
@@ -118,11 +133,15 @@ public class UnitTest1
         var center_wgs84 = bbox_wgs84.bbox.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
         var trans = new double[] { translation.X, translation.Y, translation.Z };
-        var implicitTiler = new QuadtreeTiler(conn, "geom_test", 4326, "geom3d", 50, string.Empty,
+        var inputTable = new InputTable()
+        {
+            TableName = "geom_test",
+            GeometryColumn = "geom3d",
+            EPSGCode = 4326
+        };
+        var stylingSettings = new StylingSettings();
+        var implicitTiler = new QuadtreeTiler(conn, inputTable, stylingSettings, 50,
             trans,
-            string.Empty,
-            string.Empty,
-            string.Empty,
             "output/content",
             new List<int>() { 0 },
             skipCreateTiles: false);
@@ -135,5 +154,4 @@ public class UnitTest1
             new List<Tile>(), createGltf:true);
         Assert.That(tiles.Count, Is.EqualTo(1));
     }
-
 }

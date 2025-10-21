@@ -10,6 +10,7 @@ using Npgsql;
 using subtree;
 using B3dm.Tileset.Extensions;
 using SharpGLTF.Schema2;
+using B3dm.Tileset.settings;
 
 namespace pg2b3dm;
 
@@ -59,17 +60,30 @@ class Program
             var createGltf = (bool)o.CreateGltf;
             var outputDirectory = o.Output;
             var shadersColumn = o.ShadersColumn;
+            var radiusColumn = o.RadiusColumn;
             var attributeColumns = o.AttributeColumns;
+            var lodColumn = o.LodColumn;
             var copyright = o.Copyright;
             var tilesetVersion = o.TilesetVersion;
             var keepProjection = (bool)o.KeepProjection;
             var subdivisionScheme = o.subdivisionScheme;
-
+            var geometricError = o.GeometricError;
+            var geometricErrorFactor = o.GeometricErrorFactor;
             var query = o.Query;
+
+            var inputTable = new InputTable();
+            inputTable.TableName = table;
+            inputTable.GeometryColumn = geometryColumn;
+            inputTable.Query = query;
+            inputTable.RadiusColumn = radiusColumn;
+            inputTable.ShadersColumn = shadersColumn;
+            inputTable.AttributeColumns = attributeColumns;
+            o.LodColumn = lodColumn;
 
             var conn = new NpgsqlConnection(connectionString);
 
             var source_epsg = SpatialReferenceRepository.GetSpatialReference(conn, table, geometryColumn, query);
+
 
             if (source_epsg == 4978) {
                 Console.WriteLine("----------------------------------------------------------------------------");
@@ -79,6 +93,7 @@ class Program
             }
 
             Console.WriteLine($"Spatial reference of {table}.{geometryColumn}: {source_epsg}");
+            inputTable.EPSGCode = source_epsg;
 
             // Check spatialIndex
             var hasSpatialIndex = SpatialIndexChecker.HasSpatialIndex(conn, table, geometryColumn);
@@ -111,6 +126,7 @@ class Program
 
             var zmin = bbox_table.zmin;
             var zmax = bbox_table.zmax;
+            var maxFeaturesPerTile = o.MaxFeaturesPerTile;
 
             Console.WriteLine($"Height values: [{Math.Round(zmin, 2)} m - {Math.Round(zmax, 2)} m]");
             Console.WriteLine($"Default color: {defaultColor}");
@@ -182,28 +198,43 @@ class Program
 
             var subtreesDirectory = $"{output}{Path.AltDirectorySeparatorChar}subtrees";
 
-            Console.WriteLine($"Maximum features per tile: " + o.MaxFeaturesPerTile);
+            Console.WriteLine($"Maximum features per tile: " + maxFeaturesPerTile);
 
-            var tile = new Tile(0, 0, 0);
-            tile.BoundingBox = bbox.ToArray();
+            var crs = keepProjection ? $"EPSG:{source_epsg}" : "";
             Console.WriteLine($"Start generating tiles...");
-            var quadtreeTiler = new QuadtreeTiler(conn, table, source_epsg, geometryColumn, o.MaxFeaturesPerTile, query, translation, o.ShadersColumn, o.AttributeColumns, lodcolumn, contentDirectory, lods, o.Copyright, skipCreateTiles, o.RadiusColumn);
-            var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), lodcolumn != string.Empty ? lods.First() : 0, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf, keepProjection);
-            Console.WriteLine();
-            Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
-            var crs = keepProjection ?
-                $"EPSG:{source_epsg}" :
-                "";
+            var stylingSettings = new StylingSettings() {
+                DefaultColor = defaultColor,
+                DefaultMetallicRoughness = defaultMetallicRoughness,
+                DefaultAlphaMode = defaultAlphaMode,
+                DoubleSided = doubleSided,
+                AddOutlines = addOutlines,
+            };
 
-            if (tiles.Count(tile => tile.Available) > 0) {
-                if (useImplicitTiling) {
-                    CesiumTiler.CreateImplicitTileset(version, createGltf, outputDirectory, translation, o.GeometricError, rootBoundingVolumeRegion, subtreesDirectory, tiles, tilesetVersion, crs, keepProjection, subdivisionScheme);
-                }
-                else {
-                    CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, o.GeometricError, o.GeometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile, tiles, tilesetVersion, crs);
-                }
+            var outputSettings = new OutputSettings() {
+                OutputFolder = outputDirectory,
+                ContentFolder = contentDirectory,
+                SubtreesFolder = subtreesDirectory,
+            };
+            var tilesetSettings = new TilesetSettings();
+            tilesetSettings.OutputSettings = outputSettings;
+            tilesetSettings.Version = version;
+            tilesetSettings.Copyright = copyright;
+            tilesetSettings.TilesetVersion = tilesetVersion;
+            tilesetSettings.SubdivisionScheme = subdivisionScheme;
+            tilesetSettings.GeometricError = geometricError;
+            tilesetSettings.GeometricErrorFactor = geometricErrorFactor;
+            tilesetSettings.Translation = translation;
+            tilesetSettings.Refinement = refinement;
+            tilesetSettings.RootBoundingVolumeRegion = rootBoundingVolumeRegion;
+
+            if (subdivisionScheme == SubdivisionScheme.QUADTREE) {
+                QuadtreeTile(inputTable, stylingSettings, tilesetSettings, createGltf, 
+                    keepProjection,conn, skipCreateTiles, bbox, maxFeaturesPerTile, 
+                    useImplicitTiling, use10, 
+                    lods, crs);
             }
+
             Console.WriteLine();
 
             stopWatch.Stop();
@@ -212,5 +243,30 @@ class Program
             Console.WriteLine("Time: {0}h {1}m {2}s {3}ms", Math.Floor(timeSpan.TotalHours), timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");
         });
+    }
+
+    private static void QuadtreeTile(InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, bool createGltf, bool keepProjection, NpgsqlConnection conn, bool skipCreateTiles, Wkx.BoundingBox bbox, int maxFeaturesPerTile, bool useImplicitTiling, bool use10, List<int> lods, string crs)
+    {
+        var tile = new Tile(0, 0, 0);
+        tile.BoundingBox = bbox.ToArray();
+        var outputSettings = tilesetSettings.OutputSettings;
+
+        var quadtreeTiler = new QuadtreeTiler(conn, inputTable, stylingSettings, maxFeaturesPerTile, tilesetSettings.Translation, outputSettings.OutputFolder, lods, tilesetSettings.Copyright, skipCreateTiles);
+        var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), inputTable.LodColumn != string.Empty ? lods.First() : 0, createGltf, keepProjection);
+        Console.WriteLine();
+        Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
+
+        if (tiles.Count(tile => tile.Available) > 0) {
+            if (useImplicitTiling) {
+                CesiumTiler.CreateImplicitTileset(tilesetSettings.Version, createGltf, outputSettings.OutputFolder, tilesetSettings.Translation, 
+                    tilesetSettings.GeometricError, tilesetSettings.RootBoundingVolumeRegion, outputSettings.SubtreesFolder, tiles, tilesetSettings.TilesetVersion, crs, keepProjection, tilesetSettings.SubdivisionScheme);
+            }
+            else {
+                CesiumTiler.CreateExplicitTilesetsJson(tilesetSettings.Version, outputSettings.OutputFolder, tilesetSettings.Translation, 
+                    tilesetSettings.GeometricError, tilesetSettings.GeometricErrorFactor, 
+                    tilesetSettings.Refinement, use10, tilesetSettings.RootBoundingVolumeRegion, 
+                    tile, tiles, tilesetSettings.TilesetVersion, crs);
+            }
+        }
     }
 }
