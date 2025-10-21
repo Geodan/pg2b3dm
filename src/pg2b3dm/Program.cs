@@ -230,6 +230,9 @@ class Program
                     useImplicitTiling, use10, 
                     lods, crs);
             }
+            else {
+                Console.WriteLine("Error: Octree subdivision scheme is not yet implemented.");
+            }
 
             Console.WriteLine();
 
