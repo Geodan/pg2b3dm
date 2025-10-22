@@ -4,6 +4,8 @@ namespace B3dm.Tileset.settings;
 
 public class TilingSettings
 {
+    public Wkx.BoundingBox BoundingBox { get; set; } 
+
     public bool CreateGltf { get; set; } = true;
 
     public bool KeepProjection { get; set; } = false;

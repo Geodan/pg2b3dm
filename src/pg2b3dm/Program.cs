@@ -204,6 +204,7 @@ class Program
 
 
             var tilingSettings = new TilingSettings();
+            tilingSettings.BoundingBox = bbox;
             tilingSettings.CreateGltf = createGltf;
             tilingSettings.KeepProjection = keepProjection;
             tilingSettings.SkipCreateTiles = skipCreateTiles;
@@ -211,7 +212,7 @@ class Program
             tilingSettings.Lods = lods;
 
             if (subdivisionScheme == SubdivisionScheme.QUADTREE) {
-                QuadtreeTile(conn, inputTable, stylingSettings, tilesetSettings, tilingSettings, bbox);
+                QuadtreeTile(conn, inputTable, stylingSettings, tilesetSettings, tilingSettings);
             }
             else {
                 Console.WriteLine("Error: Octree subdivision scheme is not yet implemented.");
@@ -230,12 +231,13 @@ class Program
 
     private void OctreeTile(NpgsqlConnection conn, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings)
     {
-
+        // Todo: Call OctreeTiler here
     }
 
-    private static void QuadtreeTile(NpgsqlConnection conn, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings, Wkx.BoundingBox bbox)
+    private static void QuadtreeTile(NpgsqlConnection conn, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings)
     {
         var tile = new Tile(0, 0, 0);
+        var bbox = tilingSettings.BoundingBox;
         tile.BoundingBox = bbox.ToArray();
         var outputSettings = tilesetSettings.OutputSettings;
 
