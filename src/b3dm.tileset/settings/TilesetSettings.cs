@@ -22,6 +22,7 @@ public class TilesetSettings
 
     public RefinementType Refinement { get; set; } = RefinementType.ADD;
 
-    public double[] RootBoundingVolumeRegion { get; set; }  
-
+    public double[] RootBoundingVolumeRegion { get; set; }
+    
+    public string Crs { get; set; } = string.Empty; 
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using B3dm.Tileset;
@@ -144,9 +143,6 @@ class Program
                     lodcolumn = String.Empty;
                 }
             }
-            // if useImpliciting is false and createGlb is false, the set use10 to true
-            var use10 = !useImplicitTiling && !createGltf;
-            Console.WriteLine("3D Tiles version: " + (use10 ? "1.0" : "1.1"));
             Console.WriteLine($"Lod column: {lodcolumn}");
             Console.WriteLine($"Radius column: {o.RadiusColumn}");
             Console.WriteLine($"Geometric error: {o.GeometricError}");
@@ -204,12 +200,18 @@ class Program
             tilesetSettings.Translation = translation;
             tilesetSettings.Refinement = refinement;
             tilesetSettings.RootBoundingVolumeRegion = rootBoundingVolumeRegion;
+            tilesetSettings.Crs = crs;
+
+
+            var tilingSettings = new TilingSettings();
+            tilingSettings.CreateGltf = createGltf;
+            tilingSettings.KeepProjection = keepProjection;
+            tilingSettings.SkipCreateTiles = skipCreateTiles;
+            tilingSettings.MaxFeaturesPerTile = maxFeaturesPerTile;
+            tilingSettings.Lods = lods;
 
             if (subdivisionScheme == SubdivisionScheme.QUADTREE) {
-                QuadtreeTile(inputTable, stylingSettings, tilesetSettings, createGltf,
-                    keepProjection, conn, skipCreateTiles, bbox, maxFeaturesPerTile,
-                    useImplicitTiling, use10,
-                    lods, crs);
+                QuadtreeTile(conn, inputTable, stylingSettings, tilesetSettings, tilingSettings, bbox);
             }
             else {
                 Console.WriteLine("Error: Octree subdivision scheme is not yet implemented.");
@@ -226,27 +228,32 @@ class Program
     }
 
 
-    private static void QuadtreeTile(InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, bool createGltf, bool keepProjection, NpgsqlConnection conn, bool skipCreateTiles, Wkx.BoundingBox bbox, int maxFeaturesPerTile, bool useImplicitTiling, bool use10, List<int> lods, string crs)
+    private void OctreeTile(NpgsqlConnection conn, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings)
+    {
+
+    }
+
+    private static void QuadtreeTile(NpgsqlConnection conn, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings, Wkx.BoundingBox bbox)
     {
         var tile = new Tile(0, 0, 0);
         tile.BoundingBox = bbox.ToArray();
         var outputSettings = tilesetSettings.OutputSettings;
 
-        var quadtreeTiler = new QuadtreeTiler(conn, inputTable, stylingSettings, maxFeaturesPerTile, tilesetSettings.Translation, outputSettings.ContentFolder, lods, tilesetSettings.Copyright, skipCreateTiles);
-        var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), inputTable.LodColumn != string.Empty ? lods.First() : 0, createGltf, keepProjection);
+        var quadtreeTiler = new QuadtreeTiler(conn, inputTable, stylingSettings, tilingSettings.MaxFeaturesPerTile, tilesetSettings.Translation, outputSettings.ContentFolder, tilingSettings.Lods, tilesetSettings.Copyright, tilingSettings.SkipCreateTiles);
+        var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), inputTable.LodColumn != string.Empty ? tilingSettings.Lods.First() : 0, tilingSettings.CreateGltf, tilingSettings.KeepProjection);
         Console.WriteLine();
         Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
 
         if (tiles.Count(tile => tile.Available) > 0) {
-            if (useImplicitTiling) {
-                CesiumTiler.CreateImplicitTileset(tilesetSettings.Version, createGltf, outputSettings.OutputFolder, tilesetSettings.Translation, 
-                    tilesetSettings.GeometricError, tilesetSettings.RootBoundingVolumeRegion, outputSettings.SubtreesFolder, tiles, tilesetSettings.TilesetVersion, crs, keepProjection, tilesetSettings.SubdivisionScheme, tilesetSettings.Refinement);
+            if (tilingSettings.UseImplicitTiling) {
+                CesiumTiler.CreateImplicitTileset(tilesetSettings.Version, tilingSettings.CreateGltf, outputSettings.OutputFolder, tilesetSettings.Translation, 
+                    tilesetSettings.GeometricError, tilesetSettings.RootBoundingVolumeRegion, outputSettings.SubtreesFolder, tiles, tilesetSettings.TilesetVersion, tilesetSettings.Crs, tilingSettings.KeepProjection, tilesetSettings.SubdivisionScheme, tilesetSettings.Refinement);
             }
             else {
                 CesiumTiler.CreateExplicitTilesetsJson(tilesetSettings.Version, outputSettings.OutputFolder, tilesetSettings.Translation, 
                     tilesetSettings.GeometricError, tilesetSettings.GeometricErrorFactor, 
-                    tilesetSettings.Refinement, use10, tilesetSettings.RootBoundingVolumeRegion, 
-                    tile, tiles, tilesetSettings.TilesetVersion, crs);
+                    tilesetSettings.Refinement, tilesetSettings.RootBoundingVolumeRegion, 
+                    tile, tiles, tilesetSettings.TilesetVersion, tilesetSettings.Crs);
             }
         }
     }

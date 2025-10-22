@@ -43,7 +43,6 @@ public class CesiumTilerTests
         var geometricError = 100;
         var geometricErrorFactor = 2;
         var refinement = RefinementType.ADD;
-        var use10 = false;
         var rootBoundingVolumeRegion = new double[] { 0, 0, 0, 0, 0, 0, zmin, zmax };
         var tile0 = new Tile(0, 0, 0);
         tile0.ZMin = zmin;
@@ -62,7 +61,7 @@ public class CesiumTilerTests
         var tiles = new List<Tile>() { tile0, tile1, tile2, tile3};
 
         // Act
-        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, geometricError, geometricErrorFactor, refinement, use10, rootBoundingVolumeRegion, tile1, tiles);
+        CesiumTiler.CreateExplicitTilesetsJson(version, outputDirectory, translation, geometricError, geometricErrorFactor, refinement, rootBoundingVolumeRegion, tile1, tiles);
 
         // Assert
         var json = File.ReadAllText("testExplicit/tileset.json");

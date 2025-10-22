@@ -13,7 +13,7 @@ public static class TreeSerializer
     {
         var ext = createGltf ? ".glb" : ".b3dm";
         var geometricError = maxGeometricError;
-        var tileset = GetTilesetObject(version, maxGeometricError, false, tilesetVersion, crs);
+        var tileset = GetTilesetObject(version, maxGeometricError, tilesetVersion, crs);
         var t = new double[] {   1.0, 0.0, 0.0, 0.0,
                                  0.0,1.0, 0.0, 0.0,
                                  0.0, 0.0, 1.0, 0.0,
@@ -27,9 +27,9 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet ToTileset(List<Tile> tiles, double[] translate, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, RefinementType refine=RefinementType.ADD, bool use10 = false, string tilesetVersion = "", string crs="")
+    public static TileSet ToTileset(List<Tile> tiles, double[] translate, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, RefinementType refine=RefinementType.ADD, string tilesetVersion = "", string crs="")
     {
-        var tileset = GetTilesetObject(version, geometricError, use10, tilesetVersion, crs);
+        var tileset = GetTilesetObject(version, geometricError, tilesetVersion, crs);
 
         var t = new double[] {   1.0, 0.0, 0.0, 0.0,
                                      0.0,1.0, 0.0, 0.0,
@@ -54,9 +54,9 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet GetTilesetObject(Version version, double geometricError, bool use10 = false, string tilesetVersion = "", string crs="")
+    public static TileSet GetTilesetObject(Version version, double geometricError, string tilesetVersion = "", string crs="")
     {
-        var version3DTiles = use10 ? "1.0" : "1.1"; 
+        var version3DTiles = "1.1"; 
         var tileset = new TileSet { asset = new Asset() { version = $"{version3DTiles}", generator = $"pg2b3dm {version}" } };
         if(!string.IsNullOrEmpty(tilesetVersion)) {
             tileset.asset.tilesetVersion = tilesetVersion;

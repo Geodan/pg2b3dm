@@ -31,12 +31,12 @@ public static class CesiumTiler
         File.WriteAllText(file, json);
     }
 
-    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, RefinementType refinement, bool use10, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles, string tilesetVersion="", string crs="")
+    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, RefinementType refinement, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles, string tilesetVersion="", string crs="")
     {
         var splitLevel = (int)Math.Ceiling((tiles.Max((Tile s) => s.Z) + 1.0) / 2.0);
 
         var rootTiles = TileSelector.Select(tiles, tile, 0, splitLevel);
-        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, use10, tilesetVersion, crs);
+        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, tilesetVersion, crs);
 
         var maxlevel = tiles.Max((Tile s) => s.Z);
 
@@ -56,7 +56,7 @@ public static class CesiumTiler
                         var zminmax = children.Select(t => new double[] { (double)t.ZMin, (double)t.ZMax }).SelectMany(t => t).ToArray();
                         var childrenBoundingVolumeRegion = GetBoundingBox(children).ToRadians().ToRegion(zminmax[0], zminmax[1]);
                         /// translation is the same as identity matrix in case of child tileset
-                        var tileset = TreeSerializer.ToTileset(children, null, childrenBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, use10, tilesetVersion);
+                        var tileset = TreeSerializer.ToTileset(children, null, childrenBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, tilesetVersion);
                        
                         var childGeometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, splitLevel);
                         tileset.geometricError = childGeometricError;
