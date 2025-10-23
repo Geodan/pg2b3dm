@@ -30,15 +30,15 @@ public class OctreeTiler
 
     public List<Tile3D> GenerateTiles3D(BoundingBox3D bbox, int level, Tile3D tile, List<Tile3D> tiles)
     {
-        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, inputTable.TableName, inputTable.GeometryColumn, new Point(bbox.XMin, bbox.YMin, bbox.ZMin), new Point(bbox.XMax, bbox.YMax, bbox.ZMax), inputTable.Query, inputTable.EPSGCode, tilingSettings.KeepProjection);
-        Console.WriteLine($"Features of tile {level}, {tile.Z},{tile.X},{tile.Y}: " + numberOfFeatures);
+        var where = inputTable.GetQueryClause();
+
+        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, inputTable.TableName, inputTable.GeometryColumn, new Point(bbox.XMin, bbox.YMin, bbox.ZMin), new Point(bbox.XMax, bbox.YMax, bbox.ZMax), where, inputTable.EPSGCode, tilingSettings.KeepProjection);
         if (numberOfFeatures == 0) {
             var t2 = new Tile3D(level, tile.Z, tile.X, tile.Y);
             t2.Available = false;
             tiles.Add(t2);
         }
         else if (numberOfFeatures > tilingSettings.MaxFeaturesPerTile) {
-            Console.WriteLine($"Split tile in octree: {level},{tile.Z}_{tile.X}_{tile.Y} ");
             level++;
             for (var x = 0; x < 2; x++) {
                 for (var y = 0; y < 2; y++) {
@@ -64,7 +64,6 @@ public class OctreeTiler
             }
         }
         else {
-            Console.WriteLine($"Generate 3D tile: {tile.Level}, {tile.X}, {tile.Y}, {tile.Z}, ");
             var boundingBox = new BoundingBox(bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax);
 
             int target_srs = 4978;
@@ -74,7 +73,7 @@ public class OctreeTiler
             }
 
             var bbox1 = new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax, bbox.ZMin, bbox.ZMax };
-            var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, inputTable.Query, inputTable.RadiusColumn, tilingSettings.KeepProjection);
+            var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, tilingSettings.KeepProjection);
 
             if (geometries.Count > 0) {
                 var bytes = TileWriter.ToTile(geometries, tilesetSettings.Translation, copyright: tilesetSettings.Copyright, addOutlines: stylingSettings.AddOutlines, defaultColor: stylingSettings.DefaultColor, defaultMetallicRoughness: stylingSettings.DefaultMetallicRoughness, doubleSided: stylingSettings.DoubleSided, defaultAlphaMode: stylingSettings.DefaultAlphaMode, createGltf: tilingSettings.CreateGltf);

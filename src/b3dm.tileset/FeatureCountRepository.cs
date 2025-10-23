@@ -29,7 +29,7 @@ public static class FeatureCountRepository
                 $"st_transform(st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4326), {source_epsg}), " +
                 $"st_transform(st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4326), {source_epsg})" +
                 $")" +
-                $")";
+                $") {query}";
         }
 
         var sql = $"SELECT {select} FROM {geometry_table} WHERE {where}";

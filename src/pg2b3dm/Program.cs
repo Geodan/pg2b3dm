@@ -218,8 +218,6 @@ class Program
             else {
                 var boundingBox3D = new BoundingBox3D() { XMin = bbox.XMin, YMin = bbox.YMin, ZMin = zmin, XMax = bbox.XMax, YMax = bbox.YMax, ZMax = zmax };
                 OctreeTile(conn, boundingBox3D, inputTable, stylingSettings, tilesetSettings, tilingSettings, outputSettings);
-
-                Console.WriteLine("Error: Octree subdivision scheme is not yet implemented.");
             }
 
             Console.WriteLine();

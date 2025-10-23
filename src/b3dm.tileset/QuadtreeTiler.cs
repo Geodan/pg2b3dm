@@ -38,9 +38,11 @@ public class QuadtreeTiler
         this.stylingSettings = stylingSettings;
     }
 
+
+
     public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod = 0, bool createGltf = false, bool keepProjection = false)
     {
-        var where = (inputTable.Query != string.Empty ? $" and {inputTable.Query}" : String.Empty);
+        var where = inputTable.GetQueryClause();
 
         var lodquery = LodQuery.GetLodQuery(inputTable.LodColumn, lod);
 

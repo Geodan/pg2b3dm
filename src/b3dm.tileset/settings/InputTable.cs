@@ -11,4 +11,11 @@ public class InputTable
     public string LodColumn { get; set; } = string.Empty;
     public string AttributeColumns { get; set; } = string.Empty;
     public int EPSGCode { get; set; }
+
+    public string GetQueryClause()
+    {
+        var where = (Query != string.Empty ? $" and {Query}" : string.Empty);
+        return where;
+    }
+
 }
