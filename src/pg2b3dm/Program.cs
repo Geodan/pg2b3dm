@@ -103,14 +103,14 @@ class Program
 
             var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, inputTable.TableName, inputTable.GeometryColumn, keepProjection, where);
             var bbox = bbox_table.bbox;
+            var zmin = bbox_table.zmin;
+            var zmax = bbox_table.zmax;
 
             var proj = keepProjection ? $"EPSG:{source_epsg}" : $"EPSG:4326 (WGS84)";
             Console.WriteLine($"Bounding box for {inputTable.TableName}.{inputTable.GeometryColumn} ({proj}): " +
                 $"{Math.Round(bbox.XMin, 8)}, {Math.Round(bbox.YMin, 8)}, " +
                 $"{Math.Round(bbox.XMax, 8)}, {Math.Round(bbox.YMax, 8)}");
 
-            var zmin = bbox_table.zmin;
-            var zmax = bbox_table.zmax;
             var maxFeaturesPerTile = o.MaxFeaturesPerTile;
 
             Console.WriteLine($"Height values: [{Math.Round(zmin, 2)} m - {Math.Round(zmax, 2)} m]");
@@ -215,6 +215,9 @@ class Program
                 QuadtreeTile(conn, inputTable, stylingSettings, tilesetSettings, tilingSettings);
             }
             else {
+                var boundingBox3D = new BoundingBox3D() { XMin = bbox.XMin, YMin = bbox.YMin, ZMin = zmin, XMax = bbox.XMax, YMax = bbox.YMax, ZMax = zmax };
+                OctreeTile(conn, boundingBox3D, inputTable, stylingSettings, tilesetSettings, tilingSettings);
+
                 Console.WriteLine("Error: Octree subdivision scheme is not yet implemented.");
             }
 
@@ -229,8 +232,15 @@ class Program
     }
 
 
-    private void OctreeTile(NpgsqlConnection conn, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings)
+    private static void OctreeTile(NpgsqlConnection conn, BoundingBox3D bbox3D, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings)
     {
+        var rootTile3D = new Tile3D(0, 0, 0, 0);
+
+        var octreeTiler = new OctreeTiler(conn, inputTable, tilingSettings, stylingSettings, tilesetSettings);
+        var tiles3D = octreeTiler.GenerateTiles3D(bbox3D, 0, rootTile3D, new List<Tile3D>());
+
+
+
         // Todo: Call OctreeTiler here
     }
 
