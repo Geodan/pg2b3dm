@@ -10,6 +10,7 @@ using subtree;
 using B3dm.Tileset.Extensions;
 using SharpGLTF.Schema2;
 using B3dm.Tileset.settings;
+using System.IO;
 
 namespace pg2b3dm;
 
@@ -238,10 +239,30 @@ class Program
 
         var octreeTiler = new OctreeTiler(conn, inputTable, tilingSettings, stylingSettings, tilesetSettings, outputSettings);
         var tiles3D = octreeTiler.GenerateTiles3D(bbox3D, 0, rootTile3D, new List<Tile3D>());
+        var mortonIndices = MortonIndex.GetMortonIndices3D(tiles3D);
+        var subtreebytes = GetSubtreeBytes(mortonIndices.contentAvailability, mortonIndices.tileAvailability);
+        // todo: Write more subtree files
+        File.WriteAllBytes($"{outputSettings.SubtreesFolder}/0_0_0_0.subtree", subtreebytes);
+        var maxAvailableLevel = tiles3D.Max(p => p.Level);
+        // Todo: Write JSON
+    }
 
+    static byte[] GetSubtreeBytes(string contentAvailability, string tileAvailability, string subtreeAvailability = null)
+    {
+        var subtree_root = new Subtree();
+        var s01_root = BitArrayCreator.FromString(tileAvailability);
+        subtree_root.TileAvailability = s01_root;
 
+        var s0_root = BitArrayCreator.FromString(contentAvailability);
+        subtree_root.ContentAvailability = s0_root;
 
-        // Todo: Call OctreeTiler here
+        if (subtreeAvailability != null) {
+            var c0_root = BitArrayCreator.FromString(subtreeAvailability);
+            subtree_root.ChildSubtreeAvailability = c0_root;
+        }
+
+        var subtreebytes = SubtreeWriter.ToBytes(subtree_root);
+        return subtreebytes;
     }
 
     private static void QuadtreeTile(NpgsqlConnection conn, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings)
