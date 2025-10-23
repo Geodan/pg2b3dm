@@ -216,7 +216,7 @@ class Program
             }
             else {
                 var boundingBox3D = new BoundingBox3D() { XMin = bbox.XMin, YMin = bbox.YMin, ZMin = zmin, XMax = bbox.XMax, YMax = bbox.YMax, ZMax = zmax };
-                OctreeTile(conn, boundingBox3D, inputTable, stylingSettings, tilesetSettings, tilingSettings);
+                OctreeTile(conn, boundingBox3D, inputTable, stylingSettings, tilesetSettings, tilingSettings, outputSettings);
 
                 Console.WriteLine("Error: Octree subdivision scheme is not yet implemented.");
             }
@@ -232,11 +232,11 @@ class Program
     }
 
 
-    private static void OctreeTile(NpgsqlConnection conn, BoundingBox3D bbox3D, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings)
+    private static void OctreeTile(NpgsqlConnection conn, BoundingBox3D bbox3D, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings, OutputSettings outputSettings)
     {
         var rootTile3D = new Tile3D(0, 0, 0, 0);
 
-        var octreeTiler = new OctreeTiler(conn, inputTable, tilingSettings, stylingSettings, tilesetSettings);
+        var octreeTiler = new OctreeTiler(conn, inputTable, tilingSettings, stylingSettings, tilesetSettings, outputSettings);
         var tiles3D = octreeTiler.GenerateTiles3D(bbox3D, 0, rootTile3D, new List<Tile3D>());
 
 

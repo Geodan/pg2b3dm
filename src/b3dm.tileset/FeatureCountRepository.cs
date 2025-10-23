@@ -26,8 +26,8 @@ public static class FeatureCountRepository
         else {
             where = $"ST_3DIntersects(ST_Centroid(ST_Envelope({geometry_column})), " +
                 $"ST_3DMakeBox(" +
-                $"st_transform(st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4979), {source_epsg}), " +
-                $"st_transform(st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4979), {source_epsg})" +
+                $"st_transform(st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4326), {source_epsg}), " +
+                $"st_transform(st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4326), {source_epsg})" +
                 $")" +
                 $")";
         }
