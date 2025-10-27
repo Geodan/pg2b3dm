@@ -24,12 +24,14 @@ public static class FeatureCountRepository
                 $"ST_Centroid(ST_Envelope({geometry_column})) && st_transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 4326), {source_epsg}) {query}";
         }
         else {
-            where = $"ST_3DIntersects(ST_Centroid(ST_Envelope({geometry_column})), " +
-                $"ST_3DMakeBox(" +
-                $"st_transform(st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4326), {source_epsg}), " +
-                $"st_transform(st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4326), {source_epsg})" +
-                $")" +
-                $") {query}";
+
+            var fromBox = keepProjection?
+                $"st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), {source_epsg})":
+                $"st_transform(st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4326), {source_epsg})";
+            var toBox = keepProjection?
+                $"st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), {source_epsg})":
+                $"st_transform(st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4326), {source_epsg})";
+            where = $"ST_3DIntersects(ST_Centroid(ST_Envelope({geometry_column})), ST_3DMakeBox({fromBox}, {toBox})) {query}";
         }
 
         var sql = $"SELECT {select} FROM {geometry_table} WHERE {where}";
