@@ -22,7 +22,7 @@ public static class TreeSerializer
         var content = new Content() { uri = "content/{level}_{x}_{y}" + ext };
         root.content = content;
         var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };
-        int availableLevels = subtreeLevels + 1; // note: availableLevels isn't used in Cesium, but is required in spec
+        int availableLevels = subtreeLevels + 1; // note: availableLevels isn't used in CesiumJS, but is required in validation
         root.implicitTiling = new Implicittiling() { subdivisionScheme = subDivisionScheme, availableLevels = availableLevels, subtreeLevels = subtreeLevels, subtrees = subtrees };
         tileset.root = root;
         return tileset;

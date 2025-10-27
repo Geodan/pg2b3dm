@@ -31,7 +31,8 @@ public class CesiumTilerTests
         };
 
         // Act
-        CesiumTiler.CreateImplicitTileset(tilesetSettings, outputSettings, tiles, createGltf, false);
+        var subtreeLevels = CesiumTiler.CreateSubtreeFiles(outputSettings, tiles);
+        CesiumTiler.CreateImplicitTileset(tilesetSettings, outputSettings, createGltf, false);
 
         // Assert
         var json = File.ReadAllText("test/tileset.json");

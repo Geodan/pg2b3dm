@@ -262,7 +262,9 @@ class Program
 
         if (tiles.Count(tile => tile.Available) > 0) {
             if (tilingSettings.UseImplicitTiling) {
-                CesiumTiler.CreateImplicitTileset(tilesetSettings, outputSettings,tiles, tilingSettings.CreateGltf, tilingSettings.KeepProjection);
+                var subtreeLevels = CesiumTiler.CreateSubtreeFiles(outputSettings, tiles);
+                tilesetSettings.SubtreeLevels = subtreeLevels;
+                CesiumTiler.CreateImplicitTileset(tilesetSettings, outputSettings, tilingSettings.CreateGltf, tilingSettings.KeepProjection);
             }
             else {
                 CesiumTiler.CreateExplicitTilesetsJson(tilesetSettings.Version, outputSettings.OutputFolder, tilesetSettings.Translation, 

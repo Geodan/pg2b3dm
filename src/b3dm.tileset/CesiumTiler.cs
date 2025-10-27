@@ -11,7 +11,7 @@ using Wkx;
 namespace B3dm.Tileset;
 public static class CesiumTiler
 {
-    public static void CreateImplicitTileset(TilesetSettings tilesetSettings, OutputSettings outputSettings, List<Tile> tiles, bool createGltf, bool keepProjection)
+    public static int CreateSubtreeFiles(OutputSettings outputSettings, List<Tile> tiles)
     {
         var subtreeFiles = SubtreeCreator.GenerateSubtreefiles(tiles);
         Console.WriteLine($"Writing {subtreeFiles.Count} subtree files...");
@@ -20,11 +20,13 @@ public static class CesiumTiler
             var subtreefile = $"{outputSettings.SubtreesFolder}{Path.AltDirectorySeparatorChar}{t.Z}_{t.X}_{t.Y}.subtree";
             File.WriteAllBytes(subtreefile, s.Value);
         }
-
         var subtreeLevels = subtreeFiles.Count > 1 ? ((Tile)subtreeFiles.ElementAt(1).Key).Z : 2;
-        var availableLevels = tiles.Max(t => t.Z) + 1;
-        Console.WriteLine("Subtree Levels: " + subtreeLevels);
-        var tilesetjson = TreeSerializer.ToImplicitTileset(tilesetSettings.Translation, tilesetSettings.RootBoundingVolumeRegion, tilesetSettings.GeometricError, subtreeLevels, tilesetSettings.Version, createGltf, tilesetSettings.TilesetVersion, tilesetSettings.Crs, keepProjection, tilesetSettings.SubdivisionScheme, tilesetSettings.Refinement);
+        return subtreeLevels;
+    }
+
+    public static void CreateImplicitTileset(TilesetSettings tilesetSettings, OutputSettings outputSettings, bool createGltf, bool keepProjection)
+    {
+        var tilesetjson = TreeSerializer.ToImplicitTileset(tilesetSettings.Translation, tilesetSettings.RootBoundingVolumeRegion, tilesetSettings.GeometricError, tilesetSettings.SubtreeLevels, tilesetSettings.Version, createGltf, tilesetSettings.TilesetVersion, tilesetSettings.Crs, keepProjection, tilesetSettings.SubdivisionScheme, tilesetSettings.Refinement);
         var file = $"{outputSettings.OutputFolder}{Path.AltDirectorySeparatorChar}tileset.json";
         var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         Console.WriteLine($"Writing {file}...");

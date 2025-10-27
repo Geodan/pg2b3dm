@@ -25,4 +25,6 @@ public class TilesetSettings
     public double[] RootBoundingVolumeRegion { get; set; }
     
     public string Crs { get; set; } = string.Empty; 
+
+    public int SubtreeLevels { get; set; } = 2;
 }
