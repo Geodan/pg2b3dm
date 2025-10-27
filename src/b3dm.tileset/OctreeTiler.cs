@@ -16,16 +16,14 @@ public class OctreeTiler
     private readonly StylingSettings stylingSettings;
     private readonly TilesetSettings tilesetSettings;
     private readonly InputTable inputTable;
-    private readonly OutputSettings outputSettings;
 
-    public OctreeTiler(NpgsqlConnection conn, InputTable inputTable, TilingSettings tilingSetttings, StylingSettings stylingSettings, TilesetSettings tilesetSettings, OutputSettings outputSettings)
+    public OctreeTiler(NpgsqlConnection conn, InputTable inputTable, TilingSettings tilingSetttings, StylingSettings stylingSettings, TilesetSettings tilesetSettings)
     {
         this.conn = conn;
         this.inputTable = inputTable;
         this.tilingSettings = tilingSetttings;
         this.stylingSettings = stylingSettings;
         this.tilesetSettings = tilesetSettings;
-        this.outputSettings = outputSettings;
     }
 
     public List<Tile3D> GenerateTiles3D(BoundingBox3D bbox, int level, Tile3D tile, List<Tile3D> tiles)
@@ -68,7 +66,6 @@ public class OctreeTiler
 
             int target_srs = 4978;
 
-
             if (tilingSettings.KeepProjection) {
                 target_srs = inputTable.EPSGCode;
             }
@@ -78,7 +75,7 @@ public class OctreeTiler
 
             if (geometries.Count > 0) {
                 var bytes = TileWriter.ToTile(geometries, tilesetSettings.Translation, copyright: tilesetSettings.Copyright, addOutlines: stylingSettings.AddOutlines, defaultColor: stylingSettings.DefaultColor, defaultMetallicRoughness: stylingSettings.DefaultMetallicRoughness, doubleSided: stylingSettings.DoubleSided, defaultAlphaMode: stylingSettings.DefaultAlphaMode, createGltf: tilingSettings.CreateGltf);
-                var file = $"{outputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
+                var file = $"{tilesetSettings.OutputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
                 Console.Write($"\rCreating tile: {file}  ");
                 File.WriteAllBytes($"{file}", bytes);
                 tile.Available = true;

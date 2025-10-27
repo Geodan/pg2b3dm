@@ -217,7 +217,7 @@ class Program
             }
             else {
                 var boundingBox3D = new BoundingBox3D() { XMin = bbox.XMin, YMin = bbox.YMin, ZMin = zmin, XMax = bbox.XMax, YMax = bbox.YMax, ZMax = zmax };
-                OctreeTile(conn, boundingBox3D, inputTable, stylingSettings, tilesetSettings, tilingSettings, outputSettings);
+                OctreeTile(conn, boundingBox3D, inputTable, stylingSettings, tilesetSettings, tilingSettings);
             }
 
             Console.WriteLine();
@@ -230,22 +230,23 @@ class Program
         });
     }
 
-
-    private static void OctreeTile(NpgsqlConnection conn, BoundingBox3D bbox3D, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings, OutputSettings outputSettings)
+    private static void OctreeTile(NpgsqlConnection conn, BoundingBox3D bbox3D, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings)
     {
         var rootTile3D = new Tile3D(0, 0, 0, 0);
 
-        var octreeTiler = new OctreeTiler(conn, inputTable, tilingSettings, stylingSettings, tilesetSettings, outputSettings);
+        var octreeTiler = new OctreeTiler(conn, inputTable, tilingSettings, stylingSettings, tilesetSettings);
         var tiles3D = octreeTiler.GenerateTiles3D(bbox3D, 0, rootTile3D, new List<Tile3D>());
         var mortonIndices = MortonIndex.GetMortonIndices3D(tiles3D);
         var subtreebytes = SubtreeWriter.ToBytes(mortonIndices.tileAvailability, mortonIndices.contentAvailability);
 
         // todo: Write more subtree files
-        File.WriteAllBytes($"{outputSettings.SubtreesFolder}/0_0_0_0.subtree", subtreebytes);
+        File.WriteAllBytes($"{tilesetSettings.OutputSettings.SubtreesFolder}/0_0_0_0.subtree", subtreebytes);
         var maxAvailableLevel = tiles3D.Max(p => p.Level);
 
+        tilesetSettings.SubtreeLevels = maxAvailableLevel + 1;
 
-        // Todo: Write JSON
+        // todo add explicit tileset option
+        CesiumTiler.CreateImplicitTileset(tilesetSettings, tilingSettings.CreateGltf, tilingSettings.KeepProjection);
     }
 
     private static void QuadtreeTile(NpgsqlConnection conn, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings)
@@ -264,7 +265,7 @@ class Program
             if (tilingSettings.UseImplicitTiling) {
                 var subtreeLevels = CesiumTiler.CreateSubtreeFiles(outputSettings, tiles);
                 tilesetSettings.SubtreeLevels = subtreeLevels;
-                CesiumTiler.CreateImplicitTileset(tilesetSettings, outputSettings, tilingSettings.CreateGltf, tilingSettings.KeepProjection);
+                CesiumTiler.CreateImplicitTileset(tilesetSettings, tilingSettings.CreateGltf, tilingSettings.KeepProjection);
             }
             else {
                 CesiumTiler.CreateExplicitTilesetsJson(tilesetSettings.Version, outputSettings.OutputFolder, tilesetSettings.Translation, 

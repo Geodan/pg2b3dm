@@ -11,6 +11,7 @@ public static class TreeSerializer
 {
     public static TileSet ToImplicitTileset(double[] translate, double[] box, double maxGeometricError, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string crs="", bool keepProjection = false, SubdivisionScheme subDivisionScheme = SubdivisionScheme.QUADTREE, RefinementType refinement = RefinementType.ADD)
     {
+        var isQuadtree = subDivisionScheme == SubdivisionScheme.QUADTREE;   
         var ext = createGltf ? ".glb" : ".b3dm";
         var geometricError = maxGeometricError;
         var tileset = GetTilesetObject(version, maxGeometricError, tilesetVersion, crs);
@@ -19,9 +20,10 @@ public static class TreeSerializer
                                  0.0, 0.0, 1.0, 0.0,
         translate[0], translate[1], translate[2], 1.0};
         var root = GetRoot(geometricError, t, box, refinement, keepProjection);
-        var content = new Content() { uri = "content/{level}_{x}_{y}" + ext };
+        var fileName = isQuadtree? "{level}_{x}_{y}": "{level}_{z}_{x}_{y}";
+        var content = new Content() { uri = "content/" + fileName + ext };
         root.content = content;
-        var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };
+        var subtrees = new Subtrees() { uri = $"subtrees/{fileName}.subtree" };
         int availableLevels = subtreeLevels + 1; // note: availableLevels isn't used in CesiumJS, but is required in validation
         root.implicitTiling = new Implicittiling() { subdivisionScheme = subDivisionScheme, availableLevels = availableLevels, subtreeLevels = subtreeLevels, subtrees = subtrees };
         tileset.root = root;
