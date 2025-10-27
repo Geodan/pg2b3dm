@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using B3dm.Tileset.Extensions;
+using B3dm.Tileset.settings;
 using Newtonsoft.Json;
 using subtree;
 using Wkx;
@@ -10,22 +11,21 @@ using Wkx;
 namespace B3dm.Tileset;
 public static class CesiumTiler
 {
-    public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double geometricError, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles, string tilesetVersion="", string crs="", bool keepProjection = false, SubdivisionScheme subdivisionScheme = SubdivisionScheme.QUADTREE, RefinementType refinement = RefinementType.ADD)
+    public static void CreateImplicitTileset(TilesetSettings tilesetSettings, OutputSettings outputSettings, List<Tile> tiles, bool createGltf, bool keepProjection)
     {
         var subtreeFiles = SubtreeCreator.GenerateSubtreefiles(tiles);
         Console.WriteLine($"Writing {subtreeFiles.Count} subtree files...");
         foreach (var s in subtreeFiles) {
             var t = s.Key;
-            var subtreefile = $"{subtreesDirectory}{Path.AltDirectorySeparatorChar}{t.Z}_{t.X}_{t.Y}.subtree";
+            var subtreefile = $"{outputSettings.SubtreesFolder}{Path.AltDirectorySeparatorChar}{t.Z}_{t.X}_{t.Y}.subtree";
             File.WriteAllBytes(subtreefile, s.Value);
         }
 
         var subtreeLevels = subtreeFiles.Count > 1 ? ((Tile)subtreeFiles.ElementAt(1).Key).Z : 2;
         var availableLevels = tiles.Max(t => t.Z) + 1;
-        Console.WriteLine("Available Levels: " + availableLevels);
         Console.WriteLine("Subtree Levels: " + subtreeLevels);
-        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricError, availableLevels, subtreeLevels, version, createGltf, tilesetVersion, crs, keepProjection, subdivisionScheme, refinement);
-        var file = $"{outputDirectory}{Path.AltDirectorySeparatorChar}tileset.json";
+        var tilesetjson = TreeSerializer.ToImplicitTileset(tilesetSettings.Translation, tilesetSettings.RootBoundingVolumeRegion, tilesetSettings.GeometricError, subtreeLevels, tilesetSettings.Version, createGltf, tilesetSettings.TilesetVersion, tilesetSettings.Crs, keepProjection, tilesetSettings.SubdivisionScheme, tilesetSettings.Refinement);
+        var file = $"{outputSettings.OutputFolder}{Path.AltDirectorySeparatorChar}tileset.json";
         var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         Console.WriteLine($"Writing {file}...");
         File.WriteAllText(file, json);

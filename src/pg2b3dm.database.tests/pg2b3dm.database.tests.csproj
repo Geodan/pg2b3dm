@@ -19,7 +19,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Testcontainers.PostgreSql" Version="4.8.0" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.8.1" />
   </ItemGroup>
   <ItemGroup Label="Linux only includes" Condition="$([MSBuild]::IsOSPlatform('Linux')) ">
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="6.0.7" />

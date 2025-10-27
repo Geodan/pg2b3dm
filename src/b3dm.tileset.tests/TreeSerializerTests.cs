@@ -16,7 +16,7 @@ public class TreeSerializerTests
         var bbox = new double[] { 841974.33514389757, 6517985.9342377661, 843026.16314589756, 6519046.056239767, 155.337, 208.582 };
         var crs = "EPSG:5698";
         // act
-        var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 2, 2, crs: crs, keepProjection: true);
+        var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 2, crs: crs, keepProjection: true);
         // assert
         Assert.That(json != null, Is.True);
         Assert.That(json.asset.crs , Is.EqualTo(crs));
@@ -57,7 +57,7 @@ public class TreeSerializerTests
         var bbox = new double[] { 841974.33514389757, 6517985.9342377661, 843026.16314589756, 6519046.056239767, 155.337, 208.582 };
         var crs = "EPSG:5698";
         // act
-        var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 2, 2, crs: crs, keepProjection: false);
+        var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 2, crs: crs, keepProjection: false);
         // assert
         Assert.That(json != null, Is.True);
         Assert.That(json.asset.crs, Is.EqualTo(crs));
@@ -79,7 +79,7 @@ public class TreeSerializerTests
         var bbox = new double[] { 0, 0, 1, 1 };
 
         // act
-        var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 5, 1);
+        var json = TreeSerializer.ToImplicitTileset(translation, bbox, 500, 5);
 
         // assert
         Assert.That(json != null, Is.True);

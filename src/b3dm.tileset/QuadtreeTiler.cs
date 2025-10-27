@@ -38,8 +38,6 @@ public class QuadtreeTiler
         this.stylingSettings = stylingSettings;
     }
 
-
-
     public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod = 0, bool createGltf = false, bool keepProjection = false)
     {
         var where = inputTable.GetQueryClause();

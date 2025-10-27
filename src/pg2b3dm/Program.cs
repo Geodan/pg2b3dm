@@ -243,6 +243,8 @@ class Program
         // todo: Write more subtree files
         File.WriteAllBytes($"{outputSettings.SubtreesFolder}/0_0_0_0.subtree", subtreebytes);
         var maxAvailableLevel = tiles3D.Max(p => p.Level);
+
+
         // Todo: Write JSON
     }
 
@@ -260,8 +262,7 @@ class Program
 
         if (tiles.Count(tile => tile.Available) > 0) {
             if (tilingSettings.UseImplicitTiling) {
-                CesiumTiler.CreateImplicitTileset(tilesetSettings.Version, tilingSettings.CreateGltf, outputSettings.OutputFolder, tilesetSettings.Translation, 
-                    tilesetSettings.GeometricError, tilesetSettings.RootBoundingVolumeRegion, outputSettings.SubtreesFolder, tiles, tilesetSettings.TilesetVersion, tilesetSettings.Crs, tilingSettings.KeepProjection, tilesetSettings.SubdivisionScheme, tilesetSettings.Refinement);
+                CesiumTiler.CreateImplicitTileset(tilesetSettings, outputSettings,tiles, tilingSettings.CreateGltf, tilingSettings.KeepProjection);
             }
             else {
                 CesiumTiler.CreateExplicitTilesetsJson(tilesetSettings.Version, outputSettings.OutputFolder, tilesetSettings.Translation, 
