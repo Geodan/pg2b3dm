@@ -68,6 +68,7 @@ public class OctreeTiler
 
             int target_srs = 4978;
 
+
             if (tilingSettings.KeepProjection) {
                 target_srs = inputTable.EPSGCode;
             }
@@ -78,6 +79,7 @@ public class OctreeTiler
             if (geometries.Count > 0) {
                 var bytes = TileWriter.ToTile(geometries, tilesetSettings.Translation, copyright: tilesetSettings.Copyright, addOutlines: stylingSettings.AddOutlines, defaultColor: stylingSettings.DefaultColor, defaultMetallicRoughness: stylingSettings.DefaultMetallicRoughness, doubleSided: stylingSettings.DoubleSided, defaultAlphaMode: stylingSettings.DefaultAlphaMode, createGltf: tilingSettings.CreateGltf);
                 var file = $"{outputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
+                Console.Write($"\rCreating tile: {file}  ");
                 File.WriteAllBytes($"{file}", bytes);
                 tile.Available = true;
             }
