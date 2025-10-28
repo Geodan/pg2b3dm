@@ -73,10 +73,11 @@ public static class GeometryRepository
             return $" WHERE ST_Intersects(ST_Centroid(ST_Envelope({geometry_column})), {poly}) {query}";
         }
         else {
+
             return $" WHERE ST_3DIntersects(ST_Centroid(ST_Envelope({geometry_column})), " +
                 $"ST_3DMakeBox(" +
-                $"st_transform(st_setsrid(ST_MakePoint({b.xmin}, {b.ymin}, {bbox[4].ToString(CultureInfo.InvariantCulture)}), 4326), {source_epsg}), " +
-                $"st_transform(st_setsrid(ST_MakePoint({b.xmax}, {b.ymax}, {bbox[5].ToString(CultureInfo.InvariantCulture)}), 4326), {source_epsg}))) {query}";
+                $"st_transform(st_setsrid(ST_MakePoint({b.xmin}, {b.ymin}, {bbox[4].ToString(CultureInfo.InvariantCulture)}), 4979), {source_epsg}), " +
+                $"st_transform(st_setsrid(ST_MakePoint({b.xmax}, {b.ymax}, {bbox[5].ToString(CultureInfo.InvariantCulture)}), 4979), {source_epsg}))) {query}";
         }
     }
 

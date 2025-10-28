@@ -17,21 +17,23 @@ public static class FeatureCountRepository
         var select = $"COUNT({geometry_column})";
         var where = "";
 
-
         if (!hasZ) {
             where = keepProjection ?
                 $"ST_Centroid(ST_Envelope({geometry_column})) && ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, {source_epsg}) {query}" :
                 $"ST_Centroid(ST_Envelope({geometry_column})) && st_transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 4326), {source_epsg}) {query}";
         }
         else {
-
             var fromBox = keepProjection?
                 $"st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), {source_epsg})":
-                $"st_transform(st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4326), {source_epsg})";
+                 $"st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4979)";
             var toBox = keepProjection?
                 $"st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), {source_epsg})":
-                $"st_transform(st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4326), {source_epsg})";
-            where = $"ST_3DIntersects(ST_Centroid(ST_Envelope({geometry_column})), ST_3DMakeBox({fromBox}, {toBox})) {query}";
+                $"st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4979)";
+
+            var geom = $"st_setsrid(st_makepoint((st_xmin({geometry_column}) + st_xmax({geometry_column}))/2,(st_ymin({geometry_column}) + st_ymax({geometry_column}))/2, (st_zmin({geometry_column}) + st_zmax({geometry_column}))/2), {source_epsg})";
+            where = keepProjection?
+                $"ST_3DIntersects({geom}, ST_3DMakeBox({fromBox}, {toBox})) {query}":
+                $"ST_3DIntersects({geom}, st_transform(ST_3DMakeBox({fromBox}, {toBox}), {source_epsg})) {query}";
         }
 
         var sql = $"SELECT {select} FROM {geometry_table} WHERE {where}";
