@@ -130,7 +130,7 @@ class Program
             Tiles3DExtensions.RegisterExtensions();
 
             var translation = keepProjection ?
-                new double[] { (double)center.X, (double)center.Y, 0 } :
+                [(double)center.X, (double)center.Y, 0] :
                 Translation.ToEcef(center);
             Console.WriteLine($"Translation: {String.Join(',', translation)}");
 

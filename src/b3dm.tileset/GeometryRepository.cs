@@ -44,31 +44,13 @@ public static class GeometryRepository
         var sqlFrom = "FROM " + geometry_table;
 
         // todo: fix unit test when there is no z
-        Point fromPoint;
-        Point toPoint;
-        if (bbox.Length == 4) {
-            fromPoint = new Point(bbox[0], bbox[1]);
-            toPoint = new Point(bbox[2], bbox[3]);
-        }
-        else {
-            fromPoint = new Point(bbox[0], bbox[1], bbox[4]);
-            toPoint = new Point(bbox[2], bbox[3], bbox[5]);
-        }
+        var points = GetPoints(bbox);
 
-        var sqlWhere = GetWhere(geometry_column, fromPoint, toPoint, query, source_epsg, keepProjection);
+        var sqlWhere = GetWhere(geometry_column, points.fromPoint, points.toPoint, query, source_epsg, keepProjection);
         var sql = sqlselect + sqlFrom + " where " + sqlWhere;
 
         var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql, radiusColumn);
         return geometries;
-    }
-
-    private static (string xmin, string ymin, string xmax, string ymax) GetTileBoundingBox(double[] bbox)
-    {
-        var xmin = bbox[0].ToString(CultureInfo.InvariantCulture);
-        var ymin = bbox[1].ToString(CultureInfo.InvariantCulture);
-        var xmax = bbox[2].ToString(CultureInfo.InvariantCulture);
-        var ymax = bbox[3].ToString(CultureInfo.InvariantCulture);
-        return(xmin, ymin, xmax, ymax);
     }
 
     public static string GetWhere(string geometry_column, Point from, Point to, string query, int source_epsg, bool keepProjection)
@@ -222,4 +204,21 @@ public static class GeometryRepository
         }
         return attributes;
     }
+
+    private static (Point fromPoint, Point toPoint) GetPoints(double[] bbox)
+    {
+        Point fromPoint;
+        Point toPoint;
+
+        if (bbox.Length == 4) {
+            fromPoint = new Point(bbox[0], bbox[1]);
+            toPoint = new Point(bbox[2], bbox[3]);
+        }
+        else {
+            fromPoint = new Point(bbox[0], bbox[1], bbox[4]);
+            toPoint = new Point(bbox[2], bbox[3], bbox[5]);
+        }
+        return (fromPoint, toPoint);
+    }
+
 }

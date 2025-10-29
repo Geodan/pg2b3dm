@@ -30,15 +30,6 @@ public class BoundingBox3D
         ZMax = (double)center.Z + box[11];
     }
 
-    public Point FromPoint()
-    {
-        return new Point(XMin, YMin, ZMin);
-    }
-    public Point ToPoint()
-    {
-        return new Point(XMax, YMax, ZMax);
-    }
-
     public double XMin { get; set; }
     public double XMax { get; set; }
     public double YMin { get; set; }
@@ -54,67 +45,9 @@ public class BoundingBox3D
         return new Point(x, y, z);
     }
 
-    // this one is used by pg2b3dm
-    public BoundingBox3D TransformYToZ()
-    {
-        var res = new BoundingBox3D();
-        res.XMin = XMin;
-        res.YMin = ZMin;
-        res.ZMin = YMin * -1;
-        res.XMax = XMax;
-        res.YMax = ZMax;
-        res.ZMax = YMax * -1;
-        return res;
-    }
-
-    // this one is used for tranforming for translation + bbox to bbox
-    public BoundingBox3D TransformZToY()
-    {
-        var res = new BoundingBox3D();
-        res.XMin = XMin;
-        res.YMin = ZMin * -1;
-        res.ZMin = YMin;
-        res.XMax = XMax;
-        res.YMax = ZMax * -1;
-        res.ZMax = YMax;
-        return res;
-    }
-
     public override string ToString()
     {
         return $"{XMin.ToString(CultureInfo.InvariantCulture)},{YMin.ToString(CultureInfo.InvariantCulture)},{ZMin.ToString(CultureInfo.InvariantCulture)},{XMax.ToString((CultureInfo.InvariantCulture))},{YMax.ToString((CultureInfo.InvariantCulture))},{ZMax.ToString((CultureInfo.InvariantCulture))}";
-    }
-
-
-    public BoundingBox ToBoundingBox()
-    {
-        return new BoundingBox(XMin, YMin, XMax, YMax);
-    }
-
-    public double ExtentX()
-    {
-        return (XMax - XMin);
-    }
-    public double ExtentY()
-    {
-        return (YMax - YMin);
-    }
-    public double ExtentZ()
-    {
-        return (ZMax - ZMin);
-    }
-
-    public double[] GetBox()
-    {
-        var center = GetCenter();
-        var xAxis = ExtentX() / 2;
-        var yAxis = ExtentY() / 2;
-        var zAxis = ExtentZ() / 2;
-
-        var result = new double[] { (double)center.X, (double)center.Y, (double)center.Z,
-            xAxis,0,0,0,yAxis,0,0,0,zAxis
-        };
-        return result;
     }
 
     public override bool Equals(object other)
