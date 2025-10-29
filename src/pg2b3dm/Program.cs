@@ -26,6 +26,19 @@ class Program
             o.User = string.IsNullOrEmpty(o.User) ? Environment.UserName : o.User;
             o.Database = string.IsNullOrEmpty(o.Database) ? Environment.UserName : o.Database;
 
+            // Octree checks 
+            if(o.subdivisionScheme == SubdivisionScheme.OCTREE) {
+                if (o.UseImplicitTiling == false) {
+                    Console.WriteLine("Warning: Octree subdivision scheme is only supported with implicit tiling.");
+                    Console.WriteLine("Program will exit now.");
+                    return;
+                }
+                if(o.LodColumn != String.Empty) {
+                    Console.WriteLine("Warning: parameter -l --lodcolumn is ignored with octree subdivision scheme");
+                    o.LodColumn = String.Empty;
+                }
+            }
+
             var connectionString = $"Host={o.Host};Username={o.User};Database={o.Database};Port={o.Port};CommandTimeOut=0";
             var istrusted = TrustedConnectionChecker.HasTrustedConnection(connectionString);
             if (!istrusted) {

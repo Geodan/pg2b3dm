@@ -12,6 +12,8 @@ Features:
 
 - 3D Tiles 1.1 Implicit tiling;
 
+- QUADTREE and OCTREE tiling schema;
+
 - 3D Tiles extensions EXT_Mesh_Features and EXT_Structural_Metadata; 
 
 - Valid glTF 2.0 files;
@@ -24,7 +26,7 @@ Features:
 
 - Triangulation of input geometries LineStrings/Polygon/MultiPolygon/PolyhedralSurface/TIN with Z values;
 
-- 3D Tiles in global coordinates (EPSG:4978) or in local coordinates;
+- 3D Tiles in global coordinates (EPSG:4978) or in local cartesian coordinates;
 
 - Docker support.
 
@@ -316,6 +318,24 @@ In tileset.json - Asset section there is extra property 'crs' for describing the
 Note: The keep_projection parameter is implemented for implicit tiling, not for explicit tiling. When using explicit tiling and keep_projection, 
 an error will show up and the program will exit.
 
+## Subdivision parameter
+
+There are 2 tiling schemas supported: QUADTREE and OCTREE (default is QUADTREE), use parameter --subdivision.
+
+When the input geometries are distributed in a flat area (like buildings in a city), QUADTREE is preferred.
+
+OCTREE is used when the input geometries are distributed in a cube-like area.
+
+OCTREE tiling schema is currently in development.
+
+Most features are supported when using OCTREE subdivsion, except:
+
+- Explicting tiling;
+
+- LOD support;
+
+- Creating multiple subtree files.
+
 ## Query parameter
 
 The -q --query will be added to the 'where' part of all queries. 
@@ -529,7 +549,7 @@ Press F5 to start debugging.
 
 2025-10-01: release 2.21.0 use opaque mode when basecolor is opaque
 
-2025-11-08: release 2.20.0, 2.20.1, 2.20.2 improve keep_projection parameter for implicit tiling
+2025-08-11: release 2.20.0, 2.20.1, 2.20.2 improve keep_projection parameter for implicit tiling
 
 2025-04-16: release 2.19.0 add keep_projection parameter
 
