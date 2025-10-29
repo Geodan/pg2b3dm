@@ -27,6 +27,8 @@ public class UnitTest1
         await _containerPostgres.ExecScriptAsync(initScript2);
         var initScript3 = File.ReadAllText("./postgres-db/3_create_geom_table.sql");
         await _containerPostgres.ExecScriptAsync(initScript3);
+        var initScript4 = File.ReadAllText("./postgres-db/4_create_arvieux_batiments.sql");
+        await _containerPostgres.ExecScriptAsync(initScript4);
     }
 
     [TearDown]
@@ -35,6 +37,92 @@ public class UnitTest1
         await _containerPostgres.StopAsync();
         await _containerPostgres.DisposeAsync();
     }
+
+    [Test]
+    public void TestArvieuxBuildingsOctree()
+    {
+        OutputDirectoryCreator.GetFolders("output");
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
+        var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, "arvieux_batiments", "geom");
+
+        var center_wgs84 = bbox_table.bbox.GetCenter();
+        var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
+        var trans = new double[] { translation.X, translation.Y,  };
+
+        var bbox = bbox_table.bbox;
+        var zmin = bbox_table.zmin;
+        var zmax = bbox_table.zmax;
+
+        var boundingBox3D = new BoundingBox3D() { XMin = bbox.XMin, YMin = bbox.YMin, ZMin = zmin, XMax = bbox.XMax, YMax = bbox.YMax, ZMax = zmax };
+
+        var inputTable = new InputTable() {
+            TableName = "arvieux_batiments",
+            GeometryColumn = "geom",
+            EPSGCode = 5698,
+            AttributeColumns = "id"
+        };
+        var tilingSettings = new TilingSettings()
+        {
+            MaxFeaturesPerTile = 50,
+            SkipCreateTiles = true,
+            BoundingBox = bbox_table.bbox,
+        };
+
+        var stylingSettings = new StylingSettings();
+
+        var tilesetSettings = new TilesetSettings() {
+            Translation = trans
+        };
+
+        var implicitTiler = new OctreeTiler(conn, inputTable, tilingSettings, stylingSettings, tilesetSettings);
+        var tiles = implicitTiler.GenerateTiles3D(boundingBox3D, 0, new Tile3D(0, 0, 0, 0 ), new List<Tile3D>());
+
+        Assert.That(tiles.Count, Is.EqualTo(36));
+    }
+
+    [Test]
+    public void TestArvieuxBuildingsOctreeKeepProjection()
+    {
+        OutputDirectoryCreator.GetFolders("output");
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
+        var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, "arvieux_batiments", "geom", true);
+
+        var center = bbox_table.bbox.GetCenter();
+        // var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
+        var trans = new double[] { (double)center.X, (double)center.Y, 0};
+
+        var bbox = bbox_table.bbox;
+        var zmin = bbox_table.zmin;
+        var zmax = bbox_table.zmax;
+
+        var boundingBox3D = new BoundingBox3D() { XMin = bbox.XMin, YMin = bbox.YMin, ZMin = zmin, XMax = bbox.XMax, YMax = bbox.YMax, ZMax = zmax };
+
+        var inputTable = new InputTable() {
+            TableName = "arvieux_batiments",
+            GeometryColumn = "geom",
+            EPSGCode = 5698
+        };
+        var tilingSettings = new TilingSettings() {
+            MaxFeaturesPerTile = 50,
+            SkipCreateTiles = true,
+            BoundingBox = bbox_table.bbox,
+            KeepProjection = true
+        };
+
+        var stylingSettings = new StylingSettings();
+
+        var tilesetSettings = new TilesetSettings() {
+            Translation = trans
+        };
+
+        var implicitTiler = new OctreeTiler(conn, inputTable, tilingSettings, stylingSettings, tilesetSettings);
+        var tiles = implicitTiler.GenerateTiles3D(boundingBox3D, 0, new Tile3D(0, 0, 0, 0), new List<Tile3D>());
+
+        Assert.That(tiles.Count, Is.EqualTo(36));
+    }
+
 
     [Test]
     public void HasSpatialIndexTest()
