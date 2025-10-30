@@ -21,9 +21,8 @@ public static class GeometryRepository
         var sqlSelect = keepProjection?
             $"select st_Asbinary(st_3dextent({geometry_column})) ":
             $"select st_Asbinary(st_3dextent(st_transform({geometry_column}, 4979))) ";
-        var b = GetTileBoundingBox(t.BoundingBox);
-        var sqlWhere = GetWhere(geometry_column, epsg, b.xmin, b.ymin, b.xmax, b.ymax, query, keepProjection);
-        var sql = $"{sqlSelect} from {geometry_table} {sqlWhere}";
+        var sqlWhere = GetWhere(geometry_column, new Point(t.BoundingBox[0], t.BoundingBox[1]), new Point(t.BoundingBox[2], t.BoundingBox[3]), query, epsg, keepProjection);
+        var sql = $"{sqlSelect} from {geometry_table} where {sqlWhere}";
 
         conn.Open();
         var cmd = new NpgsqlCommand(sql, conn);
@@ -44,32 +43,46 @@ public static class GeometryRepository
         var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn, target_srs);
         var sqlFrom = "FROM " + geometry_table;
 
-        var b = GetTileBoundingBox(bbox);
+        // todo: fix unit test when there is no z
+        var points = GetPoints(bbox);
 
-        var sqlWhere = GetWhere(geometry_column, source_epsg, b.xmin, b.ymin, b.xmax, b.ymax, query, keepProjection);
-        var sql = sqlselect + sqlFrom + sqlWhere;
+        var sqlWhere = GetWhere(geometry_column, points.fromPoint, points.toPoint, query, source_epsg, keepProjection);
+        var sql = sqlselect + sqlFrom + " where " + sqlWhere;
 
         var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql, radiusColumn);
         return geometries;
     }
 
-    private static (string xmin, string ymin, string xmax, string ymax) GetTileBoundingBox(double[] bbox)
+    public static string GetWhere(string geometry_column, Point from, Point to, string query, int source_epsg, bool keepProjection)
     {
-        var xmin = bbox[0].ToString(CultureInfo.InvariantCulture);
-        var ymin = bbox[1].ToString(CultureInfo.InvariantCulture);
-        var xmax = bbox[2].ToString(CultureInfo.InvariantCulture);
-        var ymax = bbox[3].ToString(CultureInfo.InvariantCulture);
-        return(xmin, ymin, xmax, ymax);
-    }
+        var fromX = from.X.Value.ToString(CultureInfo.InvariantCulture);
+        var fromY = from.Y.Value.ToString(CultureInfo.InvariantCulture);
+        var toX = to.X.Value.ToString(CultureInfo.InvariantCulture);
+        var toY = to.Y.Value.ToString(CultureInfo.InvariantCulture);
 
-    public static string GetWhere(string geometry_column, int source_epsg, string xmin, string ymin, string xmax, string ymax, string query = "", bool keepProjection = false)
-    {
+        var hasZ = from.Z.HasValue && to.Z.HasValue;
+        var where = "";
 
-        var poly = keepProjection ?
-            $"ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, {source_epsg}) " :
-            $"st_transform(ST_MakeEnvelope({xmin}, {ymin}, {xmax}, {ymax}, 4326), {source_epsg}) ";
-        return $" WHERE  ST_Intersects(" +
-            $"ST_Centroid(ST_Envelope({geometry_column})), {poly}) {query}";
+        if (!hasZ) {
+            where = keepProjection ?
+                $"ST_Centroid(ST_Envelope({geometry_column})) && ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, {source_epsg}) {query}" :
+                $"ST_Centroid(ST_Envelope({geometry_column})) && st_transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 4326), {source_epsg}) {query}";
+        }
+        else {
+            var fromBox = keepProjection ?
+                $"st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), {source_epsg})" :
+                 $"st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4979)";
+            var toBox = keepProjection ?
+                $"st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), {source_epsg})" :
+                $"st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4979)";
+
+            var geom = $"st_setsrid(st_makepoint((st_xmin({geometry_column}) + st_xmax({geometry_column}))/2,(st_ymin({geometry_column}) + st_ymax({geometry_column}))/2, (st_zmin({geometry_column}) + st_zmax({geometry_column}))/2), {source_epsg})";
+            where = keepProjection ?
+                $"ST_3DIntersects({geom}, ST_3DMakeBox({fromBox}, {toBox})) {query}" :
+                $"ST_3DIntersects({geom}, st_transform(ST_3DMakeBox({fromBox}, {toBox}), {source_epsg})) {query}";
+        }
+
+        return where;
     }
 
     public static string GetSqlSelect(string geometry_column, string shaderColumn, string attributesColumns, string radiusColumn, int target_srs)
@@ -191,4 +204,21 @@ public static class GeometryRepository
         }
         return attributes;
     }
+
+    private static (Point fromPoint, Point toPoint) GetPoints(double[] bbox)
+    {
+        Point fromPoint;
+        Point toPoint;
+
+        if (bbox.Length == 4) {
+            fromPoint = new Point(bbox[0], bbox[1]);
+            toPoint = new Point(bbox[2], bbox[3]);
+        }
+        else {
+            fromPoint = new Point(bbox[0], bbox[1], bbox[4]);
+            toPoint = new Point(bbox[2], bbox[3], bbox[5]);
+        }
+        return (fromPoint, toPoint);
+    }
+
 }

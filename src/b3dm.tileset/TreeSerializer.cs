@@ -9,27 +9,30 @@ namespace B3dm.Tileset;
 
 public static class TreeSerializer
 {
-    public static TileSet ToImplicitTileset(double[] translate, double[] box, double maxGeometricError, int availableLevels, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string crs="", bool keepProjection = false)
+    public static TileSet ToImplicitTileset(double[] translate, double[] box, double maxGeometricError, int subtreeLevels, Version version = null, bool createGltf = false, string tilesetVersion = "", string crs="", bool keepProjection = false, SubdivisionScheme subDivisionScheme = SubdivisionScheme.QUADTREE, RefinementType refinement = RefinementType.ADD)
     {
+        var isQuadtree = subDivisionScheme == SubdivisionScheme.QUADTREE;   
         var ext = createGltf ? ".glb" : ".b3dm";
         var geometricError = maxGeometricError;
-        var tileset = GetTilesetObject(version, maxGeometricError, false, tilesetVersion, crs);
+        var tileset = GetTilesetObject(version, maxGeometricError, tilesetVersion, crs);
         var t = new double[] {   1.0, 0.0, 0.0, 0.0,
                                  0.0,1.0, 0.0, 0.0,
                                  0.0, 0.0, 1.0, 0.0,
         translate[0], translate[1], translate[2], 1.0};
-        var root = GetRoot(geometricError, t, box, keepProjection: keepProjection);
-        var content = new Content() { uri = "content/{level}_{x}_{y}" + ext };
+        var root = GetRoot(geometricError, t, box, refinement, keepProjection);
+        var fileName = isQuadtree? "{level}_{x}_{y}": "{level}_{z}_{x}_{y}";
+        var content = new Content() { uri = "content/" + fileName + ext };
         root.content = content;
-        var subtrees = new Subtrees() { uri = "subtrees/{level}_{x}_{y}.subtree" };
-        root.implicitTiling = new Implicittiling() { subdivisionScheme = "QUADTREE", availableLevels = availableLevels, subtreeLevels = subtreeLevels, subtrees = subtrees };
+        var subtrees = new Subtrees() { uri = $"subtrees/{fileName}.subtree" };
+        int availableLevels = subtreeLevels + 1; // note: availableLevels isn't used in CesiumJS, but is required in validation
+        root.implicitTiling = new Implicittiling() { subdivisionScheme = subDivisionScheme, availableLevels = availableLevels, subtreeLevels = subtreeLevels, subtrees = subtrees };
         tileset.root = root;
         return tileset;
     }
 
-    public static TileSet ToTileset(List<Tile> tiles, double[] translate, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, string refine="ADD", bool use10 = false, string tilesetVersion = "", string crs="")
+    public static TileSet ToTileset(List<Tile> tiles, double[] translate, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, RefinementType refine=RefinementType.ADD, string tilesetVersion = "", string crs="")
     {
-        var tileset = GetTilesetObject(version, geometricError, use10, tilesetVersion, crs);
+        var tileset = GetTilesetObject(version, geometricError, tilesetVersion, crs);
 
         var t = new double[] {   1.0, 0.0, 0.0, 0.0,
                                      0.0,1.0, 0.0, 0.0,
@@ -54,9 +57,9 @@ public static class TreeSerializer
         return tileset;
     }
 
-    public static TileSet GetTilesetObject(Version version, double geometricError, bool use10 = false, string tilesetVersion = "", string crs="")
+    public static TileSet GetTilesetObject(Version version, double geometricError, string tilesetVersion = "", string crs="")
     {
-        var version3DTiles = use10 ? "1.0" : "1.1"; 
+        var version3DTiles = "1.1"; 
         var tileset = new TileSet { asset = new Asset() { version = $"{version3DTiles}", generator = $"pg2b3dm {version}" } };
         if(!string.IsNullOrEmpty(tilesetVersion)) {
             tileset.asset.tilesetVersion = tilesetVersion;
@@ -93,7 +96,7 @@ public static class TreeSerializer
         return res;
     }
 
-    public static Root GetRoot(double geometricError, double[] translation, double[] region, string refine = "ADD", bool keepProjection = false)
+    public static Root GetRoot(double geometricError, double[] translation, double[] region, RefinementType refine = RefinementType.ADD, bool keepProjection = false)
     {
         var boundingVolume = keepProjection ?
             new Boundingvolume { box = GetBBox(region, translation) } :

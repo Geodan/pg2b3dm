@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using B3dm.Tileset.Extensions;
+using B3dm.Tileset.settings;
 using Newtonsoft.Json;
 using subtree;
 using Wkx;
@@ -10,38 +11,34 @@ using Wkx;
 namespace B3dm.Tileset;
 public static class CesiumTiler
 {
-    public static void CreateImplicitTileset(Version version, bool createGltf, string outputDirectory, double[] translation, double geometricError, double[] rootBoundingVolumeRegion, string subtreesDirectory, List<Tile> tiles, string tilesetVersion="", string crs="", bool keepProjection = false)
+    public static int CreateSubtreeFiles(OutputSettings outputSettings, List<Tile> tiles)
     {
-        if (!Directory.Exists(subtreesDirectory)) {
-            Directory.CreateDirectory(subtreesDirectory);
-        }
-
         var subtreeFiles = SubtreeCreator.GenerateSubtreefiles(tiles);
         Console.WriteLine($"Writing {subtreeFiles.Count} subtree files...");
         foreach (var s in subtreeFiles) {
             var t = s.Key;
-            var subtreefile = $"{subtreesDirectory}{Path.AltDirectorySeparatorChar}{t.Z}_{t.X}_{t.Y}.subtree";
+            var subtreefile = $"{outputSettings.SubtreesFolder}{Path.AltDirectorySeparatorChar}{t.Z}_{t.X}_{t.Y}.subtree";
             File.WriteAllBytes(subtreefile, s.Value);
         }
-
         var subtreeLevels = subtreeFiles.Count > 1 ? ((Tile)subtreeFiles.ElementAt(1).Key).Z : 2;
-        var availableLevels = tiles.Max(t => t.Z) + 1;
-        Console.WriteLine("Available Levels: " + availableLevels);
-        Console.WriteLine("Subtree Levels: " + subtreeLevels);
-        var tilesetjson = TreeSerializer.ToImplicitTileset(translation, rootBoundingVolumeRegion, geometricError, availableLevels, subtreeLevels, version, createGltf, tilesetVersion, crs, keepProjection);
-        var file = $"{outputDirectory}{Path.AltDirectorySeparatorChar}tileset.json";
+        return subtreeLevels;
+    }
+
+    public static void CreateImplicitTileset(TilesetSettings tilesetSettings, bool createGltf, bool keepProjection)
+    {
+        var tilesetjson = TreeSerializer.ToImplicitTileset(tilesetSettings.Translation, tilesetSettings.RootBoundingVolumeRegion, tilesetSettings.GeometricError, tilesetSettings.SubtreeLevels, tilesetSettings.Version, createGltf, tilesetSettings.TilesetVersion, tilesetSettings.Crs, keepProjection, tilesetSettings.SubdivisionScheme, tilesetSettings.Refinement);
+        var file = $"{tilesetSettings.OutputSettings.OutputFolder}{Path.AltDirectorySeparatorChar}tileset.json";
         var json = JsonConvert.SerializeObject(tilesetjson, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-        Console.WriteLine("SubdivisionScheme: QUADTREE");
         Console.WriteLine($"Writing {file}...");
         File.WriteAllText(file, json);
     }
 
-    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, string refinement, bool use10, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles, string tilesetVersion="", string crs="")
+    public static void CreateExplicitTilesetsJson(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, RefinementType refinement, double[] rootBoundingVolumeRegion, Tile tile, List<Tile> tiles, string tilesetVersion="", string crs="")
     {
         var splitLevel = (int)Math.Ceiling((tiles.Max((Tile s) => s.Z) + 1.0) / 2.0);
 
         var rootTiles = TileSelector.Select(tiles, tile, 0, splitLevel);
-        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, use10, tilesetVersion, crs);
+        var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, tilesetVersion, crs);
 
         var maxlevel = tiles.Max((Tile s) => s.Z);
 
@@ -61,7 +58,7 @@ public static class CesiumTiler
                         var zminmax = children.Select(t => new double[] { (double)t.ZMin, (double)t.ZMax }).SelectMany(t => t).ToArray();
                         var childrenBoundingVolumeRegion = GetBoundingBox(children).ToRadians().ToRegion(zminmax[0], zminmax[1]);
                         /// translation is the same as identity matrix in case of child tileset
-                        var tileset = TreeSerializer.ToTileset(children, null, childrenBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, use10, tilesetVersion);
+                        var tileset = TreeSerializer.ToTileset(children, null, childrenBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, tilesetVersion);
                        
                         var childGeometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, splitLevel);
                         tileset.geometricError = childGeometricError;

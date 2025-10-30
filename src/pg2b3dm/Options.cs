@@ -1,3 +1,4 @@
+using B3dm.Tileset;
 using CommandLine;
 using SharpGLTF.Materials;
 
@@ -70,12 +71,15 @@ public class Options
     [Option("add_outlines", Required = false, Default = false, HelpText = "Add outlines")]
     public bool? AddOutlines { get; set; }
 
-    [Option('r', "refinement", Required = false, Default = "ADD", HelpText = "Refinement option REPLACE/ADD")]
-    public string Refinement{ get; set; }
+    [Option('r', "refinement", Required = false, Default = RefinementType.ADD, HelpText = "Refinement option REPLACE/ADD")]
+    public RefinementType Refinement{ get; set; }
 
     [Option("skip_create_tiles", Required = false, Default = false, HelpText = "Skip creating tiles, only create tileset.json files")]
     public bool? SkipCreateTiles { get; set; }
 
     [Option("keep_projection", Required = false, Default = false, HelpText = "Keep projection")]
     public bool? KeepProjection { get; set; }
+
+    [Option("subdivision", Required=false, Default=SubdivisionScheme.QUADTREE, HelpText = "Subdivision schema QUADTREE/OCTREE" )]
+    public SubdivisionScheme subdivisionScheme { get; set; }
 }

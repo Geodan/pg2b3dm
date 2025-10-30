@@ -1,7 +1,4 @@
-﻿using System;
-using Npgsql;
-using NpgsqlTypes;
-using Wkb2Gltf;
+﻿using Wkb2Gltf;
 using Wkx;
 
 namespace pg2b3dm;
