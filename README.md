@@ -204,6 +204,8 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --keep_projection               (Default: false) Keep projection of input data
 
+  --subdivision                   (Default: QUADTREE) Subdivision schema QUADTREE/OCTREE
+
   --help                          Display this help screen.
 
   --version                       Display version information.
