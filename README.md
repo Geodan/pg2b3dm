@@ -549,6 +549,8 @@ Press F5 to start debugging.
 
 ## History
 
+2025-30-10: release 2.22.0: add subdivision parameter for QUADTREE/OCTREE tiling schema (default QUADTREE)
+
 2025-10-01: release 2.21.0 use opaque mode when basecolor is opaque
 
 2025-08-11: release 2.20.0, 2.20.1, 2.20.2 improve keep_projection parameter for implicit tiling
