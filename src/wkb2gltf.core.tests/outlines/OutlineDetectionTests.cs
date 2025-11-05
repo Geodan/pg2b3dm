@@ -209,11 +209,15 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         var g = (MultiPolygon)Geometry.Deserialize<WktSerializer>(wkt);
         var triangles = GeometryProcessor.GetTriangles(g, 0);
 
-        // Print normals of first 10 triangles to understand the geometry
-        System.Console.WriteLine("Triangle normals (first 10):");
-        for (var i = 0; i < triangles.Count && i < 10; i++) {
+        // Print normals of ALL triangles to understand the geometry
+        System.Console.WriteLine("Triangle normals (all triangles):");
+        for (var i = 0; i < triangles.Count; i++) {
             var normal = triangles[i].GetNormal();
-            System.Console.WriteLine($"  Triangle {i}: normal=({normal.X:F3}, {normal.Y:F3}, {normal.Z:F3})");
+            var points = triangles[i].GetPoints();
+            var maxZ = System.Math.Max(points[0].Z ?? 0, System.Math.Max(points[1].Z ?? 0, points[2].Z ?? 0));
+            var minZ = System.Math.Min(points[0].Z ?? 0, System.Math.Min(points[1].Z ?? 0, points[2].Z ?? 0));
+            var type = System.Math.Abs(normal.Z) > 0.7 ? "FLOOR/ROOF" : "WALL";
+            System.Console.WriteLine($"  Tri {i,2}: normal=({normal.X:F3}, {normal.Y:F3}, {normal.Z:F3}), z=[{minZ:F1}, {maxZ:F1}] {type}");
         }
 
         // act
@@ -242,6 +246,14 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         
         System.Console.WriteLine($"Number of triangles: {triangles.Count}");
         System.Console.WriteLine($"Number of parts: {parts.Count}");
+        
+        // Print which triangles are in which parts
+        System.Console.WriteLine("\nPart membership:");
+        for (var i = 0; i < parts.Count; i++) {
+            var partTriList = parts[i];
+            System.Console.WriteLine($"  Part {i}: triangles [{string.Join(", ", partTriList)}]");
+        }
+        
         System.Console.WriteLine($"Roof parts: {roofPartIndices.Count}");
         System.Console.WriteLine($"Wall parts: {wallPartIndices.Count}");
         
@@ -252,6 +264,48 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         
         var outlines = OutlineDetection.GetOutlines2(triangles);
         System.Console.WriteLine($"Number of outline indices: {outlines.Count}");
+        
+        // Check that we have outlines connecting roof and walls
+        // The horizontal edge at the top of the walls should be an outline
+        // This edge connects points near (996642, 6414103) to (996652, 6414102) at roof height
+        
+        // Find all wall triangles that touch the roof level
+        var wallTopTriangles = new List<int>();
+        for (var i = 12; i <= 39; i++) {  // Wall triangles are 12-39
+            var points = triangles[i].GetPoints();
+            var hasRoofVertex = false;
+            foreach (var p in points) {
+                if (p.Z > 1694.0) {  // Roof level
+                    hasRoofVertex = true;
+                    break;
+                }
+            }
+            if (hasRoofVertex) {
+                wallTopTriangles.Add(i);
+            }
+        }
+        
+        System.Console.WriteLine($"\nWall triangles touching roof level: {wallTopTriangles.Count}");
+        System.Console.WriteLine($"  Triangles: [{string.Join(", ", wallTopTriangles)}]");
+        
+        // Find all roof triangles that touch the wall level
+        var roofBottomTriangles = new List<int>();
+        for (var i = 40; i <= 51; i++) {  // Roof triangles are 40-51
+            var points = triangles[i].GetPoints();
+            var hasWallVertex = false;
+            foreach (var p in points) {
+                if (p.Z < 1695.0 && p.Z > 1693.0) {  // Wall top level
+                    hasWallVertex = true;
+                    break;
+                }
+            }
+            if (hasWallVertex) {
+                roofBottomTriangles.Add(i);
+            }
+        }
+        
+        System.Console.WriteLine($"Roof triangles touching wall level: {roofBottomTriangles.Count}");
+        System.Console.WriteLine($"  Triangles: [{string.Join(", ", roofBottomTriangles)}]");
         
         // The test should verify that outlines exist
         Assert.That(outlines.Count > 0, Is.True);
