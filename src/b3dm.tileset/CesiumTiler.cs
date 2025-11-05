@@ -21,7 +21,7 @@ public static class CesiumTiler
             var subtreefile = $"{outputSettings.SubtreesFolder}{Path.AltDirectorySeparatorChar}{t.Level}_{t.Z}_{t.X}_{t.Y}.subtree";
             File.WriteAllBytes(subtreefile, s.Value);
         }
-        var subtreeLevels = subtreeFiles.Count > 1 ? ((Tile3D)subtreeFiles.ElementAt(1).Key).Level : 2;
+        var subtreeLevels = subtreeFiles.Count > 1 ? subtreeFiles.ElementAt(1).Key.Level : 2;
         return subtreeLevels;
     }
 
@@ -35,7 +35,7 @@ public static class CesiumTiler
             var subtreefile = $"{outputSettings.SubtreesFolder}{Path.AltDirectorySeparatorChar}{t.Z}_{t.X}_{t.Y}.subtree";
             File.WriteAllBytes(subtreefile, s.Value);
         }
-        var subtreeLevels = subtreeFiles.Count > 1 ? ((Tile)subtreeFiles.ElementAt(1).Key).Z : 2;
+        var subtreeLevels = subtreeFiles.Count > 1 ? subtreeFiles.ElementAt(1).Key.Z : 2;
         return subtreeLevels;
     }
 
