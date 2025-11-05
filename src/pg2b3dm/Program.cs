@@ -263,7 +263,7 @@ class Program
                 CesiumTiler.CreateExplicitTilesetsJson3D(tilesetSettings.Version, tilesetSettings.OutputSettings.OutputFolder, tilesetSettings.Translation,
                     tilesetSettings.GeometricError, tilesetSettings.GeometricErrorFactor,
                     tilesetSettings.Refinement, tilesetSettings.RootBoundingVolumeRegion,
-                    rootTile3D, tiles3D, tileBounds, tilesetSettings.TilesetVersion, tilesetSettings.Crs);
+                    rootTile3D, tiles3D, tileBounds, tilingSettings.CreateGltf, tilesetSettings.TilesetVersion, tilesetSettings.Crs);
             }
         }
     }

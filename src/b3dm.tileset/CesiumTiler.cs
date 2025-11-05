@@ -128,12 +128,12 @@ public static class CesiumTiler
         return new BoundingBox3D(minx, miny, minz, maxx, maxy, maxz);
     }
 
-    public static void CreateExplicitTilesetsJson3D(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, RefinementType refinement, double[] rootBoundingVolumeRegion, Tile3D tile, List<Tile3D> tiles, Dictionary<string, BoundingBox3D> tileBounds, string tilesetVersion = "", string crs = "")
+    public static void CreateExplicitTilesetsJson3D(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, RefinementType refinement, double[] rootBoundingVolumeRegion, Tile3D tile, List<Tile3D> tiles, Dictionary<string, BoundingBox3D> tileBounds, bool createGltf = false, string tilesetVersion = "", string crs = "")
     {
         var splitLevel = (int)Math.Ceiling((tiles.Max((Tile3D s) => s.Level) + 1.0) / 2.0);
 
         var rootTiles = TileSelector3D.Select(tiles, tile, 0, splitLevel);
-        var rootTileset = TreeSerializer.ToTileset3D(rootTiles, tileBounds, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, tilesetVersion, crs);
+        var rootTileset = TreeSerializer.ToTileset3D(rootTiles, tileBounds, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, createGltf, tilesetVersion, crs);
 
         var maxlevel = tiles.Max((Tile3D s) => s.Level);
 
@@ -156,8 +156,8 @@ public static class CesiumTiler
                             var childrenBbox2D = new BoundingBox(childrenBbox3D.XMin, childrenBbox3D.YMin, childrenBbox3D.XMax, childrenBbox3D.YMax);
                             var childrenBoundingVolumeRegion = childrenBbox2D.ToRadians().ToRegion(childrenBbox3D.ZMin, childrenBbox3D.ZMax);
                             
-                            /// translation is the same as identity matrix in case of child tileset
-                            var tileset = TreeSerializer.ToTileset3D(children, tileBounds, null, childrenBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, tilesetVersion);
+                            // Translation is the same as identity matrix in case of child tileset.
+                            var tileset = TreeSerializer.ToTileset3D(children, tileBounds, null, childrenBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, createGltf, tilesetVersion);
 
                             var childGeometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, splitLevel);
                             tileset.geometricError = childGeometricError;

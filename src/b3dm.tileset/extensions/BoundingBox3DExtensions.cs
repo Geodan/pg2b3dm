@@ -7,8 +7,10 @@ public static class BoundingBox3DExtensions
     public static double[] ToRegion(this BoundingBox3D bbox, bool keepProjection = false)
     {
         if (keepProjection) {
-            // For local coordinate systems, we can't use region (lat/lon)
-            // This should use box instead, but for now return basic region
+            // For local coordinate systems, return coordinates as-is
+            // Note: For keep_projection with explicit tiling, the boundingVolume 
+            // should use 'box' instead of 'region', but that requires additional
+            // changes to support box bounding volumes in explicit tilesets
             return new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax, bbox.ZMin, bbox.ZMax };
         }
         else {
