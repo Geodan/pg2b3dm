@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using NUnit.Framework;
 using SharpGLTF.Geometry.VertexTypes;
@@ -265,50 +266,89 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         var outlines = OutlineDetection.GetOutlines2(triangles);
         System.Console.WriteLine($"Number of outline indices: {outlines.Count}");
         
-        // Check that we have outlines connecting roof and walls
-        // The horizontal edge at the top of the walls should be an outline
-        // This edge connects points near (996642, 6414103) to (996652, 6414102) at roof height
+        // Check if the roof-wall boundary edges are in the outlines
+        // The boundary should be edges at the top of walls connecting to bottom of roof
+        // Let's check if any outline edges connect triangles from different parts
         
-        // Find all wall triangles that touch the roof level
-        var wallTopTriangles = new List<int>();
-        for (var i = 12; i <= 39; i++) {  // Wall triangles are 12-39
-            var points = triangles[i].GetPoints();
-            var hasRoofVertex = false;
-            foreach (var p in points) {
-                if (p.Z > 1694.0) {  // Roof level
-                    hasRoofVertex = true;
-                    break;
+        // Get all unique edges in the outlines
+        var outlineEdges = new HashSet<string>();
+        for (var i = 0; i < outlines.Count; i += 2) {
+            var v1 = outlines[i];
+            var v2 = outlines[i + 1];
+            var edge = v1 < v2 ? $"{v1}-{v2}" : $"{v2}-{v1}";
+            outlineEdges.Add(edge);
+        }
+        
+        System.Console.WriteLine($"\nTotal unique outline edges: {outlineEdges.Count}");
+        
+        // Now check which edges are between roof and wall triangles
+        var roofWallBoundaryEdges = 0;
+        var roofTriSet = new HashSet<int>(Enumerable.Range(40, 12));
+        var wallTriSet = new HashSet<int>(Enumerable.Range(12, 28));
+        
+        // Check each triangle's edges
+        for (var i = 0; i < triangles.Count; i++) {
+            var isRoof = roofTriSet.Contains(i);
+            var isWall = wallTriSet.Contains(i);
+            
+            if (isRoof || isWall) {
+                // Check edges of this triangle
+                var offset = (uint)(i * 3);
+                var edges = new[] {
+                    (offset, offset + 1),
+                    (offset + 1, offset + 2),
+                    (offset + 2, offset)
+                };
+                
+                foreach (var (v1, v2) in edges) {
+                    var edge = v1 < v2 ? $"{v1}-{v2}" : $"{v2}-{v1}";
+                    if (outlineEdges.Contains(edge)) {
+                        // This edge is in the outlines - check if it's at roof-wall boundary
+                        var points = triangles[i].GetPoints();
+                        var z1 = v1 % 3 == 0 ? points[0].Z : (v1 % 3 == 1 ? points[1].Z : points[2].Z);
+                        var z2 = v2 % 3 == 0 ? points[0].Z : (v2 % 3 == 1 ? points[1].Z : points[2].Z);
+                        
+                        // Check if both vertices are at roof level (z > 1694)
+                        if (z1 > 1694 && z2 > 1694) {
+                            if ((isRoof && z1 < 1695 && z2 < 1695) || (isWall)) {
+                                roofWallBoundaryEdges++;
+                                if (roofWallBoundaryEdges <= 3) {
+                                    System.Console.WriteLine($"  Roof-wall boundary edge found: tri {i}, edge {edge}, z=[{z1:F1}, {z2:F1}]");
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-            if (hasRoofVertex) {
-                wallTopTriangles.Add(i);
             }
         }
         
-        System.Console.WriteLine($"\nWall triangles touching roof level: {wallTopTriangles.Count}");
-        System.Console.WriteLine($"  Triangles: [{string.Join(", ", wallTopTriangles)}]");
+        System.Console.WriteLine($"Roof-wall boundary edges found: {roofWallBoundaryEdges}");
         
-        // Find all roof triangles that touch the wall level
-        var roofBottomTriangles = new List<int>();
-        for (var i = 40; i <= 51; i++) {  // Roof triangles are 40-51
-            var points = triangles[i].GetPoints();
-            var hasWallVertex = false;
-            foreach (var p in points) {
-                if (p.Z < 1695.0 && p.Z > 1693.0) {  // Wall top level
-                    hasWallVertex = true;
-                    break;
-                }
+        // Check for duplicate edges in outlines (edges that appear more than once)
+        var edgeCounts = new Dictionary<string, int>();
+        for (var i = 0; i < outlines.Count; i += 2) {
+            var v1 = outlines[i];
+            var v2 = outlines[i + 1];
+            var edge = v1 < v2 ? $"{v1}-{v2}" : $"{v2}-{v1}";
+            if (!edgeCounts.ContainsKey(edge)) {
+                edgeCounts[edge] = 0;
             }
-            if (hasWallVertex) {
-                roofBottomTriangles.Add(i);
+            edgeCounts[edge]++;
+        }
+        
+        var duplicateEdges = edgeCounts.Where(kvp => kvp.Value > 1).ToList();
+        System.Console.WriteLine($"\nEdges appearing multiple times in outlines: {duplicateEdges.Count}");
+        if (duplicateEdges.Count > 0 && duplicateEdges.Count <= 5) {
+            foreach (var dup in duplicateEdges) {
+                System.Console.WriteLine($"  Edge {dup.Key} appears {dup.Value} times");
             }
         }
         
-        System.Console.WriteLine($"Roof triangles touching wall level: {roofBottomTriangles.Count}");
-        System.Console.WriteLine($"  Triangles: [{string.Join(", ", roofBottomTriangles)}]");
-        
-        // The test should verify that outlines exist
-        Assert.That(outlines.Count > 0, Is.True);
+        // The test should verify that outlines exist at the roof-wall boundary
+        // We expect many boundary edges since the perimeter is made of many triangle edges
+        Assert.That(roofWallBoundaryEdges, Is.GreaterThan(20), 
+            $"Should have many outline edges at roof-wall boundary, but found only {roofWallBoundaryEdges}");
+        Assert.That(outlines.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -340,6 +380,59 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         // Front part: 2 triangles sharing 1 edge = 4 outline edges = 8 indices
         // Total: 16 indices
         Assert.That(outlines.Count, Is.EqualTo(16));
+    }
+
+    [Test]
+    public void RoofWallBoundaryOutlinesShouldExist()
+    {
+        // Simpler test: Create a box with walls and a sloped roof
+        // The horizontal perimeter between wall tops and roof bottom should have outlines
+        
+        // Floor (one triangle at z=0)
+        var floor = new Triangle(new Point(0, 0, 0), new Point(10, 0, 0), new Point(0, 10, 0), 0);
+        
+        // Front wall (vertical, from z=0 to z=5)
+        var wall1 = new Triangle(new Point(0, 0, 0), new Point(10, 0, 0), new Point(0, 0, 5), 1);
+        var wall2 = new Triangle(new Point(10, 0, 0), new Point(10, 0, 5), new Point(0, 0, 5), 2);
+        
+        // Roof (sloped, starting at z=5 on front, going to z=7 at back)
+        var roof1 = new Triangle(new Point(0, 0, 5), new Point(10, 0, 5), new Point(0, 10, 7), 3);
+        var roof2 = new Triangle(new Point(10, 0, 5), new Point(10, 10, 7), new Point(0, 10, 7), 4);
+        
+        var triangles = new List<Triangle> { floor, wall1, wall2, roof1, roof2 };
+        
+        // Get parts and outlines
+        var parts = PartFinder.GetParts(triangles);
+        var outlines = OutlineDetection.GetOutlines2(triangles);
+        
+        System.Console.WriteLine($"\nSimple roof-wall test:");
+        System.Console.WriteLine($"  Triangles: {triangles.Count}");
+        System.Console.WriteLine($"  Parts: {parts.Count}");
+        System.Console.WriteLine($"  Outline indices: {outlines.Count}");
+        
+        // The edge between wall2 and roof1 at (0,0,5)-(10,0,5) should be in outlines
+        // wall2 has vertices: (10,0,0), (10,0,5), (0,0,5) -> indices 6,7,8
+        // roof1 has vertices: (0,0,5), (10,0,5), (0,10,7) -> indices 9,10,11
+        // The shared edge is (0,0,5)-(10,0,5) which is vertices 8-7 in wall2 and 9-10 in roof1
+        
+        // Check if edge 7-8 is in outlines (from wall2)
+        var hasWallEdge = false;
+        var hasRoofEdge = false;
+        for (var i = 0; i < outlines.Count; i += 2) {
+            var v1 = outlines[i];
+            var v2 = outlines[i + 1];
+            if ((v1 == 7 && v2 == 8) || (v1 == 8 && v2 == 7)) {
+                hasWallEdge = true;
+                System.Console.WriteLine($"  Found wall edge 7-8 at roof level");
+            }
+            if ((v1 == 9 && v2 == 10) || (v1 == 10 && v2 == 9)) {
+                hasRoofEdge = true;
+                System.Console.WriteLine($"  Found roof edge 9-10 at wall top level");
+            }
+        }
+        
+        Assert.That(hasWallEdge || hasRoofEdge, Is.True, 
+            "Should have outline edge at the boundary between wall top and roof base");
     }
 
 }
