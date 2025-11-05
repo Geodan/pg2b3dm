@@ -5,7 +5,9 @@ namespace Wkb2Gltf.outlines;
 public static class Adjacency
 {
     /// <summary>
-    /// 
+    /// Get adjacency list of triangles that share edges and are coplanar.
+    /// Only coplanar triangles are considered adjacent to avoid marking edges
+    /// between non-coplanar triangles (with the same normal) as non-outlines.
     /// </summary>
     public static Dictionary<int, List<(int from, int to)>> GetAdjacencyList(List<Triangle> triangles, double distanceTolerance = 0.01)
     {
@@ -18,8 +20,11 @@ public static class Adjacency
                 if (i != j) {
                     var boundaries = BoundaryDetection.GetSharedPoints(t0, triangles[j], distanceTolerance);
                     if (boundaries.first.Count == 2 && boundaries.second.Count == 2) {
-                        Upsert(res, i, boundaries.first[0], boundaries.first[1]);
-                        Upsert(res, j, boundaries.second[0], boundaries.second[1]);
+                        // Only mark as adjacent if triangles are coplanar
+                        if (BoundaryDetection.AreCoplanar(t0, triangles[j], distanceTolerance)) {
+                            Upsert(res, i, boundaries.first[0], boundaries.first[1]);
+                            Upsert(res, j, boundaries.second[0], boundaries.second[1]);
+                        }
                     }
                 }
             }
