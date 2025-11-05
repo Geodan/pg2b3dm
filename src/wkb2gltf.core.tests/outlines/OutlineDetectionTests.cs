@@ -435,4 +435,104 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
             "Should have outline edge at the boundary between wall top and roof base");
     }
 
+    [Test]
+    public void SimpleTestBuildingOutlineCount()
+    {
+        // Create a simple test building similar to the one shown in the issue images
+        // A rectangular box with floor, 4 walls, and a simple roof
+        
+        var triangles = new List<Triangle>();
+        
+        // Floor (2 triangles forming a rectangle at z=0)
+        triangles.Add(new Triangle(new Point(0, 0, 0), new Point(10, 0, 0), new Point(0, 10, 0), 0));
+        triangles.Add(new Triangle(new Point(10, 0, 0), new Point(10, 10, 0), new Point(0, 10, 0), 1));
+        
+        // Front wall (2 triangles, z=0 to z=5)
+        triangles.Add(new Triangle(new Point(0, 0, 0), new Point(10, 0, 0), new Point(0, 0, 5), 2));
+        triangles.Add(new Triangle(new Point(10, 0, 0), new Point(10, 0, 5), new Point(0, 0, 5), 3));
+        
+        // Back wall (2 triangles, z=0 to z=5)
+        triangles.Add(new Triangle(new Point(0, 10, 0), new Point(0, 10, 5), new Point(10, 10, 0), 4));
+        triangles.Add(new Triangle(new Point(10, 10, 0), new Point(0, 10, 5), new Point(10, 10, 5), 5));
+        
+        // Left wall (2 triangles, z=0 to z=5)
+        triangles.Add(new Triangle(new Point(0, 0, 0), new Point(0, 0, 5), new Point(0, 10, 0), 6));
+        triangles.Add(new Triangle(new Point(0, 10, 0), new Point(0, 0, 5), new Point(0, 10, 5), 7));
+        
+        // Right wall (2 triangles, z=0 to z=5)
+        triangles.Add(new Triangle(new Point(10, 0, 0), new Point(10, 10, 0), new Point(10, 0, 5), 8));
+        triangles.Add(new Triangle(new Point(10, 10, 0), new Point(10, 10, 5), new Point(10, 0, 5), 9));
+        
+        // Flat roof (2 triangles at z=5)
+        triangles.Add(new Triangle(new Point(0, 0, 5), new Point(10, 0, 5), new Point(0, 10, 5), 10));
+        triangles.Add(new Triangle(new Point(10, 0, 5), new Point(10, 10, 5), new Point(0, 10, 5), 11));
+        
+        var parts = PartFinder.GetParts(triangles);
+        var outlines = OutlineDetection.GetOutlines2(triangles);
+        
+        // Count unique edges
+        var uniqueEdges = new HashSet<string>();
+        for (var i = 0; i < outlines.Count; i += 2) {
+            var v1 = outlines[i];
+            var v2 = outlines[i + 1];
+            var edge = v1 < v2 ? $"{v1}-{v2}" : $"{v2}-{v1}";
+            uniqueEdges.Add(edge);
+        }
+        
+        System.Console.WriteLine($"\nSimple test building:");
+        System.Console.WriteLine($"  Triangles: {triangles.Count}");
+        System.Console.WriteLine($"  Parts: {parts.Count}");
+        System.Console.WriteLine($"  Outline indices: {outlines.Count}");
+        System.Console.WriteLine($"  Unique outline edges: {uniqueEdges.Count}");
+        
+        Assert.That(uniqueEdges.Count, Is.GreaterThan(0));
+        
+        // Check if this equals 15 or close to it
+        if (uniqueEdges.Count == 15) {
+            System.Console.WriteLine("  ✓ Test building has exactly 15 outline edges!");
+        } else {
+            System.Console.WriteLine($"  Note: Test building has {uniqueEdges.Count} outline edges, not 15");
+        }
+    }
+
+    [Test]
+    public void TestBuildingFromB3dmWriterShouldHave15Lines()
+    {
+        // This is the actual "testbuilding" from B3dmWriterTests
+        // Structure: 1 floor (7-sided) + 4 walls + 1 roof
+        // Expected: 7 floor edges + 7 roof edges + 1 vertical edge = 15 lines
+        
+        var wkt = "MULTIPOLYGON Z (((133836.921875 463013.96875 -2.280999898910522,133842.046875 463004.65625 -2.280999898910522,133833.359375 462999.84375 -2.280999898910522,133831.21875 462998.65625 -2.280999898910522,133830.484375 463000 -2.280999898910522,133826.078125 463008.03125 -2.280999898910522,133828.03125 463009.09375 -2.280999898910522,133836.921875 463013.96875 -2.280999898910522)),((133833.359375 462999.84375 2.655999898910522,133833.359375 462999.84375 -2.280999898910522,133842.046875 463004.65625 -2.280999898910522,133842.046875 463004.65625 -0.250999987125397,133833.359375 462999.84375 2.655999898910522)),((133831.21875 462998.65625 0.360000014305115,133831.21875 462998.65625 -2.280999898910522,133833.359375 462999.84375 -2.280999898910522,133833.359375 462999.84375 2.655999898910522,133833.359375 462999.84375 2.776999950408936,133831.21875 462998.65625 0.360000014305115)),((133828.03125 463009.09375 2.638000011444092,133828.03125 463009.09375 2.555000066757202,133830.1875 463005.34375 2.644999980926514,133828.03125 463009.09375 2.638000011444092)),((133833.359375 462999.84375 2.776999950408936,133833.359375 462999.84375 2.655999898910522,133830.1875 463005.34375 2.644999980926514,133833.359375 462999.84375 2.776999950408936)),((133836.921875 463013.96875 -0.331999987363815,133836.921875 463013.96875 -2.280999898910522,133828.03125 463009.09375 -2.280999898910522,133828.03125 463009.09375 2.555000066757202,133828.03125 463009.09375 2.638000011444092,133836.921875 463013.96875 -0.331999987363815)),((133830.484375 463000 0.358999997377396,133830.484375 463000 -2.280999898910522,133831.21875 462998.65625 -2.280999898910522,133831.21875 462998.65625 0.360000014305115,133830.484375 463000 0.358999997377396)),((133842.046875 463004.65625 -0.250999987125397,133842.046875 463004.65625 -2.280999898910522,133836.921875 463013.96875 -2.280999898910522,133836.921875 463013.96875 -0.331999987363815,133842.046875 463004.65625 -0.250999987125397)),((133826.078125 463008.03125 0.354000002145767,133826.078125 463008.03125 -2.280999898910522,133830.484375 463000 -2.280999898910522,133830.484375 463000 0.358999997377396,133826.078125 463008.03125 0.354000002145767)),((133828.03125 463009.09375 2.555000066757202,133828.03125 463009.09375 -2.280999898910522,133826.078125 463008.03125 -2.280999898910522,133826.078125 463008.03125 0.354000002145767,133828.03125 463009.09375 2.555000066757202)),((133842.046875 463004.65625 -0.250999987125397,133836.921875 463013.96875 -0.331999987363815,133828.03125 463009.09375 2.638000011444092,133830.1875 463005.34375 2.644999980926514,133833.359375 462999.84375 2.655999898910522,133842.046875 463004.65625 -0.250999987125397)),((133828.03125 463009.09375 2.555000066757202,133826.078125 463008.03125 0.354000002145767,133830.484375 463000 0.358999997377396,133831.21875 462998.65625 0.360000014305115,133833.359375 462999.84375 2.776999950408936,133830.1875 463005.34375 2.644999980926514,133828.03125 463009.09375 2.555000066757202)))";
+        
+        var g = (MultiPolygon)Geometry.Deserialize<WktSerializer>(wkt);
+        var triangles = GeometryProcessor.GetTriangles(g, 0);
+        
+        var parts = PartFinder.GetParts(triangles);
+        var outlines = OutlineDetection.GetOutlines2(triangles);
+        
+        // Count unique edges
+        var uniqueEdges = new HashSet<string>();
+        for (var i = 0; i < outlines.Count; i += 2) {
+            var v1 = outlines[i];
+            var v2 = outlines[i + 1];
+            var edge = v1 < v2 ? $"{v1}-{v2}" : $"{v2}-{v1}";
+            uniqueEdges.Add(edge);
+        }
+        
+        System.Console.WriteLine($"\nTestBuilding from B3dmWriterTests:");
+        System.Console.WriteLine($"  Polygons: 1 floor + 4 walls + 1 roof (triangulated into 12 polys in WKT)");
+        System.Console.WriteLine($"  Triangles after processing: {triangles.Count}");
+        System.Console.WriteLine($"  Parts: {parts.Count}");
+        System.Console.WriteLine($"  Outline indices: {outlines.Count}");
+        System.Console.WriteLine($"  Unique outline edges: {uniqueEdges.Count}");
+        
+        // The building has a 7-sided floor, so we expect:
+        // - 7 bottom perimeter edges
+        // - 7 top perimeter edges  
+        // - 1 vertical edge (at gap between walls)
+        // Total: 15 edges
+        Assert.That(uniqueEdges.Count, Is.EqualTo(15), 
+            $"TestBuilding should have exactly 15 outline edges (7 floor + 7 roof + 1 vertical), but has {uniqueEdges.Count}");
+    }
+
 }
