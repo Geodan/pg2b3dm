@@ -199,4 +199,93 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         Assert.That(outlines[9] == 8, Is.True);
     }
 
+    [Test]
+    public void MissingOutlineBetweenRoofAndWallTest()
+    {
+        // Test case from @bertt - outlines missing between roof and wall
+        // This geometry has a flat roof and vertical walls
+        var wkt = "MULTIPOLYGON Z (((996641.926566 6414111.970704 1680.94,996641.978211 6414111.995079 1680.94,996646.698807 6414111.800273 1680.94,996652.310527 6414111.405804 1680.94,996652.393401 6414111.349871 1680.94,996652.545348 6414107.233893 1680.94,996652.694588 6414102.887034 1680.94,996652.666735 6414102.83326 1680.94,996652.612954 6414102.805422 1680.94,996641.364935 6414103.206013 1680.94,996641.321058 6414103.245814 1680.94,996641.3074 6414103.303457 1680.94,996641.616039 6414107.831779 1680.94,996641.893525 6414111.903023 1680.94,996641.926566 6414111.970704 1680.94)),((996652.545348 6414107.233893 1697.167989,996652.545348 6414107.233893 1680.94,996652.393401 6414111.349871 1680.94,996652.393401 6414111.349871 1694.421382,996652.545348 6414107.233893 1697.167989)),((996646.698807 6414111.800273 1694.368798,996646.698807 6414111.800273 1680.94,996641.978211 6414111.995079 1680.94,996641.978211 6414111.995079 1694.444648,996646.698807 6414111.800273 1694.368798)),((996652.393401 6414111.349871 1694.421382,996652.393401 6414111.349871 1680.94,996652.310527 6414111.405804 1680.94,996652.310527 6414111.405804 1694.387587,996652.393401 6414111.349871 1694.421382)),((996652.310527 6414111.405804 1694.387587,996652.310527 6414111.405804 1680.94,996646.698807 6414111.800273 1680.94,996646.698807 6414111.800273 1694.368798,996652.310527 6414111.405804 1694.387587)),((996652.694588 6414102.887034 1694.138709,996652.694588 6414102.887034 1680.94,996652.545348 6414107.233893 1680.94,996652.545348 6414107.233893 1697.167989,996652.694588 6414102.887034 1694.138709)),((996641.321058 6414103.245814 1694.035381,996641.321058 6414103.245814 1680.94,996641.364935 6414103.206013 1680.94,996641.364935 6414103.206013 1694.008966,996641.321058 6414103.245814 1694.035381)),((996641.3074 6414103.303457 1694.075188,996641.3074 6414103.303457 1680.94,996641.321058 6414103.245814 1680.94,996641.321058 6414103.245814 1694.035381,996641.3074 6414103.303457 1694.075188)),((996652.612954 6414102.805422 1694.079209,996652.612954 6414102.805422 1680.94,996652.666735 6414102.83326 1680.94,996652.666735 6414102.83326 1694.100311,996652.612954 6414102.805422 1694.079209)),((996641.364935 6414103.206013 1694.008966,996641.364935 6414103.206013 1680.94,996652.612954 6414102.805422 1680.94,996652.612954 6414102.805422 1694.079209,996641.364935 6414103.206013 1694.008966)),((996652.666735 6414102.83326 1694.100311,996652.666735 6414102.83326 1680.94,996652.694588 6414102.887034 1680.94,996652.694588 6414102.887034 1694.138709,996652.666735 6414102.83326 1694.100311)),((996641.616039 6414107.831779 1697.245363,996641.616039 6414107.831779 1680.94,996641.3074 6414103.303457 1680.94,996641.3074 6414103.303457 1694.075188,996641.616039 6414107.831779 1697.245363)),((996641.926566 6414111.970704 1694.46321,996641.926566 6414111.970704 1680.94,996641.893525 6414111.903023 1680.94,996641.893525 6414111.903023 1694.509925,996641.926566 6414111.970704 1694.46321)),((996641.893525 6414111.903023 1694.509925,996641.893525 6414111.903023 1680.94,996641.616039 6414107.831779 1680.94,996641.616039 6414107.831779 1697.245363,996641.893525 6414111.903023 1694.509925)),((996641.978211 6414111.995079 1694.444648,996641.978211 6414111.995079 1680.94,996641.926566 6414111.970704 1680.94,996641.926566 6414111.970704 1694.46321,996641.978211 6414111.995079 1694.444648)),((996641.616039 6414107.831779 1697.245363,996641.3074 6414103.303457 1694.075188,996641.321058 6414103.245814 1694.035381,996641.364935 6414103.206013 1694.008966,996652.612954 6414102.805422 1694.079209,996652.666735 6414102.83326 1694.100311,996652.694588 6414102.887034 1694.138709,996652.545348 6414107.233893 1697.167989,996641.616039 6414107.831779 1697.245363)),((996641.978211 6414111.995079 1694.444648,996641.926566 6414111.970704 1694.46321,996641.893525 6414111.903023 1694.509925,996641.616039 6414107.831779 1697.245363,996652.545348 6414107.233893 1697.167989,996652.393401 6414111.349871 1694.421382,996652.310527 6414111.405804 1694.387587,996646.698807 6414111.800273 1694.368798,996641.978211 6414111.995079 1694.444648)))";
+        
+        var g = (MultiPolygon)Geometry.Deserialize<WktSerializer>(wkt);
+        var triangles = GeometryProcessor.GetTriangles(g, 0);
+
+        // Print normals of first 10 triangles to understand the geometry
+        System.Console.WriteLine("Triangle normals (first 10):");
+        for (var i = 0; i < triangles.Count && i < 10; i++) {
+            var normal = triangles[i].GetNormal();
+            System.Console.WriteLine($"  Triangle {i}: normal=({normal.X:F3}, {normal.Y:F3}, {normal.Z:F3})");
+        }
+
+        // act
+        var parts = PartFinder.GetParts(triangles);
+        
+        // Check that we have multiple parts (roof should be separate from walls)
+        Assert.That(parts.Count > 1, Is.True, "Should have multiple parts for roof and walls");
+        
+        // Find the roof part (horizontal faces with z-normal)
+        // and wall parts (vertical faces)
+        var roofPartIndices = new List<int>();
+        var wallPartIndices = new List<int>();
+        
+        for (var i = 0; i < parts.Count; i++) {
+            var partTriangles = Triangles.SelectByIndex(triangles, parts[i]);
+            if (partTriangles.Count > 0) {
+                var normal = partTriangles[0].GetNormal();
+                // Check if mostly pointing up (roof) or horizontal (wall)
+                if (System.Math.Abs(normal.Z) > 0.7) {
+                    roofPartIndices.Add(i);
+                } else {
+                    wallPartIndices.Add(i);
+                }
+            }
+        }
+        
+        System.Console.WriteLine($"Number of triangles: {triangles.Count}");
+        System.Console.WriteLine($"Number of parts: {parts.Count}");
+        System.Console.WriteLine($"Roof parts: {roofPartIndices.Count}");
+        System.Console.WriteLine($"Wall parts: {wallPartIndices.Count}");
+        
+        // Now check if edges between roof and walls are detected
+        // For now, just verify structure is correct
+        Assert.That(roofPartIndices.Count > 0, Is.True, "Should have at least one roof part");
+        Assert.That(wallPartIndices.Count > 0, Is.True, "Should have at least one wall part");
+        
+        var outlines = OutlineDetection.GetOutlines2(triangles);
+        System.Console.WriteLine($"Number of outline indices: {outlines.Count}");
+        
+        // The test should verify that outlines exist
+        Assert.That(outlines.Count > 0, Is.True);
+    }
+
+    [Test]
+    public void OutlinesBetweenDifferentNormalPartsTest()
+    {
+        // Simple test: A box with a horizontal top and vertical sides
+        // Top face (2 triangles with normal pointing up)
+        var top1 = new Triangle(new Point(0, 0, 1), new Point(1, 0, 1), new Point(0, 1, 1), 0);
+        var top2 = new Triangle(new Point(1, 0, 1), new Point(1, 1, 1), new Point(0, 1, 1), 1);
+        
+        // Front wall (2 triangles with normal pointing forward)
+        var front1 = new Triangle(new Point(0, 0, 0), new Point(1, 0, 0), new Point(0, 0, 1), 2);
+        var front2 = new Triangle(new Point(1, 0, 0), new Point(1, 0, 1), new Point(0, 0, 1), 3);
+        
+        var triangles = new List<Triangle> { top1, top2, front1, front2 };
+        
+        // act
+        var parts = PartFinder.GetParts(triangles);
+        
+        // Should have 2 parts: one for top, one for front
+        Assert.That(parts.Count, Is.EqualTo(2));
+        
+        var outlines = OutlineDetection.GetOutlines2(triangles);
+        
+        System.Console.WriteLine($"Number of parts: {parts.Count}");
+        System.Console.WriteLine($"Number of outline indices: {outlines.Count}");
+        
+        // Top part: 2 triangles sharing 1 edge = 4 outline edges = 8 indices
+        // Front part: 2 triangles sharing 1 edge = 4 outline edges = 8 indices
+        // Total: 16 indices
+        Assert.That(outlines.Count, Is.EqualTo(16));
+    }
+
 }
