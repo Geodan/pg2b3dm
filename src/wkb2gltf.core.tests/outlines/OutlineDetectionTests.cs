@@ -523,6 +523,18 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         System.Console.WriteLine($"  Polygons: 1 floor + 4 walls + 1 roof (triangulated into 12 polys in WKT)");
         System.Console.WriteLine($"  Triangles after processing: {triangles.Count}");
         System.Console.WriteLine($"  Parts: {parts.Count}");
+        
+        // Show part membership
+        System.Console.WriteLine($"\n  Part details:");
+        for (var i = 0; i < parts.Count; i++) {
+            var partTriangles = Triangles.SelectByIndex(triangles, parts[i]);
+            if (partTriangles.Count > 0) {
+                var normal = partTriangles[0].GetNormal();
+                var type = System.Math.Abs(normal.Z) > 0.7 ? "FLOOR/ROOF" : "WALL";
+                System.Console.WriteLine($"    Part {i}: {parts[i].Count} triangles, normal=({normal.X:F2},{normal.Y:F2},{normal.Z:F2}) {type}");
+            }
+        }
+        
         System.Console.WriteLine($"  Outline indices: {outlines.Count}");
         System.Console.WriteLine($"  Unique outline edges: {uniqueEdges.Count}");
         

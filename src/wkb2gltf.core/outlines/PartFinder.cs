@@ -6,7 +6,8 @@ namespace Wkb2Gltf.outlines;
 public static class PartFinder
 {
     /// <summary>
-    /// Function that get parts based on normals and adjacency (connected components)
+    /// Function that gets parts based on normals and connectivity
+    /// Uses a two-phase approach: first group by normal (with tolerance), then split by connectivity
     /// </summary>
     public static Dictionary<int, List<uint>> GetParts(List<Triangle> triangles, double normalTolerance = 0.01, double distanceTolerance = 0.01)
     {
@@ -18,8 +19,14 @@ public static class PartFinder
             return new Dictionary<int, List<uint>> { { 0, new List<uint> { 0 } } };
         }
 
-        // First, group triangles by normal
-        var normalGroups = GroupByNormal(triangles, normalTolerance);
+        // Use a larger normal tolerance for grouping to handle sloped surfaces
+        // A dot product of 0.707 corresponds to ~45 degree angle difference
+        // This should separate walls (horizontal normal) from floors/roofs (vertical normal)
+        // while allowing triangulation of sloped roofs
+        var groupingTolerance = 0.3;  // dot product > 0.7 means angle < ~45 degrees
+        
+        // First, group triangles by normal (with permissive tolerance)
+        var normalGroups = GroupByNormal(triangles, groupingTolerance);
 
         // Then, split each normal group into connected components
         var result = new Dictionary<int, List<uint>>();
@@ -53,7 +60,8 @@ public static class PartFinder
 
                 var otherNormal = triangles[j].GetNormal();
                 var dotProduct = Vector3.Dot(normal, otherNormal);
-                if (Compare.IsAlmostEqual(dotProduct, 1.0f, normalTolerance)) {
+                // Use > instead of IsAlmostEqual to allow a range of angles
+                if (dotProduct > 1.0f - normalTolerance) {
                     group.Add((uint)j);
                     assigned[j] = true;
                 }
