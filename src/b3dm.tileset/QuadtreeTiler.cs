@@ -98,11 +98,6 @@ public class QuadtreeTiler
 
             byte[] bytes = null;
 
-
-            if(file == "4_9_2_1.b3dm") {
-                Console.WriteLine("debug");
-            }
-
             var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection);
             // var scale = new double[] { 1, 1, 1 };
             if (geometries.Count > 0) {

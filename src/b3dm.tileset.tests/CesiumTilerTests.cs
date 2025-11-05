@@ -9,6 +9,40 @@ using subtree;
 namespace B3dm.Tileset.Tests;
 public class CesiumTilerTests
 {
+
+    [Test]
+    public void TestCreateImplicitTilesetOctreeSubdivison()
+    {
+        // Arrange
+        var version = new Version(1, 0);
+        var createGltf = true;
+        var outputDirectory = "test";
+        var outputSettings = OutputDirectoryCreator.GetFolders(outputDirectory);
+        var translation = new double[] { 0, 0, 0 };
+        var geometricError = 100;
+        var rootBoundingVolumeRegion = new double[] { 0, 0, 0, 0, 0, 0 };
+        var tile1 = new Tile3D(1, 1, 1, 1);
+        var tiles = new List<Tile3D>() { tile1 };
+        var tilesetSettings = new TilesetSettings {
+            Version = version,
+            Translation = translation,
+            GeometricError = geometricError,
+            RootBoundingVolumeRegion = rootBoundingVolumeRegion,
+            OutputSettings = outputSettings,
+            SubdivisionScheme = SubdivisionScheme.OCTREE
+        };
+
+        // Act
+        var subtreeLevels = CesiumTiler.CreateSubtreeFiles3D(outputSettings, tiles);
+        CesiumTiler.CreateImplicitTileset(tilesetSettings, createGltf, false);
+
+        // Assert
+        var json = File.ReadAllText("test/tileset.json");
+        Assert.That(json.Contains("geometricError"));
+    }
+
+
+
     [Test]
     public void TestCreateImplicitTileset()
     {

@@ -250,13 +250,11 @@ class Program
         var octreeTiler = new OctreeTiler(conn, inputTable, tilingSettings, stylingSettings, tilesetSettings);
         var tiles3D = octreeTiler.GenerateTiles3D(bbox3D, 0, rootTile3D, new List<Tile3D>());
         var mortonIndices = MortonIndex.GetMortonIndices3D(tiles3D);
-        var subtreebytes = SubtreeWriter.ToBytes(mortonIndices.tileAvailability, mortonIndices.contentAvailability);
 
-        // todo: Write more subtree files
-        File.WriteAllBytes($"{tilesetSettings.OutputSettings.SubtreesFolder}/0_0_0_0.subtree", subtreebytes);
-        var maxAvailableLevel = tiles3D.Max(p => p.Level);
+        var subtreeFiles = SubtreeCreator3D.GenerateSubtreefiles(tiles3D);
+        var subtreeLevels = CesiumTiler.CreateSubtreeFiles3D(tilesetSettings.OutputSettings, tiles3D);
 
-        tilesetSettings.SubtreeLevels = maxAvailableLevel + 1;
+        tilesetSettings.SubtreeLevels = subtreeLevels;
 
         // todo add explicit tileset option
         CesiumTiler.CreateImplicitTileset(tilesetSettings, tilingSettings.CreateGltf, tilingSettings.KeepProjection);
