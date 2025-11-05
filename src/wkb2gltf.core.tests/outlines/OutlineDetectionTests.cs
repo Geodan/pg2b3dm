@@ -36,14 +36,16 @@ public class OutlineDetectionTests
 
         var parts = PartFinder.GetParts(triangles);
 
-        Assert.That(parts.Count == 1, Is.True);
-        Assert.That(parts[0].Count == 3, Is.True);
-        Assert.That(parts[0][0] == 0, Is.True);
-        Assert.That(parts[0][1] == 1, Is.True);
-        Assert.That(parts[0][0] == 0, Is.True);
+        // Now we expect 2 parts: {t0, t1} connected and {t2} separate
+        Assert.That(parts.Count, Is.EqualTo(2));
+        Assert.That(parts[0].Count, Is.EqualTo(2));
+        Assert.That(parts[1].Count, Is.EqualTo(1));
 
         var outlines = OutlineDetection.GetOutlines2(triangles);
-        Assert.That(outlines.Count == 8, Is.True);
+        // Part 0 (t0+t1 square): 4 edges = 8 indices
+        // Part 1 (t2 triangle): 3 edges = 6 indices
+        // Total: 14 indices
+        Assert.That(outlines.Count, Is.EqualTo(14));
     }
 
     [Test]

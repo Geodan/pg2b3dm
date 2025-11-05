@@ -14,7 +14,10 @@ public class PartFinderTests
 
         var triangles = new List<Triangle>() { t0, t1};
         var parts = PartFinder.GetParts(triangles, 0.1);
-        Assert.That(parts.Count, Is.EqualTo(1));
+        // These two triangles only share a single vertex, not an edge, so they should be 2 separate parts
+        Assert.That(parts.Count, Is.EqualTo(2));
+        Assert.That(parts[0].Count, Is.EqualTo(1));
+        Assert.That(parts[1].Count, Is.EqualTo(1));
     }
 
     [Test]
@@ -27,11 +30,13 @@ public class PartFinderTests
 
         var triangles = new List<Triangle>() { t0, t1, t2 };
 
-        // In this case wel'll only find one part because only the normal is checked
+        // Now we check both normal AND connectivity, so we expect 2 parts:
+        // - Part 0: t0 and t1 (connected, same normal)
+        // - Part 1: t2 (separate, same normal)
         var parts = PartFinder.GetParts(triangles);
 
-        Assert.That(parts.Count, Is.EqualTo(1));
-        Assert.That(parts[0].Count, Is.EqualTo(3));
-        Assert.That(parts[0][0], Is.EqualTo(0));
+        Assert.That(parts.Count, Is.EqualTo(2));
+        Assert.That(parts[0].Count, Is.EqualTo(2));
+        Assert.That(parts[1].Count, Is.EqualTo(1));
     }
 }
