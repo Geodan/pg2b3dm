@@ -216,10 +216,10 @@ class Program
             tilingSettings.BoundingBox = bbox;
             tilingSettings.CreateGltf = createGltf;
             tilingSettings.KeepProjection = keepProjection;
+            tilingSettings.UseImplicitTiling = useImplicitTiling;
             tilingSettings.SkipCreateTiles = skipCreateTiles;
             tilingSettings.MaxFeaturesPerTile = maxFeaturesPerTile;
             tilingSettings.Lods = lods;
-            tilingSettings.UseImplicitTiling = useImplicitTiling;
 
             if (subdivisionScheme == SubdivisionScheme.QUADTREE) {
                 QuadtreeTile(conn, inputTable, stylingSettings, tilesetSettings, tilingSettings);
