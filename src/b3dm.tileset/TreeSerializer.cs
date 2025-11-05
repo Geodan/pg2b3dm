@@ -182,10 +182,6 @@ public static class TreeSerializer
             if (tile.Available) {
                 var ge = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, tile.Level);
                 var child = GetChild3D(tile, tileBounds, ge);
-
-                if (tile.Children != null) {
-                    child.children = GetChildren3D(tile.Children, tileBounds, geometricError, geometricErrorFactor);
-                }
                 children.Add(child);
             }
         }
