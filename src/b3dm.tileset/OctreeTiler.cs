@@ -28,6 +28,11 @@ public class OctreeTiler
 
     public List<Tile3D> GenerateTiles3D(BoundingBox3D bbox, int level, Tile3D tile, List<Tile3D> tiles)
     {
+        return GenerateTiles3D(bbox, level, tile, tiles, null);
+    }
+
+    public List<Tile3D> GenerateTiles3D(BoundingBox3D bbox, int level, Tile3D tile, List<Tile3D> tiles, Dictionary<string, BoundingBox3D> tileBounds)
+    {
         var where = inputTable.GetQueryClause();
 
         var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, inputTable.TableName, inputTable.GeometryColumn, new Point(bbox.XMin, bbox.YMin, bbox.ZMin), new Point(bbox.XMax, bbox.YMax, bbox.ZMax), where, inputTable.EPSGCode, tilingSettings.KeepProjection);
@@ -35,6 +40,10 @@ public class OctreeTiler
             var t2 = new Tile3D(level, tile.Z, tile.X, tile.Y);
             t2.Available = false;
             tiles.Add(t2);
+            if (tileBounds != null) {
+                var key = $"{level}_{tile.Z}_{tile.X}_{tile.Y}";
+                tileBounds[key] = bbox;
+            }
         }
         else if (numberOfFeatures > tilingSettings.MaxFeaturesPerTile) {
             level++;
@@ -56,7 +65,7 @@ public class OctreeTiler
                         var bbox3d = new BoundingBox3D(xstart, ystart, z_start, xend, yend, zend);
 
                         var new_tile = new Tile3D(level, tile.X * 2 + x, tile.Y * 2 + y, tile.Z + z);
-                        GenerateTiles3D(bbox3d, level, new_tile, tiles);
+                        GenerateTiles3D(bbox3d, level, new_tile, tiles, tileBounds);
                     }
                 }
             }
@@ -88,6 +97,10 @@ public class OctreeTiler
             }
 
             tiles.Add(tile);
+            if (tileBounds != null) {
+                var key = $"{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}";
+                tileBounds[key] = bbox;
+            }
         }
 
         return tiles;

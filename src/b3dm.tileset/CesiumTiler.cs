@@ -113,4 +113,80 @@ public static class CesiumTiler
         return new BoundingBox(minx, miny, maxx, maxy);
     }
 
+    private static BoundingBox3D GetBoundingBox3D(List<Tile3D> children, Dictionary<string, BoundingBox3D> tileBounds)
+    {
+        var keys = children.Select(t => $"{t.Level}_{t.Z}_{t.X}_{t.Y}").ToList();
+        var boxes = keys.Select(k => tileBounds[k]).ToList();
+        
+        var minx = boxes.Min(b => b.XMin);
+        var maxx = boxes.Max(b => b.XMax);
+        var miny = boxes.Min(b => b.YMin);
+        var maxy = boxes.Max(b => b.YMax);
+        var minz = boxes.Min(b => b.ZMin);
+        var maxz = boxes.Max(b => b.ZMax);
+        
+        return new BoundingBox3D(minx, miny, minz, maxx, maxy, maxz);
+    }
+
+    public static void CreateExplicitTilesetsJson3D(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, RefinementType refinement, double[] rootBoundingVolumeRegion, Tile3D tile, List<Tile3D> tiles, Dictionary<string, BoundingBox3D> tileBounds, string tilesetVersion = "", string crs = "")
+    {
+        var splitLevel = (int)Math.Ceiling((tiles.Max((Tile3D s) => s.Level) + 1.0) / 2.0);
+
+        var rootTiles = TileSelector3D.Select(tiles, tile, 0, splitLevel);
+        var rootTileset = TreeSerializer.ToTileset3D(rootTiles, tileBounds, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, tilesetVersion, crs);
+
+        var maxlevel = tiles.Max((Tile3D s) => s.Level);
+
+        var externalTilesets = 0;
+        if (maxlevel > splitLevel) {
+            // now create the tileset.json files on splitLevel
+
+            var width = Math.Pow(2, splitLevel);
+            var height = Math.Pow(2, splitLevel);
+            var depth = Math.Pow(2, splitLevel);
+            Console.WriteLine($"Writing tileset.json files...");
+
+            for (var x = 0; x < width; x++) {
+                for (var y = 0; y < height; y++) {
+                    for (var z = 0; z < depth; z++) {
+                        var splitLevelTile = new Tile3D(splitLevel, z, x, y);
+                        var children = TileSelector3D.Select(tiles, splitLevelTile, splitLevel, maxlevel);
+                        if (children.Count > 0) {
+                            var childrenBbox3D = GetBoundingBox3D(children, tileBounds);
+                            var childrenBbox2D = new BoundingBox(childrenBbox3D.XMin, childrenBbox3D.YMin, childrenBbox3D.XMax, childrenBbox3D.YMax);
+                            var childrenBoundingVolumeRegion = childrenBbox2D.ToRadians().ToRegion(childrenBbox3D.ZMin, childrenBbox3D.ZMax);
+                            
+                            /// translation is the same as identity matrix in case of child tileset
+                            var tileset = TreeSerializer.ToTileset3D(children, tileBounds, null, childrenBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, tilesetVersion);
+
+                            var childGeometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, splitLevel);
+                            tileset.geometricError = childGeometricError;
+                            tileset.root.geometricError = GeometricErrorCalculator.GetGeometricError(childGeometricError, geometricErrorFactor, 1);
+                            var detailedJson = JsonConvert.SerializeObject(tileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+                            var filename = $"tileset_{splitLevel}_{z}_{x}_{y}.json";
+                            Console.Write($"\rWriting {filename}...");
+
+                            File.WriteAllText($"{outputDirectory}{Path.AltDirectorySeparatorChar}{filename}", detailedJson);
+                            externalTilesets++;
+                            // add the child tilesets to the root tileset
+                            var child = new Child();
+                            child.boundingVolume = new Boundingvolume() { region = childrenBoundingVolumeRegion };
+                            child.refine = refinement;
+                            child.geometricError = tileset.root.geometricError;
+
+                            child.content = new Content() { uri = filename };
+                            rootTileset.root.children.Add(child);
+                        }
+                    }
+                }
+            }
+        }
+        // write the root tileset
+        Console.WriteLine();
+        Console.WriteLine($"External tileset.json files: {externalTilesets}");
+        Console.WriteLine("Writing root tileset.json...");
+        var rootJson = JsonConvert.SerializeObject(rootTileset, Formatting.Indented, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+        File.WriteAllText($"{outputDirectory}{Path.AltDirectorySeparatorChar}tileset.json", rootJson);
+    }
+
 }
