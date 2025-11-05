@@ -30,15 +30,68 @@ public static class OutlineDetection
 
     public static List<uint> GetOutlines2(List<Triangle> triangles, double normalTolerance = 0.01, double distanceTolerance = 0.01)
     {
-
         var outlines = new List<uint>();
-        var parts = PartFinder.GetParts(triangles, normalTolerance, distanceTolerance);
-
-        for (uint p = 0; p < parts.Count; p++) {
-            var partTriangles = Triangles.SelectByIndex(triangles, parts[(int)p]);
-            var outline = Part.GetOutlines(partTriangles, parts[(int)p], 0, distanceTolerance);
-            outlines.AddRange(outline);
+        
+        // Build global adjacency map to detect all edge connections
+        var adjacency = Adjacency.GetAdjacencyList(triangles, distanceTolerance);
+        
+        // Find edges that should be outlined:
+        // 1. Boundary edges (no adjacent triangle)
+        // 2. Crease edges (adjacent triangle with significantly different normal)
+        
+        var creaseAngleThreshold = 0.707; // ~45 degrees - edges with larger angle difference are creases
+        
+        for (var i = 0; i < triangles.Count; i++) {
+            var triangle = triangles[i];
+            var triangleNormal = triangle.GetNormal();
+            
+            // Check each edge of the triangle
+            var edges = new List<(int from, int to)> { (0, 1), (1, 2), (2, 0) };
+            
+            foreach (var (from, to) in edges) {
+                var isOutline = true;
+                
+                // Check if this edge has an adjacent triangle
+                if (adjacency.TryGetValue(i, out var adjacentEdges)) {
+                    // Check if this specific edge is in the adjacency list
+                    var hasAdjacentOnThisEdge = adjacentEdges.Any(e => 
+                        (e.from == from && e.to == to) || (e.from == to && e.to == from));
+                    
+                    if (hasAdjacentOnThisEdge) {
+                        // Edge has an adjacent triangle - check if it's a crease
+                        // Find the adjacent triangle
+                        for (var j = 0; j < triangles.Count; j++) {
+                            if (i == j) continue;
+                            
+                            var sharedPoints = BoundaryDetection.GetSharedPoints(triangle, triangles[j], distanceTolerance);
+                            if (sharedPoints.first.Count == 2) {
+                                // Check if this is the edge we're looking at
+                                if ((sharedPoints.first.Contains(from) && sharedPoints.first.Contains(to))) {
+                                    // This is the adjacent triangle for this edge
+                                    var adjacentNormal = triangles[j].GetNormal();
+                                    var dotProduct = System.Numerics.Vector3.Dot(triangleNormal, adjacentNormal);
+                                    
+                                    // If normals are similar, this is NOT a crease edge
+                                    if (dotProduct > creaseAngleThreshold) {
+                                        isOutline = false;
+                                    }
+                                    // If dotProduct <= creaseAngleThreshold, it's a crease - keep as outline
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                // If no adjacent triangle, it's a boundary edge - keep as outline
+                
+                if (isOutline) {
+                    var offset = (uint)(i * 3);
+                    outlines.Add(offset + (uint)from);
+                    outlines.Add(offset + (uint)to);
+                }
+            }
         }
+        
         return outlines;
     }
 
