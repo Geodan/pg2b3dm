@@ -549,6 +549,8 @@ Press F5 to start debugging.
 
 ## History
 
+2025-11-05: release 2.23.0: add multiple subtree files support for OCTREE tiling schema
+
 2025-30-10: release 2.22.0: add subdivision parameter for QUADTREE/OCTREE tiling schema (default QUADTREE)
 
 2025-10-01: release 2.21.0 use opaque mode when basecolor is opaque
