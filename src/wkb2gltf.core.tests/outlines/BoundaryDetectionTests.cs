@@ -60,4 +60,18 @@ public class BoundaryDetectionTests
 
         Assert.That(isCoplanar, Is.False);
     }
+
+    [Test]
+    public void TestDegenerateTriangle()
+    {
+        // Degenerate triangle (all points on a line, zero normal)
+        var t0 = new Triangle(new Wkx.Point(0, 0, 0), new Wkx.Point(1, 0, 0), new Wkx.Point(2, 0, 0), 0);
+        // Normal triangle
+        var t1 = new Triangle(new Wkx.Point(0, 0, 0), new Wkx.Point(1, 0, 0), new Wkx.Point(0, 1, 0), 0);
+
+        // Degenerate triangle should return false for coplanarity
+        var isCoplanar = BoundaryDetection.AreCoplanar(t0, t1);
+
+        Assert.That(isCoplanar, Is.False, "Degenerate triangle should not be considered coplanar");
+    }
 }
