@@ -538,6 +538,33 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         System.Console.WriteLine($"  Outline indices: {outlines.Count}");
         System.Console.WriteLine($"  Unique outline edges: {uniqueEdges.Count}");
         
+        // Count boundary vs crease edges
+        var boundaryCount = 0;
+        var creaseCount = 0;
+        var adjacency = Adjacency.GetAdjacencyList(triangles, 0.01);
+        for (var i = 0; i < triangles.Count; i++) {
+            var triangle = triangles[i];
+            var edges = new List<(int from, int to)> { (0, 1), (1, 2), (2, 0) };
+            foreach (var (from, to) in edges) {
+                var offset = (uint)(i * 3);
+                var v1 = offset + (uint)from;
+                var v2 = offset + (uint)to;
+                var edgeKey = v1 < v2 ? $"{v1}-{v2}" : $"{v2}-{v1}";
+                
+                if (uniqueEdges.Contains(edgeKey)) {
+                    // This edge is in the outlines - check if it's boundary or crease
+                    var hasAdjacent = adjacency.ContainsKey(i) && 
+                        adjacency[i].Any(e => (e.from == from && e.to == to) || (e.from == to && e.to == from));
+                    if (hasAdjacent) {
+                        creaseCount++;
+                    } else {
+                        boundaryCount++;
+                    }
+                }
+            }
+        }
+        System.Console.WriteLine($"  Boundary edges: {boundaryCount}, Crease edges: {creaseCount}");
+        
         // The building has a 7-sided floor, so we expect:
         // - 7 bottom perimeter edges
         // - 7 top perimeter edges  

@@ -37,9 +37,7 @@ public static class OutlineDetection
         
         // Find edges that should be outlined:
         // 1. Boundary edges (no adjacent triangle)
-        // 2. Crease edges (adjacent triangle with significantly different normal)
-        
-        var creaseAngleThreshold = 0.707; // ~45 degrees - edges with larger angle difference are creases
+        // 2. Crease edges (adjacent triangles with fundamentally different orientations)
         
         for (var i = 0; i < triangles.Count; i++) {
             var triangle = triangles[i];
@@ -69,13 +67,26 @@ public static class OutlineDetection
                                 if ((sharedPoints.first.Contains(from) && sharedPoints.first.Contains(to))) {
                                     // This is the adjacent triangle for this edge
                                     var adjacentNormal = triangles[j].GetNormal();
+                                    
+                                    // Check if normals are in similar orientation
+                                    // Use a permissive threshold that allows variation within the same general direction
+                                    // but separates truly different faces
                                     var dotProduct = System.Numerics.Vector3.Dot(triangleNormal, adjacentNormal);
                                     
-                                    // If normals are similar, this is NOT a crease edge
-                                    if (dotProduct > creaseAngleThreshold) {
+                                    // Categorize surfaces by orientation:
+                                    // - Horizontal (floor/roof): |Z| > 0.7
+                                    // - Vertical (walls): |Z| < 0.7
+                                    var isHorizontal1 = System.Math.Abs(triangleNormal.Z) > 0.7f;
+                                    var isHorizontal2 = System.Math.Abs(adjacentNormal.Z) > 0.7f;
+                                    
+                                    // Only mark as crease if surfaces have DIFFERENT orientations
+                                    // (horizontal vs vertical, like floor-wall or wall-roof)
+                                    // Walls with different normals should NOT be creases
+                                    if (isHorizontal1 == isHorizontal2) {
+                                        // Same orientation - not a crease
                                         isOutline = false;
                                     }
-                                    // If dotProduct <= creaseAngleThreshold, it's a crease - keep as outline
+                                    // Different orientation - it's a crease
                                     break;
                                 }
                             }
@@ -92,7 +103,23 @@ public static class OutlineDetection
             }
         }
         
-        return outlines;
+        // Deduplicate edges - an edge might be added from both triangles that share it
+        var uniqueEdges = new HashSet<string>();
+        var deduplicatedOutlines = new List<uint>();
+        
+        for (var i = 0; i < outlines.Count; i += 2) {
+            var v1 = outlines[i];
+            var v2 = outlines[i + 1];
+            var edgeKey = v1 < v2 ? $"{v1}-{v2}" : $"{v2}-{v1}";
+            
+            if (uniqueEdges.Add(edgeKey)) {
+                // This edge hasn't been seen before, add it
+                deduplicatedOutlines.Add(v1);
+                deduplicatedOutlines.Add(v2);
+            }
+        }
+        
+        return deduplicatedOutlines;
     }
 
     private static List<Triangle> GetTriangles(List<(IVertexBuilder A, IVertexBuilder B, IVertexBuilder C, Material Material)> tris)
