@@ -149,7 +149,7 @@ public static class CesiumTiler
             for (var x = 0; x < width; x++) {
                 for (var y = 0; y < height; y++) {
                     for (var z = 0; z < depth; z++) {
-                        var splitLevelTile = new Tile3D(splitLevel, z, x, y);
+                        var splitLevelTile = new Tile3D(splitLevel, x, y, z);
                         var children = TileSelector3D.Select(tiles, splitLevelTile, splitLevel, maxlevel);
                         if (children.Count > 0) {
                             var childrenBbox3D = GetBoundingBox3D(children, tileBounds);
