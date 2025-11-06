@@ -19,7 +19,7 @@ docker run -d -p 5440:5432 -it -e POSTGRES_PASSWORD=postgres -e PROJ_NETWORK=ON 
 - `-p 5440:5432` — maps host port to container port  
 - `POSTGRES_PASSWORD` — sets the database password  
 - `PROJ_NETWORK=ON` — enables coordinate transformation downloads  
-- `SRID=7415` — specifies the coordinate reference system (Amersfoort / RD New)  
+- `SRID=7415` — specifies the coordinate reference system (composite projection Amersfoort / RD New with NAP reference)  
 
 After launching, the database schema is automatically created with tables for city objects, geometry data, attributes, and appearances.
 
