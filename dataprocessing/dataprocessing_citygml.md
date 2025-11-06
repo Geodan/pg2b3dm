@@ -16,10 +16,10 @@ docker run -d -p 5440:5432 -it -e POSTGRES_PASSWORD=postgres -e PROJ_NETWORK=ON 
 ```
 
 **Explanation:**
-- `-p 5440:5432` — maps host port to container port  
-- `POSTGRES_PASSWORD` — sets the database password  
-- `PROJ_NETWORK=ON` — enables coordinate transformation downloads  
-- `SRID=7415` — specifies the coordinate reference system (Amersfoort / RD New)  
+- `-p 5440:5432` â€” maps host port to container port  
+- `POSTGRES_PASSWORD` â€” sets the database password  
+- `PROJ_NETWORK=ON` â€” enables coordinate transformation downloads  
+- `SRID=7415` â€” specifies the coordinate reference system (Amersfoort / RD New)  
 
 After launching, the database schema is automatically created with tables for city objects, geometry data, attributes, and appearances.
 
@@ -32,7 +32,7 @@ Download a sample CityGML file, such as the Den Haag Archipelbuurt 3D model (45M
 Example command for importing a CityGML file:
 
 ```bash
-citydb import citygml   -H localhost   -d postgres   -u postgres   -p postgres   --db-port 5440   den_haag_3d_archipelbuurt.gml
+citydb import citygml -H localhost -d postgres -u postgres -p postgres --db-port 5440 den_haag_3d_archipelbuurt.gml
 ```
 
 **Notes:**
@@ -47,11 +47,11 @@ citydb import citygml   -H localhost   -d postgres   -u postgres   -p postgres  
 Once the data is imported, it can be converted into 3D Tiles for visualization using the `pg2b3dm` tool:
 
 ```bash
-pg2b3dm   -U postgres   -h localhost   -l   -p 5440   -d postgres   -t citydb.geometry_data   -c geometry   --attributecolumns geometry_properties
+pg2b3dm -U postgres -h localhost -l -p 5440 -d postgres -t citydb.geometry_data -c geometry --attributecolumns geometry_properties
 ```
 
 **Result:**
-- A `tileset.json` file describing the dataset’s structure and bounding volumes  
+- A `tileset.json` file describing the datasetâ€™s structure and bounding volumes  
 - Multiple subtree files defining hierarchical levels of detail  
 - Binary `.b3dm` or `.glb` tiles ready for streaming  
 
