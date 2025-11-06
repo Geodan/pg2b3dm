@@ -111,4 +111,43 @@ public class CesiumTilerTests
         var json = File.ReadAllText("testExplicit/tileset.json");
         Assert.That(json.Contains("geometricError"));
     }
+
+    [Test]
+    public void TestCreateExplicitTilesetsJson3D()
+    {
+        // Arrange
+        var version = new Version(1, 0);
+        var outputDirectory = "testExplicit3D";
+        var outputDirs = OutputDirectoryCreator.GetFolders(outputDirectory);
+        var translation = new double[] { 0, 0, 0 };
+        var geometricError = 100;
+        var geometricErrorFactor = 2;
+        var refinement = RefinementType.ADD;
+        var rootBoundingVolumeRegion = new double[] { 0, 0, 0, 0, 0, 0 };
+        var createGltf = false;
+        
+        var tile0 = new Tile3D(0, 0, 0, 0);
+        
+        var tile1 = new Tile3D(2, 0, 0, 0);
+        var tile2 = new Tile3D(2, 0, 0, 1);
+        var tile3 = new Tile3D(3, 0, 0, 0) { Available = true };
+
+        var tiles = new List<Tile3D>() { tile0, tile1, tile2, tile3 };
+
+        // Create bounding boxes for the tiles
+        var tileBounds = new Dictionary<string, BoundingBox3D>
+        {
+            { "0_0_0_0", new BoundingBox3D(0, 0, 0, 10, 10, 10) },
+            { "2_0_0_0", new BoundingBox3D(0, 0, 0, 5, 5, 5) },
+            { "2_0_0_1", new BoundingBox3D(0, 0, 5, 5, 5, 10) },
+            { "3_0_0_0", new BoundingBox3D(0, 0, 0, 2.5, 2.5, 2.5) }
+        };
+
+        // Act
+        CesiumTiler.CreateExplicitTilesetsJson3D(version, outputDirectory, translation, geometricError, geometricErrorFactor, refinement, rootBoundingVolumeRegion, tile1, tiles, tileBounds, createGltf);
+
+        // Assert
+        var json = File.ReadAllText("testExplicit3D/tileset.json");
+        Assert.That(json.Contains("geometricError"));
+    }
 }
