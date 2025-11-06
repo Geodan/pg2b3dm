@@ -53,7 +53,7 @@ pg2b3dm -U postgres -h localhost -l -p 5440 -d postgres -t citydb.geometry_data 
 **Result:**
 - A `tileset.json` file describing the dataset’s structure and bounding volumes  
 - Multiple subtree files defining hierarchical levels of detail  
-- Binary `.b3dm` or `.glb` tiles ready for streaming  
+- Binary glTF 2.0 (.glb) tiles ready for streaming  
 
 ---
 
