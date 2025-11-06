@@ -58,7 +58,7 @@ public static class CesiumTiler
         var maxlevel = tiles.Max((Tile s) => s.Z);
 
         var externalTilesets = 0;
-        if (maxlevel > splitLevel) {
+        if (maxlevel >= splitLevel) {
             // now create the tileset.json files on splitLevel
 
             var width = Math.Pow(2, splitLevel);
@@ -138,7 +138,7 @@ public static class CesiumTiler
         var maxlevel = tiles.Max((Tile3D s) => s.Level);
 
         var externalTilesets = 0;
-        if (maxlevel > splitLevel) {
+        if (maxlevel >= splitLevel) {
             // now create the tileset.json files on splitLevel
 
             var width = Math.Pow(2, splitLevel);
