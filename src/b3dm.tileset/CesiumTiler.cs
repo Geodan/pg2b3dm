@@ -52,7 +52,7 @@ public static class CesiumTiler
     {
         var splitLevel = (int)Math.Ceiling((tiles.Max((Tile s) => s.Z) + 1.0) / 2.0);
 
-        var rootTiles = TileSelector.Select(tiles, tile, 0, splitLevel);
+        var rootTiles = TileSelector.Select(tiles, tile, 0, splitLevel - 1);
         var rootTileset = TreeSerializer.ToTileset(rootTiles, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, tilesetVersion, crs);
 
         var maxlevel = tiles.Max((Tile s) => s.Z);
@@ -132,7 +132,7 @@ public static class CesiumTiler
     {
         var splitLevel = (int)Math.Ceiling((tiles.Max((Tile3D s) => s.Level) + 1.0) / 2.0);
 
-        var rootTiles = TileSelector3D.Select(tiles, tile, 0, splitLevel);
+        var rootTiles = TileSelector3D.Select(tiles, tile, 0, splitLevel - 1);
         var rootTileset = TreeSerializer.ToTileset3D(rootTiles, tileBounds, translation, rootBoundingVolumeRegion, geometricError, geometricErrorFactor, version, refinement, createGltf, tilesetVersion, crs);
 
         var maxlevel = tiles.Max((Tile3D s) => s.Level);
