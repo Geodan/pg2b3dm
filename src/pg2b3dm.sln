@@ -19,6 +19,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{0403ED2E-B5AA-4160-8E10-84ED0D671778}"
 	ProjectSection(SolutionItems) = preProject
 		..\cesium_notes.md = ..\cesium_notes.md
+		..\dataprocessing\dataprocessing_citygml.md = ..\dataprocessing\dataprocessing_citygml.md
 		..\..\..\..\..\Users\bertt\Desktop\delaware.png = ..\..\..\..\..\Users\bertt\Desktop\delaware.png
 		..\..\..\..\..\Users\bert\Desktop\demo_pg2b3dm.gif = ..\..\..\..\..\Users\bert\Desktop\demo_pg2b3dm.gif
 		..\getting_started.md = ..\getting_started.md

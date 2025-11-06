@@ -1,64 +1,78 @@
-# Dataprocessing CityGML -> PolyhedralSurfaceZ
+# Converting CityGML to 3D Tiles using 3DCityDB v5
 
-pg2b3dm takes as input triangulated PolyhedralSurfaceZ geometries in PostGIS. In this document a sample 
-workflow is described for processing CityGML files using FME, GDAL and PostGIS.
+## Overview
 
-Sample input files: https://www.opengeodata.nrw.de/produkte/geobasis/3dg/lod2_gml/
+3DCityDB v5 is an open-source database designed for storing and managing semantic 3D city models based on the CityGML 3.0 standard. It runs on PostgreSQL with PostGIS and organizes city data into about 17 core tables that handle geometry, metadata, appearances, and relationships.  
+This guide outlines how to install 3DCityDB v5, import CityGML data, export it as 3D Tiles, and visualize the results.
 
-For example, download https://www.opengeodata.nrw.de/produkte/geobasis/3dg/lod2_gml/lod2_gml/LoD2_280_5657_1_NW.gml
+---
 
-### FME
-![fme_workbench](https://user-images.githubusercontent.com/538812/79754422-d0df4100-8317-11ea-9f58-ed4524a53a1f.png)
+## 1. Installation  
 
-In FME the *CityGML* file is imported and the buildings are exported as triangulated *shapefiles* using the following steps:
+3DCityDB v5 can be quickly deployed using Docker:
 
-1. *Import CityGML* open the file using the CityGML reader and select the parts from the CityGML you want to use.
-2.  *Select the Solids* using the GeometryFilter. 
-3.  *Triangulate* the solids using the Triangulator, pg2b3dm needs PolyhedralSurfaceZ with 4 coordinates. 
-4.  *Export as SHP* using the Esri shapefile writer.
-
-A sample workbench is included, see dataprocessing/dataprocessing_citygml.fmw
-
-The model can run from command line:
-
-```
-$  "D:\Program Files\FME\fme.exe" citygml2esrishape.fmw --DestDataset_ESRISHAPE "multipatch.shp" --SourceDataset_CITYGML_3 "LoD2_280_5657_1_NW.gml" --FEATURE_TYPES ""
-Reading.......200....400.....600....800.....1000....1200...
-Emptying factory pipeline...
-Translation was SUCCESSFUL
-````
-
-Output is multipatch.shp
-
-### GDAL
-5. Import SHP as PolyhedralSurface using ogr2ogr. 
-	`-dim 3` makes sure to use the x, y and z information
-	 `-nlt POLYHEDRALSURFACEZ` sets the correct geometry
-```
-$ ogr2ogr -f "PostgreSQL" "PG:host=server user=username dbname=database" multipatch.shp -nln schema.tablename -dim 3 -nlt POLYHEDRALSURFACEZ
+```bash
+docker run -d -p 5440:5432 -it -e POSTGRES_PASSWORD=postgres -e PROJ_NETWORK=ON -e SRID=7415 3dcitydb/3dcitydb-pg
 ```
 
-### PostGIS
-6.  Delete geometry collections containing geometries with more or less than 4 vertices (triangles).
-```
-psql> DELETE FROM schema.tablename WHERE (ST_Npoints(wkb_geometry)::float/ST_NumGeometries(wkb_geometry)::float) != 4;
-```
-7. Add id and color columns, both in text format.
-```
-psql> ALTER TABLE schema.tablename ADD COLUMN id text;
-psql> ALTER TABLE schema.tablename ADD COLUMN color text;
-```
-8. Populate the added columns.
-```
-psql> UPDATE schema.tablename SET id = ogc_fid;
-psql> UPDATE schema.tablename SET color = '#f5f5f5';
+**Explanation:**
+- `-p 5440:5432` — maps host port to container port  
+- `POSTGRES_PASSWORD` — sets the database password  
+- `PROJ_NETWORK=ON` — enables coordinate transformation downloads  
+- `SRID=7415` — specifies the coordinate reference system (composite projection Amersfoort / RD New with NAP reference)  
+
+After launching, the database schema is automatically created with tables for city objects, geometry data, attributes, and appearances.
+
+---
+
+## 2. Importing CityGML Data
+
+Download a sample CityGML file, such as the Den Haag Archipelbuurt 3D model (45MB) from [https://ckan.dataplatform.nl/dataset/3d-stadsmodel-den-haag-2021-citygml/resource/be8d3a16-50f3-415f-a8bd-55d24c9d8cdc](https://ckan.dataplatform.nl/dataset/3d-stadsmodel-den-haag-2021-citygml/resource/be8d3a16-50f3-415f-a8bd-55d24c9d8cdc).
+
+Example command for importing a CityGML file:
+
+```bash
+citydb import citygml -H localhost -d postgres -u postgres -p postgres --db-port 5440 den_haag_3d_archipelbuurt.gml
 ```
 
-Now it's possible to run pg2b3dm!
+**Notes:**
+- The importer loads buildings and other features into the schema.  
+- Geometries are stored as `ST_PolyhedralSurface` or `ST_MultiPolygon` in the `geometry_data` table.  
+- Attribute data such as building functions and IDs are stored in related tables.  
 
-Result looks like: 
-![Duisburg_pg2b3dm](https://user-images.githubusercontent.com/9533288/77912264-862b5580-7292-11ea-8758-1aa1895c249f.PNG)
+---
 
-Live demo: https://geodan.github.io/pg2b3dm/sample_data/duisburg/mapbox/#15.62/51.430166/6.782675/0/45
+## 3. Converting to 3D Tiles  
+
+Once the data is imported, it can be converted into 3D Tiles for visualization using the `pg2b3dm` tool:
+
+```bash
+pg2b3dm -U postgres -h localhost -l -p 5440 -d postgres -t citydb.geometry_data -c geometry --attributecolumns geometry_properties
+```
+
+**Result:**
+- A `tileset.json` file describing the dataset’s structure and bounding volumes  
+- Multiple subtree files defining hierarchical levels of detail  
+- Binary glTF 2.0 (.glb) tiles ready for streaming  
+
+---
+
+## 4. Visualization  
+
+The resulting 3D Tiles can be viewed in any Cesium-compatible viewer.  
+When loaded, the 3D model displays buildings and terrain data with geometric accuracy and semantic detail.  
+Optional styling can be added to control building colors, materials, or feature visibility.
 
 
+<img src="denhaag_3dtiles.jpg" alt="3D Tiles Visualization of Den Haag"/>
+
+---
+
+## 5. Conclusion  
+
+3DCityDB v5 streamlines the process of:
+- Storing and querying CityGML 3.0 models in PostgreSQL/PostGIS  
+- Converting them into web-ready 3D Tiles for efficient visualization  
+- Supporting semantic 3D city models suitable for digital twin and urban planning applications  
+
+Future improvements may include the direct handling of texture and material data to enrich the visual quality of the exported 3D Tiles.

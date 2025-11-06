@@ -10,7 +10,7 @@
 
 Features:
 
-- 3D Tiles 1.1 Implicit tiling;
+- Explicit and Implicit tiling;
 
 - QUADTREE and OCTREE tiling schema;
 
@@ -113,13 +113,15 @@ viewer.scene.terrainProvider = terrainProvider;
 viewer.scene.globe.depthTestAgainstTerrain=true;
 ```
 
-- Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/  
+- Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/
+
+3] Converting CityGML to 3D Tiles using 3DCityDB v5
+
+For a dataprocessing workflow from CityGML to 3D Tiles using 3DCityDB v5 see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
 
 ### Older getting started documents
 
-1] See [getting started](getting_started.md) for a tutorial how to convert a 2D shapefile of buildings with height attribute to 3D Tiles and visualize in CesiumJS/Cesium for Unreal/Unity3D.
-
-2] For a dataprocessing workflow from CityGML to 3D Tiles using GDAL, PostGIS and FME see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
+See [getting started](getting_started.md) for a tutorial how to convert a 2D shapefile of buildings with height attribute to 3D Tiles and visualize in CesiumJS/Cesium for Unreal/Unity3D.
 
 ## Demo
 
@@ -544,6 +546,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2025-11-06: release 2.23.1: fix octree subdivision ath higher z-levels visibility
 
 2025-11-05: release 2.23.0: add multiple subtree files support for OCTREE tiling schema
 

@@ -37,7 +37,7 @@ public class OctreeTiler
 
         var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, inputTable.TableName, inputTable.GeometryColumn, new Point(bbox.XMin, bbox.YMin, bbox.ZMin), new Point(bbox.XMax, bbox.YMax, bbox.ZMax), where, inputTable.EPSGCode, tilingSettings.KeepProjection);
         if (numberOfFeatures == 0) {
-            var t2 = new Tile3D(level, tile.Z, tile.X, tile.Y);
+            var t2 = new Tile3D(level, tile.X, tile.Y, tile.Z);
             t2.Available = false;
             tiles.Add(t2);
             if (tileBounds != null) {
@@ -64,7 +64,7 @@ public class OctreeTiler
                         var zend = z_start + dz;
                         var bbox3d = new BoundingBox3D(xstart, ystart, z_start, xend, yend, zend);
 
-                        var new_tile = new Tile3D(level, tile.X * 2 + x, tile.Y * 2 + y, tile.Z + z);
+                        var new_tile = new Tile3D(level, tile.X * 2 + x, tile.Y * 2 + y, tile.Z * 2 + z);
                         GenerateTiles3D(bbox3d, level, new_tile, tiles, tileBounds);
                     }
                 }
