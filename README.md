@@ -10,7 +10,7 @@
 
 Features:
 
-- 3D Tiles 1.1 Implicit tiling;
+- Explicit and Implicit tiling;
 
 - QUADTREE and OCTREE tiling schema;
 
