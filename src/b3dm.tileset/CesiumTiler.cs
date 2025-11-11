@@ -128,6 +128,19 @@ public static class CesiumTiler
         return new BoundingBox3D(minx, miny, minz, maxx, maxy, maxz);
     }
 
+    public static List<Tile3D> GetChildren(List<Tile3D> tiles, Tile3D tile)
+    {
+        var res = new List<Tile3D>();
+        var root = tiles.Where(x => x.Equals(tile) && x.Available).FirstOrDefault();
+        if (root != null) {
+            res.Add(root);
+        }
+        var children = tiles.Where(x => tile.HasChild(x) && x.Available);
+        res.AddRange(children);
+
+        return res;
+    }
+
     public static void CreateExplicitTilesetsJson3D(Version version, string outputDirectory, double[] translation, double geometricError, double geometricErrorFactor, RefinementType refinement, double[] rootBoundingVolumeRegion, Tile3D tile, List<Tile3D> tiles, Dictionary<string, BoundingBox3D> tileBounds, bool createGltf = false, string tilesetVersion = "", string crs = "")
     {
         var splitLevel = (int)Math.Ceiling((tiles.Max((Tile3D s) => s.Level) + 1.0) / 2.0);
@@ -150,7 +163,8 @@ public static class CesiumTiler
                 for (var y = 0; y < height; y++) {
                     for (var z = 0; z < depth; z++) {
                         var splitLevelTile = new Tile3D(splitLevel, x, y, z);
-                        var children = TileSelector3D.Select(tiles, splitLevelTile, splitLevel, maxlevel);
+                        var children = GetChildren(tiles, splitLevelTile);
+
                         if (children.Count > 0) {
                             var childrenBbox3D = GetBoundingBox3D(children, tileBounds);
                             var childrenBbox2D = new BoundingBox(childrenBbox3D.XMin, childrenBbox3D.YMin, childrenBbox3D.XMax, childrenBbox3D.YMax);
