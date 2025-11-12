@@ -147,4 +147,65 @@ public static class TreeSerializer
 
         return child;
     }
+
+    public static TileSet ToTileset3D(List<subtree.Tile3D> tiles, Dictionary<string, BoundingBox3D> tileBounds, double[] translate, double[] region, double geometricError, double geometricErrorFactor = 2, Version version = null, RefinementType refine = RefinementType.ADD, bool createGltf = false, string tilesetVersion = "", string crs = "")
+    {
+        var tileset = GetTilesetObject(version, geometricError, tilesetVersion, crs);
+
+        var t = new double[] {   1.0, 0.0, 0.0, 0.0,
+                                     0.0,1.0, 0.0, 0.0,
+                                     0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0};
+
+        if (translate != null) {
+            t = new double[] {   1.0, 0.0, 0.0, 0.0,
+                                 0.0,1.0, 0.0, 0.0,
+                                 0.0, 0.0, 1.0, 0.0,
+            translate[0], translate[1], translate[2], 1.0};
+        }
+
+        var root = GetRoot(geometricError, t, region, refine);
+        tileset.geometricError = geometricError;
+        root.geometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, 1);
+        var childrenGeometricError = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, 2);
+        var children = GetChildren3D(tiles, tileBounds, childrenGeometricError, geometricErrorFactor, createGltf);
+        root.children = children;
+
+        tileset.root = root;
+        return tileset;
+    }
+
+    private static List<Child> GetChildren3D(List<subtree.Tile3D> tiles, Dictionary<string, BoundingBox3D> tileBounds, double geometricError, double geometricErrorFactor, bool createGltf = false)
+    {
+        var children = new List<Child>();
+        foreach (var tile in tiles) {
+            if (tile.Available) {
+                var ge = GeometricErrorCalculator.GetGeometricError(geometricError, geometricErrorFactor, tile.Level);
+                var child = GetChild3D(tile, tileBounds, ge, createGltf);
+                children.Add(child);
+            }
+        }
+
+        return children;
+    }
+
+    public static Child GetChild3D(subtree.Tile3D tile, Dictionary<string, BoundingBox3D> tileBounds, double geometricError, bool createGltf = false)
+    {
+        var ext = createGltf ? ".glb" : ".b3dm";
+        var child = new Child {
+            geometricError = geometricError,
+            content = new Content()
+        };
+        child.content.uri = $"content{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}{ext}";
+
+        var key = $"{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}";
+        var bbox = tileBounds[key];
+        var boundingBox = new BoundingBox(bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax);
+        var region = boundingBox.ToRadians().ToRegion(bbox.ZMin, bbox.ZMax);
+        child.boundingVolume = new Boundingvolume {
+            region = region
+        };
+
+        return child;
+    }
 }

@@ -330,15 +330,7 @@ When the input geometries are distributed in a flat area (like buildings in a ci
 
 OCTREE is used when the input geometries are distributed in a cube-like area.
 
-OCTREE tiling schema is currently in development.
-
-Most features are supported when using OCTREE subdivsion, except:
-
-- Explicting tiling;
-
-- LOD support;
-
-- Creating multiple subtree files.
+Most features are supported when using OCTREE subdivision, except LOD support;
 
 ## Query parameter
 
