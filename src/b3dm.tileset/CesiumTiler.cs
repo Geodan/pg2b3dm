@@ -154,14 +154,12 @@ public static class CesiumTiler
         if (maxlevel >= splitLevel) {
             // now create the tileset.json files on splitLevel
 
-            var width = Math.Pow(2, splitLevel);
-            var height = Math.Pow(2, splitLevel);
-            var depth = Math.Pow(2, splitLevel);
+            var dimension = Math.Pow(2, splitLevel);
             Console.WriteLine($"Writing tileset.json files...");
 
-            for (var x = 0; x < width; x++) {
-                for (var y = 0; y < height; y++) {
-                    for (var z = 0; z < depth; z++) {
+            for (var x = 0; x < dimension; x++) {
+                for (var y = 0; y < dimension; y++) {
+                    for (var z = 0; z < dimension; z++) {
                         var splitLevelTile = new Tile3D(splitLevel, x, y, z);
                         var children = GetChildren(tiles, splitLevelTile);
 
