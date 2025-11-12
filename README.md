@@ -543,6 +543,8 @@ Press F5 to start debugging.
 
 ## History
 
+2025-11-12: release 2.24.0: add support OCTREE subdivision with explicit tiling
+
 2025-11-06: release 2.23.1: fix octree subdivision ath higher z-levels visibility
 
 2025-11-05: release 2.23.0: add multiple subtree files support for OCTREE tiling schema
