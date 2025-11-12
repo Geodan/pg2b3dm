@@ -197,7 +197,8 @@ class Program
             };
 
             var outputFolder = o.Output;
-            var outputSettings = OutputDirectoryCreator.GetFolders(outputFolder);
+            var createSubtreeFolder = useImplicitTiling;
+            var outputSettings = OutputDirectoryCreator.GetFolders(outputFolder, createSubtreeFolder);
             var tilesetSettings = new TilesetSettings();
             tilesetSettings.OutputSettings = outputSettings;
             tilesetSettings.Version = version;

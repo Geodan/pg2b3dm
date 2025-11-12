@@ -5,15 +5,19 @@ namespace pg2b3dm;
 
 public static class OutputDirectoryCreator
 {
-    public static OutputSettings GetFolders(string outputFolder)
+    public static OutputSettings GetFolders(string outputFolder, bool createSubtreeFolder = true)
     {
         if (!Directory.Exists(outputFolder)) {
             Directory.CreateDirectory(outputFolder);
         }
 
-        var subtreesDirectory = $"{outputFolder}{Path.AltDirectorySeparatorChar}subtrees";
-        if (!Directory.Exists(subtreesDirectory)) {
-            Directory.CreateDirectory(subtreesDirectory);
+        string subtreesDirectory = string.Empty;
+
+        if (createSubtreeFolder) {
+            subtreesDirectory = $"{outputFolder}{Path.AltDirectorySeparatorChar}subtrees";
+            if (!Directory.Exists(subtreesDirectory)) {
+                Directory.CreateDirectory(subtreesDirectory);
+            }
         }
 
         var contentDirectory = $"{outputFolder}{Path.AltDirectorySeparatorChar}content";
