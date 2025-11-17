@@ -24,9 +24,9 @@ public class QuadtreeTiler
     private readonly StylingSettings stylingSettings;
     private InputTable inputTable;
 
-    public QuadtreeTiler(NpgsqlConnection conn, InputTable inputTable, StylingSettings stylingSettings, int maxFeaturesPerTile, double[] translation, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false)
+    public QuadtreeTiler(string connectionString, InputTable inputTable, StylingSettings stylingSettings, int maxFeaturesPerTile, double[] translation, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false)
     {
-        this.conn = conn;
+        this.conn = new NpgsqlConnection(connectionString);
         this.inputTable = inputTable;
         this.source_epsg = inputTable.EPSGCode;
         this.maxFeaturesPerTile = maxFeaturesPerTile;

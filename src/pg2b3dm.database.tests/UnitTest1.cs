@@ -75,7 +75,7 @@ public class UnitTest1
             Translation = trans
         };
 
-        var implicitTiler = new OctreeTiler(conn, inputTable, tilingSettings, stylingSettings, tilesetSettings);
+        var implicitTiler = new OctreeTiler(connectionString, inputTable, tilingSettings, stylingSettings, tilesetSettings);
         var tiles = implicitTiler.GenerateTiles3D(boundingBox3D, 0, new Tile3D(0, 0, 0, 0 ), new List<Tile3D>());
 
         Assert.That(tiles.Count, Is.EqualTo(36));
@@ -90,8 +90,7 @@ public class UnitTest1
         var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, "arvieux_batiments", "geom", true);
 
         var center = bbox_table.bbox.GetCenter();
-        // var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
-        var trans = new double[] { (double)center.X, (double)center.Y, 0};
+        var trans = new double[] { center.X ?? throw new InvalidOperationException("center.X is null"), center.Y ?? throw new InvalidOperationException("center.Y is null"), 0 };
 
         var bbox = bbox_table.bbox;
         var zmin = bbox_table.zmin;
@@ -117,7 +116,7 @@ public class UnitTest1
             Translation = trans
         };
 
-        var implicitTiler = new OctreeTiler(conn, inputTable, tilingSettings, stylingSettings, tilesetSettings);
+        var implicitTiler = new OctreeTiler(connectionString, inputTable, tilingSettings, stylingSettings, tilesetSettings);
         var tiles = implicitTiler.GenerateTiles3D(boundingBox3D, 0, new Tile3D(0, 0, 0, 0), new List<Tile3D>());
 
         Assert.That(tiles.Count, Is.EqualTo(36));
@@ -165,7 +164,7 @@ public class UnitTest1
         var stylingSettings = new StylingSettings();
 
         var implicitTiler = new 
-            QuadtreeTiler(conn, inputTable, stylingSettings, 50,
+            QuadtreeTiler(connectionString, inputTable, stylingSettings, 50,
             trans,
             "output/content",
             new List<int>() { 0 },
@@ -197,7 +196,7 @@ public class UnitTest1
             EPSGCode = 4326
         };
         var stylingSettings = new StylingSettings();
-        var implicitTiler = new QuadtreeTiler(conn, 
+        var implicitTiler = new QuadtreeTiler(connectionString, 
             inputTable, stylingSettings, 10,
             trans,
             "output/content",
@@ -228,7 +227,7 @@ public class UnitTest1
             EPSGCode = 4326
         };
         var stylingSettings = new StylingSettings();
-        var implicitTiler = new QuadtreeTiler(conn, inputTable, stylingSettings, 50,
+        var implicitTiler = new QuadtreeTiler(connectionString, inputTable, stylingSettings, 50,
             trans,
             "output/content",
             new List<int>() { 0 },

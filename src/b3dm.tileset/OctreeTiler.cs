@@ -17,9 +17,9 @@ public class OctreeTiler
     private readonly TilesetSettings tilesetSettings;
     private readonly InputTable inputTable;
 
-    public OctreeTiler(NpgsqlConnection conn, InputTable inputTable, TilingSettings tilingSetttings, StylingSettings stylingSettings, TilesetSettings tilesetSettings)
+    public OctreeTiler(string connectionString, InputTable inputTable, TilingSettings tilingSetttings, StylingSettings stylingSettings, TilesetSettings tilesetSettings)
     {
-        this.conn = conn;
+        this.conn = new NpgsqlConnection(connectionString);
         this.inputTable = inputTable;
         this.tilingSettings = tilingSetttings;
         this.stylingSettings = stylingSettings;
