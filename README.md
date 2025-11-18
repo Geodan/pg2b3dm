@@ -66,7 +66,7 @@ When the projection grids are not installed the vertikal value stays at 2.68. In
 
 - Download Geopackage from https://3dbag.nl/, for example Sibbe [https://3dbag.nl/nl/download?tid=8-688-40](https://3dbag.nl/nl/download?tid=8-688-40)
 
-Result: 8-688-40.gpkg (12 MB) - data jas projection EPSG:7415 (EPSG:28992 horizontal reference + EPSG:5709 vertical reference (NAP))
+Result: 8-688-40.gpkg (12 MB) - data has projection EPSG:7415 (EPSG:28992 horizontal reference + EPSG:5709 vertical reference (NAP))
 
 ### Data processing
 
@@ -75,10 +75,8 @@ Result: 8-688-40.gpkg (12 MB) - data jas projection EPSG:7415 (EPSG:28992 horizo
 Note: in the Cesium client viewer the terrain should be added to see the buildings on the correct height.
 
 ```
-$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres password=postgres" 8-688-40.gpkg lod22_3d -nln sibbe
+$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres" 8-688-40.gpkg lod22_3d -nln sibbe
 ```
-
-When the terrain is not used, omit the -t_srs parameter (in this case the Dutch EPSG code EPSG:7415 of the input data will be used).
 
 - Create spatial index
 
