@@ -90,10 +90,6 @@ postgresql> CREATE INDEX ON sibbe USING gist(st_centroid(st_envelope(geom)))
 $ pg2b3dm -h localhost -U postgres -c geom -d postgres -t sibbe -a identificatie
 ```
 
-Output should be as follows:
-
-https://gist.github.com/bertt/fa084f55217dded35c6fb1607e81a9f3
-
 ### Visualize
 
 - The resulting tileset can be added to CesiumJS using:
