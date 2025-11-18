@@ -96,7 +96,7 @@ $ pg2b3dm -h localhost -U postgres -c geom -d postgres -t sibbe -a identificatie
 
 ```
    const tileset = await Cesium.Cesium3DTileset.fromUrl(
-      "./1.1/tileset.json"
+      "tileset.json"
     );  
     viewer.scene.primitives.add(tileset);
 ```
