@@ -539,6 +539,8 @@ Press F5 to start debugging.
 
 ## History
 
+2025-11-19: release 2.24.1: fix alpha transparency issue
+
 2025-11-12: release 2.24.0: add support OCTREE subdivision with explicit tiling
 
 2025-11-06: release 2.23.1: fix octree subdivision ath higher z-levels visibility
