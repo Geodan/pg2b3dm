@@ -99,6 +99,9 @@ If --username and/or --dbname are not specified the current username is used as 
                                   AlphaMode. Other values: BLEND and MASK.
                                   Defines how the alpha value is interpreted.
 
+  --alpha_cutoff                  (Default: 0.5) Default glTF material
+                                  AlphaCutoff (used with MASK alpha mode)
+
   --create_gltf                   (Default: true) Create glTF files
 
   --radiuscolumn                  (Default: '') Column with radius values for lines

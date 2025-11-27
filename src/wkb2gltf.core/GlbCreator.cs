@@ -16,13 +16,13 @@ namespace Wkb2Gltf;
 
 public static class GlbCreator
 {
-    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true, Dictionary<string, List<object>> attributes = null, bool createGltf = false, SharpGLTF.Materials.AlphaMode defaultAlphaMode = SharpGLTF.Materials.AlphaMode.OPAQUE, bool doubleSided = false, bool YAxisUp = true)
+    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true, Dictionary<string, List<object>> attributes = null, bool createGltf = false, SharpGLTF.Materials.AlphaMode defaultAlphaMode = SharpGLTF.Materials.AlphaMode.OPAQUE, float alphaCutoff = 0.5f, bool doubleSided = false, bool YAxisUp = true)
     {
         var materialCache = new MaterialsCache();
         var shader = new Shader();
         shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = defaultColor, MetallicRoughness = defaultMetallicRoughness };
 
-        var defaultMaterial = MaterialCreator.CreateMaterial(shader, defaultDoubleSided, defaultAlphaMode);
+        var defaultMaterial = MaterialCreator.CreateMaterial(shader, defaultDoubleSided, defaultAlphaMode, alphaCutoff);
 
         var meshBatchId = new MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty>("mesh");
         var meshFeatureIds = new MeshBuilder<VertexPositionNormal, VertexWithFeatureId, VertexEmpty>("mesh");
@@ -38,7 +38,7 @@ public static class GlbCreator
                         alpha = SharpGLTF.Materials.AlphaMode.OPAQUE;
                     }
 
-                    material = materialCache.GetMaterialBuilderByShader(triangle.Shader, doubleSided, alpha);
+                    material = materialCache.GetMaterialBuilderByShader(triangle.Shader, doubleSided, alpha, alphaCutoff);
                 }
                 else {
                     material = defaultMaterial;

@@ -44,6 +44,38 @@ public class MaterialCreatorTests
     }
 
     [Test]
+    public void MetallicRoughnessBaseColorWithMaskAlphaModeTest()
+    {
+        // arrange
+        var shader = new Shader();
+        shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = "#00800081", MetallicRoughness = "" };
+
+        // act
+        var material = MaterialCreator.CreateMaterial(shader, true, AlphaMode.MASK, 0.5f);
+
+        // assert
+        Assert.That(material != null);
+        Assert.That(material.AlphaMode, Is.EqualTo(AlphaMode.MASK));
+        Assert.That(material.AlphaCutoff, Is.EqualTo(0.5f));
+    }
+
+    [Test]
+    public void MetallicRoughnessBaseColorWithMaskAlphaModeAndCustomCutoffTest()
+    {
+        // arrange
+        var shader = new Shader();
+        shader.PbrMetallicRoughness = new PbrMetallicRoughness() { BaseColor = "#00800081", MetallicRoughness = "" };
+
+        // act
+        var material = MaterialCreator.CreateMaterial(shader, true, AlphaMode.MASK, 0.3f);
+
+        // assert
+        Assert.That(material != null);
+        Assert.That(material.AlphaMode, Is.EqualTo(AlphaMode.MASK));
+        Assert.That(material.AlphaCutoff, Is.EqualTo(0.3f));
+    }
+
+    [Test]
     public void MetallicRoughnessBaseColorEmissiveTest()
     {
         // arrange
