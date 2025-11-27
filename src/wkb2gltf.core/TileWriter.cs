@@ -6,12 +6,12 @@ namespace pg2b3dm;
 
 public static class TileWriter
 {
-    public static byte[] ToTile(List<GeometryRecord> geometries, double[] translation = null, double[] scale = null, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, AlphaMode defaultAlphaMode = AlphaMode.OPAQUE, bool createGltf = false, bool YAxisUp = true)
+    public static byte[] ToTile(List<GeometryRecord> geometries, double[] translation = null, double[] scale = null, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool doubleSided = true, AlphaMode defaultAlphaMode = AlphaMode.OPAQUE, float defaultAlphaCutoff = 0.5f, bool createGltf = false, bool YAxisUp = true)
     {
         var triangles = GetTriangles(geometries, translation, scale);
         var attributes = GetAttributes(geometries);
 
-        var bytes = TileCreator.GetTile(attributes, triangles, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, createGltf, YAxisUp);
+        var bytes = TileCreator.GetTile(attributes, triangles, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, defaultAlphaCutoff, createGltf, YAxisUp);
 
         return bytes;
     }

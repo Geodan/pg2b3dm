@@ -58,6 +58,7 @@ class Program
             var defaultMetallicRoughness = o.DefaultMetallicRoughness;
             var doubleSided = (bool)o.DoubleSided;
             var defaultAlphaMode = o.DefaultAlphaMode;
+            var defaultAlphaCutoff = o.DefaultAlphaCutoff;
             var createGltf = (bool)o.CreateGltf;
             var copyright = o.Copyright;
             var tilesetVersion = o.TilesetVersion;
@@ -126,6 +127,7 @@ class Program
             Console.WriteLine($"Default metallic roughness: {defaultMetallicRoughness}");
             Console.WriteLine($"Doublesided: {doubleSided}");
             Console.WriteLine($"Default AlphaMode: {defaultAlphaMode}");
+            Console.WriteLine($"Default AlphaCutoff: {defaultAlphaCutoff}");
             Console.WriteLine($"Create glTF tiles: {createGltf}");
 
             var att = !string.IsNullOrEmpty(o.AttributeColumns) ? o.AttributeColumns : "-";
@@ -191,6 +193,7 @@ class Program
                 DefaultColor = defaultColor,
                 DefaultMetallicRoughness = defaultMetallicRoughness,
                 DefaultAlphaMode = defaultAlphaMode,
+                DefaultAlphaCutoff = defaultAlphaCutoff,
                 DoubleSided = doubleSided,
                 AddOutlines = addOutlines,
             };
