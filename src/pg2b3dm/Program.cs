@@ -193,7 +193,7 @@ class Program
                 DefaultColor = defaultColor,
                 DefaultMetallicRoughness = defaultMetallicRoughness,
                 DefaultAlphaMode = defaultAlphaMode,
-                DefaultAlphaCutoff = alphaCutoff,
+                AlphaCutoff = alphaCutoff,
                 DoubleSided = doubleSided,
                 AddOutlines = addOutlines,
             };
