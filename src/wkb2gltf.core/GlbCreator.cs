@@ -31,12 +31,14 @@ public static class GlbCreator
             foreach (var triangle in tri) {
                 MaterialBuilder material;
 
+                var alpha = defaultAlphaMode;
                 if (triangle.Shader != null) {
-                    if (triangle.Shader.PbrMetallicRoughness!=null && triangle.Shader.PbrMetallicRoughness.IsBaseColorOpaque()) {
-                        defaultAlphaMode = SharpGLTF.Materials.AlphaMode.OPAQUE;
+                    // workaround for cases where the alpha mode is set to blend, but the base color is fully opaque (eg. alpha = 1.0)
+                    if (triangle.Shader.PbrMetallicRoughness!=null && alpha == SharpGLTF.Materials.AlphaMode.BLEND && triangle.Shader.PbrMetallicRoughness.IsBaseColorOpaque()) {
+                        alpha = SharpGLTF.Materials.AlphaMode.OPAQUE;
                     }
 
-                    material = materialCache.GetMaterialBuilderByShader(triangle.Shader, doubleSided, defaultAlphaMode, alphaCutoff);
+                    material = materialCache.GetMaterialBuilderByShader(triangle.Shader, doubleSided, alpha, alphaCutoff);
                 }
                 else {
                     material = defaultMaterial;
