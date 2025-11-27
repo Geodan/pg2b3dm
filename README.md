@@ -36,88 +36,11 @@ Tileset.json and glb/b3dm tiles are by default created in the 'output/content' s
 
 ## Getting started
 
-1] Minimal example to create 3D Tiles from a 100 * 100 * 100 meter polyhedralsurface cube on Dam square Amsterdam
-
-See https://github.com/bertt/3dtiles_cube
-
-2] Convert 3D Data (Multipolygon Z) to 3D Tiles
-
-### Prerequisites
-
-- Install latest executable pg2b3dm for your platform (see https://github.com/Geodan/pg2b3dm/releases) 
-
-- PostGIS database
-
-- GDAL (ogr2ogr)
-
-Optional check PostGIS:
-
-```
-$ postgresql> select ST_AsText(ST_Transform(ST_GeomFromText('POINT(121302 487371 2.68)', 7415), 4979));
-POINT Z (4.892367035931109 52.37317920269912 45.66258579945144)
-```
-
-In this query a transformation from epsg:7415 to espg:4979 is performed. When the projection grids are installed the vertikal value = 2.68 is converted 
-to 45.66258579945144. 
-
-When the projection grids are not installed the vertikal value stays at 2.68. In this case the projection grids should be installed, using tool projsync --all (https://proj.org/en/9.3/apps/projsync.html)
-
-### Download data
-
-- Download Geopackage from https://3dbag.nl/, for example Sibbe [https://3dbag.nl/nl/download?tid=8-688-40](https://3dbag.nl/nl/download?tid=8-688-40)
-
-Result: 8-688-40.gpkg (12 MB) - data has projection EPSG:7415 (EPSG:28992 horizontal reference + EPSG:5709 vertical reference (NAP))
-
-### Data processing
-
-- Import in PostGIS database
-
-Note: in the Cesium client viewer the terrain should be added to see the buildings on the correct height.
-
-```
-$ ogr2ogr -f PostgreSQL pg:"host=localhost user=postgres" 8-688-40.gpkg lod22_3d -nln sibbe
-```
-
-- Create spatial index
-
-```
-postgresql> CREATE INDEX ON sibbe USING gist(st_centroid(st_envelope(geom)))
-```
-
-- Convert to 3D Tiles using pg2b3dm
-
-```
-$ pg2b3dm -h localhost -U postgres -c geom -d postgres -t sibbe -a identificatie
-```
-
-### Visualize
-
-- The resulting tileset can be added to CesiumJS using:
-
-```
-   const tileset = await Cesium.Cesium3DTileset.fromUrl(
-      "tileset.json"
-    );  
-    viewer.scene.primitives.add(tileset);
-```
-
-- The Dutch terrain can be added in CesiumJS using:
-
-```
-var terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl('https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh');
-viewer.scene.terrainProvider = terrainProvider;
-viewer.scene.globe.depthTestAgainstTerrain=true;
-```
-
-- Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/
-
-3] Converting CityGML to 3D Tiles using 3DCityDB v5
+See [getting started](getting_started.md) 3D Tiles from a 100 * 100 * 100 meter polyhedralsurface cube on Dam square Amsterdam.
 
 For a dataprocessing workflow from CityGML to 3D Tiles using 3DCityDB v5 see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
 
-### Older getting started documents
-
-See [getting started](getting_started.md) for a tutorial how to convert a 2D shapefile of buildings with height attribute to 3D Tiles and visualize in CesiumJS/Cesium for Unreal/Unity3D.
+For 3D Tiles support in various clients see [3D Tiles client support](3dtiles_client_support.md).
 
 ## Demo
 
@@ -406,38 +329,6 @@ postgresql> ALTER TABLE delaware_buildings  ADD COLUMN random_strings VARCHAR[] 
 
 In the options you can now specify the column name 'random_string' and/or 'random_strings' to add the values.
 
-
-## Cesium support
-
-For Cesium support (tiling schema, LODS, outlines) see [Cesium notes](cesium_notes.md) 
-
-## ArcGIS Pro support
-
-In ArcGIS Pro 3.2 support for 3D Tiles is added (https://pro.arcgis.com/en/pro-app/latest/help/mapping/layer-properties/work-with-3d-tiles-layers.htm)
-
-Sample: Use option 'Data from path' with  https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/1.0/tileset.json
-
-![image](https://github.com/Geodan/pg2b3dm/assets/538812/bf82df73-781c-41a4-97f2-a26c601a78ec)
-
-![image](https://github.com/Geodan/pg2b3dm/assets/538812/ad3332c7-1a95-46f2-bcce-92a5e10ceccc)
-
-
-## QGIS support
-
-In QGIS 3.34 support for 3D Tiles is added see https://cesium.com/blog/2023/11/07/qgis-now-supports-3d-tiles/
-
-To create 3D Tiles for QGIS use parameters '--create_gltf false --use_implicit_tiling false' as 3D Tiles 1.1 features are not supported yet. 
-
-Sample dataset Sibbe https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/1.0/tileset.json
-
-![image](https://github.com/Geodan/pg2b3dm/assets/538812/a89e531c-6aa5-4f0b-b7ae-35f43ee52ef8)
-
-
-## Game engines Unity3D / Unreal / Omniverse support
-
-To create 3D Tiles for game engines use parameters '--create_gltf false --use_implicit_tiling false' as 3D Tiles 1.1 features are not supported yet.
-
-Sample dataset Sibbe: https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/1.0/tileset.json
 
 ## Run from Docker
 
