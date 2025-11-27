@@ -36,9 +36,11 @@ Tileset.json and glb/b3dm tiles are by default created in the 'output/content' s
 
 ## Getting started
 
-See [getting started](getting_started.md) 3D Tiles from a 100 * 100 * 100 meter polyhedralsurface cube on Dam square Amsterdam.
+See [getting started](getting_started.md) for a tutorial to download 3D building data and convert/visualize 3D Tiles (Sibbe).
 
 For a dataprocessing workflow from CityGML to 3D Tiles using 3DCityDB v5 see [dataprocessing/dataprocessing_citygml](dataprocessing/dataprocessing_citygml.md).
+
+For a minimal example to create 3D Tiles from a 100 * 100 * 100 meter polyhedralsurface cube on Dam square Amsterdam see https://github.com/bertt/3dtiles_cube
 
 For 3D Tiles support in various clients see [3D Tiles client support](3dtiles_client_support.md).
 
