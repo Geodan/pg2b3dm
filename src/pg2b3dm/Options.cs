@@ -41,7 +41,7 @@ public class Options
     [Option("default_alpha_mode", Required = false, Default = AlphaMode.OPAQUE, HelpText = "Default glTF material AlphaMode. Other values: BLEND and MASK. Defines how the alpha value is interpreted.")]
     public AlphaMode DefaultAlphaMode { get; set; }
 
-    [Option("default_alpha_cutoff", Required = false, Default = 0.5f, HelpText = "Default glTF material AlphaCutoff (used with MASK alpha mode). Default: 0.5")]
+    [Option("alphaCutoff", Required = false, Default = 0.5f, HelpText = "Default glTF material AlphaCutoff (used with MASK alpha mode). Default: 0.5")]
     public float DefaultAlphaCutoff { get; set; }
 
     [Option("create_gltf", Required = false, Default = true, HelpText = "Create glTF")]
