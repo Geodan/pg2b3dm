@@ -286,7 +286,7 @@ When a color has 6 digits (like #RRGGBB) then alphaMode is set to OPAQUE for tha
 
 When a color has 8 digits (like #RRGGBBAA) and AA is equal to 255 (0xFF) and AlphaMode = BLEND then alphaMode is set to OPAQUE for that material.
 
-SampleCesiumJS 3D Tiles AlphaMode OPAQUE, BLEND, MASK25, MASK75 on 6 boxes with 0-20-40-60-80-100 alpha value from south to north: 
+Sample alphaModes OPAQUE, BLEND, MASK (alpha_cutoff = 0.25), MASK (alpha_cutoff = 0.75) on 6 boxes with 0-20-40-60-80-100 alpha value from south to north: 
 
 <img width="600" height="341" alt="image" src="https://github.com/user-attachments/assets/b0710101-adf8-4bce-b587-f7d20aa2219f" />
 
