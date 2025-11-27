@@ -1,10 +1,6 @@
 # Getting started
 
-1] Minimal example to create 3D Tiles from a 100 * 100 * 100 meter polyhedralsurface cube on Dam square Amsterdam
-
-See https://github.com/bertt/3dtiles_cube
-
-2] Convert 3D Data (Multipolygon Z) to 3D Tiles
+Convert 3D Building data (Multipolygon Z) to 3D Tiles
 
 ### Prerequisites
 
