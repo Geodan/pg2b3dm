@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.113.0/Cesium.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/cesium/1.113.0/Widgets/widgets.min.css" rel="stylesheet">
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.135/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.135/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   
     <style>
       html, body, #cesiumContainer {
@@ -25,11 +25,30 @@
 <body>
   <div id="cesiumContainer"></div>
   <script type="module">
-    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0NWQyNjhiOC1jYmQ5LTQyZWQtODJlMi01MTg5ZDNkMzRhOGQiLCJpZCI6NDc4OSwiaWF0IjoxNzUzNzk1NzA1fQ.m2LCYXXGRYZPfwE3HG272TFz7xBIIwXj1wWNDXJ0V_w';
     var viewer = new Cesium.Viewer('cesiumContainer', {
-      //terrain: Cesium.Terrain.fromWorldTerrain(),
+      requestRenderMode : true,
+      animation: false,
+      baseLayerPicker: false,
+      fullscreenButton: true,
+      vrButton: false,
+      geocoder: true,
+      homeButton: false,
+      infoBox: true,
+      selectionIndicator: true,
+      timeline: false,
+      shadows: false,
+      navigationHelpButton: false,
+      navigationInstructionsInitiallyVisible: true,
+      scene3DOnly: true,
+      geocoder: false,
+      shouldAnimate: true,
+      baseLayer: new Cesium.ImageryLayer(new Cesium.UrlTemplateImageryProvider({
+        url: "https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/2024_ortho25/EPSG:3857/{z}/{x}/{y}.jpeg",
+        maximumLevel: 19,
+      }))
     });
-
+  viewer.cesiumWidget.creditContainer.style.display = "none";
+  viewer.scene.globe.baseColor = Cesium.Color.WHITE;
   var terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl('https://api.pdok.nl/kadaster/3d-basisvoorziening/ogc/v1_0/collections/digitaalterreinmodel/quantized-mesh');
   viewer.scene.terrainProvider = terrainProvider;
   viewer.scene.globe.depthTestAgainstTerrain=true;
