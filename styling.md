@@ -90,10 +90,13 @@ The json must have the following structure:
 }
 ```
 
-### Rules for amount of shaders
+### Rules for number of shaders
 
-- The amount of colors in the lists can be 1, in  which case the same color is used for all 
-triangles in the geometry;
+The number of colors in each list determines how shaders are applied.
+
+1. Single Color for All Triangles
+
+If a list contains one color, that color is applied to all triangles.
 
 Example:
 
@@ -106,11 +109,25 @@ update delaware_buildings set simple_shader =
 }';
 ```
 
-- For collection types (like MultiPolygon, MultiLine or PolyhedralSurface) the number of shaders can be equal to the number of 
-inner geometries . In this case each inner geometry is styled with the corresponding shader. 
+2. One Shader per Inner Geometry
 
-- The number of shaders can be equal to the number of triangles (of the generated mesh). The amount of triangles must
-    be known in advance.
+For collection geometry types such as:
+
+- MultiPolygon
+
+- MultiLine
+
+- PolyhedralSurface
+
+The number of shaders should match the number of inner geometries.
+Each inner geometry receives its corresponding shader.
+
+3. One Shader per Triangle
+
+The number of shader entries may also match the number of triangles in the generated mesh.
+In this case, the total number of triangles must be known in advance.
+
+Invalid Shader Counts
 
 If the amount of colors is otherwise an exception is thrown.
 
