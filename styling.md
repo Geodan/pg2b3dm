@@ -295,7 +295,7 @@ So Diffuse Red = 230, Diffuse Green = 0, Diffuse Blue = 128, Alpha = 0
 
 It is possible to specify glTF material alphaMode property (see: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#alpha-coverage) using `--default_alpha_mode` option for all materials. By default it is set to OPAQUE. Other options are BLEND and MASK.
 
-When using alphaMode = MASK, the value of alpha_cutoff is used (default value 0.5), when alpha is above the alpha_cutoff value a fully opaque material is used, when it below it's drawn fully transparent.
+When using alphaMode = MASK, the value of option --alpha_cutoff is used (default value 0.5), when alpha is above the alpha_cutoff value a fully opaque material is used, when it below it's drawn fully transparent.
 
 Using BLEND mode for all materials might affect rendering performance.
 
