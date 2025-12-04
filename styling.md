@@ -55,7 +55,7 @@ Hex code #FF000055 is Color red (r,g,b = 255,0,0) + Alpha = 85
 The json document contains the shaders for the 3D Tiles. When the option --shaderscolumn is used, the shaders are read from the column specified in the option.
 
 When the option --shaderscolumn is not used, a default PbrMetallicRoughness shader is used for all triangles in the geometry, 
-witht following properties:
+with following properties:
 
 - BaseColor: #FFFFFF (option --default_color)
 
@@ -65,7 +65,7 @@ R = 255, G = 255, B = 255, A = 1
 
 Metallic factor: 0, Roughness factor: 0.5019608 (128/255)
 
-- Doubleside: true (option double_sided)
+- Doubleside: true (option --double_sided)
 
 Alternative option is to specify a shader using the ShadersColumn.
 
@@ -94,7 +94,7 @@ The json must have the following structure:
 
 The number of colors in each list determines how shaders are applied.
 
-1. Single Color for All Triangles
+1. Single Shader for All Triangles
 
 If a list contains one color, that color is applied to all triangles.
 
@@ -129,7 +129,7 @@ In this case, the total number of triangles must be known in advance.
 
 Invalid Shader Counts
 
-If the amount of colors is otherwise an exception is thrown.
+If the number of colors is otherwise an exception is thrown.
 
 Example: 
 
