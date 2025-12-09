@@ -131,7 +131,15 @@ public static class GlbCreator
                         propertyTable.UseProperty(property).SetValues(list);
                     }
                     else if (type == typeof(string)) {
-                        var array = objects.Select(x => x == DBNull.Value ? stringNodata : x.ToString()).ToArray();
+                        var array = objects.Select(x => x == (DBNull.Value)? stringNodata : x.ToString()).ToArray();
+
+                        var allEmpty = array.All(x => string.IsNullOrEmpty(x));
+
+                        if (allEmpty) {
+                            // workaround: add zero-width space so that the array is not all empty
+                            array[0] = "\u200B"; // zero-width space
+                        }
+
                         property = property.WithStringType(nullCount > 0 ? stringNodata : null);
                         propertyTable.UseProperty(property).SetValues(array);
                     }
