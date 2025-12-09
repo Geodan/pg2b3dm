@@ -22,6 +22,36 @@ public class GlbCreatorTests
         Tiles3DExtensions.RegisterExtensions();
     }
 
+
+    [Test]
+    public void GetGlb_WithAllEmptyStringAttributes_ShouldAddZeroWidthSpace()
+    {
+        // arrange
+        var p0 = new Point(0, 0, 0);
+        var p1 = new Point(1, 1, 0);
+        var p2 = new Point(1, 0, 0);
+
+        var triangle1 = new Triangle(p0, p1, p2, 0);
+
+        var triangles = new List<Triangle>() { triangle1 };
+
+        var attributes = new Dictionary<string, List<object>>
+        {
+            { "empty_string_field", new List<object> { "", "", "" } }
+        };
+
+        // Act
+        var result = GlbCreator.GetGlb(
+            triangles: new List<List<Triangle>>() { triangles},
+            createGltf: true,
+            attributes: attributes
+        );
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Length, Is.GreaterThan(0));
+    }
+
     [Test]
     public void CreateGlbFromOvertureBuildingIssue210()
     {
