@@ -435,6 +435,8 @@ Press F5 to start debugging.
 
 ## History
 
+2025-12-09: release 2.25.1: fix issue with all empty strings in attribute column
+
 2025-11-27: release 2.25.0: add support for option alpha_cutoff (used with MASK alpha mode)
 
 2025-11-19: release 2.24.1: fix alpha transparency issue
