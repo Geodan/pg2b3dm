@@ -64,6 +64,16 @@ Presentation at FOSS4G 2019: 3D geodata with 3D Tiles https://www.youtube.com/wa
 
 - Dover - Delaware buildings in Cesium: https://geodan.github.io/pg2b3dm/sample_data/delaware/cesium/
 
+## Tooling
+
+Tooling containing pg2b3dm:
+
+- Digital Twin toolbox: https://github.com/geosolutions-it/digital-twin-toolbox
+
+- QGIS Web Client - Generating 3D tiles: https://qwc-services.github.io/master/topics/View3D/#generating-3d-tiles
+
+- Python Fantasy Map Generator (py-fmg) - Visualisation 3D https://github.com/Axle-Bucamp/py-fmg/blob/dev/README_3D.md
+
 ## Command line options
 
 All parameters are optional, except the -t --table option. 
