@@ -13,7 +13,7 @@
 
 	<ItemGroup>
     <PackageReference Include="b3dm-tile" Version="1.2.0" />
-    <PackageReference Include="bertt.triangulator" Version="1.6.0" />
+    <PackageReference Include="bertt.triangulator" Version="1.7.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="SharpGLTF.Ext.3DTiles" Version="1.0.5" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.5" />
