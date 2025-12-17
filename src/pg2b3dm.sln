@@ -24,6 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{0403ED2E-B5A
 		..\..\..\..\..\Users\bertt\Desktop\delaware.png = ..\..\..\..\..\Users\bertt\Desktop\delaware.png
 		..\..\..\..\..\Users\bert\Desktop\demo_pg2b3dm.gif = ..\..\..\..\..\Users\bert\Desktop\demo_pg2b3dm.gif
 		..\getting_started.md = ..\getting_started.md
+		C:\Users\bert\Desktop\test.csv\materials_for_features.csv = C:\Users\bert\Desktop\test.csv\materials_for_features.csv
 		..\README.md = ..\README.md
 		release_notes_0.10.md = release_notes_0.10.md
 		release_notes_0.11.md = release_notes_0.11.md

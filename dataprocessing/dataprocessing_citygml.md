@@ -74,6 +74,88 @@ Optional styling can be added to control building colors, materials, or feature 
 
 ---
 
+## 5. Advanced visualization with shaders
+
+
+To enhance the visual appearance of the 3D Tiles, we can apply shaders when generating the tiles. For example, use different
+colors per CityGML class (like RoofSurface, WallSurface, OuterfloorSurface).
+
+See [materials_for_features.csv](materials_for_features.csv) for an example mapping of CityGML feature classes to material colors.
+
+Import the materials mapping into the database:
+
+```sql
+CREATE TABLE citydb.materials_for_features (
+    namespace_of_classname TEXT,
+    classname TEXT,
+    namespace_of_property TEXT,
+    property_name TEXT,
+    column_name_of_property_value TEXT,
+    property_value TEXT,
+    pbr_metallic_roughness_base_color TEXT,
+    pbr_metallic_roughness_metallic_roughness TEXT
+);
+
+\copy materials_for_features FROM 'materials_for_features.csv' WITH (FORMAT csv, HEADER true);
+```
+
+Create a view containing the geometry data along with the corresponding material colors:
+
+```sql
+CREATE OR REPLACE VIEW citydb.geoms4tiles
+AS 
+WITH material_data_cte AS (
+    SELECT
+        mtf.namespace_of_classname,
+        mtf.classname,
+        JSON_OBJECT(
+            'PbrMetallicRoughness' : JSON_OBJECT(
+                'BaseColors' :
+                    NULLIF(
+                        ARRAY[mtf.pbr_metallic_roughness_base_color],
+                        '{NULL}'::text[]
+                    ),
+                'MetallicRoughness' :
+                    NULLIF(
+                        ARRAY[mtf.pbr_metallic_roughness_metallic_roughness],
+                        '{NULL}'::text[]
+                    )
+                ABSENT ON NULL
+                RETURNING json
+            )
+            ABSENT ON NULL
+            RETURNING json
+        ) AS material_data
+    FROM materials_for_features mtf
+    WHERE mtf.property_value IS NULL
+)
+SELECT 
+    ftr.objectid,
+    obcl.classname,
+    pbr.material_data,
+    geometry AS geom
+FROM geometry_data gmdt
+    LEFT JOIN feature ftr ON ftr.id = gmdt.feature_id
+    LEFT JOIN objectclass obcl ON obcl.id = ftr.objectclass_id
+    LEFT JOIN namespace ns ON ns.id = obcl.namespace_id
+    LEFT JOIN material_data_cte pbr ON pbr.namespace_of_classname = ns.alias AND pbr.classname = obcl.classname
+	where ftr.objectid NOT LIKE 'bag%';    
+```
+
+Note: The view filters out building parts from the Dutch BAG dataset (ftr.objectid NOT LIKE 'bag%') to avoid visual clutter.
+
+Now, generate the 3D Tiles using the new view:
+
+```bash
+pg2b3dm -U postgres -h localhost l -p 5440 -d postgres -t citydb.geoms4tiles -c geom --shaderscolumn material_data -a objectid,classname --default_alpha_mode BLEND
+```
+
+Result: The exported 3D Tiles will now have different colors based on the CityGML feature classes, enhancing the visualization quality.
+
+<img src="denhaag_citygml_colors.png" alt="3D Tiles Visualization of Den Haag with Shaders"/>
+
+---
+
 ## 5. Conclusion  
 
 3DCityDB v5 streamlines the process of:
@@ -81,4 +163,4 @@ Optional styling can be added to control building colors, materials, or feature 
 - Converting them into web-ready 3D Tiles for efficient visualization  
 - Supporting semantic 3D city models suitable for digital twin and urban planning applications  
 
-Future improvements may include the direct handling of texture and material data to enrich the visual quality of the exported 3D Tiles.
+Future improvements may include the direct handling of texture data to enrich the visual quality of the exported 3D Tiles.
