@@ -35,6 +35,12 @@ Example command for importing a CityGML file:
 citydb import citygml -H localhost -d postgres -u postgres -p postgres --db-port 5440 den_haag_3d_archipelbuurt.gml
 ```
 
+Create spatial index:
+
+```sql
+CREATE INDEX ON citydb.geometry_data USING gist(st_centroid(st_envelope(geometry)))
+```
+
 **Notes:**
 - The importer loads buildings and other features into the schema.  
 - Geometries are stored as `ST_PolyhedralSurface` or `ST_MultiPolygon` in the `geometry_data` table.  
