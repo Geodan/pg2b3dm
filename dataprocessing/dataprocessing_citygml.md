@@ -5,6 +5,8 @@
 3DCityDB v5 is an open-source database designed for storing and managing semantic 3D city models based on the CityGML 3.0 standard. It runs on PostgreSQL with PostGIS and organizes city data into about 17 core tables that handle geometry, metadata, appearances, and relationships.  
 This guide outlines how to install 3DCityDB v5, import CityGML data, export it as 3D Tiles, and visualize the results.
 
+Note: In future iterations, 3DCityDB aims to improve support for creating 3D Tiles using pg2b3dm.
+
 ---
 
 ## 1. Installation  
