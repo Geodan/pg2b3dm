@@ -71,10 +71,9 @@ pg2b3dm -U postgres -h localhost -l -p 5440 -d postgres -t citydb.geometry_data 
 
 ## 4. Visualization  
 
-The resulting 3D Tiles can be viewed in any Cesium-compatible viewer.  
-When loaded, the 3D model displays buildings and terrain data with geometric accuracy and semantic detail.  
+The resulting 3D Tiles can be viewed in any Cesium-compatible viewer -make sure to load the buildings tileset and a terrain.  
+When loaded, Cesium displays buildings and terrain data.  
 Optional styling can be added to control building colors, materials, or feature visibility.
-
 
 <img src="denhaag_3dtiles.jpg" alt="3D Tiles Visualization of Den Haag"/>
 
