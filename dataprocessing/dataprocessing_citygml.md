@@ -39,8 +39,11 @@ Example command for importing a CityGML file:
 citydb import citygml -H localhost -d postgres -u postgres -p postgres --db-port 5440 den_haag_3d_archipelbuurt.gml
 ```
 
-In a PostgreSQL client (like PGAdmin/ DBeaver) open database connection to localhost, port 5440, user postgres.
+In a PostgreSQL client (like PGAdmin/ DBeaver/psql) open database connection to localhost, port 5440, user postgres.
 
+```
+psql -h localhost -p 5440 -U postgres -d postgres
+```
 In the PostgreSQL client create a spatial index:
 
 ```sql
@@ -93,14 +96,14 @@ Import the materials mapping into the database:
 CREATE TABLE citydb.materials_for_features (
     namespace_of_classname TEXT,
     classname TEXT,
-    namespace_of_property TEXT,
-    property_name TEXT,
-    column_name_of_property_value TEXT,
-    property_value TEXT,
     pbr_metallic_roughness_base_color TEXT,
     pbr_metallic_roughness_metallic_roughness TEXT
 );
+```
 
+Copy the csv to the database:
+
+```sql
 \copy materials_for_features FROM 'materials_for_features.csv' WITH (FORMAT csv, HEADER true);
 ```
 
@@ -132,7 +135,6 @@ WITH material_data_cte AS (
             RETURNING json
         ) AS material_data
     FROM materials_for_features mtf
-    WHERE mtf.property_value IS NULL
 )
 SELECT 
     ftr.objectid,
@@ -152,9 +154,8 @@ Note: The view filters out building parts from the Dutch BAG dataset (ftr.object
 Now, generate the 3D Tiles using the new view:
 
 ```bash
-pg2b3dm -U postgres -h localhost l -p 5440 -d postgres -t citydb.geoms4tiles -c geom --shaderscolumn material_data -a objectid,classname --default_alpha_mode BLEND
+pg2b3dm -U postgres -h localhost l -p 5440 -d postgres -t citydb.geoms4tiles -c geom --shaderscolumn material_data -a objectid,classname
 ```
-
 Result: The exported 3D Tiles will now have different colors based on the CityGML feature classes, enhancing the visualization quality.
 
 <img src="denhaag_citygml_colors.png" alt="3D Tiles Visualization of Den Haag with Shaders"/>
