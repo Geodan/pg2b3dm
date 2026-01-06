@@ -39,7 +39,9 @@ Example command for importing a CityGML file:
 citydb import citygml -H localhost -d postgres -u postgres -p postgres --db-port 5440 den_haag_3d_archipelbuurt.gml
 ```
 
-Create spatial index:
+In a PostgreSQL client (like PGAdmin/ DBeaver) open database connection to localhost, port 5440, user postgres.
+
+In the PostgreSQL client create a spatial index:
 
 ```sql
 CREATE INDEX ON citydb.geometry_data USING gist(st_centroid(st_envelope(geometry)))
