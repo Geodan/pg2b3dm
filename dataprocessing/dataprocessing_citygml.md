@@ -31,6 +31,8 @@ After launching, the database schema is automatically created with tables for fe
 
 Download a sample CityGML file, such as the Den Haag Archipelbuurt 3D model (45MB) from [https://ckan.dataplatform.nl/dataset/3d-stadsmodel-den-haag-2021-citygml/resource/be8d3a16-50f3-415f-a8bd-55d24c9d8cdc](https://ckan.dataplatform.nl/dataset/3d-stadsmodel-den-haag-2021-citygml/resource/be8d3a16-50f3-415f-a8bd-55d24c9d8cdc).
 
+Install command line tool 'citydb' - see https://github.com/3dcitydb/citydb-tool
+
 Example command for importing a CityGML file:
 
 ```bash
