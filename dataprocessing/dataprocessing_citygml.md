@@ -59,10 +59,10 @@ CREATE INDEX ON citydb.geometry_data USING gist(st_centroid(st_envelope(geometry
 
 ## 3. Converting to 3D Tiles  
 
-Once the data is imported, it can be converted into 3D Tiles for visualization using the `pg2b3dm` tool:
+Once the data is imported, convert the data into 3D Tiles using the `pg2b3dm` tool:
 
 ```bash
-pg2b3dm -U postgres -h localhost -l -p 5440 -d postgres -t citydb.geometry_data -c geometry --attributecolumns geometry_properties
+pg2b3dm -U postgres -p 5440 -d postgres -t citydb.geometry_data -c geometry --attributecolumns geometry_properties
 ```
 
 **Result:**
@@ -149,6 +149,12 @@ FROM geometry_data gmdt
 	where ftr.objectid NOT LIKE 'bag%';    
 ```
 
+Sample resulting JSON in column geoms4tiles.material_data:
+
+```
+{"PbrMetallicRoughness" : {"BaseColors" : ["#FFFF00"]}}
+```
+
 Notes: 
 
 - The view filters out building parts from the Dutch BAG dataset (ftr.objectid NOT LIKE 'bag%') to avoid visual clutter.
@@ -156,10 +162,10 @@ Notes:
 - In some cases, the input CityGML file contains 'intersection curves'. These intersection curves are stored as linestrings in the geometry_data table and visualized as a 3D pipes
 using pg2b3dm. A recommended filter to add to the view could be "st_geometrytype(geometry) != 'Linestring'". 
 
-Now, generate the 3D Tiles using the new view:
+Now, generate the 3D Tiles using the new view - adding the shaderscolumn parameter:
 
 ```bash
-pg2b3dm -U postgres -h localhost l -p 5440 -d postgres -t citydb.geoms4tiles -c geom --shaderscolumn material_data -a objectid,classname
+pg2b3dm -U postgres -p 5440 -d postgres -t citydb.geoms4tiles -c geom --shaderscolumn material_data -a objectid,classname
 ```
 Result: The exported 3D Tiles will now have different colors based on the CityGML feature classes, enhancing the visualization quality.
 
