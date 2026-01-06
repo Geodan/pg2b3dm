@@ -149,7 +149,12 @@ FROM geometry_data gmdt
 	where ftr.objectid NOT LIKE 'bag%';    
 ```
 
-Note: The view filters out building parts from the Dutch BAG dataset (ftr.objectid NOT LIKE 'bag%') to avoid visual clutter.
+Notes: 
+
+- The view filters out building parts from the Dutch BAG dataset (ftr.objectid NOT LIKE 'bag%') to avoid visual clutter.
+
+- In some cases, the input CityGML file contains 'intersection curves'. These intersection curves are stored as linestrings in the geometry_data table and visualized as a 3D pipes
+using pg2b3dm. A recommended filter to add to the view could be "st_geometrytype(geometry) != 'Linestring'". 
 
 Now, generate the 3D Tiles using the new view:
 
