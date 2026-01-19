@@ -8,6 +8,12 @@ Convert 3D Building data (Multipolygon Z) to 3D Tiles
 
 - PostGIS database
 
+Example in Docker:
+
+```
+docker run -it -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e PROJ_NETWORK=ON postgis/postgis:18-3.6
+```
+
 - GDAL (ogr2ogr)
 
 Optional check PostGIS:
