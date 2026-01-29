@@ -223,7 +223,7 @@ triangulation. Geometries with interior rings are supported.
 For large datasets create a spatial index on the geometry column:
 
 ```
-psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle)));
+psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom)), st_envelope(geom));
 ```
 
 When there the spatial index is not present the following warning is shown.

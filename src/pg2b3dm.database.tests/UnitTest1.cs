@@ -78,7 +78,7 @@ public class UnitTest1
         var implicitTiler = new OctreeTiler(connectionString, inputTable, tilingSettings, stylingSettings, tilesetSettings);
         var tiles = implicitTiler.GenerateTiles3D(boundingBox3D, 0, new Tile3D(0, 0, 0, 0 ), new List<Tile3D>());
 
-        Assert.That(tiles.Count, Is.EqualTo(36));
+        Assert.That(tiles.Count, Is.EqualTo(25));
     }
 
     [Test]
@@ -119,7 +119,7 @@ public class UnitTest1
         var implicitTiler = new OctreeTiler(connectionString, inputTable, tilingSettings, stylingSettings, tilesetSettings);
         var tiles = implicitTiler.GenerateTiles3D(boundingBox3D, 0, new Tile3D(0, 0, 0, 0), new List<Tile3D>());
 
-        Assert.That(tiles.Count, Is.EqualTo(36));
+        Assert.That(tiles.Count, Is.EqualTo(25));
     }
 
 
@@ -173,7 +173,7 @@ public class UnitTest1
         bbox_wgs84.bbox,
         new Tile(0, 0, 0),
         new List<Tile>());
-        Assert.That(tiles.Count, Is.EqualTo(29));
+        Assert.That(tiles.Count, Is.EqualTo(17));
     }
 
     [Test]
@@ -206,7 +206,7 @@ public class UnitTest1
         bbox_wgs84.bbox,
         new Tile(0, 0, 0),
         new List<Tile>());
-        Assert.That(tiles.Count, Is.EqualTo(145));
+        Assert.That(tiles.Count, Is.EqualTo(89));
     }
     
     

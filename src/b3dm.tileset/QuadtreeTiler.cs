@@ -38,8 +38,12 @@ public class QuadtreeTiler
         this.stylingSettings = stylingSettings;
     }
 
-    public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod = 0, bool createGltf = false, bool keepProjection = false)
+    public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod = 0, bool createGltf = false, bool keepProjection = false, HashSet<string> processedGeometries = null)
     {
+        if (processedGeometries == null) {
+            processedGeometries = new HashSet<string>();
+        }
+
         var where = inputTable.GetQueryClause();
 
         var lodquery = LodQuery.GetLodQuery(inputTable.LodColumn, lod);
@@ -48,15 +52,15 @@ public class QuadtreeTiler
             where += $" and {lodquery}";
         }
 
-        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, inputTable.TableName, inputTable.GeometryColumn, new Point(bbox.XMin, bbox.YMin), new Point(bbox.XMax, bbox.YMax), where, source_epsg, keepProjection);
+        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, inputTable.TableName, inputTable.GeometryColumn, new Point(bbox.XMin, bbox.YMin), new Point(bbox.XMax, bbox.YMax), where, source_epsg, keepProjection, processedGeometries);
 
         if (numberOfFeatures == 0) {
             tile.Available = false;
             tiles.Add(tile);
         }
         else if (numberOfFeatures > maxFeaturesPerTile) {
-            tile.Available = false;
-            tiles.Add(tile);
+            // First, get the largest geometries up to maxFeaturesPerTile for this level
+            CreateTileForLargestGeometries(bbox, tile, tiles, where, lod, createGltf, keepProjection, processedGeometries);
 
             var z = tile.Z + 1;
 
@@ -74,11 +78,37 @@ public class QuadtreeTiler
                     var bboxQuad = new BoundingBox(xstart, ystart, xend, yend);
                     var new_tile = new Tile(z, tile.X * 2 + x, tile.Y * 2 + y);
                     new_tile.BoundingBox = bboxQuad.ToArray();
-                    GenerateTiles(bboxQuad, new_tile, tiles, lod, createGltf, keepProjection);
+                    GenerateTiles(bboxQuad, new_tile, tiles, lod, createGltf, keepProjection, processedGeometries);
                 }
             }
         }
         else {
+            CreateTile(bbox, tile, tiles, where, lod, createGltf, keepProjection, processedGeometries);
+        }
+
+        return tiles;
+    }
+
+    private void CreateTileForLargestGeometries(BoundingBox bbox, Tile tile, List<Tile> tiles, string where, int lod, bool createGltf, bool keepProjection, HashSet<string> processedGeometries)
+    {
+        // Get the largest geometries (up to maxFeaturesPerTile) for this tile at this level
+        tile.Available = false;
+        tile.BoundingBox = bbox.ToArray();
+        
+        int target_srs = keepProjection ? source_epsg : 4978;
+
+        var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection, processedGeometries);
+        
+        // Only take up to maxFeaturesPerTile largest geometries
+        var geometriesToProcess = geometries.Take(maxFeaturesPerTile).ToList();
+
+        if (geometriesToProcess.Count > 0) {
+            // Collect hashes of processed geometries
+            foreach (var geom in geometriesToProcess) {
+                if (!string.IsNullOrEmpty(geom.Hash)) {
+                    processedGeometries.Add(geom.Hash);
+                }
+            }
 
             var file = $"{tile.Z}_{tile.X}_{tile.Y}";
             if (inputTable.LodColumn != String.Empty) {
@@ -90,55 +120,94 @@ public class QuadtreeTiler
             Console.Write($"\rCreating tile: {file}  ");
             tile.ContentUri = file;
 
-            int target_srs = 4978;
+            tile.Lod = lod;
 
-            if(keepProjection) {
-                target_srs = source_epsg;
+            if (!skipCreateTiles) {
+                var bytes = TileWriter.ToTile(geometriesToProcess, translation, copyright: copyright, addOutlines: stylingSettings.AddOutlines, defaultColor: stylingSettings.DefaultColor, defaultMetallicRoughness: stylingSettings.DefaultMetallicRoughness, doubleSided: stylingSettings.DoubleSided, defaultAlphaMode: stylingSettings.DefaultAlphaMode, alphaCutoff: stylingSettings.AlphaCutoff, createGltf: createGltf);
+                File.WriteAllBytes($"{outputFolder}{Path.AltDirectorySeparatorChar}{file}", bytes);
             }
 
-            byte[] bytes = null;
+            ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection);
+            UpdateTileBoundingBox(tile, where, keepProjection);
 
-            var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection);
-            // var scale = new double[] { 1, 1, 1 };
-            if (geometries.Count > 0) {
+            tile.Available = true;
+        }
+        
+        tiles.Add(tile);
+    }
 
-                tile.Lod = lod;
-
-                if (!skipCreateTiles) {
-                    bytes = TileWriter.ToTile(geometries, translation, copyright: copyright, addOutlines: stylingSettings.AddOutlines, defaultColor: stylingSettings.DefaultColor, defaultMetallicRoughness: stylingSettings.DefaultMetallicRoughness, doubleSided: stylingSettings.DoubleSided, defaultAlphaMode: stylingSettings.DefaultAlphaMode, alphaCutoff: stylingSettings.AlphaCutoff, createGltf: createGltf);
-                    File.WriteAllBytes($"{outputFolder}{Path.AltDirectorySeparatorChar}{file}", bytes);
-                }
-                if (inputTable.LodColumn != String.Empty) {
-                    if (lod < lods.Max()) {
-                        // take the next lod
-                        var currentIndex = lods.FindIndex(p => p == lod);
-                        var nextIndex = currentIndex + 1;
-                        var nextLod = lods[nextIndex];
-                        // make a copy of the tile 
-                        var t2 = new Tile(tile.Z, tile.X, tile.Y);
-                        t2.BoundingBox = tile.BoundingBox;
-                        var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, createGltf, keepProjection);
-                        tile.Children = lodNextTiles;
-                    };
-                }
-
-                // next code is used to fix geometries that have centroid in the tile, but some parts outside...
-                var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, inputTable.TableName, inputTable.GeometryColumn, source_epsg, tile, where, keepProjection);
-                var bbox_tile = new double[] { bbox_geometries[0], bbox_geometries[1], bbox_geometries[2], bbox_geometries[3] };
-                tile.BoundingBox = bbox_tile;
-                tile.ZMin = bbox_geometries[4];
-                tile.ZMax = bbox_geometries[5];
-
-                tile.Available = true;
-
-                if (skipCreateTiles) { tile.Available = true; }
-            }
-            else {
-                tile.Available = false;
-            }
-            tiles.Add(tile);
+    private void CreateTile(BoundingBox bbox, Tile tile, List<Tile> tiles, string where, int lod, bool createGltf, bool keepProjection, HashSet<string> processedGeometries)
+    {
+        tile.BoundingBox = bbox.ToArray();
+        
+        var file = $"{tile.Z}_{tile.X}_{tile.Y}";
+        if (inputTable.LodColumn != String.Empty) {
+            file += $"_{lod}";
         }
 
-        return tiles;
+        var ext = createGltf ? ".glb" : ".b3dm";
+        file += ext;
+        Console.Write($"\rCreating tile: {file}  ");
+        tile.ContentUri = file;
+
+        int target_srs = keepProjection ? source_epsg : 4978;
+
+        var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection, processedGeometries);
+        
+        if (geometries.Count > 0) {
+            // Collect hashes of processed geometries
+            foreach (var geom in geometries) {
+                if (!string.IsNullOrEmpty(geom.Hash)) {
+                    processedGeometries.Add(geom.Hash);
+                }
+            }
+
+            tile.Lod = lod;
+
+            if (!skipCreateTiles) {
+                var bytes = TileWriter.ToTile(geometries, translation, copyright: copyright, addOutlines: stylingSettings.AddOutlines, defaultColor: stylingSettings.DefaultColor, defaultMetallicRoughness: stylingSettings.DefaultMetallicRoughness, doubleSided: stylingSettings.DoubleSided, defaultAlphaMode: stylingSettings.DefaultAlphaMode, alphaCutoff: stylingSettings.AlphaCutoff, createGltf: createGltf);
+                File.WriteAllBytes($"{outputFolder}{Path.AltDirectorySeparatorChar}{file}", bytes);
+            }
+
+            ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection);
+            UpdateTileBoundingBox(tile, where, keepProjection);
+
+            tile.Available = true;
+
+            if (skipCreateTiles) { 
+                tile.Available = true; 
+            }
+        }
+        else {
+            tile.Available = false;
+        }
+        tiles.Add(tile);
+    }
+
+    private void ProcessLodLevels(BoundingBox bbox, Tile tile, int lod, bool createGltf, bool keepProjection)
+    {
+        if (inputTable.LodColumn != String.Empty) {
+            if (lod < lods.Max()) {
+                // take the next lod
+                var currentIndex = lods.FindIndex(p => p == lod);
+                var nextIndex = currentIndex + 1;
+                var nextLod = lods[nextIndex];
+                // make a copy of the tile 
+                var t2 = new Tile(tile.Z, tile.X, tile.Y);
+                t2.BoundingBox = tile.BoundingBox;
+                var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, createGltf, keepProjection);
+                tile.Children = lodNextTiles;
+            }
+        }
+    }
+
+    private void UpdateTileBoundingBox(Tile tile, string where, bool keepProjection)
+    {
+        // next code is used to fix geometries that have centroid in the tile, but some parts outside...
+        var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, inputTable.TableName, inputTable.GeometryColumn, source_epsg, tile, where, keepProjection);
+        var bbox_tile = new double[] { bbox_geometries[0], bbox_geometries[1], bbox_geometries[2], bbox_geometries[3] };
+        tile.BoundingBox = bbox_tile;
+        tile.ZMin = bbox_geometries[4];
+        tile.ZMax = bbox_geometries[5];
     }
 }

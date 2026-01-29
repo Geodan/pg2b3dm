@@ -96,7 +96,7 @@ class Program
                 Console.WriteLine("-----------------------------------------------------------------------------");
                 Console.WriteLine($"WARNING: No spatial index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
                 Console.WriteLine("Fix: add a spatial index, for example: ");
-                Console.WriteLine($"'CREATE INDEX ON {inputTable.TableName} USING gist(st_centroid(st_envelope({inputTable.GeometryColumn})))'");
+                Console.WriteLine($"'CREATE INDEX ON {inputTable.TableName} USING gist(st_centroid(st_envelope({inputTable.GeometryColumn})), st_envelope({inputTable.GeometryColumn}))'");
                 Console.WriteLine("-----------------------------------------------------------------------------");
                 Console.WriteLine();
             }
