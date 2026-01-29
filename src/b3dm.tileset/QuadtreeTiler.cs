@@ -97,10 +97,7 @@ public class QuadtreeTiler
         
         int target_srs = keepProjection ? source_epsg : 4978;
 
-        var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection, processedGeometries);
-        
-        // Only take up to maxFeaturesPerTile largest geometries
-        var geometriesToProcess = geometries.Take(maxFeaturesPerTile).ToList();
+        var geometriesToProcess = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection, processedGeometries, maxFeaturesPerTile);
 
         if (geometriesToProcess.Count > 0) {
             // Collect hashes of processed geometries

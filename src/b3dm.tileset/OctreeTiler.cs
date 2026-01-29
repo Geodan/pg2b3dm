@@ -97,10 +97,7 @@ public class OctreeTiler
         int target_srs = tilingSettings.KeepProjection ? inputTable.EPSGCode : 4978;
 
         var bbox1 = new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax, bbox.ZMin, bbox.ZMax };
-        var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, tilingSettings.KeepProjection, processedGeometries);
-
-        // Only take up to MaxFeaturesPerTile largest geometries
-        var geometriesToProcess = geometries.Take(tilingSettings.MaxFeaturesPerTile).ToList();
+        var geometriesToProcess = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, tilingSettings.KeepProjection, processedGeometries, tilingSettings.MaxFeaturesPerTile);
 
         if (geometriesToProcess.Count > 0) {
             // Collect hashes of processed geometries

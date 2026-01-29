@@ -38,7 +38,7 @@ public static class GeometryRepository
         return result;
     }
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", bool keepProjection = false, HashSet<string> excludeHashes = null)
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", bool keepProjection = false, HashSet<string> excludeHashes = null, int? maxFeatures = null)
     {
         var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn, target_srs);
         var sqlFrom = "FROM " + geometry_table;
@@ -48,7 +48,8 @@ public static class GeometryRepository
 
         var sqlWhere = GetWhere(geometry_column, points.fromPoint, points.toPoint, query, source_epsg, keepProjection, excludeHashes);
         var sqlOrderBy = GetOrderBy(geometry_column);
-        var sql = sqlselect + sqlFrom + " where " + sqlWhere + sqlOrderBy;
+        var sqlLimit = maxFeatures.HasValue ? $" LIMIT {maxFeatures.Value}" : "";
+        var sql = sqlselect + sqlFrom + " where " + sqlWhere + sqlOrderBy + sqlLimit;
 
         var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql, radiusColumn, geometry_column);
         return geometries;
