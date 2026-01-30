@@ -36,7 +36,7 @@ public static class OutlineDetection
 
         for (uint p = 0; p < parts.Count; p++) {
             var partTriangles = Triangles.SelectByIndex(triangles, parts[(int)p]);
-            var outline = Part.GetOutlines(partTriangles, parts[(int)p], 0, distanceTolerance);
+            var outline = Part.GetOutlines(partTriangles, parts[(int)p], 0, distanceTolerance, normalTolerance);
             outlines.AddRange(outline);
         }
         return outlines;

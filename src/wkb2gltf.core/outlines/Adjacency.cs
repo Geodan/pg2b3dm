@@ -7,7 +7,7 @@ public static class Adjacency
     /// <summary>
     /// 
     /// </summary>
-    public static Dictionary<int, List<(int from, int to)>> GetAdjacencyList(List<Triangle> triangles, double distanceTolerance = 0.01)
+    public static Dictionary<int, List<(int from, int to)>> GetAdjacencyList(List<Triangle> triangles, double distanceTolerance = 0.01, double normalTolerance = 0.01)
     {
         var res = new Dictionary<int, List<(int from, int to)>>();
 
@@ -16,7 +16,7 @@ public static class Adjacency
 
             for (var j = 0; j < triangles.Count; j++) {
                 if (i != j) {
-                    var boundaries = BoundaryDetection.GetSharedPoints(t0, triangles[j], distanceTolerance);
+                    var boundaries = BoundaryDetection.GetSharedPoints(t0, triangles[j], distanceTolerance, checkCoplanar: true, normalTolerance);
                     if (boundaries.first.Count == 2 && boundaries.second.Count == 2) {
                         Upsert(res, i, boundaries.first[0], boundaries.first[1]);
                         Upsert(res, j, boundaries.second[0], boundaries.second[1]);

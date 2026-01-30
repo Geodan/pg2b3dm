@@ -69,4 +69,12 @@ public class Triangle
         return points;
     }
 
+    public bool AreCoplanar(Triangle other, double normalTolerance = 0.01)
+    {
+        var normal1 = GetNormal();
+        var normal2 = other.GetNormal();
+        var dotProduct = Vector3.Dot(normal1, normal2);
+        return Math.Abs(dotProduct - 1.0f) <= normalTolerance;
+    }
+
 }

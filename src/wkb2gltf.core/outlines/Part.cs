@@ -4,14 +4,14 @@ using System.Linq;
 namespace Wkb2Gltf.outlines;
 public static class Part
 {
-    public static List<uint> GetOutlines(List<Triangle> triangles, List<uint> indices, uint offset = 0, double distanceTolerance = 0.01)
+    public static List<uint> GetOutlines(List<Triangle> triangles, List<uint> indices, uint offset = 0, double distanceTolerance = 0.01, double normalTolerance = 0.01)
     {
         var result = new List<uint>();
         if (triangles.Count == 1) {
             result = GetOutlines(triangles[0], offset: offset + indices[0] * 3);
         }
         else if (triangles.Count > 1) {
-            var adjacency = Adjacency.GetAdjacencyList(triangles, distanceTolerance);
+            var adjacency = Adjacency.GetAdjacencyList(triangles, distanceTolerance, normalTolerance);
             var i = 0;
             foreach (var triangle in triangles) {
                 List<(int from, int to)> val;
