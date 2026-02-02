@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SharpGLTF.Geometry;
 using SharpGLTF.Schema2;
@@ -32,11 +33,26 @@ public static class OutlineDetection
     {
 
         var outlines = new List<uint>();
+        
+        // Calculate global adjacency list BEFORE partitioning
+        // This allows coplanar triangles in different parts to exclude shared edges
+        var globalAdjacency = Adjacency.GetAdjacencyList(triangles, distanceTolerance, normalTolerance);
+        
         var parts = PartFinder.GetParts(triangles, normalTolerance, distanceTolerance);
 
         for (uint p = 0; p < parts.Count; p++) {
             var partTriangles = Triangles.SelectByIndex(triangles, parts[(int)p]);
-            var outline = Part.GetOutlines(partTriangles, parts[(int)p], 0, distanceTolerance, normalTolerance);
+            
+            // Build a local adjacency list for this part by mapping global indices to local indices
+            var localAdjacency = new Dictionary<int, List<(int from, int to)>>();
+            for (var i = 0; i < partTriangles.Count; i++) {
+                var globalIndex = (int)parts[(int)p][i];
+                if (globalAdjacency.ContainsKey(globalIndex)) {
+                    localAdjacency[i] = globalAdjacency[globalIndex];
+                }
+            }
+            
+            var outline = Part.GetOutlines(partTriangles, parts[(int)p], 0, distanceTolerance, normalTolerance, localAdjacency);
             outlines.AddRange(outline);
         }
         return outlines;

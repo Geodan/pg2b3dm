@@ -243,12 +243,6 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         // t0 and t1 share edge (121446,487295,5)-(121396,487381.603,5) and are NOT coplanar
         // -> this edge should NOT be in adjacency (to be included in outline)
         
-        Console.WriteLine($"Adjacency keys: {string.Join(", ", adjacency.Keys)}");
-        foreach (var kvp in adjacency)
-        {
-            Console.WriteLine($"  Triangle {kvp.Key}: {string.Join(", ", kvp.Value)}");
-        }
-        
         Assert.That(adjacency.ContainsKey(0), Is.True, "t0 should have adjacency entries");
         Assert.That(adjacency.ContainsKey(2), Is.True, "t2 should have adjacency entries");
         
@@ -263,24 +257,11 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         
         var outlines = OutlineDetection.GetOutlines2(triangles);
         
-        Console.WriteLine($"Outline count: {outlines.Count}");
-        
         // The outline should include:
         // - All edges of t0 except the one shared with t2
         // - All edges of t1 (none are excluded)
         // - All edges of t2 except the one shared with t0
         // That's 2 + 3 + 2 = 7 edges = 14 points
-        // Wait - but if t0 and t1 share an edge and they're not coplanar, that edge would appear in the outline twice (once from each triangle).
-        // Actually no - looking at the Part.GetOutlines logic, it excludes edges that are in the adjacency list.
-        // So for t0: edges 0-1, 1-2, 2-0. If edge 1-2 is shared with t2 (coplanar), it's excluded. If edge 0-1 is shared with t1 (not coplanar), it's NOT excluded, so it appears in outline.
-        // Similarly for t1: if its edge is shared with t0, it's also not in adjacency, so it appears.
-        // So we get the edge twice? That's correct for outlines - each side of a crease/fold appears as a separate line.
-        // 
-        // Let me recalculate:
-        // t0: 3 edges minus 1 (shared with t2) = 2 edges
-        // t1: 3 edges minus 0 (no coplanar neighbors) = 3 edges
-        // t2: 3 edges minus 1 (shared with t0) = 2 edges
-        // Total: 7 edges = 14 points
         Assert.That(outlines.Count, Is.EqualTo(14), "Should have 7 edges (14 points) in outline");
     }
 
