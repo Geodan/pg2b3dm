@@ -197,4 +197,72 @@ WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 1, 1
         Assert.That(outlines[9] == 8, Is.True);
     }
 
+    [Test]
+    public void Issue200_CoplanarTrianglesNonSequential()
+    {
+        // Test for issue #200 from @bertt's comment
+        // Triangle 0 and 2 are coplanar and adjacent -> should NOT have outline between them
+        // Triangle 0 and 1 are not coplanar but adjacent -> SHOULD have outline between them
+        
+        // Triangle 0 (on z=5 plane, horizontal)
+        var t0 = new Triangle(
+            new Point(121346, 487295, 5),
+            new Point(121446, 487295, 5),
+            new Point(121396, 487381.603, 5),
+            0
+        );
+        
+        // Triangle 1 (not coplanar with t0 or t2, forms a vertical/angled face)
+        var t1 = new Triangle(
+            new Point(121446, 487295, 5),
+            new Point(121396, 487381.603, 5),
+            new Point(121346, 487295, 100),
+            0
+        );
+        
+        // Triangle 2 (on z=5 plane, horizontal, coplanar with t0)
+        var t2 = new Triangle(
+            new Point(121346, 487295, 5),
+            new Point(121446, 487295, 5),
+            new Point(121396, 487208.397, 5),
+            0
+        );
+
+        var triangles = new List<Triangle> { t0, t1, t2 };
+
+        // Verify coplanarity
+        Assert.That(t0.AreCoplanar(t2), Is.True, "t0 and t2 should be coplanar");
+        Assert.That(t0.AreCoplanar(t1), Is.False, "t0 and t1 should NOT be coplanar");
+        Assert.That(t1.AreCoplanar(t2), Is.False, "t1 and t2 should NOT be coplanar");
+
+        // Check the adjacency list
+        var adjacency = Adjacency.GetAdjacencyList(triangles);
+        
+        // t0 and t2 share edge (121346,487295,5)-(121446,487295,5) and are coplanar
+        // -> this edge SHOULD be in adjacency (to be excluded from outline)
+        // t0 and t1 share edge (121446,487295,5)-(121396,487381.603,5) and are NOT coplanar
+        // -> this edge should NOT be in adjacency (to be included in outline)
+        
+        Assert.That(adjacency.ContainsKey(0), Is.True, "t0 should have adjacency entries");
+        Assert.That(adjacency.ContainsKey(2), Is.True, "t2 should have adjacency entries");
+        
+        // t0 should have one adjacent edge (with t2, which is coplanar)
+        Assert.That(adjacency[0].Count, Is.EqualTo(1), "t0 should have 1 adjacent edge");
+        
+        // t2 should have one adjacent edge (with t0, which is coplanar)
+        Assert.That(adjacency[2].Count, Is.EqualTo(1), "t2 should have 1 adjacent edge");
+        
+        // t1 should NOT be in adjacency list (it's not coplanar with any other triangle)
+        Assert.That(adjacency.ContainsKey(1), Is.False, "t1 should NOT have adjacency entries (not coplanar with others)");
+        
+        var outlines = OutlineDetection.GetOutlines2(triangles);
+        
+        // The outline should include:
+        // - All edges of t0 except the one shared with t2
+        // - All edges of t1 (none are excluded)
+        // - All edges of t2 except the one shared with t0
+        // That's 2 + 3 + 2 = 7 edges = 14 points
+        Assert.That(outlines.Count, Is.EqualTo(14), "Should have 7 edges (14 points) in outline");
+    }
+
 }

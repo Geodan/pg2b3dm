@@ -74,7 +74,9 @@ public class Triangle
         var normal1 = GetNormal();
         var normal2 = other.GetNormal();
         var dotProduct = Vector3.Dot(normal1, normal2);
-        return Math.Abs(dotProduct - 1.0f) <= normalTolerance;
+        // Two triangles are coplanar if their normals point in the same direction (dot ≈ 1)
+        // or opposite directions (dot ≈ -1), indicating they lie on the same plane
+        return Math.Abs(dotProduct - 1.0f) <= normalTolerance || Math.Abs(dotProduct + 1.0f) <= normalTolerance;
     }
 
 }

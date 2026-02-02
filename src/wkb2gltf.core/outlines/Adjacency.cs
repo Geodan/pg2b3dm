@@ -5,7 +5,8 @@ namespace Wkb2Gltf.outlines;
 public static class Adjacency
 {
     /// <summary>
-    /// 
+    /// Get the adjacency list for triangles. Only includes shared edges between COPLANAR triangles.
+    /// Shared edges between coplanar triangles are internal edges and should be excluded from outlines.
     /// </summary>
     public static Dictionary<int, List<(int from, int to)>> GetAdjacencyList(List<Triangle> triangles, double distanceTolerance = 0.01, double normalTolerance = 0.01)
     {
@@ -16,10 +17,15 @@ public static class Adjacency
 
             for (var j = 0; j < triangles.Count; j++) {
                 if (i != j) {
-                    var boundaries = BoundaryDetection.GetSharedPoints(t0, triangles[j], distanceTolerance, checkCoplanar: true, normalTolerance);
+                    var boundaries = BoundaryDetection.GetSharedPoints(t0, triangles[j], distanceTolerance);
                     if (boundaries.first.Count == 2 && boundaries.second.Count == 2) {
-                        Upsert(res, i, boundaries.first[0], boundaries.first[1]);
-                        Upsert(res, j, boundaries.second[0], boundaries.second[1]);
+                        // Only add to adjacency list if triangles ARE coplanar
+                        // Coplanar triangles sharing an edge means the edge is internal to a flat surface
+                        // and should be excluded from the outline
+                        if (t0.AreCoplanar(triangles[j], normalTolerance)) {
+                            Upsert(res, i, boundaries.first[0], boundaries.first[1]);
+                            Upsert(res, j, boundaries.second[0], boundaries.second[1]);
+                        }
                     }
                 }
             }
