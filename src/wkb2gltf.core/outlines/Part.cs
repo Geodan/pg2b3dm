@@ -11,7 +11,7 @@ public static class Part
             result = GetOutlines(triangles[0], offset: offset + indices[0] * 3);
         }
         else if (triangles.Count > 1) {
-            var adjacency = Adjacency.GetAdjacencyList(triangles, distanceTolerance, normalTolerance);
+            var adjacency = Adjacency.GetAdjacencyList(triangles, distanceTolerance);
             var i = 0;
             foreach (var triangle in triangles) {
                 List<(int from, int to)> val;
