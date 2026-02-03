@@ -53,3 +53,5 @@ Todo:
 - Check spatial indexes
 
 - limit 'not in' list of md5 hashes from above level, e.g. only use the hashes of the geometries that intersect the tile envelope
+
+- idea: make a temporary blacklist table with the to be exluded hashes?
