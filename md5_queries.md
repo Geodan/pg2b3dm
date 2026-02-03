@@ -32,6 +32,8 @@ SELECT ST_AsBinary(st_transform(geom, 4978)), id , MD5(ST_AsBinary(geom)::text) 
 
 md5 hashes (for example '9759cdee666f512a0c13df8245b667f9') are remembered to be excluded in higher level (z) tile
 
+potential improvement: make exception for first tile on z=0 -  do not filter on envelope (all features are included)
+
 ## Tile 1_0_0.glb (level 1, x=0, y=0)
 
 4] Count geometries in bounding box on level 1 excluding 1000 largest geometries from tile 0_0_0.glb (8 seconds!)
