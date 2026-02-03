@@ -23,8 +23,9 @@ public class QuadtreeTiler
     private readonly bool skipCreateTiles;
     private readonly StylingSettings stylingSettings;
     private InputTable inputTable;
+    private bool useImplicitTiling = false;
 
-    public QuadtreeTiler(string connectionString, InputTable inputTable, StylingSettings stylingSettings, int maxFeaturesPerTile, double[] translation, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false)
+    public QuadtreeTiler(string connectionString, InputTable inputTable, StylingSettings stylingSettings, int maxFeaturesPerTile, double[] translation, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false, bool useImplicitTiling=false)
     {
         this.conn = new NpgsqlConnection(connectionString);
         this.inputTable = inputTable;
@@ -36,6 +37,7 @@ public class QuadtreeTiler
         this.copyright = copyright;
         this.skipCreateTiles = skipCreateTiles;
         this.stylingSettings = stylingSettings;
+        this.useImplicitTiling = useImplicitTiling;
     }
 
     public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod = 0, bool createGltf = false, bool keepProjection = false, HashSet<string> processedGeometries = null)
@@ -60,7 +62,7 @@ public class QuadtreeTiler
         }
         else if (numberOfFeatures > maxFeaturesPerTile) {
             // First, get the largest geometries up to maxFeaturesPerTile for this level
-            CreateTileForLargestGeometries(bbox, tile, tiles, where, lod, createGltf, keepProjection, processedGeometries);
+            var localProcessedGeometries = CreateTileForLargestGeometries(bbox, tile, tiles, where, lod, createGltf, keepProjection, processedGeometries);
 
             var z = tile.Z + 1;
 
@@ -78,7 +80,7 @@ public class QuadtreeTiler
                     var bboxQuad = new BoundingBox(xstart, ystart, xend, yend);
                     var new_tile = new Tile(z, tile.X * 2 + x, tile.Y * 2 + y);
                     new_tile.BoundingBox = bboxQuad.ToArray();
-                    GenerateTiles(bboxQuad, new_tile, tiles, lod, createGltf, keepProjection, processedGeometries);
+                    GenerateTiles(bboxQuad, new_tile, tiles, lod, createGltf, keepProjection, localProcessedGeometries);
                 }
             }
         }
@@ -89,8 +91,12 @@ public class QuadtreeTiler
         return tiles;
     }
 
-    private void CreateTileForLargestGeometries(BoundingBox bbox, Tile tile, List<Tile> tiles, string where, int lod, bool createGltf, bool keepProjection, HashSet<string> processedGeometries)
+    private HashSet<string> CreateTileForLargestGeometries(BoundingBox bbox, Tile tile, List<Tile> tiles, string where, int lod, bool createGltf, bool keepProjection, HashSet<string> processedGeometries)
     {
+        // clone processedIds to avoid modifying the original set in recursive calls
+        var localProcessedGeometries = new HashSet<string>(processedGeometries);
+        var tileHashes = new HashSet<string>();
+
         // Get the largest geometries (up to maxFeaturesPerTile) for this tile at this level
         tile.Available = false;
         tile.BoundingBox = bbox.ToArray();
@@ -100,10 +106,12 @@ public class QuadtreeTiler
         var geometriesToProcess = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection, processedGeometries, maxFeaturesPerTile);
 
         if (geometriesToProcess.Count > 0) {
+            
             // Collect hashes of processed geometries
             foreach (var geom in geometriesToProcess) {
                 if (!string.IsNullOrEmpty(geom.Hash)) {
-                    processedGeometries.Add(geom.Hash);
+                    localProcessedGeometries.Add(geom.Hash);
+                    tileHashes.Add(geom.Hash);
                 }
             }
 
@@ -125,18 +133,23 @@ public class QuadtreeTiler
             }
 
             ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection);
-            UpdateTileBoundingBox(tile, where, keepProjection);
+            // todo: check the updateTileBoundingBox
+            if(!useImplicitTiling) {
+                UpdateTileBoundingBox(tile, tileHashes, where, keepProjection);
+            }
 
             tile.Available = true;
         }
         
         tiles.Add(tile);
+        return localProcessedGeometries;
     }
 
     private void CreateTile(BoundingBox bbox, Tile tile, List<Tile> tiles, string where, int lod, bool createGltf, bool keepProjection, HashSet<string> processedGeometries)
     {
         tile.BoundingBox = bbox.ToArray();
-        
+        var tileHashes = new HashSet<string>();
+
         var file = $"{tile.Z}_{tile.X}_{tile.Y}";
         if (inputTable.LodColumn != String.Empty) {
             file += $"_{lod}";
@@ -155,6 +168,7 @@ public class QuadtreeTiler
             // Collect hashes of processed geometries
             foreach (var geom in geometries) {
                 if (!string.IsNullOrEmpty(geom.Hash)) {
+                    tileHashes.Add(geom.Hash);
                     processedGeometries.Add(geom.Hash);
                 }
             }
@@ -167,7 +181,7 @@ public class QuadtreeTiler
             }
 
             ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection);
-            UpdateTileBoundingBox(tile, where, keepProjection);
+            UpdateTileBoundingBox(tile, tileHashes, where, keepProjection);
 
             tile.Available = true;
 
@@ -198,10 +212,10 @@ public class QuadtreeTiler
         }
     }
 
-    private void UpdateTileBoundingBox(Tile tile, string where, bool keepProjection)
+    private void UpdateTileBoundingBox(Tile tile, HashSet<string> tileHashes, string where, bool keepProjection)
     {
         // next code is used to fix geometries that have centroid in the tile, but some parts outside...
-        var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, inputTable.TableName, inputTable.GeometryColumn, source_epsg, tile, where, keepProjection);
+        var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, inputTable.TableName, inputTable.GeometryColumn, source_epsg, tile, tileHashes, where, keepProjection);
         var bbox_tile = new double[] { bbox_geometries[0], bbox_geometries[1], bbox_geometries[2], bbox_geometries[3] };
         tile.BoundingBox = bbox_tile;
         tile.ZMin = bbox_geometries[4];

@@ -16,12 +16,15 @@ public static class GeometryRepository
     /// <summary>
     /// Returns double array with 6 bounding box coordinates, xmin, ymin, xmax, ymax, zmin, zmax
     /// </summary>
-    public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, int epsg, Tile t, string query = "", bool keepProjection = false)
+    public static double[] GetGeometriesBoundingBox(NpgsqlConnection conn, string geometry_table, string geometry_column, int epsg, Tile t, HashSet<string> tileHashes, string query = "", bool keepProjection = false)
     {
         var sqlSelect = keepProjection?
             $"select st_Asbinary(st_3dextent({geometry_column})) ":
             $"select st_Asbinary(st_3dextent(st_transform({geometry_column}, 4979))) ";
-        var sqlWhere = GetWhere(geometry_column, new Point(t.BoundingBox[0], t.BoundingBox[1]), new Point(t.BoundingBox[2], t.BoundingBox[3]), query, epsg, keepProjection);
+
+        var hashList = string.Join(",", tileHashes.Select(h => $"'{h}'"));
+
+        var sqlWhere = $" MD5(ST_AsBinary({geometry_column})::text) in ({hashList})";
         var sql = $"{sqlSelect} from {geometry_table} where {sqlWhere}";
 
         conn.Open();

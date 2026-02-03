@@ -168,7 +168,8 @@ public class UnitTest1
             trans,
             "output/content",
             new List<int>() { 0 },
-            skipCreateTiles: true);
+            skipCreateTiles: true,
+            useImplicitTiling: true);
         var tiles = implicitTiler.GenerateTiles(
         bbox_wgs84.bbox,
         new Tile(0, 0, 0),
@@ -201,7 +202,8 @@ public class UnitTest1
             trans,
             "output/content",
             new List<int>() { 0, 1 },
-            skipCreateTiles: true);
+            skipCreateTiles: true,
+            useImplicitTiling: true);
         var tiles = implicitTiler.GenerateTiles(
         bbox_wgs84.bbox,
         new Tile(0, 0, 0),
@@ -231,7 +233,8 @@ public class UnitTest1
             trans,
             "output/content",
             new List<int>() { 0 },
-            skipCreateTiles: false);
+            skipCreateTiles: false,
+            useImplicitTiling: true);
         var tile = new Tile(0, 0, 0) {
             BoundingBox = bbox_wgs84.bbox.ToArray()
         };
