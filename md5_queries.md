@@ -37,7 +37,7 @@ md5 hashes (for example '9759cdee666f512a0c13df8245b667f9') are remembered to be
 4] Count geometries in bounding box on level 1 excluding 1000 largest geometries from tile 0_0_0.glb (8 seconds!)
 
 ```sql
-"SELECT COUNT(geom) FROM bertt.nantes_reconstructed_buildings WHERE ST_Centroid(ST_Envelope(geom)) && st_transform(ST_MakeEnvelope(-1.847105103048876, 47.14626198148698, -1.497208649149572, 47.384471872766284, 4326), 5698)  AND MD5(ST_AsBinary(geom)::text) NOT IN ('9759cdee666f512a0c13df8245b667f9',..1000 items, ...)
+SELECT COUNT(geom) FROM bertt.nantes_reconstructed_buildings WHERE ST_Centroid(ST_Envelope(geom)) && st_transform(ST_MakeEnvelope(-1.847105103048876, 47.14626198148698, -1.497208649149572, 47.384471872766284, 4326), 5698)  AND MD5(ST_AsBinary(geom)::text) NOT IN ('9759cdee666f512a0c13df8245b667f9',..1000 items, ...)
 ```
 
 Result: 235787
