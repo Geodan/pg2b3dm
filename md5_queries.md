@@ -48,7 +48,11 @@ Result: 235787
 SELECT ST_AsBinary(st_transform(geom, 4978)), id , MD5(ST_AsBinary(geom)::text) as geom_hash FROM bertt.nantes_reconstructed_buildings where ST_Centroid(ST_Envelope(geom)) && st_transform(ST_MakeEnvelope(-1.847105103048876, 47.14626198148698, -1.497208649149572, 47.384471872766284, 4326), 5698)  AND MD5(ST_AsBinary(geom)::text) NOT IN ('9759cdee666f512a0c13df8245b667f9', ..1000 items, ...) ORDER BY ST_Area(ST_Envelope(geom)) DESC LIMIT 1000
 ```
 
-Todo: 
+## Issue
+
+List of hashes can get long (maximum (z+1)*1000 items), giving more slow query
+
+## Todo 
 
 - Check spatial indexes
 
