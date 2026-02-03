@@ -50,7 +50,7 @@ SELECT ST_AsBinary(st_transform(geom, 4978)), id , MD5(ST_AsBinary(geom)::text) 
 
 ## Issue
 
-List of hashes can get long (maximum (z+1)*1000 items), giving more slow query
+List of hashes can get long (maximum (z*1000 items), giving more slow query
 
 ## Todo 
 
