@@ -54,6 +54,41 @@ SELECT ST_AsBinary(st_transform(geom, 4978)), id , MD5(ST_AsBinary(geom)::text) 
 
 List of hashes can get long (maximum (z*1000 items), giving more slow query
 
+## Spatial indexing
+
+ Recommended Indexes
+
+  1. Spatial Index with MD5 Hash (Composite)
+
+```
+    CREATE INDEX idx_geom_centroid_hash ON the_table
+    USING btree(MD5(ST_AsBinary(geom_triangle)::text));
+```
+  2. Spatial Index (GIST) - Still Required
+
+```
+    CREATE INDEX idx_geom_centroid_spatial ON the_table
+    USING gist(ST_Centroid(ST_Envelope(geom_triangle)));
+```
+
+  Rationale
+
+  The queries now use three main patterns:
+
+    - Spatial filtering with MD5 hash exclusion (GetGeometrySubset):  WHERE ST_Centroid(ST_Envelope(geom_triangle)) && <envelope>
+      AND MD5(ST_AsBinary(geom_triangle)::text) NOT IN (<hash_list>)
+    - MD5 hash filtering with spatial validation (FilterHashesByEnvelope):  WHERE MD5(ST_AsBinary(geom_triangle)::text) IN (<hash_list>)
+      AND ST_Within(ST_Centroid(ST_Envelope(geom_triangle)), <envelope>)
+    - Hash-only filtering (GetGeometriesBoundingBox):  WHERE MD5(ST_AsBinary(geom_triangle)::text) IN (<hash_list>)
+
+  Performance Notes:
+
+    - The GIST spatial index handles the ST_Centroid(ST_Envelope(geom_triangle)) predicates
+    - The MD5 hash BTREE index handles the MD5(ST_AsBinary(geom_triangle)::text) IN/NOT IN predicates
+    - PostgreSQL will use both indexes (bitmap index scan) for queries with both predicates
+
+  Optional: Materialized Hash Column
+
 ## Todo 
 
 - Check spatial indexes
