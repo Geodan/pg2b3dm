@@ -1,4 +1,4 @@
-## Queries for MD5
+giv## Queries for MD5
 
 
 ### Initial
@@ -60,16 +60,13 @@ List of hashes can get long (maximum (z*1000 items), giving more slow query
 
   1. Spatial Index with MD5 Hash (Composite)
 
-```
     CREATE INDEX idx_geom_centroid_hash ON the_table
     USING btree(MD5(ST_AsBinary(geom_triangle)::text));
-```
+
   2. Spatial Index (GIST) - Still Required
 
-```
     CREATE INDEX idx_geom_centroid_spatial ON the_table
     USING gist(ST_Centroid(ST_Envelope(geom_triangle)));
-```
 
   Rationale
 
