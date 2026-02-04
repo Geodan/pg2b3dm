@@ -104,11 +104,6 @@ List of hashes can get long (maximum (z*1000 items), giving more slow query
 
 ## Todo 
 
-- Check spatial indexes
-
-- limit 'not in' list of md5 hashes from above level, e.g. only use the hashes of the geometries that intersect the tile envelope.
-Will probably help a bit but not enough (list of hashes stays long)
-
 - idea: make a temporary blacklist table with the to be exluded hashes?
 
 - idea: force use of id column (longs)?
