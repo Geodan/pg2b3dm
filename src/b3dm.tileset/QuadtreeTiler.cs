@@ -80,7 +80,10 @@ public class QuadtreeTiler
                     var bboxQuad = new BoundingBox(xstart, ystart, xend, yend);
                     var new_tile = new Tile(z, tile.X * 2 + x, tile.Y * 2 + y);
                     new_tile.BoundingBox = bboxQuad.ToArray();
-                    GenerateTiles(bboxQuad, new_tile, tiles, lod, createGltf, keepProjection, localProcessedGeometries);
+
+                    var filteredProcessedGeometries = GeometryRepository.FilterHashesByEnvelope(conn, inputTable.TableName, inputTable.GeometryColumn, bboxQuad, source_epsg, localProcessedGeometries, keepProjection);
+
+                    GenerateTiles(bboxQuad, new_tile, tiles, lod, createGltf, keepProjection, filteredProcessedGeometries);
                 }
             }
         }

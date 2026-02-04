@@ -13,6 +13,45 @@ namespace B3dm.Tileset;
 
 public static class GeometryRepository
 {
+    public static HashSet<string> FilterHashesByEnvelope(NpgsqlConnection conn, string tableName, string geometryColumn, BoundingBox bbox, int source_epsg, HashSet<string> geometryHashes, bool keepProjection)
+    {
+        if (geometryHashes.Count == 0) {
+            return new HashSet<string>();
+        }
+
+        var filteredHashes = new HashSet<string>();
+
+        var hashList = string.Join(",", geometryHashes.Select(h => $"'{h}'"));
+
+        conn.Open();
+
+        var query = $@"
+        SELECT MD5(ST_AsBinary({geometryColumn})::text) as geom_hash
+        FROM {tableName}
+        WHERE MD5(ST_AsBinary({geometryColumn})::text) in ({hashList})
+        AND ST_Within(
+            ST_Centroid(ST_Envelope({geometryColumn})),
+            ST_Transform(ST_MakeEnvelope(@xmin, @ymin, @xmax, @ymax, 4326), {source_epsg})
+        )";
+
+        using var cmd = new NpgsqlCommand(query, conn);
+        cmd.Parameters.AddWithValue("hashes", geometryHashes.ToArray());
+        cmd.Parameters.AddWithValue("xmin", bbox.XMin);
+        cmd.Parameters.AddWithValue("ymin", bbox.YMin);
+        cmd.Parameters.AddWithValue("xmax", bbox.XMax);
+        cmd.Parameters.AddWithValue("ymax", bbox.YMax);
+
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read()) {
+            var hash = reader.GetString(0);
+            filteredHashes.Add(hash);
+        }
+
+        conn.Close();
+
+        return filteredHashes;
+    }
+
     /// <summary>
     /// Returns double array with 6 bounding box coordinates, xmin, ymin, xmax, ymax, zmin, zmax
     /// </summary>
