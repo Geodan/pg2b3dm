@@ -17,7 +17,7 @@ public class UnitTest1
     public async Task Setup()
     {
         _containerPostgres = new PostgreSqlBuilder()
-        .WithImage("postgis/postgis:16-3.4-alpine")
+        .WithImage("postgis/postgis:18-3.6-alpine")
         .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(5432))
         .Build();
         await _containerPostgres.StartAsync();

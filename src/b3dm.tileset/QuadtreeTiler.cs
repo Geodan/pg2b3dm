@@ -184,7 +184,9 @@ public class QuadtreeTiler
             }
 
             ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection);
-            UpdateTileBoundingBox(tile, tileHashes, where, keepProjection);
+            if (!useImplicitTiling) {
+                UpdateTileBoundingBox(tile, tileHashes, where, keepProjection);
+            }
 
             tile.Available = true;
 

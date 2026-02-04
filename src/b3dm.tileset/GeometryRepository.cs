@@ -25,13 +25,17 @@ public static class GeometryRepository
 
         conn.Open();
 
+        var envelope = keepProjection ?
+            $"ST_MakeEnvelope(@xmin, @ymin, @xmax, @ymax, {source_epsg})" :
+            $"ST_Transform(ST_MakeEnvelope(@xmin, @ymin, @xmax, @ymax, 4326), {source_epsg})";
+
         var query = $@"
         SELECT MD5(ST_AsBinary({geometryColumn})::text) as geom_hash
         FROM {tableName}
         WHERE MD5(ST_AsBinary({geometryColumn})::text) in ({hashList})
         AND ST_Within(
             ST_Centroid(ST_Envelope({geometryColumn})),
-            ST_Transform(ST_MakeEnvelope(@xmin, @ymin, @xmax, @ymax, 4326), {source_epsg})
+            {envelope}
         )";
 
         using var cmd = new NpgsqlCommand(query, conn);

@@ -57,7 +57,7 @@ public class OctreeTiler
         }
         else if (numberOfFeatures > tilingSettings.MaxFeaturesPerTile) {
             // First, create a tile with the largest geometries up to MaxFeaturesPerTile for this level
-            CreateTileForLargestGeometries3D(bbox, level, tile, tiles, tileBounds, where, processedGeometries);
+            var localProcessedGeometries = CreateTileForLargestGeometries3D(bbox, level, tile, tiles, tileBounds, where, processedGeometries);
 
             level++;
             for (var x = 0; x < 2; x++) {
@@ -77,8 +77,11 @@ public class OctreeTiler
                         var zend = z_start + dz;
                         var bbox3d = new BoundingBox3D(xstart, ystart, z_start, xend, yend, zend);
 
+                        var bboxOctant = new BoundingBox(xstart, ystart, xend, yend);
+                        var filteredProcessedGeometries = GeometryRepository.FilterHashesByEnvelope(conn, inputTable.TableName, inputTable.GeometryColumn, bboxOctant, inputTable.EPSGCode, localProcessedGeometries, tilingSettings.KeepProjection);
+
                         var new_tile = new Tile3D(level, tile.X * 2 + x, tile.Y * 2 + y, tile.Z * 2 + z);
-                        GenerateTiles3D(bbox3d, level, new_tile, tiles, tileBounds, processedGeometries);
+                        GenerateTiles3D(bbox3d, level, new_tile, tiles, tileBounds, filteredProcessedGeometries);
                     }
                 }
             }
@@ -91,8 +94,11 @@ public class OctreeTiler
 
     }
 
-    private void CreateTileForLargestGeometries3D(BoundingBox3D bbox, int level, Tile3D tile, List<Tile3D> tiles, Dictionary<string, BoundingBox3D> tileBounds, string where, HashSet<string> processedGeometries)
+    private HashSet<string> CreateTileForLargestGeometries3D(BoundingBox3D bbox, int level, Tile3D tile, List<Tile3D> tiles, Dictionary<string, BoundingBox3D> tileBounds, string where, HashSet<string> processedGeometries)
     {
+        // clone processedIds to avoid modifying the original set in recursive calls
+        var localProcessedGeometries = new HashSet<string>(processedGeometries);
+
         // Get the largest geometries (up to MaxFeaturesPerTile) for this tile at this level
         int target_srs = tilingSettings.KeepProjection ? inputTable.EPSGCode : 4978;
 
@@ -103,7 +109,7 @@ public class OctreeTiler
             // Collect hashes of processed geometries
             foreach (var geom in geometriesToProcess) {
                 if (!string.IsNullOrEmpty(geom.Hash)) {
-                    processedGeometries.Add(geom.Hash);
+                    localProcessedGeometries.Add(geom.Hash);
                 }
             }
 
@@ -121,6 +127,8 @@ public class OctreeTiler
             var key = $"{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}";
             tileBounds[key] = bbox;
         }
+
+        return localProcessedGeometries;
     }
 
     private void CreateTile3D(BoundingBox3D bbox, int level, Tile3D tile, List<Tile3D> tiles, Dictionary<string, BoundingBox3D> tileBounds, string where, HashSet<string> processedGeometries)
