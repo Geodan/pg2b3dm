@@ -1,4 +1,4 @@
-giv## Queries for MD5
+## Queries for MD5
 
 
 ### Initial
