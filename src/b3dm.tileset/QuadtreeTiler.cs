@@ -130,10 +130,8 @@ public class QuadtreeTiler
 
             tile.Lod = lod;
 
-            if (!skipCreateTiles) {
-                var bytes = TileWriter.ToTile(geometriesToProcess, translation, copyright: copyright, addOutlines: stylingSettings.AddOutlines, defaultColor: stylingSettings.DefaultColor, defaultMetallicRoughness: stylingSettings.DefaultMetallicRoughness, doubleSided: stylingSettings.DoubleSided, defaultAlphaMode: stylingSettings.DefaultAlphaMode, alphaCutoff: stylingSettings.AlphaCutoff, createGltf: createGltf);
-                File.WriteAllBytes($"{outputFolder}{Path.AltDirectorySeparatorChar}{file}", bytes);
-            }
+            var outputPath = $"{outputFolder}{Path.AltDirectorySeparatorChar}{file}";
+            TileCreationHelper.WriteTileIfNeeded(geometriesToProcess, translation, stylingSettings, copyright, createGltf, skipCreateTiles, outputPath, file);
 
             ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection);
             // todo: check the updateTileBoundingBox
@@ -178,10 +176,8 @@ public class QuadtreeTiler
 
             tile.Lod = lod;
 
-            if (!skipCreateTiles) {
-                var bytes = TileWriter.ToTile(geometries, translation, copyright: copyright, addOutlines: stylingSettings.AddOutlines, defaultColor: stylingSettings.DefaultColor, defaultMetallicRoughness: stylingSettings.DefaultMetallicRoughness, doubleSided: stylingSettings.DoubleSided, defaultAlphaMode: stylingSettings.DefaultAlphaMode, alphaCutoff: stylingSettings.AlphaCutoff, createGltf: createGltf);
-                File.WriteAllBytes($"{outputFolder}{Path.AltDirectorySeparatorChar}{file}", bytes);
-            }
+            var outputPath = $"{outputFolder}{Path.AltDirectorySeparatorChar}{file}";
+            TileCreationHelper.WriteTileIfNeeded(geometries, translation, stylingSettings, copyright, createGltf, skipCreateTiles, outputPath, file);
 
             ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection);
             if (!useImplicitTiling) {

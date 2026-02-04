@@ -113,12 +113,8 @@ public class OctreeTiler
                 }
             }
 
-            if (!tilingSettings.SkipCreateTiles) {
-                var bytes = TileWriter.ToTile(geometriesToProcess, tilesetSettings.Translation, copyright: tilesetSettings.Copyright, addOutlines: stylingSettings.AddOutlines, defaultColor: stylingSettings.DefaultColor, defaultMetallicRoughness: stylingSettings.DefaultMetallicRoughness, doubleSided: stylingSettings.DoubleSided, defaultAlphaMode: stylingSettings.DefaultAlphaMode, alphaCutoff: stylingSettings.AlphaCutoff, createGltf: tilingSettings.CreateGltf);
-                var file = $"{tilesetSettings.OutputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
-                Console.Write($"\rCreating tile: {file}  ");
-                File.WriteAllBytes($"{file}", bytes);
-            }
+            var file = $"{tilesetSettings.OutputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
+            TileCreationHelper.WriteTileIfNeeded(geometriesToProcess, tilesetSettings.Translation, stylingSettings, tilesetSettings.Copyright, tilingSettings.CreateGltf, tilingSettings.SkipCreateTiles, file, file);
             tile.Available = true;
         }
 
@@ -146,12 +142,8 @@ public class OctreeTiler
                 }
             }
 
-            if (!tilingSettings.SkipCreateTiles) {
-                var bytes = TileWriter.ToTile(geometries, tilesetSettings.Translation, copyright: tilesetSettings.Copyright, addOutlines: stylingSettings.AddOutlines, defaultColor: stylingSettings.DefaultColor, defaultMetallicRoughness: stylingSettings.DefaultMetallicRoughness, doubleSided: stylingSettings.DoubleSided, defaultAlphaMode: stylingSettings.DefaultAlphaMode, alphaCutoff: stylingSettings.AlphaCutoff, createGltf: tilingSettings.CreateGltf);
-                var file = $"{tilesetSettings.OutputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
-                Console.Write($"\rCreating tile: {file}  ");
-                File.WriteAllBytes($"{file}", bytes);
-            }
+            var file = $"{tilesetSettings.OutputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
+            TileCreationHelper.WriteTileIfNeeded(geometries, tilesetSettings.Translation, stylingSettings, tilesetSettings.Copyright, tilingSettings.CreateGltf, tilingSettings.SkipCreateTiles, file, file);
             tile.Available = true;
         }
         else {
