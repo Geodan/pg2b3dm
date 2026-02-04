@@ -74,14 +74,18 @@ List of hashes can get long (maximum (z*1000 items), giving more slow query
 
   1] Spatial filtering with MD5 hash exclusion (GetGeometrySubset):  WHERE ST_Centroid(ST_Envelope(geom_triangle)) && <envelope>
       AND MD5(ST_AsBinary(geom_triangle)::text) NOT IN (<hash_list>)
+      
   2] MD5 hash filtering with spatial validation (FilterHashesByEnvelope):  WHERE MD5(ST_AsBinary(geom_triangle)::text) IN (<hash_list>)
       AND ST_Within(ST_Centroid(ST_Envelope(geom_triangle)), <envelope>)
+      
   3] Hash-only filtering (GetGeometriesBoundingBox):  WHERE MD5(ST_AsBinary(geom_triangle)::text) IN (<hash_list>)
 
   Performance Notes:
 
   1] The GIST spatial index handles the ST_Centroid(ST_Envelope(geom_triangle)) predicates
+  
   2] The MD5 hash BTREE index handles the MD5(ST_AsBinary(geom_triangle)::text) IN/NOT IN predicates
+  
   3] PostgreSQL will use both indexes (bitmap index scan) for queries with both predicates
 
   Optional: Materialized Hash Column
