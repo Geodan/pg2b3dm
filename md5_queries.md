@@ -36,7 +36,19 @@ potential improvement: make exception for first tile on z=0 -  do not filter on 
 
 ## Tile 1_0_0.glb (level 1, x=0, y=0)
 
-4] Count geometries in bounding box on level 1 excluding 1000 largest geometries from tile 0_0_0.glb (8 seconds!)
+4] Filter the hashes from previous list to only geometries within tile 1_0_0
+
+```sql
+        SELECT MD5(ST_AsBinary(geom)::text) as geom_hash
+        FROM bertt.nantes_reconstructed_buildings
+        WHERE MD5(ST_AsBinary(geom)::text) in ('9759cdee666f512a0c13df8245b667f9',... )
+        AND ST_Within(
+            ST_Centroid(ST_Envelope(geom)),
+            ST_Transform(ST_MakeEnvelope(@xmin, @ymin, @xmax, @ymax, 4326), 5698)
+        )
+```
+
+5] Count geometries in bounding box on level 1 excluding the geometries from tile 0_0_0.glb, including only the geometries within the tile
 
 ```sql
 SELECT COUNT(geom) FROM bertt.nantes_reconstructed_buildings WHERE ST_Centroid(ST_Envelope(geom)) && st_transform(ST_MakeEnvelope(-1.847105103048876, 47.14626198148698, -1.497208649149572, 47.384471872766284, 4326), 5698)  AND MD5(ST_AsBinary(geom)::text) NOT IN ('9759cdee666f512a0c13df8245b667f9',..1000 items, ...)
@@ -44,7 +56,7 @@ SELECT COUNT(geom) FROM bertt.nantes_reconstructed_buildings WHERE ST_Centroid(S
 
 Result: 235787
 
-5] Get geometries for tile 1_0_0.glb - 1000 largest geometries in tile 1_0_0 (10 seconds!)
+6] Get geometries for tile 1_0_0.glb - 1000 largest geometries in tile 1_0_0 (10 seconds!)
 
 ```sql
 SELECT ST_AsBinary(st_transform(geom, 4978)), id , MD5(ST_AsBinary(geom)::text) as geom_hash FROM bertt.nantes_reconstructed_buildings where ST_Centroid(ST_Envelope(geom)) && st_transform(ST_MakeEnvelope(-1.847105103048876, 47.14626198148698, -1.497208649149572, 47.384471872766284, 4326), 5698)  AND MD5(ST_AsBinary(geom)::text) NOT IN ('9759cdee666f512a0c13df8245b667f9', ..1000 items, ...) ORDER BY ST_Area(ST_Envelope(geom)) DESC LIMIT 1000
