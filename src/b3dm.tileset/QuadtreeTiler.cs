@@ -185,10 +185,6 @@ public class QuadtreeTiler
             }
 
             tile.Available = true;
-
-            if (skipCreateTiles) { 
-                tile.Available = true; 
-            }
         }
         else {
             tile.Available = false;
