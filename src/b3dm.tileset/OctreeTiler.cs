@@ -135,10 +135,8 @@ public class OctreeTiler
 
         if (geometries.Count > 0) {
             // Collect hashes of processed geometries
-            foreach (var geom in geometries) {
-                if (!string.IsNullOrEmpty(geom.Hash)) {
-                    processedGeometries.Add(geom.Hash);
-                }
+            foreach (var geom in geometries.Where(geom => !string.IsNullOrEmpty(geom.Hash))) {
+                processedGeometries.Add(geom.Hash);
             }
 
             var file = $"{tilesetSettings.OutputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
