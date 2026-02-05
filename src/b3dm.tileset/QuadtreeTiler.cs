@@ -131,7 +131,7 @@ public class QuadtreeTiler
             var outputPath = $"{outputFolder}{Path.AltDirectorySeparatorChar}{file}";
             TileCreationHelper.WriteTileIfNeeded(geometriesToProcess, translation, stylingSettings, copyright, createGltf, skipCreateTiles, outputPath, file);
 
-            ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection);
+            ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection, localProcessedGeometries);
             if (!useImplicitTiling) {
                 UpdateTileBoundingBox(tile, tileHashes, where, keepProjection);
             }
@@ -174,7 +174,7 @@ public class QuadtreeTiler
             var outputPath = $"{outputFolder}{Path.AltDirectorySeparatorChar}{file}";
             TileCreationHelper.WriteTileIfNeeded(geometries, translation, stylingSettings, copyright, createGltf, skipCreateTiles, outputPath, file);
 
-            ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection);
+            ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection, processedGeometries);
             if (!useImplicitTiling) {
                 UpdateTileBoundingBox(tile, tileHashes, where, keepProjection);
             }
@@ -187,7 +187,7 @@ public class QuadtreeTiler
         tiles.Add(tile);
     }
 
-    private void ProcessLodLevels(BoundingBox bbox, Tile tile, int lod, bool createGltf, bool keepProjection)
+    private void ProcessLodLevels(BoundingBox bbox, Tile tile, int lod, bool createGltf, bool keepProjection, HashSet<string> processedGeometries)
     {
         if (inputTable.LodColumn != String.Empty && lod < lods.Max()) {
             // take the next lod
@@ -197,7 +197,7 @@ public class QuadtreeTiler
             // make a copy of the tile 
             var t2 = new Tile(tile.Z, tile.X, tile.Y);
             t2.BoundingBox = tile.BoundingBox;
-            var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, createGltf, keepProjection);
+            var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, createGltf, keepProjection, processedGeometries);
             tile.Children = lodNextTiles;
         }
     }
