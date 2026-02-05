@@ -105,7 +105,7 @@ class Program
             }
 
             // Check md5 index
-            var hasMd5Index = SpatialIndexChecker.HashMd5Index(conn, inputTable.TableName, inputTable.GeometryColumn);
+            var hasMd5Index = SpatialIndexChecker.HasMd5Index(conn, inputTable.TableName, inputTable.GeometryColumn);
             if (!hasMd5Index) {
                 Console.WriteLine();
                 Console.WriteLine("-----------------------------------------------------------------------------");
