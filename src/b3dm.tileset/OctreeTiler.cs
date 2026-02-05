@@ -98,6 +98,7 @@ public class OctreeTiler
     {
         // clone processedGeometries to avoid modifying the original set in recursive calls
         var localProcessedGeometries = new HashSet<string>(processedGeometries);
+        var tileHashes = new HashSet<string>();
 
         // Get the largest geometries (up to MaxFeaturesPerTile) for this tile at this level
         int target_srs = tilingSettings.KeepProjection ? inputTable.EPSGCode : 4978;
@@ -108,17 +109,23 @@ public class OctreeTiler
         if (geometriesToProcess.Count > 0) {
             foreach (var geom in geometriesToProcess.Where(geom => !string.IsNullOrEmpty(geom.Hash))) {
                 localProcessedGeometries.Add(geom.Hash);
+                tileHashes.Add(geom.Hash);
             }
 
             var file = $"{tilesetSettings.OutputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
             TileCreationHelper.WriteTileIfNeeded(geometriesToProcess, tilesetSettings.Translation, stylingSettings, tilesetSettings.Copyright, tilingSettings.CreateGltf, tilingSettings.SkipCreateTiles, file, file);
+            
+            UpdateTileBoundingBox3D(tile, tileBounds, tileHashes, where);
+            
             tile.Available = true;
         }
 
         tiles.Add(tile);
         if (tileBounds != null) {
             var key = $"{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}";
-            tileBounds[key] = bbox;
+            if (!tileBounds.ContainsKey(key)) {
+                tileBounds[key] = bbox;
+            }
         }
 
         return localProcessedGeometries;
@@ -126,6 +133,7 @@ public class OctreeTiler
 
     private void CreateTile3D(BoundingBox3D bbox, int level, Tile3D tile, List<Tile3D> tiles, Dictionary<string, BoundingBox3D> tileBounds, string where, HashSet<string> processedGeometries)
     {
+        var tileHashes = new HashSet<string>();
         int target_srs = tilingSettings.KeepProjection ? inputTable.EPSGCode : 4978;
 
         var bbox1 = new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax, bbox.ZMin, bbox.ZMax };
@@ -134,11 +142,15 @@ public class OctreeTiler
         if (geometries.Count > 0) {
             // Collect hashes of processed geometries
             foreach (var geom in geometries.Where(geom => !string.IsNullOrEmpty(geom.Hash))) {
+                tileHashes.Add(geom.Hash);
                 processedGeometries.Add(geom.Hash);
             }
 
             var file = $"{tilesetSettings.OutputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
             TileCreationHelper.WriteTileIfNeeded(geometries, tilesetSettings.Translation, stylingSettings, tilesetSettings.Copyright, tilingSettings.CreateGltf, tilingSettings.SkipCreateTiles, file, file);
+            
+            UpdateTileBoundingBox3D(tile, tileBounds, tileHashes, where);
+            
             tile.Available = true;
         }
         else {
@@ -148,7 +160,23 @@ public class OctreeTiler
         tiles.Add(tile);
         if (tileBounds != null) {
             var key = $"{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}";
-            tileBounds[key] = bbox;
+            if (!tileBounds.ContainsKey(key)) {
+                tileBounds[key] = bbox;
+            }
         }
+    }
+
+    private void UpdateTileBoundingBox3D(Tile3D tile, Dictionary<string, BoundingBox3D> tileBounds, HashSet<string> tileHashes, string where)
+    {
+        if (tileBounds == null || tileHashes.Count == 0) {
+            return;
+        }
+
+        // Update bounding box based on actual geometries in the tile
+        var bbox_geometries = GeometryRepository.GetGeometriesBoundingBox(conn, inputTable.TableName, inputTable.GeometryColumn, inputTable.EPSGCode, null, tileHashes, where, tilingSettings.KeepProjection);
+        var bbox3d = new BoundingBox3D(bbox_geometries[0], bbox_geometries[1], bbox_geometries[4], bbox_geometries[2], bbox_geometries[3], bbox_geometries[5]);
+        
+        var key = $"{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}";
+        tileBounds[key] = bbox3d;
     }
 }
