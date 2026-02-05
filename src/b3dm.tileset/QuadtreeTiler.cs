@@ -167,11 +167,9 @@ public class QuadtreeTiler
         
         if (geometries.Count > 0) {
             // Collect hashes of processed geometries
-            foreach (var geom in geometries) {
-                if (!string.IsNullOrEmpty(geom.Hash)) {
-                    tileHashes.Add(geom.Hash);
-                    processedGeometries.Add(geom.Hash);
-                }
+            foreach (var geom in geometries.Where(g => !string.IsNullOrEmpty(g.Hash))) {
+                tileHashes.Add(geom.Hash);
+                processedGeometries.Add(geom.Hash);
             }
 
             tile.Lod = lod;
