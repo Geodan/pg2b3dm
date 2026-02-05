@@ -21,39 +21,39 @@ public static class GeometryRepository
 
         var filteredHashes = new HashSet<string>();
 
-        var hashList = string.Join(",", geometryHashes.Select(h => $"'{h}'"));
-
         conn.Open();
+        try {
+            var envelope = keepProjection ?
+                $"ST_MakeEnvelope(@xmin, @ymin, @xmax, @ymax, {source_epsg})" :
+                $"ST_Transform(ST_MakeEnvelope(@xmin, @ymin, @xmax, @ymax, 4326), {source_epsg})";
 
-        var envelope = keepProjection ?
-            $"ST_MakeEnvelope(@xmin, @ymin, @xmax, @ymax, {source_epsg})" :
-            $"ST_Transform(ST_MakeEnvelope(@xmin, @ymin, @xmax, @ymax, 4326), {source_epsg})";
+            var query = $@"
+            SELECT MD5(ST_AsBinary({geometryColumn})::text) as geom_hash
+            FROM {tableName}
+            WHERE MD5(ST_AsBinary({geometryColumn})::text) = ANY(@hashes)
+            AND ST_Within(
+                ST_Centroid(ST_Envelope({geometryColumn})),
+                {envelope}
+            )";
 
-        var query = $@"
-        SELECT MD5(ST_AsBinary({geometryColumn})::text) as geom_hash
-        FROM {tableName}
-        WHERE MD5(ST_AsBinary({geometryColumn})::text) in ({hashList})
-        AND ST_Within(
-            ST_Centroid(ST_Envelope({geometryColumn})),
-            {envelope}
-        )";
+            using var cmd = new NpgsqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("hashes", geometryHashes.ToArray());
+            cmd.Parameters.AddWithValue("xmin", bbox.XMin);
+            cmd.Parameters.AddWithValue("ymin", bbox.YMin);
+            cmd.Parameters.AddWithValue("xmax", bbox.XMax);
+            cmd.Parameters.AddWithValue("ymax", bbox.YMax);
 
-        using var cmd = new NpgsqlCommand(query, conn);
-        cmd.Parameters.AddWithValue("hashes", geometryHashes.ToArray());
-        cmd.Parameters.AddWithValue("xmin", bbox.XMin);
-        cmd.Parameters.AddWithValue("ymin", bbox.YMin);
-        cmd.Parameters.AddWithValue("xmax", bbox.XMax);
-        cmd.Parameters.AddWithValue("ymax", bbox.YMax);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read()) {
+                var hash = reader.GetString(0);
+                filteredHashes.Add(hash);
+            }
 
-        using var reader = cmd.ExecuteReader();
-        while (reader.Read()) {
-            var hash = reader.GetString(0);
-            filteredHashes.Add(hash);
+            return filteredHashes;
         }
-
-        conn.Close();
-
-        return filteredHashes;
+        finally {
+            conn.Close();
+        }
     }
 
     /// <summary>
@@ -65,23 +65,24 @@ public static class GeometryRepository
             $"select st_Asbinary(st_3dextent({geometry_column})) ":
             $"select st_Asbinary(st_3dextent(st_transform({geometry_column}, 4979))) ";
 
-        var hashList = string.Join(",", tileHashes.Select(h => $"'{h}'"));
-
-        var sqlWhere = $" MD5(ST_AsBinary({geometry_column})::text) in ({hashList})";
+        var sqlWhere = $" MD5(ST_AsBinary({geometry_column})::text) = ANY(@hashes)";
         var sql = $"{sqlSelect} from {geometry_table} where {sqlWhere}";
 
         conn.Open();
-        var cmd = new NpgsqlCommand(sql, conn);
-        var reader = cmd.ExecuteReader();
-        reader.Read();
-        var stream = reader.GetStream(0);
-        var geometry = Geometry.Deserialize<WkbSerializer>(stream);
-        var result = BBox3D.GetBoundingBoxPoints(geometry);
+        try {
+            using var cmd = new NpgsqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("hashes", tileHashes.ToArray());
+            using var reader = cmd.ExecuteReader();
+            reader.Read();
+            var stream = reader.GetStream(0);
+            var geometry = Geometry.Deserialize<WkbSerializer>(stream);
+            var result = BBox3D.GetBoundingBoxPoints(geometry);
 
-        reader.Close();
-        conn.Close();
-
-        return result;
+            return result;
+        }
+        finally {
+            conn.Close();
+        }
     }
 
     public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", bool keepProjection = false, HashSet<string> excludeHashes = null, int? maxFeatures = null)
@@ -92,16 +93,33 @@ public static class GeometryRepository
         // todo: fix unit test when there is no z
         var points = GetPoints(bbox);
 
-        var sqlWhere = GetWhere(geometry_column, points.fromPoint, points.toPoint, query, source_epsg, keepProjection, excludeHashes);
+        var sqlWhere = GetWhere(geometry_column, points.fromPoint, points.toPoint, query, source_epsg, keepProjection);
+        
+        // Add hash exclusion filter using parameterized query
+        if (excludeHashes != null && excludeHashes.Count > 0) {
+            sqlWhere += $" AND MD5(ST_AsBinary({geometry_column})::text) != ALL(@excludeHashes)";
+        }
+        
         var sqlOrderBy = GetOrderBy(geometry_column);
         var sqlLimit = maxFeatures.HasValue ? $" LIMIT {maxFeatures.Value}" : "";
         var sql = sqlselect + sqlFrom + " where " + sqlWhere + sqlOrderBy + sqlLimit;
 
-        var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql, radiusColumn, geometry_column);
-        return geometries;
+        conn.Open();
+        try {
+            using var cmd = new NpgsqlCommand(sql, conn);
+            if (excludeHashes != null && excludeHashes.Count > 0) {
+                cmd.Parameters.AddWithValue("excludeHashes", excludeHashes.ToArray());
+            }
+            
+            var geometries = GetGeometries(cmd, shaderColumn, attributesColumns, radiusColumn, geometry_column);
+            return geometries;
+        }
+        finally {
+            conn.Close();
+        }
     }
 
-    public static string GetWhere(string geometry_column, Point from, Point to, string query, int source_epsg, bool keepProjection, HashSet<string> excludeHashes = null)
+    public static string GetWhere(string geometry_column, Point from, Point to, string query, int source_epsg, bool keepProjection)
     {
         var fromX = from.X.Value.ToString(CultureInfo.InvariantCulture);
         var fromY = from.Y.Value.ToString(CultureInfo.InvariantCulture);
@@ -128,12 +146,6 @@ public static class GeometryRepository
             where = keepProjection ?
                 $"ST_3DIntersects({geom}, ST_3DMakeBox({fromBox}, {toBox})) {query}" :
                 $"ST_3DIntersects({geom}, st_transform(ST_3DMakeBox({fromBox}, {toBox}), {source_epsg})) {query}";
-        }
-
-        // Add hash exclusion filter
-        if (excludeHashes != null && excludeHashes.Count > 0) {
-            var hashList = string.Join(",", excludeHashes.Select(h => $"'{h}'"));
-            where += $" AND MD5(ST_AsBinary({geometry_column})::text) NOT IN ({hashList})";
         }
 
         return where;
@@ -168,11 +180,9 @@ public static class GeometryRepository
         return $" ORDER BY ST_Area(ST_Envelope({geometry_column})) DESC";
     }
 
-    public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql, string radiusColumn, string geometry_column = "")
+    public static List<GeometryRecord> GetGeometries(NpgsqlCommand cmd, string shaderColumn, string attributesColumns, string radiusColumn, string geometry_column = "")
     {
         var geometries = new List<GeometryRecord>();
-        conn.Open();
-        var cmd = new NpgsqlCommand(sql, conn);
         var reader = cmd.ExecuteReader();
         var attributesColumnIds = new Dictionary<string, int>();
         var shadersColumnId = int.MinValue;
@@ -230,7 +240,6 @@ public static class GeometryRepository
         }
 
         reader.Close();
-        conn.Close();
         return geometries;
     }
 

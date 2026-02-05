@@ -41,30 +41,38 @@ potential improvement: make exception for first tile on z=0 -  do not filter on 
 ```sql
         SELECT MD5(ST_AsBinary(geom)::text) as geom_hash
         FROM bertt.nantes_reconstructed_buildings
-        WHERE MD5(ST_AsBinary(geom)::text) in ('9759cdee666f512a0c13df8245b667f9',... )
+        WHERE MD5(ST_AsBinary(geom)::text) = ANY($1)
         AND ST_Within(
             ST_Centroid(ST_Envelope(geom)),
-            ST_Transform(ST_MakeEnvelope(@xmin, @ymin, @xmax, @ymax, 4326), 5698)
+            ST_Transform(ST_MakeEnvelope($2, $3, $4, $5, 4326), 5698)
         )
 ```
+
+Note: Using parameterized query with array parameter instead of string concatenation.
 
 5] Count geometries in bounding box on level 1 excluding the geometries from tile 0_0_0.glb, including only the geometries within the tile
 
 ```sql
-SELECT COUNT(geom) FROM bertt.nantes_reconstructed_buildings WHERE ST_Centroid(ST_Envelope(geom)) && st_transform(ST_MakeEnvelope(-1.847105103048876, 47.14626198148698, -1.497208649149572, 47.384471872766284, 4326), 5698)  AND MD5(ST_AsBinary(geom)::text) NOT IN ('9759cdee666f512a0c13df8245b667f9',..1000 items, ...)
+SELECT COUNT(geom) FROM bertt.nantes_reconstructed_buildings WHERE ST_Centroid(ST_Envelope(geom)) && st_transform(ST_MakeEnvelope(-1.847105103048876, 47.14626198148698, -1.497208649149572, 47.384471872766284, 4326), 5698)  AND MD5(ST_AsBinary(geom)::text) != ALL($1)
 ```
+
+Note: Using parameterized query with array parameter instead of string concatenation.
 
 Result: 235787
 
-6] Get geometries for tile 1_0_0.glb - 1000 largest geometries in tile 1_0_0 (10 seconds!)
+6] Get geometries for tile 1_0_0.glb - 1000 largest geometries in tile 1_0_0
 
 ```sql
-SELECT ST_AsBinary(st_transform(geom, 4978)), id , MD5(ST_AsBinary(geom)::text) as geom_hash FROM bertt.nantes_reconstructed_buildings where ST_Centroid(ST_Envelope(geom)) && st_transform(ST_MakeEnvelope(-1.847105103048876, 47.14626198148698, -1.497208649149572, 47.384471872766284, 4326), 5698)  AND MD5(ST_AsBinary(geom)::text) NOT IN ('9759cdee666f512a0c13df8245b667f9', ..1000 items, ...) ORDER BY ST_Area(ST_Envelope(geom)) DESC LIMIT 1000
+SELECT ST_AsBinary(st_transform(geom, 4978)), id , MD5(ST_AsBinary(geom)::text) as geom_hash FROM bertt.nantes_reconstructed_buildings where ST_Centroid(ST_Envelope(geom)) && st_transform(ST_MakeEnvelope(-1.847105103048876, 47.14626198148698, -1.497208649149572, 47.384471872766284, 4326), 5698)  AND MD5(ST_AsBinary(geom)::text) != ALL($1) ORDER BY ST_Area(ST_Envelope(geom)) DESC LIMIT 1000
 ```
+
+Note: Using parameterized query with array parameter instead of string concatenation.
 
 ## Issue
 
-List of hashes can get long (maximum (z*1000 items), giving more slow query
+List of hashes can get long (maximum z*1000 items). Previously this was handled with string concatenation which could lead to performance issues and potential SQL injection vulnerabilities.
+
+**Solution**: Now using parameterized queries with PostgreSQL's `= ANY()` and `!= ALL()` operators for better performance and security.
 
 ## Spatial indexing
 
@@ -85,27 +93,42 @@ List of hashes can get long (maximum (z*1000 items), giving more slow query
   The queries now use three main patterns:
 
   1] Spatial filtering with MD5 hash exclusion (GetGeometrySubset):  WHERE ST_Centroid(ST_Envelope(geom_triangle)) && <envelope>
-      AND MD5(ST_AsBinary(geom_triangle)::text) NOT IN (<hash_list>)
+      AND MD5(ST_AsBinary(geom_triangle)::text) != ALL($1)
       
-  2] MD5 hash filtering with spatial validation (FilterHashesByEnvelope):  WHERE MD5(ST_AsBinary(geom_triangle)::text) IN (<hash_list>)
+  2] MD5 hash filtering with spatial validation (FilterHashesByEnvelope):  WHERE MD5(ST_AsBinary(geom_triangle)::text) = ANY($1)
       AND ST_Within(ST_Centroid(ST_Envelope(geom_triangle)), <envelope>)
       
-  3] Hash-only filtering (GetGeometriesBoundingBox):  WHERE MD5(ST_AsBinary(geom_triangle)::text) IN (<hash_list>)
+  3] Hash-only filtering (GetGeometriesBoundingBox):  WHERE MD5(ST_AsBinary(geom_triangle)::text) = ANY($1)
 
   Performance Notes:
 
   1] The GIST spatial index handles the ST_Centroid(ST_Envelope(geom_triangle)) predicates
   
-  2] The MD5 hash BTREE index handles the MD5(ST_AsBinary(geom_triangle)::text) IN/NOT IN predicates
+  2] The MD5 hash BTREE index handles the MD5(ST_AsBinary(geom_triangle)::text) = ANY/!= ALL predicates
   
   3] PostgreSQL will use both indexes (bitmap index scan) for queries with both predicates
+  
+  4] Using parameterized queries with ANY/ALL operators provides better performance than string-concatenated IN/NOT IN clauses
 
   Optional: Materialized Hash Column
 
+## Solution
+
+The hash filtering now uses PostgreSQL's `= ANY(@param)` operator with array parameters instead of string concatenation:
+
+1. **Hash Inclusion (IN clause)**: Changed from `MD5(...) IN ('hash1', 'hash2', ...)` to `MD5(...) = ANY(@hashes)` with parameterized array
+2. **Hash Exclusion (NOT IN clause)**: Changed from `MD5(...) NOT IN ('hash1', 'hash2', ...)` to `MD5(...) != ALL(@excludeHashes)` with parameterized array
+
+Benefits:
+- Eliminates SQL injection risk (even though MD5 hashes are predictable)
+- Better performance with large hash lists
+- Cleaner, more maintainable code
+- Proper use of parameterized queries
+
 ## Todo 
 
-- idea: make a temporary blacklist table with the to be exluded hashes?
+- ~~idea: make a temporary blacklist table with the to be exluded hashes?~~ (Solved using parameterized arrays)
 
 - idea: force use of id column (longs)?
 
-- Other solutions?
+- ~~Other solutions?~~ (Implemented using `ANY` and `ALL` operators)
