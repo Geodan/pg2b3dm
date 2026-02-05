@@ -115,7 +115,9 @@ public class OctreeTiler
             var file = $"{tilesetSettings.OutputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
             TileCreationHelper.WriteTileIfNeeded(geometriesToProcess, tilesetSettings.Translation, stylingSettings, tilesetSettings.Copyright, tilingSettings.CreateGltf, tilingSettings.SkipCreateTiles, file, file);
             
-            UpdateTileBoundingBox3D(tile, tileBounds, tileHashes, where);
+            if (!tilingSettings.UseImplicitTiling) {
+                UpdateTileBoundingBox3D(tile, tileBounds, tileHashes, where);
+            }
             
             tile.Available = true;
         }
@@ -149,7 +151,9 @@ public class OctreeTiler
             var file = $"{tilesetSettings.OutputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
             TileCreationHelper.WriteTileIfNeeded(geometries, tilesetSettings.Translation, stylingSettings, tilesetSettings.Copyright, tilingSettings.CreateGltf, tilingSettings.SkipCreateTiles, file, file);
             
-            UpdateTileBoundingBox3D(tile, tileBounds, tileHashes, where);
+            if (!tilingSettings.UseImplicitTiling) {
+                UpdateTileBoundingBox3D(tile, tileBounds, tileHashes, where);
+            }
             
             tile.Available = true;
         }
