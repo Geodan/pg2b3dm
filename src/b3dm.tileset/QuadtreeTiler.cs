@@ -23,7 +23,7 @@ public class QuadtreeTiler
     private readonly bool skipCreateTiles;
     private readonly StylingSettings stylingSettings;
     private InputTable inputTable;
-    private bool useImplicitTiling = false;
+    private readonly bool useImplicitTiling;
 
     public QuadtreeTiler(string connectionString, InputTable inputTable, StylingSettings stylingSettings, int maxFeaturesPerTile, double[] translation, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false, bool useImplicitTiling=false)
     {
