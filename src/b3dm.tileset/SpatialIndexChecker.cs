@@ -12,7 +12,7 @@ public static class SpatialIndexChecker
 
     public static bool HasMd5Index(NpgsqlConnection conn, string geometry_table, string geometry_column)
     {
-        var indexDef = $"%md5((st_asbinary({geometry_column}))::text%)";
+        var indexDef = $"%md5(st_asbinary({geometry_column})::text)%";
         return HasIndex(conn, geometry_table, indexDef);
     }   
 
