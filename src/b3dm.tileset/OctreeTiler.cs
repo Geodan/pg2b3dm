@@ -98,6 +98,7 @@ public class OctreeTiler
     {
         // clone processedGeometries to avoid modifying the original set in recursive calls
         var localProcessedGeometries = new HashSet<string>(processedGeometries);
+        var tileHashes = new HashSet<string>();
 
         // Get the largest geometries (up to MaxFeaturesPerTile) for this tile at this level
         int target_srs = tilingSettings.KeepProjection ? inputTable.EPSGCode : 4978;
@@ -106,11 +107,9 @@ public class OctreeTiler
         var geometriesToProcess = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, tilingSettings.KeepProjection, processedGeometries, tilingSettings.MaxFeaturesPerTile);
 
         if (geometriesToProcess.Count > 0) {
-            // Collect hashes of processed geometries
-            foreach (var geom in geometriesToProcess) {
-                if (!string.IsNullOrEmpty(geom.Hash)) {
-                    localProcessedGeometries.Add(geom.Hash);
-                }
+            foreach (var geom in geometriesToProcess.Where(geom => !string.IsNullOrEmpty(geom.Hash))) {
+                localProcessedGeometries.Add(geom.Hash);
+                tileHashes.Add(geom.Hash);
             }
 
             var file = $"{tilesetSettings.OutputSettings.ContentFolder}{Path.AltDirectorySeparatorChar}{tile.Level}_{tile.Z}_{tile.X}_{tile.Y}.glb";
