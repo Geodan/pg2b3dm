@@ -20,7 +20,7 @@ public static class SpatialIndexChecker
 
         cmd.Parameters.AddWithValue("schema", schema);
         cmd.Parameters.AddWithValue("geometry_table", geometry_table);
-        cmd.Parameters.AddWithValue("index", "%st_centroid(st_envelope(" + geometry_column + "%)), st_envelope(" + geometry_column + "%))%");
+        cmd.Parameters.AddWithValue("index", "%st_centroid(st_envelope(" + geometry_column + "%))%");
 
         var reader = cmd.ExecuteReader();
         reader.Read();
