@@ -5,8 +5,21 @@ public static class SpatialIndexChecker
 {
     public static bool HasSpatialIndex(NpgsqlConnection conn, string geometry_table, string geometry_column)
     {
+        var indexDef = $"%st_centroid(st_envelope({geometry_column}))%";
+
+        return HasIndex(conn, geometry_table, indexDef);
+    }
+
+    public static bool HashMd5Index(NpgsqlConnection conn, string geometry_table, string geometry_column)
+    {
+        var indexDef = $"%md5((st_asbinary({geometry_column}))::text%)";
+        return HasIndex(conn, geometry_table, indexDef);
+    }   
+
+    private static bool HasIndex(NpgsqlConnection conn, string geometry_table, string indexDef)
+    {
         var schema = "public";
-        if(geometry_table.Contains('.')) {
+        if (geometry_table.Contains('.')) {
             var items = geometry_table.Split('.', 2);
             schema = items[0];
             geometry_table = items[1];
@@ -20,7 +33,7 @@ public static class SpatialIndexChecker
 
         cmd.Parameters.AddWithValue("schema", schema);
         cmd.Parameters.AddWithValue("geometry_table", geometry_table);
-        cmd.Parameters.AddWithValue("index", "%st_centroid(st_envelope(" + geometry_column + "%))%");
+        cmd.Parameters.AddWithValue("index", indexDef);
 
         var reader = cmd.ExecuteReader();
         reader.Read();

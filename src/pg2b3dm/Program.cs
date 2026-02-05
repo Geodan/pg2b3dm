@@ -96,12 +96,27 @@ class Program
                 Console.WriteLine("-----------------------------------------------------------------------------");
                 Console.WriteLine($"WARNING: No spatial index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
                 Console.WriteLine("Fix: add a spatial index, for example: ");
-                Console.WriteLine($"'CREATE INDEX ON {inputTable.TableName} USING gist(st_centroid(st_envelope({inputTable.GeometryColumn})), st_envelope({inputTable.GeometryColumn}))'");
+                Console.WriteLine($"'CREATE INDEX ON {inputTable.TableName} USING gist(st_centroid(st_envelope({inputTable.GeometryColumn})))'");
                 Console.WriteLine("-----------------------------------------------------------------------------");
                 Console.WriteLine();
             }
             else {
                 Console.WriteLine($"Spatial index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
+            }
+
+            // Check md5 index
+            var hasMd5Index = SpatialIndexChecker.HashMd5Index(conn, inputTable.TableName, inputTable.GeometryColumn);
+            if (!hasMd5Index) {
+                Console.WriteLine();
+                Console.WriteLine("-----------------------------------------------------------------------------");
+                Console.WriteLine($"WARNING: No md5 index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
+                Console.WriteLine("Fix: add a md5 index, for example: ");
+                Console.WriteLine($"'CREATE INDEX ON {inputTable.TableName} using btree(md5(st_asbinary({inputTable.GeometryColumn})::text))'");
+                Console.WriteLine("-----------------------------------------------------------------------------");
+                Console.WriteLine();
+            }
+            else {
+                Console.WriteLine($"Md5 index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
             }
 
             var skipCreateTiles = (bool)o.SkipCreateTiles;
