@@ -96,7 +96,7 @@ public class OctreeTiler
 
     private HashSet<string> CreateTileForLargestGeometries3D(BoundingBox3D bbox, int level, Tile3D tile, List<Tile3D> tiles, Dictionary<string, BoundingBox3D> tileBounds, string where, HashSet<string> processedGeometries)
     {
-        // clone processedIds to avoid modifying the original set in recursive calls
+        // clone processedGeometries to avoid modifying the original set in recursive calls
         var localProcessedGeometries = new HashSet<string>(processedGeometries);
 
         // Get the largest geometries (up to MaxFeaturesPerTile) for this tile at this level
