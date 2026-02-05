@@ -192,18 +192,16 @@ public class QuadtreeTiler
 
     private void ProcessLodLevels(BoundingBox bbox, Tile tile, int lod, bool createGltf, bool keepProjection)
     {
-        if (inputTable.LodColumn != String.Empty) {
-            if (lod < lods.Max()) {
-                // take the next lod
-                var currentIndex = lods.FindIndex(p => p == lod);
-                var nextIndex = currentIndex + 1;
-                var nextLod = lods[nextIndex];
-                // make a copy of the tile 
-                var t2 = new Tile(tile.Z, tile.X, tile.Y);
-                t2.BoundingBox = tile.BoundingBox;
-                var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, createGltf, keepProjection);
-                tile.Children = lodNextTiles;
-            }
+        if (inputTable.LodColumn != String.Empty && lod < lods.Max()) {
+            // take the next lod
+            var currentIndex = lods.FindIndex(p => p == lod);
+            var nextIndex = currentIndex + 1;
+            var nextLod = lods[nextIndex];
+            // make a copy of the tile 
+            var t2 = new Tile(tile.Z, tile.X, tile.Y);
+            t2.BoundingBox = tile.BoundingBox;
+            var lodNextTiles = GenerateTiles(bbox, t2, new List<Tile>(), nextLod, createGltf, keepProjection);
+            tile.Children = lodNextTiles;
         }
     }
 
