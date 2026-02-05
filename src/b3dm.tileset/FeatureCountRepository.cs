@@ -19,15 +19,18 @@ public static class FeatureCountRepository
 
         var sql = $"SELECT {select} FROM {geometry_table} WHERE {where}";
         conn.Open();
-        var cmd = new NpgsqlCommand(sql, conn);
-        if (excludeHashes != null && excludeHashes.Count > 0) {
-            cmd.Parameters.AddWithValue("excludeHashes", excludeHashes.ToArray());
+        try {
+            using var cmd = new NpgsqlCommand(sql, conn);
+            if (excludeHashes != null && excludeHashes.Count > 0) {
+                cmd.Parameters.AddWithValue("excludeHashes", excludeHashes.ToArray());
+            }
+            using var reader = cmd.ExecuteReader();
+            reader.Read();
+            var count = reader.GetInt32(0);
+            return count;
         }
-        var reader = cmd.ExecuteReader();
-        reader.Read();
-        var count = reader.GetInt32(0);
-        reader.Close();
-        conn.Close();
-        return count;
+        finally {
+            conn.Close();
+        }
     }
 }
