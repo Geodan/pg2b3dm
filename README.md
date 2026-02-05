@@ -220,10 +220,11 @@ For styling see [styling 3D Tiles](styling.md)
 Input geometries must be of type LineString/MultilineString/Polygon/MultiPolygon/PolyhedralSurface (with z values). When the geometry is not triangulated, pg2b3dm will perform
 triangulation. Geometries with interior rings are supported.
 
-For large datasets create a spatial index on the geometry column:
+For large datasets create the following indexes:
 
 ```
-psql> CREATE INDEX ON the_table USING gist (st_envelope(geom));
+psql> CREATE INDEX ON the_table USING gist (st_centroid(st_envelope(geom)));
+psql> CREATE INDEX ON the_table using btree(md5(st_asbinary({inputTable.GeometryColumn})::text));
 ```
 
 When there the spatial index is not present the following warning is shown.
