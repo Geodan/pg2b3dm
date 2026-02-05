@@ -131,8 +131,12 @@ public class QuadtreeTiler
             var outputPath = $"{outputFolder}{Path.AltDirectorySeparatorChar}{file}";
             TileCreationHelper.WriteTileIfNeeded(geometriesToProcess, translation, stylingSettings, copyright, createGltf, skipCreateTiles, outputPath, file);
 
+<<<<<<< copilot/sub-pr-244-again
             ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection, localProcessedGeometries);
             // todo: check the updateTileBoundingBox
+=======
+            ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection);
+>>>>>>> md5_implementation
             if (!useImplicitTiling) {
                 UpdateTileBoundingBox(tile, tileHashes, where, keepProjection);
             }
