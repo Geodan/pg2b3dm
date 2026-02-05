@@ -132,7 +132,6 @@ public class QuadtreeTiler
             TileCreationHelper.WriteTileIfNeeded(geometriesToProcess, translation, stylingSettings, copyright, createGltf, skipCreateTiles, outputPath, file);
 
             ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection);
-            // todo: check the updateTileBoundingBox
             if (!useImplicitTiling) {
                 UpdateTileBoundingBox(tile, tileHashes, where, keepProjection);
             }
