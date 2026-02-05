@@ -224,7 +224,7 @@ For large datasets create the following indexes:
 
 ```
 psql> CREATE INDEX ON the_table USING gist (st_centroid(st_envelope(geom)));
-psql> CREATE INDEX ON the_table using btree(md5(st_asbinary({inputTable.GeometryColumn})::text));
+psql> CREATE INDEX ON the_table using btree(md5(st_asbinary(geom)::text));
 ```
 
 When there the spatial index is not present the following warning is shown.
