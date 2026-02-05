@@ -133,7 +133,7 @@ public class QuadtreeTiler
 
             ProcessLodLevels(bbox, tile, lod, createGltf, keepProjection);
             // todo: check the updateTileBoundingBox
-            if(!useImplicitTiling) {
+            if (!useImplicitTiling) {
                 UpdateTileBoundingBox(tile, tileHashes, where, keepProjection);
             }
 
