@@ -111,11 +111,9 @@ public class QuadtreeTiler
         if (geometriesToProcess.Count > 0) {
             
             // Collect hashes of processed geometries
-            foreach (var geom in geometriesToProcess) {
-                if (!string.IsNullOrEmpty(geom.Hash)) {
-                    localProcessedGeometries.Add(geom.Hash);
-                    tileHashes.Add(geom.Hash);
-                }
+            foreach (var geom in geometriesToProcess.Where(geom => !string.IsNullOrEmpty(geom.Hash))) {
+                localProcessedGeometries.Add(geom.Hash);
+                tileHashes.Add(geom.Hash);
             }
 
             var file = $"{tile.Z}_{tile.X}_{tile.Y}";
