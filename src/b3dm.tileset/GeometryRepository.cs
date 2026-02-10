@@ -89,8 +89,6 @@ public static class GeometryRepository
     {
         var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn, target_srs);
         var sqlFrom = "FROM " + geometry_table;
-
-        // todo: fix unit test when there is no z
         var points = GetPoints(bbox);
 
         var sqlWhere = GetWhere(geometry_column, points.fromPoint, points.toPoint, query, source_epsg, keepProjection);
