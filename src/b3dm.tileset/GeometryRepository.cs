@@ -85,7 +85,7 @@ public static class GeometryRepository
         }
     }
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", bool keepProjection = false, HashSet<string> excludeHashes = null, int? maxFeatures = null)
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", bool keepProjection = false, HashSet<string> excludeHashes = null, int? maxFeatures = null, SubdivisionScheme scheme = SubdivisionScheme.QUADTREE)
     {
         var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn, target_srs);
         var sqlFrom = "FROM " + geometry_table;
@@ -100,7 +100,7 @@ public static class GeometryRepository
             sqlWhere += $" AND MD5(ST_AsBinary({geometry_column})::text) != ALL(@excludeHashes)";
         }
         
-        var sqlOrderBy = GetOrderBy(geometry_column);
+        var sqlOrderBy = GetOrderBy(geometry_column, scheme);
         var sqlLimit = maxFeatures.HasValue ? $" LIMIT {maxFeatures.Value}" : "";
         var sql = sqlselect + sqlFrom + " where " + sqlWhere + sqlOrderBy + sqlLimit;
 
@@ -175,8 +175,11 @@ public static class GeometryRepository
         return $"st_transform({geometry_column}, {target_srs})";
     }
 
-    public static string GetOrderBy(string geometry_column)
+    public static string GetOrderBy(string geometry_column, SubdivisionScheme scheme)
     {
+        if (scheme == SubdivisionScheme.OCTREE) {
+            return $" ORDER BY (ST_XMax({geometry_column}) - ST_XMin({geometry_column})) *(ST_YMax({geometry_column}) - ST_YMin({geometry_column})) DESC";
+        }
         return $" ORDER BY ST_Area(ST_Envelope({geometry_column})) DESC";
     }
 
