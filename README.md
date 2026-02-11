@@ -68,6 +68,8 @@ Presentation at FOSS4G 2019: 3D geodata with 3D Tiles https://www.youtube.com/wa
 
 Tooling containing pg2b3dm:
 
+- 3DCityDB: https://tum-gis.github.io/citydb-3dtiler/
+
 - Digital Twin toolbox: https://github.com/geosolutions-it/digital-twin-toolbox
 
 - QGIS Web Client - Generating 3D tiles: https://qwc-services.github.io/master/topics/View3D/#generating-3d-tiles
