@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using B3dm.Tileset.settings;
 using NUnit.Framework;
 using pg2b3dm;
 using subtree;

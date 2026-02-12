@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using B3dm.Tileset.settings;
+using B3dm.Tileset;
 using Npgsql;
-using pg2b3dm;
 using subtree;
 using Wkx;
 
@@ -103,7 +101,7 @@ public class OctreeTiler
         int target_srs = tilingSettings.KeepProjection ? inputTable.EPSGCode : 4978;
 
         var bbox1 = new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax, bbox.ZMin, bbox.ZMax };
-        var geometriesToProcess = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, tilingSettings.KeepProjection, processedGeometries, tilingSettings.MaxFeaturesPerTile, SubdivisionScheme.OCTREE);
+        var geometriesToProcess = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, tilingSettings.KeepProjection, processedGeometries, tilingSettings.MaxFeaturesPerTile, tilingSettings.SortBy);
 
         if (geometriesToProcess.Count > 0) {
             foreach (var geom in geometriesToProcess.Where(geom => !string.IsNullOrEmpty(geom.Hash))) {
@@ -129,7 +127,7 @@ public class OctreeTiler
         int target_srs = tilingSettings.KeepProjection ? inputTable.EPSGCode : 4978;
 
         var bbox1 = new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax, bbox.ZMin, bbox.ZMax };
-        var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, tilingSettings.KeepProjection, processedGeometries, tilingSettings.MaxFeaturesPerTile, SubdivisionScheme.OCTREE);
+        var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, tilingSettings.KeepProjection, processedGeometries, tilingSettings.MaxFeaturesPerTile, tilingSettings.SortBy);
 
         if (geometries.Count > 0) {
             // Collect hashes of processed geometries

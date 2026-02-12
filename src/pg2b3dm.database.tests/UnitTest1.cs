@@ -1,6 +1,5 @@
 ﻿using B3dm.Tileset;
 using B3dm.Tileset.Extensions;
-using B3dm.Tileset.settings;
 using DotNet.Testcontainers.Builders;
 using Npgsql;
 using subtree;

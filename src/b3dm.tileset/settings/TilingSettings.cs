@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace B3dm.Tileset.settings;
+namespace B3dm.Tileset;
 
 public class TilingSettings
 {
@@ -13,6 +13,8 @@ public class TilingSettings
     public bool SkipCreateTiles { get; set; } = false;
 
     public int MaxFeaturesPerTile { get; set; } = 1000; 
+
+    public SortBy SortBy { get; set; } = SortBy.AREA;
 
     public bool UseImplicitTiling { get; set; } = true;
 

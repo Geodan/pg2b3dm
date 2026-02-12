@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using B3dm.Tileset;
 using B3dm.Tileset.Extensions;
-using B3dm.Tileset.settings;
 using Npgsql;
 using subtree;
 using Wkx;
@@ -24,8 +23,9 @@ public class QuadtreeTiler
     private readonly StylingSettings stylingSettings;
     private InputTable inputTable;
     private readonly bool useImplicitTiling;
+    private readonly SortBy sortBy;
 
-    public QuadtreeTiler(string connectionString, InputTable inputTable, StylingSettings stylingSettings, int maxFeaturesPerTile, double[] translation, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false, bool useImplicitTiling = false)
+    public QuadtreeTiler(string connectionString, InputTable inputTable, StylingSettings stylingSettings, int maxFeaturesPerTile, double[] translation, string outputFolder, List<int> lods, string copyright = "", bool skipCreateTiles = false, bool useImplicitTiling = false, SortBy sortBy = SortBy.AREA)
     {
         this.conn = new NpgsqlConnection(connectionString);
         this.inputTable = inputTable;
@@ -38,6 +38,7 @@ public class QuadtreeTiler
         this.skipCreateTiles = skipCreateTiles;
         this.stylingSettings = stylingSettings;
         this.useImplicitTiling = useImplicitTiling;
+        this.sortBy = sortBy;
     }
 
     public List<Tile> GenerateTiles(BoundingBox bbox, Tile tile, List<Tile> tiles, int lod = 0, bool createGltf = false, bool keepProjection = false, HashSet<string> processedGeometries = null)
@@ -106,7 +107,7 @@ public class QuadtreeTiler
         
         int target_srs = keepProjection ? source_epsg : 4978;
 
-        var geometriesToProcess = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection, processedGeometries, maxFeaturesPerTile);
+        var geometriesToProcess = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection, processedGeometries, maxFeaturesPerTile, sortBy: sortBy);
 
         if (geometriesToProcess.Count > 0) {
             
@@ -160,7 +161,7 @@ public class QuadtreeTiler
 
         int target_srs = keepProjection ? source_epsg : 4978;
 
-        var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection, processedGeometries);
+        var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection, processedGeometries, sortBy: sortBy);
         
         if (geometries.Count > 0) {
             // Collect hashes of processed geometries

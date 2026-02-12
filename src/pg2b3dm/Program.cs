@@ -9,7 +9,6 @@ using Npgsql;
 using subtree;
 using B3dm.Tileset.Extensions;
 using SharpGLTF.Schema2;
-using B3dm.Tileset.settings;
 
 namespace pg2b3dm;
 
@@ -175,6 +174,7 @@ class Program
             Console.WriteLine($"Refinement: {refinement}");
             Console.WriteLine($"Keep projection: {keepProjection}");
             Console.WriteLine($"Subdivision scheme: {subdivisionScheme}");
+            Console.WriteLine($"Sort by: {o.SortBy}");
 
             if (keepProjection && !useImplicitTiling) {
                 Console.WriteLine("Warning: keepProjection is only supported with implicit tiling.");
@@ -237,6 +237,7 @@ class Program
             tilingSettings.UseImplicitTiling = useImplicitTiling;
             tilingSettings.SkipCreateTiles = skipCreateTiles;
             tilingSettings.MaxFeaturesPerTile = maxFeaturesPerTile;
+            tilingSettings.SortBy = o.SortBy;
             tilingSettings.Lods = lods;
 
             if (subdivisionScheme == SubdivisionScheme.QUADTREE) {
@@ -293,7 +294,7 @@ class Program
         tile.BoundingBox = bbox.ToArray();
         var outputSettings = tilesetSettings.OutputSettings;
 
-        var quadtreeTiler = new QuadtreeTiler(connectionString, inputTable, stylingSettings, tilingSettings.MaxFeaturesPerTile, tilesetSettings.Translation, outputSettings.ContentFolder, tilingSettings.Lods, tilesetSettings.Copyright, tilingSettings.SkipCreateTiles, tilingSettings.UseImplicitTiling);
+        var quadtreeTiler = new QuadtreeTiler(connectionString, inputTable, stylingSettings, tilingSettings.MaxFeaturesPerTile, tilesetSettings.Translation, outputSettings.ContentFolder, tilingSettings.Lods, tilesetSettings.Copyright, tilingSettings.SkipCreateTiles, tilingSettings.UseImplicitTiling, sortBy: tilingSettings.SortBy);
         var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), inputTable.LodColumn != string.Empty ? tilingSettings.Lods.First() : 0, tilingSettings.CreateGltf, tilingSettings.KeepProjection);
         Console.WriteLine();
         Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));

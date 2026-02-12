@@ -140,6 +140,12 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --keep_projection               (Default: false) Keep projection of input data
 
+  --sortby                        (Default: AREA) Sort features by AREA/VOLUME
+                                AREA is the default and faster (uses ST_Area).
+                                VOLUME is slower (uses 3D bounding-box volume) and is useful when
+                                geometries have relatively large Z components (e.g. infrastructure /
+                                vertical walls).
+
   --subdivision                   (Default: QUADTREE) Subdivision schema QUADTREE/OCTREE
 
   --help                          Display this help screen.
