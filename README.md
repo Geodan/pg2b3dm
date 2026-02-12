@@ -142,6 +142,12 @@ If --username and/or --dbname are not specified the current username is used as 
 
   --keep_projection               (Default: false) Keep projection of input data
 
+  --sortby                        (Default: AREA) Sort features by AREA/VOLUME
+                                AREA is the default and faster (uses ST_Area).
+                                VOLUME is slower (uses 3D bounding-box volume) and is useful when
+                                geometries have relatively large Z components (e.g. infrastructure /
+                                vertical walls).
+
   --subdivision                   (Default: QUADTREE) Subdivision schema QUADTREE/OCTREE
 
   --help                          Display this help screen.
@@ -222,10 +228,11 @@ For styling see [styling 3D Tiles](styling.md)
 Input geometries must be of type LineString/MultilineString/Polygon/MultiPolygon/PolyhedralSurface (with z values). When the geometry is not triangulated, pg2b3dm will perform
 triangulation. Geometries with interior rings are supported.
 
-For large datasets create a spatial index on the geometry column:
+For large datasets create the following indexes:
 
 ```
-psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle)));
+psql> CREATE INDEX ON the_table USING gist (st_centroid(st_envelope(geom)));
+psql> CREATE INDEX ON the_table using btree(md5(st_asbinary(geom)::text));
 ```
 
 When there the spatial index is not present the following warning is shown.
@@ -266,7 +273,11 @@ When the input geometries are distributed in a flat area (like buildings in a ci
 
 OCTREE is used when the input geometries are distributed in a cube-like area.
 
-Most features are supported when using OCTREE subdivision, except LOD support;
+Most features are supported when using OCTREE subdivision, except 
+
+- LOD support;
+
+- Update boundingboxes when using explicit tiling;
 
 ## Query parameter
 

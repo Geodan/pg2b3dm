@@ -20,6 +20,8 @@ public class GeometryRecord
 
     public float? Radius { get; set; }
 
+    public string Hash { get; set; }
+
     public List<Triangle> GetTriangles(double[] translation = null, double[] scale = null)
     {
         var triangles = GeometryProcessor.GetTriangles(Geometry, BatchId, translation, scale, Shader, Radius);

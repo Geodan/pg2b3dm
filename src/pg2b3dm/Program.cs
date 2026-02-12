@@ -9,7 +9,6 @@ using Npgsql;
 using subtree;
 using B3dm.Tileset.Extensions;
 using SharpGLTF.Schema2;
-using B3dm.Tileset.settings;
 
 namespace pg2b3dm;
 
@@ -104,6 +103,21 @@ class Program
                 Console.WriteLine($"Spatial index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
             }
 
+            // Check md5 index
+            var hasMd5Index = SpatialIndexChecker.HasMd5Index(conn, inputTable.TableName, inputTable.GeometryColumn);
+            if (!hasMd5Index) {
+                Console.WriteLine();
+                Console.WriteLine("-----------------------------------------------------------------------------");
+                Console.WriteLine($"WARNING: No md5 index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
+                Console.WriteLine("Fix: add a md5 index, for example: ");
+                Console.WriteLine($"'CREATE INDEX ON {inputTable.TableName} using btree(md5(st_asbinary({inputTable.GeometryColumn})::text))'");
+                Console.WriteLine("-----------------------------------------------------------------------------");
+                Console.WriteLine();
+            }
+            else {
+                Console.WriteLine($"Md5 index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
+            }
+
             var skipCreateTiles = (bool)o.SkipCreateTiles;
             Console.WriteLine("Skip create tiles: " + skipCreateTiles);
 
@@ -160,6 +174,7 @@ class Program
             Console.WriteLine($"Refinement: {refinement}");
             Console.WriteLine($"Keep projection: {keepProjection}");
             Console.WriteLine($"Subdivision scheme: {subdivisionScheme}");
+            Console.WriteLine($"Sort by: {o.SortBy}");
 
             if (keepProjection && !useImplicitTiling) {
                 Console.WriteLine("Warning: keepProjection is only supported with implicit tiling.");
@@ -222,6 +237,7 @@ class Program
             tilingSettings.UseImplicitTiling = useImplicitTiling;
             tilingSettings.SkipCreateTiles = skipCreateTiles;
             tilingSettings.MaxFeaturesPerTile = maxFeaturesPerTile;
+            tilingSettings.SortBy = o.SortBy;
             tilingSettings.Lods = lods;
 
             if (subdivisionScheme == SubdivisionScheme.QUADTREE) {
@@ -278,7 +294,7 @@ class Program
         tile.BoundingBox = bbox.ToArray();
         var outputSettings = tilesetSettings.OutputSettings;
 
-        var quadtreeTiler = new QuadtreeTiler(connectionString, inputTable, stylingSettings, tilingSettings.MaxFeaturesPerTile, tilesetSettings.Translation, outputSettings.ContentFolder, tilingSettings.Lods, tilesetSettings.Copyright, tilingSettings.SkipCreateTiles);
+        var quadtreeTiler = new QuadtreeTiler(connectionString, inputTable, stylingSettings, tilingSettings.MaxFeaturesPerTile, tilesetSettings.Translation, outputSettings.ContentFolder, tilingSettings.Lods, tilesetSettings.Copyright, tilingSettings.SkipCreateTiles, tilingSettings.UseImplicitTiling, sortBy: tilingSettings.SortBy);
         var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), inputTable.LodColumn != string.Empty ? tilingSettings.Lods.First() : 0, tilingSettings.CreateGltf, tilingSettings.KeepProjection);
         Console.WriteLine();
         Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
