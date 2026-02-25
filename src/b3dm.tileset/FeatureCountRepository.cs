@@ -7,10 +7,10 @@ namespace B3dm.Tileset;
 
 public static class FeatureCountRepository
 {
-    public static int CountFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, string query, int source_epsg, bool keepProjection = false, HashSet<string> excludeHashes = null)
+    public static int CountFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, string query, int source_epsg, HashSet<string> excludeHashes = null)
     {
         var select = $"COUNT({geometry_column})";
-        var where = GeometryRepository.GetWhere(geometry_column, from, to, query, source_epsg, keepProjection);
+        var where = GeometryRepository.GetWhere(geometry_column, from, to, query, source_epsg);
         
         // Add hash exclusion filter using parameterized query
         if (excludeHashes != null && excludeHashes.Count > 0) {

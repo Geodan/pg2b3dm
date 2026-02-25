@@ -124,12 +124,12 @@ class Program
             Console.WriteLine($"Query bounding box of {inputTable.TableName}.{inputTable.GeometryColumn}...");
             var where = (inputTable.Query != string.Empty ? $" where {inputTable.Query}" : String.Empty);
 
-            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, inputTable.TableName, inputTable.GeometryColumn, keepProjection, where);
+            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, inputTable.TableName, inputTable.GeometryColumn, true, where);
             var bbox = bbox_table.bbox;
             var zmin = bbox_table.zmin;
             var zmax = bbox_table.zmax;
 
-            var proj = keepProjection ? $"EPSG:{source_epsg}" : $"EPSG:4326 (WGS84)";
+            var proj = $"EPSG:{source_epsg}";
             Console.WriteLine($"Bounding box for {inputTable.TableName}.{inputTable.GeometryColumn} ({proj}): " +
                 $"{Math.Round(bbox.XMin, 8)}, {Math.Round(bbox.YMin, 8)}, " +
                 $"{Math.Round(bbox.XMax, 8)}, {Math.Round(bbox.YMax, 8)}");
@@ -148,14 +148,23 @@ class Program
             Console.WriteLine($"Attribute columns: {att}");
 
             var center = bbox.GetCenter();
-            Console.WriteLine($"Center ({proj}): {center.X}, {center.Y}");
+            var center_z = (zmin + zmax) / 2;
+            Console.WriteLine($"Center ({proj}): {center.X}, {center.Y}, {center_z}");
 
             Tiles3DExtensions.RegisterExtensions();
 
-            var translation = keepProjection ?
-                [(double)center.X, (double)center.Y, 0] :
-                Translation.ToEcef(center);
-            Console.WriteLine($"Translation: {String.Join(',', translation)}");
+            double[] translation = [(double)center.X, (double)center.Y, center_z];
+
+            var bbox_wgs84 = bbox; // fallback, only set when !keepProjection
+            if(!keepProjection) {
+                // Convert bbox to EPSG:4979 for ECEF translation and bounding volume region
+                var bbox_4979 = BoundingBoxRepository.GetBoundingBoxAs4979(conn, bbox_table, source_epsg);
+                bbox_wgs84 = bbox_4979.bbox;
+                var center_wgs84 = bbox_wgs84.GetCenter();
+                var p = new Wkx.Point((double)center_wgs84.X, (double)center_wgs84.Y, center_z);
+                translation = Translation.ToEcef(p);
+            }
+            Console.WriteLine($"Translation (EPSG:4978): {String.Join(',', translation)}");
 
             var lodcolumn = o.LodColumn;
             var addOutlines = (bool)o.AddOutlines;
@@ -197,7 +206,7 @@ class Program
             var rootBoundingVolumeRegion =
                 keepProjection ?
                     bbox.ToRegion(zmin, zmax) :
-                    bbox.ToRadians().ToRegion(zmin, zmax);
+                    bbox_wgs84.ToRadians().ToRegion(zmin, zmax);
 
             Console.WriteLine($"Maximum features per tile: " + maxFeaturesPerTile);
 

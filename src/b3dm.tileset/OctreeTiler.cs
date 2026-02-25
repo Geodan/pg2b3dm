@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using B3dm.Tileset;
 using Npgsql;
 using subtree;
 using Wkx;
@@ -43,7 +42,7 @@ public class OctreeTiler
 
         var where = inputTable.GetQueryClause();
 
-        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, inputTable.TableName, inputTable.GeometryColumn, new Point(bbox.XMin, bbox.YMin, bbox.ZMin), new Point(bbox.XMax, bbox.YMax, bbox.ZMax), where, inputTable.EPSGCode, tilingSettings.KeepProjection, processedGeometries);
+        var numberOfFeatures = FeatureCountRepository.CountFeaturesInBox(conn, inputTable.TableName, inputTable.GeometryColumn, new Point(bbox.XMin, bbox.YMin, bbox.ZMin), new Point(bbox.XMax, bbox.YMax, bbox.ZMax), where, inputTable.EPSGCode, processedGeometries);
         if (numberOfFeatures == 0) {
             var t2 = new Tile3D(level, tile.X, tile.Y, tile.Z);
             t2.Available = false;
@@ -76,10 +75,9 @@ public class OctreeTiler
                         var bbox3d = new BoundingBox3D(xstart, ystart, z_start, xend, yend, zend);
 
                         var bboxOctant = new BoundingBox(xstart, ystart, xend, yend);
-                        var filteredProcessedGeometries = GeometryRepository.FilterHashesByEnvelope(conn, inputTable.TableName, inputTable.GeometryColumn, bboxOctant, inputTable.EPSGCode, localProcessedGeometries, tilingSettings.KeepProjection);
 
                         var new_tile = new Tile3D(level, tile.X * 2 + x, tile.Y * 2 + y, tile.Z * 2 + z);
-                        GenerateTiles3D(bbox3d, level, new_tile, tiles, tileBounds, filteredProcessedGeometries);
+                        GenerateTiles3D(bbox3d, level, new_tile, tiles, tileBounds, localProcessedGeometries);
                     }
                 }
             }
@@ -101,7 +99,7 @@ public class OctreeTiler
         int target_srs = tilingSettings.KeepProjection ? inputTable.EPSGCode : 4978;
 
         var bbox1 = new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax, bbox.ZMin, bbox.ZMax };
-        var geometriesToProcess = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, tilingSettings.KeepProjection, processedGeometries, tilingSettings.MaxFeaturesPerTile, tilingSettings.SortBy);
+        var geometriesToProcess = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, processedGeometries, tilingSettings.MaxFeaturesPerTile, tilingSettings.SortBy);
 
         if (geometriesToProcess.Count > 0) {
             foreach (var geom in geometriesToProcess.Where(geom => !string.IsNullOrEmpty(geom.Hash))) {
@@ -127,7 +125,7 @@ public class OctreeTiler
         int target_srs = tilingSettings.KeepProjection ? inputTable.EPSGCode : 4978;
 
         var bbox1 = new double[] { bbox.XMin, bbox.YMin, bbox.XMax, bbox.YMax, bbox.ZMin, bbox.ZMax };
-        var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, tilingSettings.KeepProjection, processedGeometries, tilingSettings.MaxFeaturesPerTile, tilingSettings.SortBy);
+        var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, bbox1, inputTable.EPSGCode, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, processedGeometries, tilingSettings.MaxFeaturesPerTile, tilingSettings.SortBy);
 
         if (geometries.Count > 0) {
             // Collect hashes of processed geometries

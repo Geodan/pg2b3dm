@@ -43,9 +43,12 @@ public class UnitTest1
         OutputDirectoryCreator.GetFolders("output");
         var connectionString = _containerPostgres.GetConnectionString();
         var conn = new NpgsqlConnection(connectionString);
-        var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, "arvieux_batiments", "geom");
+        // Get bbox in source projection (EPSG:5698) for spatial queries
+        var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, "arvieux_batiments", "geom", true);
+        // Get WGS84 bbox separately for ECEF translation
+        var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, "arvieux_batiments", "geom", false);
 
-        var center_wgs84 = bbox_table.bbox.GetCenter();
+        var center_wgs84 = bbox_wgs84.bbox.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
         var trans = new double[] { translation.X, translation.Y,  };
 

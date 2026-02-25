@@ -13,48 +13,6 @@ namespace B3dm.Tileset;
 
 public static class GeometryRepository
 {
-    public static HashSet<string> FilterHashesByEnvelope(NpgsqlConnection conn, string tableName, string geometryColumn, BoundingBox bbox, int source_epsg, HashSet<string> geometryHashes, bool keepProjection)
-    {
-        if (geometryHashes.Count == 0) {
-            return new HashSet<string>();
-        }
-
-        var filteredHashes = new HashSet<string>();
-
-        conn.Open();
-        try {
-            var envelope = keepProjection ?
-                $"ST_MakeEnvelope(@xmin, @ymin, @xmax, @ymax, {source_epsg})" :
-                $"ST_Transform(ST_MakeEnvelope(@xmin, @ymin, @xmax, @ymax, 4326), {source_epsg})";
-
-            var query = $@"
-            SELECT MD5(ST_AsBinary({geometryColumn})::text) as geom_hash
-            FROM {tableName}
-            WHERE MD5(ST_AsBinary({geometryColumn})::text) = ANY(@hashes)
-            AND ST_Within(
-                ST_Centroid(ST_Envelope({geometryColumn})),
-                {envelope}
-            )";
-
-            using var cmd = new NpgsqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("hashes", geometryHashes.ToArray());
-            cmd.Parameters.AddWithValue("xmin", bbox.XMin);
-            cmd.Parameters.AddWithValue("ymin", bbox.YMin);
-            cmd.Parameters.AddWithValue("xmax", bbox.XMax);
-            cmd.Parameters.AddWithValue("ymax", bbox.YMax);
-
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read()) {
-                var hash = reader.GetString(0);
-                filteredHashes.Add(hash);
-            }
-
-            return filteredHashes;
-        }
-        finally {
-            conn.Close();
-        }
-    }
 
     /// <summary>
     /// Returns double array with 6 bounding box coordinates, xmin, ymin, xmax, ymax, zmin, zmax
@@ -85,13 +43,13 @@ public static class GeometryRepository
         }
     }
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", bool keepProjection = false, HashSet<string> excludeHashes = null, int? maxFeatures = null, SortBy sortBy = SortBy.AREA)
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", HashSet<string> excludeHashes = null, int? maxFeatures = null, SortBy sortBy = SortBy.AREA)
     {
         var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn, target_srs);
         var sqlFrom = "FROM " + geometry_table;
         var points = GetPoints(bbox);
 
-        var sqlWhere = GetWhere(geometry_column, points.fromPoint, points.toPoint, query, source_epsg, keepProjection);
+        var sqlWhere = GetWhere(geometry_column, points.fromPoint, points.toPoint, query, source_epsg);
         
         // Add hash exclusion filter using parameterized query
         if (excludeHashes != null && excludeHashes.Count > 0) {
@@ -117,7 +75,7 @@ public static class GeometryRepository
         }
     }
 
-    public static string GetWhere(string geometry_column, Point from, Point to, string query, int source_epsg, bool keepProjection)
+    public static string GetWhere(string geometry_column, Point from, Point to, string query, int source_epsg)
     {
         var fromX = from.X.Value.ToString(CultureInfo.InvariantCulture);
         var fromY = from.Y.Value.ToString(CultureInfo.InvariantCulture);
@@ -128,22 +86,14 @@ public static class GeometryRepository
         var where = "";
 
         if (!hasZ) {
-            where = keepProjection ?
-                $"ST_Centroid(ST_Envelope({geometry_column})) && ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, {source_epsg}) {query}" :
-                $"ST_Centroid(ST_Envelope({geometry_column})) && st_transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 4326), {source_epsg}) {query}";
+            where = $"ST_Centroid(ST_Envelope({geometry_column})) && ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, {source_epsg}) {query}";
         }
         else {
-            var fromBox = keepProjection ?
-                $"st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), {source_epsg})" :
-                 $"st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4979)";
-            var toBox = keepProjection ?
-                $"st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), {source_epsg})" :
-                $"st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), 4979)";
+            var fromBox = $"st_setsrid(ST_MakePoint({fromX}, {fromY}, {from.Z.Value.ToString(CultureInfo.InvariantCulture)}), {source_epsg})";
+            var toBox = $"st_setsrid(ST_MakePoint({toX}, {toY}, {to.Z.Value.ToString(CultureInfo.InvariantCulture)}), {source_epsg})";
 
             var geom = $"st_setsrid(st_makepoint((st_xmin({geometry_column}) + st_xmax({geometry_column}))/2,(st_ymin({geometry_column}) + st_ymax({geometry_column}))/2, (st_zmin({geometry_column}) + st_zmax({geometry_column}))/2), {source_epsg})";
-            where = keepProjection ?
-                $"ST_3DIntersects({geom}, ST_3DMakeBox({fromBox}, {toBox})) {query}" :
-                $"ST_3DIntersects({geom}, st_transform(ST_3DMakeBox({fromBox}, {toBox}), {source_epsg})) {query}";
+            where = $"ST_3DIntersects({geom}, ST_3DMakeBox({fromBox}, {toBox})) {query}";
         }
 
         return where;
