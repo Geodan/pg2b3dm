@@ -67,6 +67,14 @@ Metallic factor: 0, Roughness factor: 0.5019608 (128/255)
 
 - Doubleside: true (option --double_sided)
 
+### Material priority (3DCityDB v5)
+
+When pg2b3dm detects 3DCityDB v5 texture data for a tile, the following priority is used:
+
+1. Texture material (from `surface_data_mapping.texture_mapping` + `tex_image.image_data`);
+2. Shader material (`--shaderscolumn`) only when no textures are active for that tile;
+3. Default material when neither texture nor shader is available.
+
 Alternative option is to specify a shader using the ShadersColumn.
 
 Shaderscolumn is a column of type json. In the json documents the shaders are defined like PbrMetallicRoughness and
@@ -359,4 +367,3 @@ Result:
 SpecularGlossiness is not supported (yet)
 
 - Shader 'unlit' is not supported (yet)
-

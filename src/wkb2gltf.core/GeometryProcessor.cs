@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Numerics;
+using Newtonsoft.Json.Linq;
 using Triangulate;
 using Wkx;
 
@@ -37,9 +40,17 @@ public static class GeometryProcessor
         }
     }
 
-    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation = null, double[] scale = null, ShaderColors shadercolors = null, float? radius = null)
+    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation = null, double[] scale = null, ShaderColors shadercolors = null, float? radius = null, string textureMapping = "", string geometryProperties = "", byte[] textureImageData = null, string textureMimeType = "", List<GeometryTexture> textures = null)
     {
         var r = radius.HasValue ? radius.Value : (float)1.0f;
+
+        var textureSets = GetTextureSets(textureMapping, textureImageData, textureMimeType, textures);
+        if (CanUseTextureMapping(geometry, textureSets)) {
+            var texturedTriangles = GetTexturedTriangles(geometry, batchId, translation, scale, geometryProperties, textureSets);
+            if (texturedTriangles.Count > 0) {
+                return texturedTriangles;
+            }
+        }
 
         if (geometry is MultiPolygon || geometry is MultiLineString || geometry is PolyhedralSurface)
         {
@@ -98,6 +109,281 @@ public static class GeometryProcessor
             result1.AddRange(geometryRecord.GetTriangles(translation, scale));
         }
         return result1;
+    }
+
+    private static List<GeometryTexture> GetTextureSets(string textureMapping, byte[] textureImageData, string textureMimeType, List<GeometryTexture> textures)
+    {
+        var textureSets = new List<GeometryTexture>();
+        if (textures != null && textures.Count > 0) {
+            textureSets.AddRange(textures.Where(texture => texture != null && texture.IsValid()));
+        }
+
+        if (textureSets.Count == 0 && !string.IsNullOrWhiteSpace(textureMapping) && textureImageData != null && textureImageData.Length > 0) {
+            textureSets.Add(new GeometryTexture() {
+                TextureMapping = textureMapping,
+                TextureImageData = textureImageData,
+                TextureMimeType = textureMimeType
+            });
+        }
+
+        return textureSets;
+    }
+
+    private static bool CanUseTextureMapping(Geometry geometry, List<GeometryTexture> textureSets)
+    {
+        return (geometry is Polygon || geometry is MultiPolygon || geometry is PolyhedralSurface)
+            && textureSets.Any(texture => texture.IsValid());
+    }
+
+    private static List<Triangle> GetTexturedTriangles(Geometry geometry, int batchId, double[] translation, double[] scale, string geometryProperties, List<GeometryTexture> textureSets)
+    {
+        var parsedTextureSets = textureSets
+            .Where(texture => texture.IsValid())
+            .Select(texture => new ParsedTextureSet {
+                Texture = texture,
+                TextureMappings = ParseTextureMappings(texture.TextureMapping)
+            })
+            .Where(texture => texture.TextureMappings.Count > 0)
+            .ToList();
+
+        if (parsedTextureSets.Count == 0) {
+            return [];
+        }
+
+        var objectIdsByGeometryIndex = ParseGeometryObjectIds(geometryProperties);
+        var mappingObjectIds = parsedTextureSets
+            .SelectMany(texture => texture.TextureMappings.Keys)
+            .Distinct()
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .ToList();
+
+        var sourcePolygons = GetGeometries(geometry);
+        var relativePolygons = GetRelativePolygons(sourcePolygons, translation, scale);
+        var allTriangles = new List<Triangle>();
+
+        for (var i = 0; i < relativePolygons.Count; i++) {
+            var relativePolygon = relativePolygons[i];
+            var trianglesForPolygon = GetTrianglesForPolygon(relativePolygon, batchId);
+
+            var objectId = ResolveObjectId(objectIdsByGeometryIndex, mappingObjectIds, i);
+            var isTextured = false;
+
+            if (!string.IsNullOrEmpty(objectId)) {
+                foreach (var textureSet in parsedTextureSets) {
+                    if (!textureSet.TextureMappings.TryGetValue(objectId, out var polygonTextureCoordinates)) {
+                        continue;
+                    }
+
+                    var lookup = GetTextureCoordinateLookup(relativePolygon, polygonTextureCoordinates);
+                    if (lookup.Count == 0) {
+                        continue;
+                    }
+
+                    ApplyTexture(trianglesForPolygon, lookup, textureSet.Texture);
+                    isTextured = true;
+                    break;
+                }
+            }
+
+            if (!isTextured) {
+                foreach (var textureSet in parsedTextureSets) {
+                    foreach (var polygonTextureCoordinates in textureSet.TextureMappings.Values) {
+                        var lookup = GetTextureCoordinateLookup(relativePolygon, polygonTextureCoordinates);
+                        if (lookup.Count == 0) {
+                            continue;
+                        }
+
+                        ApplyTexture(trianglesForPolygon, lookup, textureSet.Texture);
+                        isTextured = true;
+                        break;
+                    }
+
+                    if (isTextured) {
+                        break;
+                    }
+                }
+            }
+
+            allTriangles.AddRange(trianglesForPolygon);
+        }
+
+        return allTriangles;
+    }
+
+    private static void ApplyTexture(List<Triangle> trianglesForPolygon, Dictionary<string, Vector2> lookup, GeometryTexture texture)
+    {
+        foreach (var triangle in trianglesForPolygon) {
+            if (!TryGetTextureCoordinates(triangle, lookup, out var textureCoordinates)) {
+                continue;
+            }
+
+            triangle.TextureCoordinates = textureCoordinates;
+            triangle.TextureImageData = texture.TextureImageData;
+            triangle.TextureMimeType = texture.TextureMimeType;
+        }
+    }
+
+    private static string ResolveObjectId(Dictionary<int, string> objectIdsByGeometryIndex, List<string> mappingObjectIds, int geometryIndex)
+    {
+        if (objectIdsByGeometryIndex.TryGetValue(geometryIndex, out var objectId)) {
+            return objectId;
+        }
+
+        if (objectIdsByGeometryIndex.Count == 1) {
+            return objectIdsByGeometryIndex.First().Value;
+        }
+
+        if (mappingObjectIds.Count == 1) {
+            return mappingObjectIds[0];
+        }
+
+        if (objectIdsByGeometryIndex.Count == 0 && geometryIndex >= 0 && geometryIndex < mappingObjectIds.Count) {
+            return mappingObjectIds[geometryIndex];
+        }
+
+        return string.Empty;
+    }
+
+    private class ParsedTextureSet
+    {
+        public GeometryTexture Texture { get; set; }
+
+        public Dictionary<string, List<List<Vector2>>> TextureMappings { get; set; } = [];
+    }
+
+    private static List<Triangle> GetTrianglesForPolygon(Polygon polygon, int batchId)
+    {
+        if (polygon.ExteriorRing.Points.Count == 4 && polygon.InteriorRings.Count == 0) {
+            return [GetTriangle(polygon, batchId)];
+        }
+
+        var multipolygon = new MultiPolygon(new List<Polygon> { polygon });
+        var triangulated = Triangulator.Triangulate(multipolygon);
+        var triangles = ((MultiPolygon)triangulated).Geometries;
+        return GetTriangles(batchId, null, triangles);
+    }
+
+    private static Dictionary<string, Vector2> GetTextureCoordinateLookup(Polygon polygon, List<List<Vector2>> polygonTextureCoordinates)
+    {
+        var lookup = new Dictionary<string, Vector2>();
+        var rings = new List<LinearRing>() { polygon.ExteriorRing };
+        rings.AddRange(polygon.InteriorRings);
+
+        if (rings.Count != polygonTextureCoordinates.Count) {
+            return lookup;
+        }
+
+        for (var ringIndex = 0; ringIndex < rings.Count; ringIndex++) {
+            var ring = rings[ringIndex];
+            var coordinates = polygonTextureCoordinates[ringIndex];
+            if (ring.Points.Count != coordinates.Count) {
+                return new Dictionary<string, Vector2>();
+            }
+
+            for (var i = 0; i < ring.Points.Count; i++) {
+                var point = ring.Points[i];
+                var coordinate = coordinates[i];
+                lookup[ToPointKey(point)] = new Vector2(coordinate.X, 1 - coordinate.Y);
+            }
+        }
+
+        return lookup;
+    }
+
+    private static bool TryGetTextureCoordinates(Triangle triangle, Dictionary<string, Vector2> lookup, out (Vector2, Vector2, Vector2) textureCoordinates)
+    {
+        var p0 = triangle.GetP0();
+        var p1 = triangle.GetP1();
+        var p2 = triangle.GetP2();
+
+        var hasP0 = lookup.TryGetValue(ToPointKey(p0), out var t0);
+        var hasP1 = lookup.TryGetValue(ToPointKey(p1), out var t1);
+        var hasP2 = lookup.TryGetValue(ToPointKey(p2), out var t2);
+
+        if (hasP0 && hasP1 && hasP2) {
+            textureCoordinates = (t0, t1, t2);
+            return true;
+        }
+
+        textureCoordinates = default;
+        return false;
+    }
+
+    private static Dictionary<int, string> ParseGeometryObjectIds(string geometryProperties)
+    {
+        var result = new Dictionary<int, string>();
+        if (string.IsNullOrWhiteSpace(geometryProperties)) {
+            return result;
+        }
+
+        var geometryPropertiesJson = JObject.Parse(geometryProperties);
+        var rootObjectId = geometryPropertiesJson["objectId"]?.Value<string>();
+        if (!string.IsNullOrWhiteSpace(rootObjectId)) {
+            result[0] = rootObjectId;
+        }
+
+        if (geometryPropertiesJson["children"] is JArray children) {
+            var childIndex = 0;
+            foreach (var child in children.OfType<JObject>()) {
+                var objectId = child["objectId"]?.Value<string>();
+                if (string.IsNullOrWhiteSpace(objectId)) {
+                    childIndex++;
+                    continue;
+                }
+
+                var geometryIndex = child["geometryIndex"]?.Value<int?>() ?? childIndex;
+                result[geometryIndex] = objectId;
+                childIndex++;
+            }
+        }
+
+        return result;
+    }
+
+    private static Dictionary<string, List<List<Vector2>>> ParseTextureMappings(string textureMapping)
+    {
+        var result = new Dictionary<string, List<List<Vector2>>>();
+        var mappingJson = JObject.Parse(textureMapping);
+        foreach (var property in mappingJson.Properties()) {
+            if (property.Value is not JArray ringMappings) {
+                continue;
+            }
+
+            var rings = new List<List<Vector2>>();
+            foreach (var ringMapping in ringMappings) {
+                if (ringMapping is not JArray ringCoordinates) {
+                    continue;
+                }
+
+                var coordinates = new List<Vector2>();
+                foreach (var coordinate in ringCoordinates) {
+                    if (coordinate is not JArray textureCoordinate || textureCoordinate.Count < 2) {
+                        continue;
+                    }
+
+                    var s = textureCoordinate[0].Value<float?>();
+                    var t = textureCoordinate[1].Value<float?>();
+                    if (!s.HasValue || !t.HasValue) {
+                        continue;
+                    }
+
+                    coordinates.Add(new Vector2(s.Value, t.Value));
+                }
+
+                rings.Add(coordinates);
+            }
+
+            result[property.Name] = rings;
+        }
+        return result;
+    }
+
+    private static string ToPointKey(Point point)
+    {
+        var x = Convert.ToDouble(point.X).ToString("R", CultureInfo.InvariantCulture);
+        var y = Convert.ToDouble(point.Y).ToString("R", CultureInfo.InvariantCulture);
+        var z = Convert.ToDouble(point.Z).ToString("R", CultureInfo.InvariantCulture);
+        return $"{x}|{y}|{z}";
     }
 
 

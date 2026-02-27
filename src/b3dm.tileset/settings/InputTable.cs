@@ -4,6 +4,7 @@ public class InputTable
 {
     public string TableName { get; set; }   
     public string GeometryColumn { get; set; }
+    public string IdColumn { get; set; } = string.Empty;
     public string RadiusColumn { get; set; } = string.Empty;
     public string ShadersColumn { get; set; } = string.Empty;
     public string Query { get; set; } = string.Empty;
@@ -11,6 +12,9 @@ public class InputTable
     public string LodColumn { get; set; } = string.Empty;
     public string AttributeColumns { get; set; } = string.Empty;
     public int EPSGCode { get; set; }
+    public bool Is3dCityDbV5OrHigher { get; set; }
+    public bool HasTextureData { get; set; }
+    public bool UseTexturePipeline { get; set; }
 
     public string GetQueryClause()
     {

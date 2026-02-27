@@ -173,11 +173,49 @@ Result: The exported 3D Tiles will now have different colors based on the CityGM
 
 ---
 
-## 5. Conclusion  
+## 6. Textures in 3DCityDB v5
+
+For 3DCityDB v5 input (`citydb.geometry_data` or a view carrying `geometry_data.id`), pg2b3dm now automatically detects
+texture data and applies textures per tile.
+
+Relevant texture tables and columns:
+
+- `citydb.surface_data_mapping.texture_mapping` (texture coordinates)
+- `citydb.surface_data.tex_image_id`
+- `citydb.tex_image.image_data` (image bytes)
+
+Example query:
+
+```sql
+SELECT
+    gmdt.id,
+    gmdt.geometry,
+    gmdt.geometry_properties,
+    sdm.texture_mapping,
+    ti.image_uri,
+    ti.image_data
+FROM citydb.geometry_data gmdt
+JOIN citydb.surface_data_mapping sdm
+    ON gmdt.id = sdm.geometry_data_id
+JOIN citydb.surface_data sd
+    ON sd.id = sdm.surface_data_id
+JOIN citydb.tex_image ti
+    ON ti.id = sd.tex_image_id
+WHERE sdm.texture_mapping IS NOT NULL
+  AND ti.image_data IS NOT NULL;
+```
+
+Priority rule during export:
+
+- If textures and shaders are both available in the same tile, textures are used.
+- Tiles without texture data keep existing shader/default behavior.
+
+---
+
+## 7. Conclusion  
 
 3DCityDB v5 streamlines the process of:
 - Storing and querying CityGML 3.0 models in PostgreSQL/PostGIS  
 - Converting them into web-ready 3D Tiles for efficient visualization  
-- Supporting semantic 3D city models suitable for digital twin and urban planning applications  
-
-Future improvements may include the direct handling of texture data to enrich the visual quality of the exported 3D Tiles.
+- Supporting semantic 3D city models suitable for digital twin and urban planning applications
+- Exporting both shader-based and texture-based visualizations.

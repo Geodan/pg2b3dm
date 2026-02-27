@@ -6,6 +6,16 @@ namespace Wkb2Gltf;
 
 public class MaterialCreator
 {
+    public static MaterialBuilder CreateTextureMaterial(byte[] imageData, bool defaultDoubleSided = true, AlphaMode defaultAlphaMode = AlphaMode.OPAQUE, float alphaCutoff = 0.5f)
+    {
+        var material = new MaterialBuilder().
+            WithDoubleSide(defaultDoubleSided).
+            WithAlpha(defaultAlphaMode, alphaCutoff).
+            WithMetallicRoughnessShader();
+        material.WithBaseColor(imageData);
+        return material;
+    }
+
     public static MaterialBuilder CreateMaterial(Shader shader, bool defaultDoubleSided = true, AlphaMode defaultAlphaMode = AlphaMode.OPAQUE, float alphaCutoff = 0.5f)
     {
         var material = new MaterialBuilder().

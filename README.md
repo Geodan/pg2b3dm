@@ -20,6 +20,8 @@ Features:
 
 - Shading PbrMetallicRoughness and PbrSpecularGlossiness;
 
+- Automatic 3DCityDB v5 texture support per tile/glTF (texture > shader > default);
+
 - Query parameter support;
 
 - Cesium: LOD support and Outlines support (using CESIUM_primitive_outline);
@@ -154,6 +156,19 @@ Sample command for running pg2b3dm:
 ```
 $ pg2b3dm -h localhost -U postgres -c geom_triangle --shaderscolumn shaders -t delaware_buildings -d postgres -g 100,0 
 ```
+
+## 3DCityDB v5 textures
+
+When the source database matches the 3DCityDB v5 schema, pg2b3dm automatically checks if texture data is present in
+`citydb.surface_data_mapping` + `citydb.surface_data` + `citydb.tex_image` and then resolves textures per tile/glTF.
+
+Rules:
+
+- Per-tile behavior: one tile can be textured while another tile from the same run is not textured.
+- Priority: if both textures and shaders are available in a tile, textures are used and shaders are ignored.
+- Fallback in textured tiles: geometries without valid texture coordinates/image use the default material.
+
+No extra CLI option is required for this workflow.
 
 Database password will be asked to create the database connection, unless:
 

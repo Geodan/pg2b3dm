@@ -52,12 +52,31 @@ public class Triangle
 
     public Shader Shader { get; set; }
 
+    public byte[] TextureImageData { get; set; } = Array.Empty<byte>();
+
+    public string TextureMimeType { get; set; } = string.Empty;
+
+    public (Vector2, Vector2, Vector2)? TextureCoordinates { get; set; }
+
+    public bool HasTextureData()
+    {
+        return TextureImageData.Length > 0 && TextureCoordinates.HasValue;
+    }
+
     public (Vector3, Vector3, Vector3) ToVectors()
     {
         var v0 = new Vector3((float)p0.X, (float)p0.Y, (float)p0.Z);
         var v1 = new Vector3((float)p1.X, (float)p1.Y, (float)p1.Z);
         var v2 = new Vector3((float)p2.X, (float)p2.Y, (float)p2.Z);
         return (v0, v1, v2);
+    }
+
+    public (Vector2, Vector2, Vector2) GetTextureCoordinates()
+    {
+        if (!TextureCoordinates.HasValue) {
+            throw new InvalidOperationException("Texture coordinates are not available for this triangle.");
+        }
+        return TextureCoordinates.Value;
     }
 
     public List<Point> GetPoints()
