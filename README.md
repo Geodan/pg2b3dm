@@ -20,6 +20,8 @@ Features:
 
 - Shading PbrMetallicRoughness and PbrSpecularGlossiness;
 
+- Automatic 3DCityDB v5 texture support per tile/glTF (texture > shader > default);
+
 - Query parameter support;
 
 - Cesium: LOD support and Outlines support (using CESIUM_primitive_outline);

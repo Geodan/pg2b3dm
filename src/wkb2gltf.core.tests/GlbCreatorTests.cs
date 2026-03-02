@@ -215,6 +215,130 @@ public class GlbCreatorTests
     }
 
     [Test]
+    public void CreateGltfWithTextureCoordinates()
+    {
+        var triangle = new Triangle(new Point(0, 0, 0), new Point(1, 0, 0), new Point(0, 1, 0), 0) {
+            TextureImageData = GetTinyPngBytes(),
+            TextureCoordinates = (new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 1))
+        };
+
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { new List<Triangle> { triangle } }, createGltf: true, useTexturePipeline: true);
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "gltf_with_texture.glb");
+        File.WriteAllBytes(fileName, bytes);
+
+        var model = ModelRoot.Load(fileName);
+        var primitive = model.LogicalMeshes[0].Primitives[0];
+
+        Assert.That(model.LogicalTextures.Count, Is.EqualTo(1));
+        Assert.That(primitive.GetVertexAccessor("TEXCOORD_0"), Is.Not.Null);
+    }
+
+    [Test]
+    public void CreateGltfMixedTexturedAndUntexturedPrimitivesDoNotUseUnusedTexCoords()
+    {
+        var texturedTriangle = new Triangle(new Point(0, 0, 0), new Point(1, 0, 0), new Point(0, 1, 0), 0) {
+            TextureImageData = GetTinyPngBytes(),
+            TextureCoordinates = (new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 1))
+        };
+        var untexturedTriangle = new Triangle(new Point(2, 0, 0), new Point(3, 0, 0), new Point(2, 1, 0), 1);
+
+        var bytes = GlbCreator.GetGlb(
+            new List<List<Triangle>>() { new List<Triangle> { texturedTriangle, untexturedTriangle } },
+            createGltf: true,
+            useTexturePipeline: true
+        );
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "gltf_mixed_texture.glb");
+        File.WriteAllBytes(fileName, bytes);
+
+        var model = ModelRoot.Load(fileName);
+        var primitives = model.LogicalMeshes.SelectMany(mesh => mesh.Primitives).ToList();
+        Assert.That(primitives.Count, Is.GreaterThanOrEqualTo(2));
+
+        var primitivesWithTexCoords = 0;
+        var primitivesWithoutTexCoords = 0;
+        foreach (var primitive in primitives) {
+            var hasTexCoords = primitive.GetVertexAccessor("TEXCOORD_0") != null;
+            var baseColor = primitive.Material.FindChannel("BaseColor");
+            var hasTexture = baseColor.HasValue && baseColor.Value.Texture != null;
+            if (hasTexCoords) {
+                primitivesWithTexCoords++;
+                Assert.That(hasTexture, Is.True);
+            }
+            else {
+                primitivesWithoutTexCoords++;
+            }
+        }
+
+        Assert.That(primitivesWithTexCoords, Is.GreaterThan(0));
+        Assert.That(primitivesWithoutTexCoords, Is.GreaterThan(0));
+    }
+
+    [Test]
+    public void GeometryWithMultipleTextureMappingsTexturesAllPolygons()
+    {
+        var geometry = Geometry.Deserialize<WktSerializer>(
+            "MULTIPOLYGON Z(((0 0 0,0 1 0,1 1 0,1 0 0,0 0 0)),((2 0 0,2 1 0,3 1 0,3 0 0,2 0 0)))"
+        );
+
+        var geometryRecord = new GeometryRecord(0) {
+            Geometry = geometry,
+            GeometryProperties = "{\"type\":6,\"children\":[{\"type\":3,\"objectId\":\"surface_1\",\"geometryIndex\":0},{\"type\":3,\"objectId\":\"surface_2\",\"geometryIndex\":1}]}",
+            Textures = new List<GeometryTexture> {
+                new GeometryTexture {
+                    TextureMapping = "{\"surface_1\":[[[0,0],[0,1],[1,1],[1,0],[0,0]]]}",
+                    TextureImageData = GetTinyPngBytes(),
+                    TextureMimeType = "image/png"
+                },
+                new GeometryTexture {
+                    TextureMapping = "{\"surface_2\":[[[0,0],[0,1],[1,1],[1,0],[0,0]]]}",
+                    TextureImageData = GetTinyPngBytes(),
+                    TextureMimeType = "image/png"
+                }
+            }
+        };
+
+        var triangles = geometryRecord.GetTriangles();
+
+        Assert.That(triangles.Count, Is.EqualTo(4));
+        Assert.That(triangles.All(triangle => triangle.HasTextureData()), Is.True);
+    }
+
+    [Test]
+    public void CreateGltfWithTextureAndShaderUsesTexture()
+    {
+        var triangle = new Triangle(new Point(0, 0, 0), new Point(1, 0, 0), new Point(0, 1, 0), 0) {
+            Shader = GetRedShader(),
+            TextureImageData = GetTinyPngBytes(),
+            TextureCoordinates = (new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 1))
+        };
+
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { new List<Triangle> { triangle } }, createGltf: true, useTexturePipeline: true);
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "gltf_texture_over_shader.glb");
+        File.WriteAllBytes(fileName, bytes);
+
+        var model = ModelRoot.Load(fileName);
+        var baseColor = model.LogicalMaterials[0].FindChannel("BaseColor");
+
+        Assert.That(model.LogicalTextures.Count, Is.EqualTo(1));
+        Assert.That(baseColor.HasValue && baseColor.Value.Texture != null, Is.True);
+    }
+
+    [Test]
+    public void CreateGltfWithoutTextureKeepsShaderPath()
+    {
+        var triangle = new Triangle(new Point(0, 0, 0), new Point(1, 0, 0), new Point(0, 1, 0), 0) {
+            Shader = GetRedShader()
+        };
+
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { new List<Triangle> { triangle } }, createGltf: true);
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "gltf_without_texture.glb");
+        File.WriteAllBytes(fileName, bytes);
+
+        var model = ModelRoot.Load(fileName);
+        Assert.That(model.LogicalTextures.Count, Is.EqualTo(0));
+    }
+
+    [Test]
     public void CreateGltfWithAttributesAllNulls()
     {
         // arrange
@@ -679,6 +803,20 @@ public class GlbCreatorTests
             new VertexPositionNormal((float)triangle.GetP2().X, (float)triangle.GetP2().Y, (float)triangle.GetP2().Z, normal.X, normal.Y, normal.Z)
             );
 
+    }
+
+    private static byte[] GetTinyPngBytes()
+    {
+        return Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=");
+    }
+
+    private static Shader GetRedShader()
+    {
+        return new Shader() {
+            PbrMetallicRoughness = new PbrMetallicRoughness() {
+                BaseColor = "#FF0000"
+            }
+        };
     }
 
 }

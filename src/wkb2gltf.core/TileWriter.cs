@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using SharpGLTF.Materials;
 using Wkb2Gltf;
 
@@ -10,8 +11,9 @@ public static class TileWriter
     {
         var triangles = GetTriangles(geometries, translation, scale);
         var attributes = GetAttributes(geometries);
+        var useTexturePipeline = geometries.Any(geometry => geometry.HasTextureData());
 
-        var bytes = TileCreator.GetTile(attributes, triangles, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, alphaCutoff, createGltf, YAxisUp);
+        var bytes = TileCreator.GetTile(attributes, triangles, copyright, addOutlines, defaultColor, defaultMetallicRoughness, doubleSided, defaultAlphaMode, alphaCutoff, createGltf, YAxisUp, useTexturePipeline);
 
         return bytes;
     }
