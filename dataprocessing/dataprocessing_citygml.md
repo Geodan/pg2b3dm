@@ -175,8 +175,9 @@ Result: The exported 3D Tiles will now have different colors based on the CityGM
 
 ## 6. Textures in 3DCityDB v5
 
+
 For 3DCityDB v5 input (`citydb.geometry_data` or a view carrying `geometry_data.id`), pg2b3dm now automatically detects
-texture data and applies textures per tile.
+texture data and applies textures per tile. Note: Executing texture compression is out of scope for pg2b3dm.
 
 Relevant texture tables and columns:
 
