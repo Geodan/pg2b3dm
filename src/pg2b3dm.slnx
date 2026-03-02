@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/doc/">
     <File Path="../../../../../Users/bert/Desktop/demo_pg2b3dm.gif" />
+    <File Path="../../../../../Users/bert/Desktop/test.csv/materials_for_features.csv" />
     <File Path="../../../../../Users/bertt/Desktop/delaware.png" />
     <File Path="../3dtiles_client_support.md" />
     <File Path="../cesium_notes.md" />
@@ -8,7 +9,6 @@
     <File Path="../getting_started.md" />
     <File Path="../README.md" />
     <File Path="../styling.md" />
-    <File Path="C:/Users/bert/Desktop/test.csv/materials_for_features.csv" />
     <File Path="release_notes_0.10.md" />
     <File Path="release_notes_0.11.md" />
     <File Path="release_notes_0.9.md" />
