@@ -28,6 +28,8 @@ public class UnitTest1
         await _containerPostgres.ExecScriptAsync(initScript3);
         var initScript4 = File.ReadAllText("./postgres-db/4_create_arvieux_batiments.sql");
         await _containerPostgres.ExecScriptAsync(initScript4);
+        var initScript5 = File.ReadAllText("./postgres-db/5_create_3dcitydb_texture_tables.sql");
+        await _containerPostgres.ExecScriptAsync(initScript5);
     }
 
     [TearDown]
@@ -81,6 +83,80 @@ public class UnitTest1
         var tiles = implicitTiler.GenerateTiles3D(boundingBox3D, 0, new Tile3D(0, 0, 0, 0 ), new List<Tile3D>());
 
         Assert.That(tiles.Count, Is.EqualTo(25));
+    }
+
+    [Test]
+    public void Detect3dCityDbV5AndTextures()
+    {
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
+
+        var isV5 = CityDbRepository.Is3dCityDbV5OrHigher(conn);
+        var hasTextures = CityDbRepository.HasTextureData(conn);
+        var hasIdColumn = CityDbRepository.HasColumn(conn, "citydb.geometry_data", "id");
+
+        Assert.That(isV5, Is.True);
+        Assert.That(hasTextures, Is.True);
+        Assert.That(hasIdColumn, Is.True);
+    }
+
+    [Test]
+    public void TextureCheckIsPerTile()
+    {
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
+
+        var texturedGeometries = GeometryRepository.GetGeometrySubset(
+            conn,
+            "citydb.geometry_data",
+            "geometry",
+            new double[] { -1, -1, 2, 2 },
+            4326,
+            4326,
+            keepProjection: true,
+            idColumn: "id",
+            includeTextures: true
+        );
+
+        var nonTexturedGeometries = GeometryRepository.GetGeometrySubset(
+            conn,
+            "citydb.geometry_data",
+            "geometry",
+            new double[] { 9, 9, 12, 12 },
+            4326,
+            4326,
+            keepProjection: true,
+            idColumn: "id",
+            includeTextures: true
+        );
+
+        Assert.That(texturedGeometries.Count, Is.EqualTo(1));
+        Assert.That(texturedGeometries[0].HasTextureData(), Is.True);
+        Assert.That(nonTexturedGeometries.Count, Is.EqualTo(1));
+        Assert.That(nonTexturedGeometries[0].HasTextureData(), Is.False);
+    }
+
+    [Test]
+    public void TextureEnrichmentCollectsMultipleMappingsPerGeometry()
+    {
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
+
+        var texturedGeometries = GeometryRepository.GetGeometrySubset(
+            conn,
+            "citydb.geometry_data",
+            "geometry",
+            new double[] { 19, 19, 24, 22 },
+            4326,
+            4326,
+            keepProjection: true,
+            idColumn: "id",
+            includeTextures: true
+        );
+
+        Assert.That(texturedGeometries.Count, Is.EqualTo(1));
+        Assert.That(texturedGeometries[0].HasTextureData(), Is.True);
+        Assert.That(texturedGeometries[0].Textures.Count, Is.EqualTo(2));
     }
 
     [Test]

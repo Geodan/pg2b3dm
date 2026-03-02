@@ -16,7 +16,7 @@ namespace Wkb2Gltf;
 
 public static class GlbCreator
 {
-    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true, Dictionary<string, List<object>> attributes = null, bool createGltf = false, SharpGLTF.Materials.AlphaMode defaultAlphaMode = SharpGLTF.Materials.AlphaMode.OPAQUE, float alphaCutoff = 0.5f, bool doubleSided = false, bool YAxisUp = true)
+    public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true, Dictionary<string, List<object>> attributes = null, bool createGltf = false, SharpGLTF.Materials.AlphaMode defaultAlphaMode = SharpGLTF.Materials.AlphaMode.OPAQUE, float alphaCutoff = 0.5f, bool doubleSided = false, bool YAxisUp = true, bool useTexturePipeline = false)
     {
         var materialCache = new MaterialsCache();
         var shader = new Shader();
@@ -26,38 +26,87 @@ public static class GlbCreator
 
         var meshBatchId = new MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty>("mesh");
         var meshFeatureIds = new MeshBuilder<VertexPositionNormal, VertexWithFeatureId, VertexEmpty>("mesh");
+        var meshBatchIdTexture = new MeshBuilder<VertexPositionNormal, VertexWithBatchIdTexture, VertexEmpty>("mesh");
+        var meshFeatureIdsTexture = new MeshBuilder<VertexPositionNormal, VertexWithFeatureIdTexture, VertexEmpty>("mesh");
 
-        foreach (var tri in triangles) {
-            foreach (var triangle in tri) {
-                MaterialBuilder material;
-
-                var alpha = defaultAlphaMode;
-                if (triangle.Shader != null) {
-                    // workaround for cases where the alpha mode is set to blend, but the base color is fully opaque (eg. alpha = 1.0)
-                    if (triangle.Shader.PbrMetallicRoughness!=null && alpha == SharpGLTF.Materials.AlphaMode.BLEND && triangle.Shader.PbrMetallicRoughness.IsBaseColorOpaque()) {
-                        alpha = SharpGLTF.Materials.AlphaMode.OPAQUE;
+        if (useTexturePipeline) {
+            foreach (var tri in triangles) {
+                foreach (var triangle in tri) {
+                    if (triangle.HasTextureData()) {
+                        var material = materialCache.GetMaterialBuilderByTexture(triangle.TextureImageData, defaultDoubleSided, defaultAlphaMode, alphaCutoff);
+                        var textureCoordinates = triangle.GetTextureCoordinates();
+                        if (createGltf) {
+                            DrawTriangleWithFeatureIdAndTexture(triangle, material, meshFeatureIdsTexture, textureCoordinates);
+                        }
+                        else {
+                            DrawTriangleWithBatchIdAndTexture(triangle, material, meshBatchIdTexture, textureCoordinates);
+                        }
                     }
-
-                    material = materialCache.GetMaterialBuilderByShader(triangle.Shader, doubleSided, alpha, alphaCutoff);
-                }
-                else {
-                    material = defaultMaterial;
-                }
-
-                if (createGltf) {
-                    DrawTriangleWithFeatureId(triangle, material, meshFeatureIds);
-                }
-                else {
-                    DrawTriangleWithBatchId(triangle, material, meshBatchId);
+                    else {
+                        if (createGltf) {
+                            DrawTriangleWithFeatureId(triangle, defaultMaterial, meshFeatureIds);
+                        }
+                        else {
+                            DrawTriangleWithBatchId(triangle, defaultMaterial, meshBatchId);
+                        }
+                    }
                 }
             }
         }
+        else {
+            foreach (var tri in triangles) {
+                foreach (var triangle in tri) {
+                    MaterialBuilder material;
+
+                    var alpha = defaultAlphaMode;
+                    if (triangle.Shader != null) {
+                        // workaround for cases where the alpha mode is set to blend, but the base color is fully opaque (eg. alpha = 1.0)
+                        if (triangle.Shader.PbrMetallicRoughness!=null && alpha == SharpGLTF.Materials.AlphaMode.BLEND && triangle.Shader.PbrMetallicRoughness.IsBaseColorOpaque()) {
+                            alpha = SharpGLTF.Materials.AlphaMode.OPAQUE;
+                        }
+
+                        material = materialCache.GetMaterialBuilderByShader(triangle.Shader, doubleSided, alpha, alphaCutoff);
+                    }
+                    else {
+                        material = defaultMaterial;
+                    }
+
+                    if (createGltf) {
+                        DrawTriangleWithFeatureId(triangle, material, meshFeatureIds);
+                    }
+                    else {
+                        DrawTriangleWithBatchId(triangle, material, meshBatchId);
+                    }
+                }
+            }
+        }
+
         var scene = new SceneBuilder();
-        if (createGltf) {
-            scene.AddRigidMesh(meshFeatureIds, Matrix4x4.Identity);
+        if (useTexturePipeline) {
+            if (createGltf) {
+                if (meshFeatureIdsTexture.Primitives.Count > 0) {
+                    scene.AddRigidMesh(meshFeatureIdsTexture, Matrix4x4.Identity);
+                }
+                if (meshFeatureIds.Primitives.Count > 0) {
+                    scene.AddRigidMesh(meshFeatureIds, Matrix4x4.Identity);
+                }
+            }
+            else {
+                if (meshBatchIdTexture.Primitives.Count > 0) {
+                    scene.AddRigidMesh(meshBatchIdTexture, Matrix4x4.Identity);
+                }
+                if (meshBatchId.Primitives.Count > 0) {
+                    scene.AddRigidMesh(meshBatchId, Matrix4x4.Identity);
+                }
+            }
         }
         else {
-            scene.AddRigidMesh(meshBatchId, Matrix4x4.Identity);
+            if (createGltf) {
+                scene.AddRigidMesh(meshFeatureIds, Matrix4x4.Identity);
+            }
+            else {
+                scene.AddRigidMesh(meshBatchId, Matrix4x4.Identity);
+            }
         }
         var model = scene.ToGltf2();
         model.Asset.Copyright = copyright;
@@ -73,12 +122,16 @@ public static class GlbCreator
                 0, 0, -1, 0,
                 0, 1, 0, 0,
                 0, 0, 0, 1);
-            model.LogicalNodes.First().LocalTransform = new SharpGLTF.Transforms.AffineTransform(localTransform);
+            foreach (var node in model.LogicalNodes) {
+                node.LocalTransform = new SharpGLTF.Transforms.AffineTransform(localTransform);
+            }
         }
 
         if (addOutlines) {
-            foreach (var primitive in model.LogicalMeshes[0].Primitives) {
-                primitive.AddOutlines();
+            foreach (var mesh in model.LogicalMeshes) {
+                foreach (var primitive in mesh.Primitives) {
+                    primitive.AddOutlines();
+                }
             }
         }
 
@@ -99,9 +152,11 @@ public static class GlbCreator
                 var schemaClass = schema.UseClassMetadata("propertyTable");
                 var propertyTable = schemaClass.AddPropertyTable(attributes.First().Value.Count);
 
-                foreach (var primitive in model.LogicalMeshes[0].Primitives) {
-                    var featureIdAttribute = new FeatureIDBuilder(attributes.First().Value.Count, 0, propertyTable);
-                    primitive.AddMeshFeatureIds(featureIdAttribute);
+                foreach (var mesh in model.LogicalMeshes) {
+                    foreach (var primitive in mesh.Primitives) {
+                        var featureIdAttribute = new FeatureIDBuilder(attributes.First().Value.Count, 0, propertyTable);
+                        primitive.AddMeshFeatureIds(featureIdAttribute);
+                    }
                 }
 
                 foreach (var attribute in attributes) {
@@ -378,6 +433,24 @@ public static class GlbCreator
         var prim = mesh.UsePrimitive(material);
         var vectors = triangle.ToVectors();
         var indices = prim.AddTriangleWithFeatureId(vectors, normal, triangle.GetBatchId());
+        return indices.Item1 > 0;
+    }
+
+    private static bool DrawTriangleWithBatchIdAndTexture(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal, VertexWithBatchIdTexture, VertexEmpty> mesh, (Vector2, Vector2, Vector2) textureCoordinates)
+    {
+        var normal = triangle.GetNormal();
+        var prim = mesh.UsePrimitive(material);
+        var vectors = triangle.ToVectors();
+        var indices = prim.AddTriangleWithBatchIdAndTexCoords(vectors, normal, triangle.GetBatchId(), textureCoordinates);
+        return indices.Item1 > 0;
+    }
+
+    private static bool DrawTriangleWithFeatureIdAndTexture(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal, VertexWithFeatureIdTexture, VertexEmpty> mesh, (Vector2, Vector2, Vector2) textureCoordinates)
+    {
+        var normal = triangle.GetNormal();
+        var prim = mesh.UsePrimitive(material);
+        var vectors = triangle.ToVectors();
+        var indices = prim.AddTriangleWithFeatureIdAndTexCoords(vectors, normal, triangle.GetBatchId(), textureCoordinates);
         return indices.Item1 > 0;
     }
 

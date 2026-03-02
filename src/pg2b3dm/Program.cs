@@ -117,6 +117,22 @@ class Program
             else {
                 Console.WriteLine($"Md5 index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
             }
+            var is3dCityDbV5OrHigher = CityDbRepository.Is3dCityDbV5OrHigher(conn);
+            var hasTextureData = is3dCityDbV5OrHigher && CityDbRepository.HasTextureData(conn);
+            var hasIdColumn = CityDbRepository.HasColumn(conn, inputTable.TableName, "id");
+
+            inputTable.IdColumn = hasIdColumn ? "id" : String.Empty;
+            inputTable.Is3dCityDbV5OrHigher = is3dCityDbV5OrHigher;
+            inputTable.HasTextureData = hasTextureData;
+            inputTable.UseTexturePipeline = is3dCityDbV5OrHigher && hasTextureData && hasIdColumn;
+
+            Console.WriteLine($"3DCityDB v5+ detected: {is3dCityDbV5OrHigher}");
+            Console.WriteLine($"Texture data detected: {hasTextureData}");
+            if (is3dCityDbV5OrHigher && !hasIdColumn) {
+                Console.WriteLine($"Warning: column 'id' missing in {inputTable.TableName}, texture pipeline disabled.");
+            }
+            Console.WriteLine($"Texture pipeline enabled: {inputTable.UseTexturePipeline}");
+
 
             var skipCreateTiles = (bool)o.SkipCreateTiles;
             Console.WriteLine("Skip create tiles: " + skipCreateTiles);

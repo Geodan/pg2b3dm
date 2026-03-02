@@ -20,6 +20,8 @@ Features:
 
 - Shading PbrMetallicRoughness and PbrSpecularGlossiness;
 
+- Automatic 3DCityDB v5 texture support per tile/glTF (texture > shader > default);
+
 - Query parameter support;
 
 - Cesium: LOD support and Outlines support (using CESIUM_primitive_outline);
@@ -67,6 +69,8 @@ Presentation at FOSS4G 2019: 3D geodata with 3D Tiles https://www.youtube.com/wa
 ## Tooling
 
 Tooling containing pg2b3dm:
+
+- 3DCityDB: https://tum-gis.github.io/citydb-3dtiler/
 
 - Digital Twin toolbox: https://github.com/geosolutions-it/digital-twin-toolbox
 
@@ -455,6 +459,8 @@ Press F5 to start debugging.
 - Wkx (https://github.com/cschwarz/wkx-sharp) - for geometry handling.
 
 ## History
+
+2026-03-02: release 2.26.0: add support for textures in 3dcitydb v5
 
 2025-12-09: release 2.25.1: fix issue with all empty strings in attribute column
 
