@@ -211,6 +211,10 @@ Priority rule during export:
 - If textures and shaders are both available in the same tile, textures are used.
 - Tiles without texture data keep existing shader/default behavior.
 
+Sample World Port Center Rotterdam:
+
+<img width="986" height="948" alt="image" src="https://github.com/user-attachments/assets/1e434d3f-7918-4b9b-87e6-18f168f45b55" />
+
 ---
 
 ## 7. Conclusion  
