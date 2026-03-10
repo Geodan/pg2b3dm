@@ -9,7 +9,6 @@ using Npgsql;
 using subtree;
 using B3dm.Tileset.Extensions;
 using SharpGLTF.Schema2;
-using B3dm.Tileset.settings;
 
 namespace pg2b3dm;
 
@@ -104,6 +103,20 @@ class Program
                 Console.WriteLine($"Spatial index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
             }
 
+            // Check md5 index
+            var hasMd5Index = SpatialIndexChecker.HasMd5Index(conn, inputTable.TableName, inputTable.GeometryColumn);
+            if (!hasMd5Index) {
+                Console.WriteLine();
+                Console.WriteLine("-----------------------------------------------------------------------------");
+                Console.WriteLine($"WARNING: No md5 index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
+                Console.WriteLine("Fix: add a md5 index, for example: ");
+                Console.WriteLine($"'CREATE INDEX ON {inputTable.TableName} using btree(md5(st_asbinary({inputTable.GeometryColumn})::text))'");
+                Console.WriteLine("-----------------------------------------------------------------------------");
+                Console.WriteLine();
+            }
+            else {
+                Console.WriteLine($"Md5 index detected on {inputTable.TableName}.{inputTable.GeometryColumn}");
+            }
             var is3dCityDbV5OrHigher = CityDbRepository.Is3dCityDbV5OrHigher(conn);
             var hasTextureData = is3dCityDbV5OrHigher && CityDbRepository.HasTextureData(conn);
             var hasIdColumn = CityDbRepository.HasColumn(conn, inputTable.TableName, "id");
@@ -120,18 +133,19 @@ class Program
             }
             Console.WriteLine($"Texture pipeline enabled: {inputTable.UseTexturePipeline}");
 
+
             var skipCreateTiles = (bool)o.SkipCreateTiles;
             Console.WriteLine("Skip create tiles: " + skipCreateTiles);
 
             Console.WriteLine($"Query bounding box of {inputTable.TableName}.{inputTable.GeometryColumn}...");
             var where = (inputTable.Query != string.Empty ? $" where {inputTable.Query}" : String.Empty);
 
-            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, inputTable.TableName, inputTable.GeometryColumn, keepProjection, where);
+            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, inputTable.TableName, inputTable.GeometryColumn, true, where);
             var bbox = bbox_table.bbox;
             var zmin = bbox_table.zmin;
             var zmax = bbox_table.zmax;
 
-            var proj = keepProjection ? $"EPSG:{source_epsg}" : $"EPSG:4326 (WGS84)";
+            var proj = $"EPSG:{source_epsg}";
             Console.WriteLine($"Bounding box for {inputTable.TableName}.{inputTable.GeometryColumn} ({proj}): " +
                 $"{Math.Round(bbox.XMin, 8)}, {Math.Round(bbox.YMin, 8)}, " +
                 $"{Math.Round(bbox.XMax, 8)}, {Math.Round(bbox.YMax, 8)}");
@@ -150,14 +164,23 @@ class Program
             Console.WriteLine($"Attribute columns: {att}");
 
             var center = bbox.GetCenter();
-            Console.WriteLine($"Center ({proj}): {center.X}, {center.Y}");
+            var center_z = (zmin + zmax) / 2;
+            Console.WriteLine($"Center ({proj}): {center.X}, {center.Y}, {center_z}");
 
             Tiles3DExtensions.RegisterExtensions();
 
-            var translation = keepProjection ?
-                [(double)center.X, (double)center.Y, 0] :
-                Translation.ToEcef(center);
-            Console.WriteLine($"Translation: {String.Join(',', translation)}");
+            double[] translation = [(double)center.X, (double)center.Y, center_z];
+
+            var bbox_wgs84 = bbox; // fallback, only set when !keepProjection
+            if(!keepProjection) {
+                // Convert bbox to EPSG:4979 for ECEF translation and bounding volume region
+                var bbox_4979 = BoundingBoxRepository.GetBoundingBoxAs4979(conn, bbox_table, source_epsg);
+                bbox_wgs84 = bbox_4979.bbox;
+                var center_wgs84 = bbox_wgs84.GetCenter();
+                var p = new Wkx.Point((double)center_wgs84.X, (double)center_wgs84.Y, center_z);
+                translation = Translation.ToEcef(p);
+            }
+            Console.WriteLine($"Translation (EPSG:4978): {String.Join(',', translation)}");
 
             var lodcolumn = o.LodColumn;
             var addOutlines = (bool)o.AddOutlines;
@@ -176,6 +199,7 @@ class Program
             Console.WriteLine($"Refinement: {refinement}");
             Console.WriteLine($"Keep projection: {keepProjection}");
             Console.WriteLine($"Subdivision scheme: {subdivisionScheme}");
+            Console.WriteLine($"Sort by: {o.SortBy}");
 
             if (keepProjection && !useImplicitTiling) {
                 Console.WriteLine("Warning: keepProjection is only supported with implicit tiling.");
@@ -198,7 +222,7 @@ class Program
             var rootBoundingVolumeRegion =
                 keepProjection ?
                     bbox.ToRegion(zmin, zmax) :
-                    bbox.ToRadians().ToRegion(zmin, zmax);
+                    bbox_wgs84.ToRadians().ToRegion(zmin, zmax);
 
             Console.WriteLine($"Maximum features per tile: " + maxFeaturesPerTile);
 
@@ -238,6 +262,7 @@ class Program
             tilingSettings.UseImplicitTiling = useImplicitTiling;
             tilingSettings.SkipCreateTiles = skipCreateTiles;
             tilingSettings.MaxFeaturesPerTile = maxFeaturesPerTile;
+            tilingSettings.SortBy = o.SortBy;
             tilingSettings.Lods = lods;
 
             if (subdivisionScheme == SubdivisionScheme.QUADTREE) {
@@ -294,7 +319,7 @@ class Program
         tile.BoundingBox = bbox.ToArray();
         var outputSettings = tilesetSettings.OutputSettings;
 
-        var quadtreeTiler = new QuadtreeTiler(connectionString, inputTable, stylingSettings, tilingSettings.MaxFeaturesPerTile, tilesetSettings.Translation, outputSettings.ContentFolder, tilingSettings.Lods, tilesetSettings.Copyright, tilingSettings.SkipCreateTiles);
+        var quadtreeTiler = new QuadtreeTiler(connectionString, inputTable, stylingSettings, tilingSettings.MaxFeaturesPerTile, tilesetSettings.Translation, outputSettings.ContentFolder, tilingSettings.Lods, tilesetSettings.Copyright, tilingSettings.SkipCreateTiles, tilingSettings.UseImplicitTiling, sortBy: tilingSettings.SortBy);
         var tiles = quadtreeTiler.GenerateTiles(bbox, tile, new List<Tile>(), inputTable.LodColumn != string.Empty ? tilingSettings.Lods.First() : 0, tilingSettings.CreateGltf, tilingSettings.KeepProjection);
         Console.WriteLine();
         Console.WriteLine("Tiles created: " + tiles.Count(tile => tile.Available));
