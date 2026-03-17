@@ -33,7 +33,7 @@ for example visualize a simplified geometry when the camera is far away, and a m
 Sample command for using LOD's using the delaware_buildings_lod table (see script 2_create_delaware_table.sql script in the database test project):
 
 ```
--h localhost -U postgres -p 5432 -c geom_triangle  -t delaware_buildings_lod -d postgres -g 2000 --shaderscolumn shaders --lodcolumn lodcolumn --use_implicit_tiling false -r REPLACE --geometricerrorfactor 8
+pg2b3dm --connection "Host=localhost;Port=5432;Username=postgres;Database=postgres;CommandTimeOut=0" -c geom_triangle -t delaware_buildings_lod -g 2000 --shaderscolumn shaders --lodcolumn lodcolumn --use_implicit_tiling false -r REPLACE --geometricerrorfactor 8
 ```
 
 The LOD function will be enabled when parameter --lodcolumn is not empty.
