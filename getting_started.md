@@ -53,7 +53,7 @@ postgresql> CREATE INDEX ON sibbe USING gist(st_centroid(st_envelope(geom)))
 - Convert to 3D Tiles using pg2b3dm
 
 ```
-$ pg2b3dm -h localhost -U postgres -c geom -d postgres -t sibbe -a identificatie
+$ pg2b3dm --connection "Host=localhost;Username=postgres;Database=postgres;CommandTimeOut=0" -c geom -t sibbe -a identificatie
 ```
 
 ### Visualize
@@ -76,4 +76,3 @@ viewer.scene.globe.depthTestAgainstTerrain=true;
 ```
 
 - Load 3D Tiles in Cesium viewer, example result see https://geodan.github.io/pg2b3dm/sample_data/3dbag/sibbe/
-

@@ -82,20 +82,26 @@ Tooling containing pg2b3dm:
 
 All parameters are optional, except the -t --table option. 
 
-If --username and/or --dbname are not specified the current username is used as default.
+Preferred database configuration uses `--connection`.
+
+If `--connection` is not specified and none of the deprecated database parameters are used, `pg2b3dm` builds a default connection string using the current username:
+`Host=localhost;Port=5432;Username=<current user>;Database=<current user>;CommandTimeOut=0`.
 
 ```
-  -U, --username                  Database user
+  -U, --username                  [Deprecated] Database user. Use --connection instead.
 
-  -h, --host                      (Default: localhost) Database host
+  -h, --host                      [Deprecated] (Default: localhost) Database host. Use --connection instead.
 
-  -d, --dbname                    Database name
+  -d, --dbname                    [Deprecated] Database name. Use --connection instead.
 
   -c, --column                    (Default: geom) Geometry column
 
   -t, --table                     Required. Database table, include database schema if needed
 
-  -p, --port                      (Default: 5432) Database port
+  -p, --port                      [Deprecated] (Default: 5432) Database port. Use --connection instead.
+
+      --connection                (Default: '') Database connection string.
+                                  Tip: for long-running queries, include CommandTimeOut=0.
 
   -o, --output                    (Default: output) Output path
 
@@ -154,7 +160,7 @@ If --username and/or --dbname are not specified the current username is used as 
 Sample command for running pg2b3dm:
 
 ```
-$ pg2b3dm -h localhost -U postgres -c geom_triangle --shaderscolumn shaders -t delaware_buildings -d postgres -g 100,0 
+$ pg2b3dm --connection "Host=localhost;Username=postgres;Database=postgres;Ssl Mode=Require;CommandTimeOut=0" -c geom_triangle --shaderscolumn shaders -t delaware_buildings -g 100,0
 ```
 
 Database password will be asked to create the database connection, unless:
@@ -382,7 +388,7 @@ $ docker build -t geodan/pg2b3dm:{name_of_feature_branch} .
 Sample on Linux:
 
 ```
-$ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm -h my_host -U my_user -d my_database -t my_schema.my_table
+$ docker run -v $(pwd)/output:/app/output -it geodan/pg2b3dm --connection "Host=my_host;Username=my_user;Database=my_database;CommandTimeOut=0" -t my_schema.my_table
 ```
 
 ## Run from source
@@ -398,7 +404,7 @@ To run the app:
 ```
 $ git clone https://github.com/Geodan/pg2b3dm.git
 $ cd pg2b3dm/src/pg2b3dm
-$ dotnet run -- -h my_host -U my_user -d my_database -t my_schema.my_table
+$ dotnet run -- --connection "Host=my_host;Username=my_user;Database=my_database;CommandTimeOut=0" -t my_schema.my_table
 ```
 
 To create an self-contained executable '~/bin/pg2b3dm' for Linux:

@@ -62,7 +62,7 @@ CREATE INDEX ON citydb.geometry_data USING gist(st_centroid(st_envelope(geometry
 Once the data is imported, convert the data into 3D Tiles using the `pg2b3dm` tool:
 
 ```bash
-pg2b3dm -U postgres -p 5440 -d postgres -t citydb.geometry_data -c geometry --attributecolumns geometry_properties
+pg2b3dm --connection "Host=localhost;Port=5440;Username=postgres;Database=postgres;CommandTimeOut=0" -t citydb.geometry_data -c geometry --attributecolumns geometry_properties
 ```
 
 **Result:**
@@ -165,7 +165,7 @@ using pg2b3dm. A recommended filter to add to the view could be "st_geometrytype
 Now, generate the 3D Tiles using the new view - adding the shaderscolumn parameter:
 
 ```bash
-pg2b3dm -U postgres -p 5440 -d postgres -t citydb.geoms4tiles -c geom --shaderscolumn material_data -a objectid,classname
+pg2b3dm --connection "Host=localhost;Port=5440;Username=postgres;Database=postgres;CommandTimeOut=0" -t citydb.geoms4tiles -c geom --shaderscolumn material_data -a objectid,classname
 ```
 Result: The exported 3D Tiles will now have different colors based on the CityGML feature classes, enhancing the visualization quality.
 
