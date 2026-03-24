@@ -6,18 +6,20 @@ namespace pg2b3dm;
 
 public class Options
 {
-    [Option('U', "username", Required = false, HelpText = "Database user")]
+    [Option('U', "username", Required = false, HelpText = "[DEPRECATED] Database user. Use --connection instead")]
     public string User { get; set; }
-    [Option('h', "host", Required = false, Default = "localhost", HelpText = "Database host")]
+    [Option('h', "host", Required = false, Default = "localhost", HelpText = "[DEPRECATED] Database host. Use --connection instead")]
     public string Host { get; set; }
-    [Option('d', "dbname", Required = false, HelpText = "Database name")]
+    [Option('d', "dbname", Required = false, HelpText = "[DEPRECATED] Database name. Use --connection instead")]
     public string Database { get; set; }
     [Option('c', "column", Required = false, Default = "geom", HelpText = "Geometry column")]
     public string GeometryColumn { get; set; }
     [Option('t', "table", Required = true, HelpText = "Database table, include database schema if needed")]
     public string GeometryTable { get; set; }
-    [Option('p', "port", Required = false, Default = "5432", HelpText = "Database port")]
+    [Option('p', "port", Required = false, Default = "5432", HelpText = "[DEPRECATED] Database port. Use --connection instead")]
     public string Port { get; set; }
+    [Option("connection", Required = false, Default = "", HelpText = "Database connection string. Tip: for long-running queries, include CommandTimeOut=0.")]
+    public string Connection { get; set; }
     [Option('o', "output", Required = false, Default = "output", HelpText = "Output path")]
     public string Output { get; set; }
     [Option('a', "attributecolumns", Required = false, Default = "", HelpText = "Attribute columns")]

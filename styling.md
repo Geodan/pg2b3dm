@@ -354,7 +354,7 @@ update towns set simple_shader =
 Creating 3D Tiles:
 
 ```
-pg2b3dm -U postgres -d postgres -t towns -c geom --shaderscolumn simple_shader --default_alpha_mode BLEND
+pg2b3dm --connection "Host=localhost;Username=postgres;Database=postgres;CommandTimeOut=0" -t towns -c geom --shaderscolumn simple_shader --default_alpha_mode BLEND
 ```
 
 Result: 

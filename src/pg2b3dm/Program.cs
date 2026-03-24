@@ -22,9 +22,6 @@ class Program
         Console.WriteLine($"Tool: pg2b3dm {version}");
         Console.WriteLine("Options: " + string.Join(" ", args));
         Parser.Default.ParseArguments<Options>(args).WithParsed(o => {
-            o.User = string.IsNullOrEmpty(o.User) ? Environment.UserName : o.User;
-            o.Database = string.IsNullOrEmpty(o.Database) ? Environment.UserName : o.Database;
-
             // Octree checks 
             if(o.subdivisionScheme == SubdivisionScheme.OCTREE) {
                 if(o.LodColumn != String.Empty) {
@@ -33,12 +30,17 @@ class Program
                 }
             }
 
-            var connectionString = $"Host={o.Host};Username={o.User};Database={o.Database};Port={o.Port};CommandTimeOut=0";
+            var connectionResolution = ConnectionStringResolver.Resolve(args, o, Environment.UserName);
+            foreach (var warning in connectionResolution.Warnings) {
+                Console.WriteLine(warning);
+            }
+
+            var connectionString = connectionResolution.ConnectionString;
             var istrusted = TrustedConnectionChecker.HasTrustedConnection(connectionString);
             if (!istrusted) {
-                Console.Write($"Password for user {o.User}: ");
+                Console.Write($"Password for user {connectionResolution.UserName}: ");
                 password = PasswordAsker.GetPassword();
-                connectionString += $";password={password}";
+                connectionString = ConnectionStringResolver.AddPassword(connectionString, password);
                 Console.WriteLine();
             }
 
