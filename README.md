@@ -455,6 +455,8 @@ Press F5 to start debugging.
 
 ## History
 
+2026-03-24: release 2.27.0: add option --connection for database connection string (deprecating parameters -U, -h, -d and -p)
+
 2026-03-02: release 2.26.0: add support for textures in 3dcitydb v5
 
 2025-12-09: release 2.25.1: fix issue with all empty strings in attribute column
