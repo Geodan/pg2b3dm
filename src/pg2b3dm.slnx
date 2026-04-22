@@ -22,4 +22,7 @@
   <Project Path="pg2b3dm/pg2b3dm.csproj" />
   <Project Path="wkb2gltf.core.tests/wkb2gltf.tests.csproj" />
   <Project Path="wkb2gltf.core/wkb2gltf.csproj" />
+  <Folder Name="/samples/">
+    <Project Path="samples/GltfExport/GltfExport.csproj" />
+  </Folder>
 </Solution>
