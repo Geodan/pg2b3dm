@@ -1,5 +1,4 @@
 using Npgsql;
-using pg2b3dm;
 
 namespace pg2b3dm.database.tests;
 
@@ -17,7 +16,7 @@ public class ConnectionStringResolverTests
         var result = ConnectionStringResolver.Resolve(["--connection", connection], options, "fallback-user");
         var builder = new NpgsqlConnectionStringBuilder(result.ConnectionString);
 
-        Assert.Multiple(() =>
+        Assert.Multiple((Action)(() =>
         {
             Assert.That(builder.Host, Is.EqualTo("db.example"));
             Assert.That(builder.Username, Is.EqualTo("alice"));
@@ -26,7 +25,7 @@ public class ConnectionStringResolverTests
             Assert.That(builder.CommandTimeout, Is.EqualTo(15));
             Assert.That(result.UserName, Is.EqualTo("alice"));
             Assert.That(result.Warnings, Is.Empty);
-        });
+        }));
     }
 
     [Test]
@@ -43,7 +42,7 @@ public class ConnectionStringResolverTests
         var result = ConnectionStringResolver.Resolve(["-h", "db.example", "-U", "legacy-user", "-d", "legacy-db", "-p", "5433"], options, "fallback-user");
         var builder = new NpgsqlConnectionStringBuilder(result.ConnectionString);
 
-        Assert.Multiple(() =>
+        Assert.Multiple((Action)(() =>
         {
             Assert.That(builder.Host, Is.EqualTo("db.example"));
             Assert.That(builder.Port, Is.EqualTo(5433));
@@ -58,7 +57,7 @@ public class ConnectionStringResolverTests
             Assert.That(result.Warnings[0], Does.Contain("--port"));
             Assert.That(result.Warnings[0], Does.Contain("--connection"));
             Assert.That(result.Warnings[0], Does.Contain("CommandTimeOut=0"));
-        });
+        }));
     }
 
     [Test]
@@ -77,7 +76,7 @@ public class ConnectionStringResolverTests
         var result = ConnectionStringResolver.Resolve(["--connection", connection, "--host", "ignored-host", "--username", "ignored-user"], options, "fallback-user");
         var builder = new NpgsqlConnectionStringBuilder(result.ConnectionString);
 
-        Assert.Multiple(() =>
+        Assert.Multiple((Action)(() =>
         {
             Assert.That(builder.Host, Is.EqualTo("override-host"));
             Assert.That(builder.Username, Is.EqualTo("preferred-user"));
@@ -88,7 +87,7 @@ public class ConnectionStringResolverTests
             Assert.That(result.Warnings[0], Does.Contain("--connection takes precedence"));
             Assert.That(result.Warnings[0], Does.Contain("--host"));
             Assert.That(result.Warnings[0], Does.Contain("--username"));
-        });
+        }));
     }
 
     [Test]
@@ -97,7 +96,7 @@ public class ConnectionStringResolverTests
         var result = ConnectionStringResolver.Resolve(Array.Empty<string>(), new pg2b3dm.Options(), "current-user");
         var builder = new NpgsqlConnectionStringBuilder(result.ConnectionString);
 
-        Assert.Multiple(() =>
+        Assert.Multiple((Action)(() =>
         {
             Assert.That(builder.Host, Is.EqualTo("localhost"));
             Assert.That(builder.Port, Is.EqualTo(5432));
@@ -106,6 +105,6 @@ public class ConnectionStringResolverTests
             Assert.That(builder.CommandTimeout, Is.EqualTo(0));
             Assert.That(result.UserName, Is.EqualTo("current-user"));
             Assert.That(result.Warnings, Is.Empty);
-        });
+        }));
     }
 }
