@@ -22,6 +22,8 @@ public class GeometryRecord
 
     public float? Radius { get; set; }
 
+public string Hash { get; set; }
+
     public long? SourceId { get; set; }
 
     public string TextureMapping { get; set; } = string.Empty;
@@ -38,6 +40,7 @@ public class GeometryRecord
     {
         return Textures.Any(texture => texture.IsValid()) || (!string.IsNullOrWhiteSpace(TextureMapping) && TextureImageData.Length > 0);
     }
+
 
     public List<Triangle> GetTriangles(double[] translation = null, double[] scale = null)
     {

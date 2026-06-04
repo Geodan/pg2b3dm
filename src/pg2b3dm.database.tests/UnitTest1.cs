@@ -1,6 +1,5 @@
 ﻿using B3dm.Tileset;
 using B3dm.Tileset.Extensions;
-using B3dm.Tileset.settings;
 using DotNet.Testcontainers.Builders;
 using Npgsql;
 using subtree;
@@ -17,7 +16,7 @@ public class UnitTest1
     public async Task Setup()
     {
         _containerPostgres = new PostgreSqlBuilder()
-        .WithImage("postgis/postgis:16-3.4-alpine")
+        .WithImage("postgis/postgis:18-3.6-alpine")
         .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(5432))
         .Build();
         await _containerPostgres.StartAsync();
@@ -46,9 +45,12 @@ public class UnitTest1
         OutputDirectoryCreator.GetFolders("output");
         var connectionString = _containerPostgres.GetConnectionString();
         var conn = new NpgsqlConnection(connectionString);
-        var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, "arvieux_batiments", "geom");
+        // Get bbox in source projection (EPSG:5698) for spatial queries
+        var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, "arvieux_batiments", "geom", true);
+        // Get WGS84 bbox separately for ECEF translation
+        var bbox_wgs84 = BoundingBoxRepository.GetBoundingBoxForTable(conn, "arvieux_batiments", "geom", false);
 
-        var center_wgs84 = bbox_table.bbox.GetCenter();
+        var center_wgs84 = bbox_wgs84.bbox.GetCenter();
         var translation = SpatialConverter.GeodeticToEcef((double)center_wgs84.X!, (double)center_wgs84.Y!, 0);
         var trans = new double[] { translation.X, translation.Y,  };
 
@@ -80,7 +82,7 @@ public class UnitTest1
         var implicitTiler = new OctreeTiler(connectionString, inputTable, tilingSettings, stylingSettings, tilesetSettings);
         var tiles = implicitTiler.GenerateTiles3D(boundingBox3D, 0, new Tile3D(0, 0, 0, 0 ), new List<Tile3D>());
 
-        Assert.That(tiles.Count, Is.EqualTo(36));
+        Assert.That(tiles.Count, Is.EqualTo(25));
     }
 
     [Test]
@@ -195,7 +197,7 @@ public class UnitTest1
         var implicitTiler = new OctreeTiler(connectionString, inputTable, tilingSettings, stylingSettings, tilesetSettings);
         var tiles = implicitTiler.GenerateTiles3D(boundingBox3D, 0, new Tile3D(0, 0, 0, 0), new List<Tile3D>());
 
-        Assert.That(tiles.Count, Is.EqualTo(36));
+        Assert.That(tiles.Count, Is.EqualTo(25));
     }
 
 
@@ -244,12 +246,13 @@ public class UnitTest1
             trans,
             "output/content",
             new List<int>() { 0 },
-            skipCreateTiles: true);
+            skipCreateTiles: true,
+            useImplicitTiling: true);
         var tiles = implicitTiler.GenerateTiles(
         bbox_wgs84.bbox,
         new Tile(0, 0, 0),
         new List<Tile>());
-        Assert.That(tiles.Count, Is.EqualTo(29));
+        Assert.That(tiles.Count, Is.EqualTo(17));
     }
 
     [Test]
@@ -277,12 +280,13 @@ public class UnitTest1
             trans,
             "output/content",
             new List<int>() { 0, 1 },
-            skipCreateTiles: true);
+            skipCreateTiles: true,
+            useImplicitTiling: true);
         var tiles = implicitTiler.GenerateTiles(
         bbox_wgs84.bbox,
         new Tile(0, 0, 0),
         new List<Tile>());
-        Assert.That(tiles.Count, Is.EqualTo(145));
+        Assert.That(tiles.Count, Is.EqualTo(89));
     }
     
     
@@ -307,7 +311,8 @@ public class UnitTest1
             trans,
             "output/content",
             new List<int>() { 0 },
-            skipCreateTiles: false);
+            skipCreateTiles: false,
+            useImplicitTiling: true);
         var tile = new Tile(0, 0, 0) {
             BoundingBox = bbox_wgs84.bbox.ToArray()
         };

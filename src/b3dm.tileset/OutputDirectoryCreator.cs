@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using B3dm.Tileset.settings;
+using B3dm.Tileset;
 
 namespace pg2b3dm;
 
