@@ -819,4 +819,79 @@ public class GlbCreatorTests
         };
     }
 
+    [Test]
+    public void GetGlb_WithSurfaceIds_AddsSecondFeatureIdSetAndPropertyTable()
+    {
+        // arrange: two triangles from two different pand-batches, each with a resolved SurfaceId
+        var triangle1 = new Triangle(new Point(0, 0, 0), new Point(1, 0, 0), new Point(0, 1, 0), 0) { SurfaceId = 1 };
+        var triangle2 = new Triangle(new Point(2, 0, 0), new Point(3, 0, 0), new Point(2, 1, 0), 1) { SurfaceId = 3 };
+
+        // act
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { new List<Triangle> { triangle1, triangle2 } }, createGltf: true);
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "gltf_with_surface_ids.glb");
+        File.WriteAllBytes(fileName, bytes);
+
+        // assert
+        var model = ModelRoot.Load(fileName);
+        var primitives = model.LogicalMeshes.SelectMany(mesh => mesh.Primitives).ToList();
+        Assert.That(primitives.Count, Is.GreaterThan(0));
+        Assert.That(primitives.All(p => p.GetVertexAccessor("_FEATURE_ID_1") != null), Is.True);
+
+        var json = System.Text.Encoding.UTF8.GetString(bytes);
+        Assert.That(json, Does.Contain("EXT_structural_metadata"));
+        Assert.That(json, Does.Contain("EXT_mesh_features"));
+        Assert.That(json, Does.Contain("surfaceType"));
+        Assert.That(json, Does.Contain("GroundSurface"));
+        Assert.That(json, Does.Contain("RoofSurface"));
+        Assert.That(json, Does.Contain("OuterWallSurface"));
+        Assert.That(json, Does.Contain("InnerWallSurface"));
+    }
+
+    [Test]
+    public void GetGlb_WithoutSurfaceIds_HasNoSecondFeatureIdSetOrSurfaceMetadata()
+    {
+        // arrange: regression check - identical to the pre-existing (no --surfaces) code path
+        var triangle1 = new Triangle(new Point(0, 0, 0), new Point(1, 0, 0), new Point(0, 1, 0), 0);
+        var triangle2 = new Triangle(new Point(2, 0, 0), new Point(3, 0, 0), new Point(2, 1, 0), 1);
+
+        // act
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { new List<Triangle> { triangle1, triangle2 } }, createGltf: true);
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "gltf_without_surface_ids.glb");
+        File.WriteAllBytes(fileName, bytes);
+
+        // assert
+        var model = ModelRoot.Load(fileName);
+        var primitives = model.LogicalMeshes.SelectMany(mesh => mesh.Primitives).ToList();
+        Assert.That(primitives.Count, Is.GreaterThan(0));
+        Assert.That(primitives.All(p => p.GetVertexAccessor("_FEATURE_ID_1") == null), Is.True);
+
+        var json = System.Text.Encoding.UTF8.GetString(bytes);
+        Assert.That(json, Does.Not.Contain("surfaceType"));
+        Assert.That(json, Does.Not.Contain("GroundSurface"));
+    }
+
+    [Test]
+    public void GetGlb_WithMixedSurfaceAndNonSurfaceTriangles_OnlySurfaceOnesGetSecondFeatureId()
+    {
+        // arrange: one triangle has a resolved SurfaceId (valid --surfaces parse), the other does not
+        // (e.g. parsing failed for that pand) - both must render correctly and only the former gets _FEATURE_ID_1
+        var withSurface = new Triangle(new Point(0, 0, 0), new Point(1, 0, 0), new Point(0, 1, 0), 0) { SurfaceId = 2 };
+        var withoutSurface = new Triangle(new Point(2, 0, 0), new Point(3, 0, 0), new Point(2, 1, 0), 1);
+
+        // act
+        var bytes = GlbCreator.GetGlb(new List<List<Triangle>>() { new List<Triangle> { withSurface, withoutSurface } }, createGltf: true);
+        var fileName = Path.Combine(TestContext.CurrentContext.WorkDirectory, "gltf_mixed_surface_ids.glb");
+        File.WriteAllBytes(fileName, bytes);
+
+        // assert
+        var model = ModelRoot.Load(fileName);
+        var primitives = model.LogicalMeshes.SelectMany(mesh => mesh.Primitives).ToList();
+
+        var primitivesWithSurfaceFeatureId = primitives.Count(p => p.GetVertexAccessor("_FEATURE_ID_1") != null);
+        var primitivesWithoutSurfaceFeatureId = primitives.Count(p => p.GetVertexAccessor("_FEATURE_ID_1") == null);
+
+        Assert.That(primitivesWithSurfaceFeatureId, Is.GreaterThan(0));
+        Assert.That(primitivesWithoutSurfaceFeatureId, Is.GreaterThan(0));
+    }
+
 }

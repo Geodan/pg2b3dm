@@ -75,8 +75,13 @@ class Program
             inputTable.Query = o.Query;
             inputTable.RadiusColumn = o.RadiusColumn;
             inputTable.ShadersColumn = o.ShadersColumn;
+            inputTable.SurfacesColumn = o.SurfacesColumn;
             inputTable.AttributeColumns = o.AttributeColumns;
             inputTable.LodColumn = o.LodColumn;
+
+            if (!string.IsNullOrEmpty(o.SurfacesColumn) && !createGltf) {
+                Console.WriteLine("Warning: parameter --surfaces is ignored when --create_gltf is false (requires glTF/EXT_mesh_features output)");
+            }
 
             var conn = new NpgsqlConnection(connectionString);
 
@@ -173,6 +178,8 @@ class Program
             }
             Console.WriteLine($"Lod column: {lodcolumn}");
             Console.WriteLine($"Radius column: {o.RadiusColumn}");
+            var surf = !string.IsNullOrEmpty(o.SurfacesColumn) ? o.SurfacesColumn : "-";
+            Console.WriteLine($"Surfaces column: {surf}");
             Console.WriteLine($"Geometric error: {o.GeometricError}");
             Console.WriteLine($"Geometric error factor: {o.GeometricErrorFactor}");
             Console.WriteLine($"Refinement: {refinement}");

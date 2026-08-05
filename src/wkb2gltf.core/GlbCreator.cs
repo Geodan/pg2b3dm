@@ -16,6 +16,11 @@ namespace Wkb2Gltf;
 
 public static class GlbCreator
 {
+    // Fixed surface type table for the --surfaces option (CityGML-derived semantics):
+    // matches the surface type values used in Triangle.SurfaceId / the surfaces column labels.
+    private static readonly byte[] SurfaceTypeValues = { 0, 1, 2, 3 };
+    private static readonly string[] SurfaceTypeNames = { "GroundSurface", "RoofSurface", "OuterWallSurface", "InnerWallSurface" };
+
     public static byte[] GetGlb(List<List<Triangle>> triangles, string copyright = "", bool addOutlines = false, string defaultColor = "#FFFFFF", string defaultMetallicRoughness = "#008000", bool defaultDoubleSided = true, Dictionary<string, List<object>> attributes = null, bool createGltf = false, SharpGLTF.Materials.AlphaMode defaultAlphaMode = SharpGLTF.Materials.AlphaMode.OPAQUE, float alphaCutoff = 0.5f, bool doubleSided = false, bool YAxisUp = true, bool useTexturePipeline = false)
     {
         var materialCache = new MaterialsCache();
@@ -28,6 +33,9 @@ public static class GlbCreator
         var meshFeatureIds = new MeshBuilder<VertexPositionNormal, VertexWithFeatureId, VertexEmpty>("mesh");
         var meshBatchIdTexture = new MeshBuilder<VertexPositionNormal, VertexWithBatchIdTexture, VertexEmpty>("mesh");
         var meshFeatureIdsTexture = new MeshBuilder<VertexPositionNormal, VertexWithFeatureIdTexture, VertexEmpty>("mesh");
+        // Used only when the --surfaces option provides a per-polygon surface type (Triangle.SurfaceId.HasValue).
+        var meshFeatureIdsSurface = new MeshBuilder<VertexPositionNormal, VertexWithFeatureIdAndSurfaceId, VertexEmpty>("mesh");
+        var meshFeatureIdsSurfaceTexture = new MeshBuilder<VertexPositionNormal, VertexWithFeatureIdAndSurfaceIdTexture, VertexEmpty>("mesh");
 
         if (useTexturePipeline) {
             foreach (var tri in triangles) {
@@ -36,7 +44,12 @@ public static class GlbCreator
                         var material = materialCache.GetMaterialBuilderByTexture(triangle.TextureImageData, defaultDoubleSided, defaultAlphaMode, alphaCutoff);
                         var textureCoordinates = triangle.GetTextureCoordinates();
                         if (createGltf) {
-                            DrawTriangleWithFeatureIdAndTexture(triangle, material, meshFeatureIdsTexture, textureCoordinates);
+                            if (triangle.SurfaceId.HasValue) {
+                                DrawTriangleWithFeatureIdAndSurfaceIdAndTexture(triangle, material, meshFeatureIdsSurfaceTexture, textureCoordinates);
+                            }
+                            else {
+                                DrawTriangleWithFeatureIdAndTexture(triangle, material, meshFeatureIdsTexture, textureCoordinates);
+                            }
                         }
                         else {
                             DrawTriangleWithBatchIdAndTexture(triangle, material, meshBatchIdTexture, textureCoordinates);
@@ -44,7 +57,12 @@ public static class GlbCreator
                     }
                     else {
                         if (createGltf) {
-                            DrawTriangleWithFeatureId(triangle, defaultMaterial, meshFeatureIds);
+                            if (triangle.SurfaceId.HasValue) {
+                                DrawTriangleWithFeatureIdAndSurfaceId(triangle, defaultMaterial, meshFeatureIdsSurface);
+                            }
+                            else {
+                                DrawTriangleWithFeatureId(triangle, defaultMaterial, meshFeatureIds);
+                            }
                         }
                         else {
                             DrawTriangleWithBatchId(triangle, defaultMaterial, meshBatchId);
@@ -72,7 +90,12 @@ public static class GlbCreator
                     }
 
                     if (createGltf) {
-                        DrawTriangleWithFeatureId(triangle, material, meshFeatureIds);
+                        if (triangle.SurfaceId.HasValue) {
+                            DrawTriangleWithFeatureIdAndSurfaceId(triangle, material, meshFeatureIdsSurface);
+                        }
+                        else {
+                            DrawTriangleWithFeatureId(triangle, material, meshFeatureIds);
+                        }
                     }
                     else {
                         DrawTriangleWithBatchId(triangle, material, meshBatchId);
@@ -90,6 +113,12 @@ public static class GlbCreator
                 if (meshFeatureIds.Primitives.Count > 0) {
                     scene.AddRigidMesh(meshFeatureIds, Matrix4x4.Identity);
                 }
+                if (meshFeatureIdsSurfaceTexture.Primitives.Count > 0) {
+                    scene.AddRigidMesh(meshFeatureIdsSurfaceTexture, Matrix4x4.Identity);
+                }
+                if (meshFeatureIdsSurface.Primitives.Count > 0) {
+                    scene.AddRigidMesh(meshFeatureIdsSurface, Matrix4x4.Identity);
+                }
             }
             else {
                 if (meshBatchIdTexture.Primitives.Count > 0) {
@@ -102,7 +131,12 @@ public static class GlbCreator
         }
         else {
             if (createGltf) {
-                scene.AddRigidMesh(meshFeatureIds, Matrix4x4.Identity);
+                if (meshFeatureIds.Primitives.Count > 0) {
+                    scene.AddRigidMesh(meshFeatureIds, Matrix4x4.Identity);
+                }
+                if (meshFeatureIdsSurface.Primitives.Count > 0) {
+                    scene.AddRigidMesh(meshFeatureIdsSurface, Matrix4x4.Identity);
+                }
             }
             else {
                 scene.AddRigidMesh(meshBatchId, Matrix4x4.Identity);
@@ -379,6 +413,38 @@ public static class GlbCreator
             }
         }
 
+        // Second, independent feature-id set: per-polygon surface type (added only when the --surfaces
+        // option produced at least one triangle with a resolved SurfaceId). Uses a small, fixed 4-row
+        // property table (Ground/Roof/OuterWall/InnerWall), decoupled from the pand-level `attributes`
+        // property table above, so it also works when --surfaces is used without -a/--attributecolumns.
+        if (createGltf) {
+            var surfacePrimitives = model.LogicalMeshes
+                .SelectMany(mesh => mesh.Primitives)
+                .Where(primitive => primitive.VertexAccessors.ContainsKey(VertexWithFeatureIdAndSurfaceId.SURFACEID_ATTRIBUTENAME))
+                .ToList();
+
+            if (surfacePrimitives.Count > 0) {
+                var surfaceRootMetadata = model.UseStructuralMetadata();
+                var surfaceSchema = surfaceRootMetadata.UseEmbeddedSchema("schema");
+                var surfaceClass = surfaceSchema.UseClassMetadata("surfaceType");
+                var surfacePropertyTable = surfaceClass.AddPropertyTable(SurfaceTypeNames.Length);
+
+                var typeProperty = surfaceClass.UseProperty("type").WithUInt8Type();
+                surfacePropertyTable.UseProperty(typeProperty).SetValues(SurfaceTypeValues);
+
+                var nameProperty = surfaceClass.UseProperty("name").WithStringType();
+                surfacePropertyTable.UseProperty(nameProperty).SetValues(SurfaceTypeNames);
+
+                foreach (var primitive in surfacePrimitives) {
+                    // No nullFeatureId sentinel needed: only primitives built from triangles with a resolved
+                    // (0-3) SurfaceId ever carry the _FEATURE_ID_1 attribute in the first place - triangles
+                    // without a SurfaceId are routed into the separate, non-surface meshes instead.
+                    var surfaceFeatureIdAttribute = new FeatureIDBuilder(SurfaceTypeNames.Length, 1, surfacePropertyTable, null, "surfaceType");
+                    primitive.AddMeshFeatureIds(surfaceFeatureIdAttribute);
+                }
+            }
+        }
+
         var bytes = model.WriteGLB().Array;
         return bytes;
     }
@@ -451,6 +517,24 @@ public static class GlbCreator
         var prim = mesh.UsePrimitive(material);
         var vectors = triangle.ToVectors();
         var indices = prim.AddTriangleWithFeatureIdAndTexCoords(vectors, normal, triangle.GetBatchId(), textureCoordinates);
+        return indices.Item1 > 0;
+    }
+
+    private static bool DrawTriangleWithFeatureIdAndSurfaceId(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal, VertexWithFeatureIdAndSurfaceId, VertexEmpty> mesh)
+    {
+        var normal = triangle.GetNormal();
+        var prim = mesh.UsePrimitive(material);
+        var vectors = triangle.ToVectors();
+        var indices = prim.AddTriangleWithFeatureIdAndSurfaceId(vectors, normal, triangle.GetBatchId(), triangle.SurfaceId.Value);
+        return indices.Item1 > 0;
+    }
+
+    private static bool DrawTriangleWithFeatureIdAndSurfaceIdAndTexture(Triangle triangle, MaterialBuilder material, MeshBuilder<VertexPositionNormal, VertexWithFeatureIdAndSurfaceIdTexture, VertexEmpty> mesh, (Vector2, Vector2, Vector2) textureCoordinates)
+    {
+        var normal = triangle.GetNormal();
+        var prim = mesh.UsePrimitive(material);
+        var vectors = triangle.ToVectors();
+        var indices = prim.AddTriangleWithFeatureIdAndSurfaceIdAndTexCoords(vectors, normal, triangle.GetBatchId(), triangle.SurfaceId.Value, textureCoordinates);
         return indices.Item1 > 0;
     }
 

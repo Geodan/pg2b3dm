@@ -38,9 +38,9 @@ public static class GeometryRepository
         return result;
     }
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", bool keepProjection = false, string idColumn = "", bool includeTextures = false)
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", bool keepProjection = false, string idColumn = "", bool includeTextures = false, string surfacesColumn = "")
     {
-        var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn, target_srs, idColumn);
+        var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn, target_srs, idColumn, surfacesColumn);
         var sqlFrom = "FROM " + geometry_table;
 
         // todo: fix unit test when there is no z
@@ -49,7 +49,7 @@ public static class GeometryRepository
         var sqlWhere = GetWhere(geometry_column, points.fromPoint, points.toPoint, query, source_epsg, keepProjection);
         var sql = sqlselect + sqlFrom + " where " + sqlWhere;
 
-        var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql, radiusColumn, idColumn);
+        var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql, radiusColumn, idColumn, surfacesColumn);
         if (includeTextures) {
             EnrichWithTextures(conn, geometries);
         }
@@ -88,7 +88,7 @@ public static class GeometryRepository
         return where;
     }
 
-    public static string GetSqlSelect(string geometry_column, string shaderColumn, string attributesColumns, string radiusColumn, int target_srs, string idColumn = "")
+    public static string GetSqlSelect(string geometry_column, string shaderColumn, string attributesColumns, string radiusColumn, int target_srs, string idColumn = "", string surfacesColumn = "")
     {
         var g = GetGeometryColumn(geometry_column, target_srs);
         var sqlselect = $"SELECT ST_AsBinary({g})";
@@ -104,6 +104,9 @@ public static class GeometryRepository
         if (radiusColumn != String.Empty) {
             sqlselect = $"{sqlselect}, {radiusColumn} ";
         }
+        if (surfacesColumn != String.Empty) {
+            sqlselect = $"{sqlselect}, {surfacesColumn} ";
+        }
 
         return sqlselect;
     }
@@ -113,7 +116,7 @@ public static class GeometryRepository
         return $"st_transform({geometry_column}, {target_srs})";
     }
 
-    public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql, string radiusColumn, string idColumn = "")
+    public static List<GeometryRecord> GetGeometries(NpgsqlConnection conn, string shaderColumn, string attributesColumns, string sql, string radiusColumn, string idColumn = "", string surfacesColumn = "")
     {
         var geometries = new List<GeometryRecord>();
         conn.Open();
@@ -123,6 +126,7 @@ public static class GeometryRepository
         var shadersColumnId = int.MinValue;
         var radiusColumnId = int.MinValue;
         var idColumnId = int.MinValue;
+        var surfacesColumnId = int.MinValue;
 
         if (attributesColumns != String.Empty) {
             var attributesColumnsList = attributesColumns.Split(',').ToList();
@@ -144,6 +148,12 @@ public static class GeometryRepository
             var fld = FindField(reader, radiusColumn);
             if (fld.HasValue) {
                 radiusColumnId = FindField(reader, radiusColumn).Value;
+            }
+        }
+        if (surfacesColumn != String.Empty) {
+            var fld = FindField(reader, surfacesColumn);
+            if (fld.HasValue) {
+                surfacesColumnId = fld.Value;
             }
         }
 
@@ -170,6 +180,9 @@ public static class GeometryRepository
 
                 var radius = reader.GetFieldValue<object>(radiusColumnId);
                 geometryRecord.Radius = Convert.ToSingle(radius);
+            }
+            if (surfacesColumn != string.Empty && surfacesColumnId >= 0 && !reader.IsDBNull(surfacesColumnId)) {
+                geometryRecord.Surfaces = reader.GetFieldValue<object>(surfacesColumnId).ToString();
             }
 
             geometries.Add(geometryRecord);

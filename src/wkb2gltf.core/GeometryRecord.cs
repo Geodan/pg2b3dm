@@ -28,6 +28,8 @@ public class GeometryRecord
 
     public string GeometryProperties { get; set; } = string.Empty;
 
+    public string Surfaces { get; set; } = string.Empty;
+
     public byte[] TextureImageData { get; set; } = Array.Empty<byte>();
 
     public string TextureMimeType { get; set; } = string.Empty;
@@ -53,7 +55,7 @@ public class GeometryRecord
             });
         }
 
-        var triangles = GeometryProcessor.GetTriangles(Geometry, BatchId, translation, scale, Shader, Radius, TextureMapping, GeometryProperties, TextureImageData, TextureMimeType, textures);
+        var triangles = GeometryProcessor.GetTriangles(Geometry, BatchId, translation, scale, Shader, Radius, TextureMapping, GeometryProperties, TextureImageData, TextureMimeType, textures, Surfaces);
 
         return triangles;
     }

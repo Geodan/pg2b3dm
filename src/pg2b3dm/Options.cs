@@ -55,6 +55,9 @@ public class Options
     [Option("shaderscolumn", Required = false, Default = "", HelpText = "shaders column")]
     public string ShadersColumn { get; set; }
 
+    [Option("surfaces", Required = false, Default = "", HelpText = "Column with per-polygon surface type labels, format 'N:v1,v2,...,vN' (N = number of polygons, followed by one value per polygon in the same order as the geometry). Adds a second feature-id set + property table for per-surface styling in Cesium. Only effective with --create_gltf true (default).")]
+    public string SurfacesColumn { get; set; }
+
     [Option("tileset_version", Required = false, Default = "", HelpText = "Tileset version")]
     public string TilesetVersion { get; set; }
 

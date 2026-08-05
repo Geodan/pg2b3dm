@@ -24,6 +24,11 @@ public class Triangle
         return batchId;
     }
 
+    // Optional per-polygon surface type (e.g. 0=GroundSurface, 1=RoofSurface, 2=OuterWallSurface, 3=InnerWallSurface),
+    // set when the --surfaces option is used. Null means the option was not used or could not be resolved for
+    // this feature, in which case behavior is identical to before this property existed.
+    public int? SurfaceId { get; set; }
+
     public Point GetP0()
     {
         return p0;

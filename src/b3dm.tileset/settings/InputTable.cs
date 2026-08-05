@@ -7,6 +7,7 @@ public class InputTable
     public string IdColumn { get; set; } = string.Empty;
     public string RadiusColumn { get; set; } = string.Empty;
     public string ShadersColumn { get; set; } = string.Empty;
+    public string SurfacesColumn { get; set; } = string.Empty;
     public string Query { get; set; } = string.Empty;
 
     public string LodColumn { get; set; } = string.Empty;

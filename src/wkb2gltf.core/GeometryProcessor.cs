@@ -40,13 +40,13 @@ public static class GeometryProcessor
         }
     }
 
-    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation = null, double[] scale = null, ShaderColors shadercolors = null, float? radius = null, string textureMapping = "", string geometryProperties = "", byte[] textureImageData = null, string textureMimeType = "", List<GeometryTexture> textures = null)
+    public static List<Triangle> GetTriangles(Geometry geometry, int batchId, double[] translation = null, double[] scale = null, ShaderColors shadercolors = null, float? radius = null, string textureMapping = "", string geometryProperties = "", byte[] textureImageData = null, string textureMimeType = "", List<GeometryTexture> textures = null, string surfaces = "")
     {
         var r = radius.HasValue ? radius.Value : (float)1.0f;
 
         var textureSets = GetTextureSets(textureMapping, textureImageData, textureMimeType, textures);
         if (CanUseTextureMapping(geometry, textureSets)) {
-            var texturedTriangles = GetTexturedTriangles(geometry, batchId, translation, scale, geometryProperties, textureSets);
+            var texturedTriangles = GetTexturedTriangles(geometry, batchId, translation, scale, geometryProperties, textureSets, surfaces);
             if (texturedTriangles.Count > 0) {
                 return texturedTriangles;
             }
@@ -54,13 +54,12 @@ public static class GeometryProcessor
 
         if (geometry is MultiPolygon || geometry is MultiLineString || geometry is PolyhedralSurface)
         {
-            if(shadercolors != null)
-            {
-                var numberOfGeometries = Count(geometry);
+            var numberOfGeometries = Count(geometry);
+            var surfaceTypes = ParseSurfaceTypes(surfaces, numberOfGeometries);
+            var shaderMatches = shadercolors != null && numberOfGeometries == shadercolors.Count();
 
-                if (numberOfGeometries == shadercolors.Count()) {
-                    return GetTrianglesForMultiGeometries(geometry, batchId, translation, scale, shadercolors, r, numberOfGeometries);
-                }
+            if (shaderMatches || surfaceTypes != null) {
+                return GetTrianglesForMultiGeometries(geometry, batchId, translation, scale, shaderMatches ? shadercolors : null, r, numberOfGeometries, surfaceTypes);
             }
         }
 
@@ -89,24 +88,88 @@ public static class GeometryProcessor
 
         var result = GetTriangles(batchId, shadercolors, geometries);
 
+        // Single Polygon feature with a one-value surfaces label (format "1:v"): apply to all resulting triangles.
+        if (geometry is Polygon) {
+            var singleSurfaceType = ParseSurfaceTypes(surfaces, 1);
+            if (singleSurfaceType != null) {
+                foreach (var triangle in result) {
+                    triangle.SurfaceId = singleSurfaceType[0];
+                }
+            }
+        }
+
         return result;
     }
 
-    private static List<Triangle> GetTrianglesForMultiGeometries(Geometry geometry, int batchId, double[] translation, double[] scale, ShaderColors shadercolors, float? radius, int numberOfGeometries)
+    // Parses the --surfaces column format "N:v1,v2,...,vN" (N = number of polygons, followed by one
+    // integer value per polygon in the same order as the source geometry). Optional surrounding
+    // parentheses are stripped first, since PostgreSQL often renders this as a composite/record-like
+    // text value, e.g. "(13:0,2,2,2,2,2,2,2,2,2,2,1,1)". Returns null (fail-safe, falls back to existing
+    // behavior without surface ids) when the string is empty, malformed, or the declared/expected
+    // polygon count does not match - so a bad value never breaks tile generation.
+    public static int[] ParseSurfaceTypes(string surfaces, int expectedCount)
+    {
+        if (string.IsNullOrWhiteSpace(surfaces)) {
+            return null;
+        }
+
+        var trimmed = surfaces.Trim();
+        if (trimmed.Length >= 2 && trimmed[0] == '(' && trimmed[trimmed.Length - 1] == ')') {
+            trimmed = trimmed.Substring(1, trimmed.Length - 2);
+        }
+
+        var parts = trimmed.Split(':');
+        if (parts.Length != 2) {
+            return null;
+        }
+
+        if (!int.TryParse(parts[0].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var declaredCount)) {
+            return null;
+        }
+
+        var rawValues = parts[1].Split(',');
+        if (rawValues.Length != declaredCount || declaredCount != expectedCount) {
+            return null;
+        }
+
+        var result = new int[rawValues.Length];
+        for (var i = 0; i < rawValues.Length; i++) {
+            if (!int.TryParse(rawValues[i].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var value)) {
+                return null;
+            }
+            result[i] = value;
+        }
+
+        return result;
+    }
+
+    private static List<Triangle> GetTrianglesForMultiGeometries(Geometry geometry, int batchId, double[] translation, double[] scale, ShaderColors shadercolors, float? radius, int numberOfGeometries, int[] surfaceTypes = null)
     {
         var result1 = new List<Triangle>();
         // Do special treatment
         for (var i = 0; i < numberOfGeometries; i++) {
             var geom = GetGeometry(geometry, i);
-            var shader = shadercolors.ToShader(i);
-            var shaderColor = ShaderColors.ToShaderColors(shader);
+            ShaderColors shaderColor = null;
+            if (shadercolors != null) {
+                var shader = shadercolors.ToShader(i);
+                shaderColor = ShaderColors.ToShaderColors(shader);
+            }
 
             var geometryRecord = new GeometryRecord(batchId) {
                 Geometry = geom,
                 Shader = shaderColor,
                 Radius = radius
             };
-            result1.AddRange(geometryRecord.GetTriangles(translation, scale));
+            var trianglesForGeometry = geometryRecord.GetTriangles(translation, scale);
+
+            if (surfaceTypes != null) {
+                var surfaceId = surfaceTypes[i];
+                foreach (var triangle in trianglesForGeometry) {
+                    triangle.SurfaceId = surfaceId;
+                }
+            }
+
+            result1.AddRange(trianglesForGeometry);
         }
         return result1;
     }
@@ -135,7 +198,7 @@ public static class GeometryProcessor
             && textureSets.Any(texture => texture.IsValid());
     }
 
-    private static List<Triangle> GetTexturedTriangles(Geometry geometry, int batchId, double[] translation, double[] scale, string geometryProperties, List<GeometryTexture> textureSets)
+    private static List<Triangle> GetTexturedTriangles(Geometry geometry, int batchId, double[] translation, double[] scale, string geometryProperties, List<GeometryTexture> textureSets, string surfaces = "")
     {
         var parsedTextureSets = textureSets
             .Where(texture => texture.IsValid())
@@ -159,11 +222,19 @@ public static class GeometryProcessor
 
         var sourcePolygons = GetGeometries(geometry);
         var relativePolygons = GetRelativePolygons(sourcePolygons, translation, scale);
+        var surfaceTypes = ParseSurfaceTypes(surfaces, relativePolygons.Count);
         var allTriangles = new List<Triangle>();
 
         for (var i = 0; i < relativePolygons.Count; i++) {
             var relativePolygon = relativePolygons[i];
             var trianglesForPolygon = GetTrianglesForPolygon(relativePolygon, batchId);
+
+            if (surfaceTypes != null) {
+                var surfaceId = surfaceTypes[i];
+                foreach (var triangle in trianglesForPolygon) {
+                    triangle.SurfaceId = surfaceId;
+                }
+            }
 
             var objectId = ResolveObjectId(objectIdsByGeometryIndex, mappingObjectIds, i);
             var isTextured = false;
