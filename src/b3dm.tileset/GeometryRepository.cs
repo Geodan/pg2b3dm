@@ -200,13 +200,16 @@ public static class GeometryRepository
 
         // Optional appearance-theme filter: without it the query keeps its original shape
         // (lowest surface_data_id wins per geometry); with a theme the surface_data is
-        // constrained to that appearance theme via appear_to_surface_data + appearance.
-        var themeJoin = theme != string.Empty ? @"
-JOIN citydb.appear_to_surface_data a2s
-  ON a2s.surface_data_id = sd.id
-JOIN citydb.appearance ap
-  ON ap.id = a2s.appearance_id" : string.Empty;
-        var themeFilter = theme != string.Empty ? "\n  AND ap.theme = @theme" : string.Empty;
+        // constrained to that appearance theme. Uses an EXISTS semi-join, not a JOIN, so a
+        // surface_data referenced by several appearances sharing the theme yields one row,
+        // not N duplicate textures.
+        var themeFilter = theme != string.Empty ? @"
+  AND EXISTS (
+    SELECT 1
+    FROM citydb.appear_to_surface_data a2s
+    JOIN citydb.appearance ap ON ap.id = a2s.appearance_id
+    WHERE a2s.surface_data_id = sd.id
+      AND ap.theme = @theme)" : string.Empty;
 
         var sql = $@"
 SELECT g.id,
@@ -220,7 +223,7 @@ JOIN citydb.surface_data_mapping sdm
 JOIN citydb.surface_data sd
   ON sd.id = sdm.surface_data_id
 JOIN citydb.tex_image ti
-  ON ti.id = sd.tex_image_id{themeJoin}
+  ON ti.id = sd.tex_image_id
 WHERE g.id = ANY(@ids)
   AND sdm.texture_mapping IS NOT NULL
   AND ti.image_data IS NOT NULL{themeFilter}
