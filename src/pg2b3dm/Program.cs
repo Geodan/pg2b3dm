@@ -73,6 +73,7 @@ class Program
             inputTable.TableName = o.GeometryTable;
             inputTable.GeometryColumn = o.GeometryColumn;
             inputTable.Query = o.Query;
+            inputTable.Theme = o.Theme;
             inputTable.RadiusColumn = o.RadiusColumn;
             inputTable.ShadersColumn = o.ShadersColumn;
             inputTable.AttributeColumns = o.AttributeColumns;
@@ -121,6 +122,9 @@ class Program
                 Console.WriteLine($"Warning: column 'id' missing in {inputTable.TableName}, texture pipeline disabled.");
             }
             Console.WriteLine($"Texture pipeline enabled: {inputTable.UseTexturePipeline}");
+            if (inputTable.Theme != String.Empty) {
+                Console.WriteLine($"Texture theme filter: {inputTable.Theme}");
+            }
 
             var skipCreateTiles = (bool)o.SkipCreateTiles;
             Console.WriteLine("Skip create tiles: " + skipCreateTiles);
