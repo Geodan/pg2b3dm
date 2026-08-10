@@ -122,7 +122,7 @@ class Program
                 Console.WriteLine($"Warning: column 'id' missing in {inputTable.TableName}, texture pipeline disabled.");
             }
             Console.WriteLine($"Texture pipeline enabled: {inputTable.UseTexturePipeline}");
-            if (inputTable.Theme != String.Empty) {
+            if (!String.IsNullOrWhiteSpace(inputTable.Theme)) {
                 Console.WriteLine($"Texture theme filter: {inputTable.Theme}");
             }
 

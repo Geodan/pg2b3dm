@@ -203,7 +203,8 @@ public static class GeometryRepository
         // constrained to that appearance theme. Uses an EXISTS semi-join, not a JOIN, so a
         // surface_data referenced by several appearances sharing the theme yields one row,
         // not N duplicate textures.
-        var themeFilter = theme != string.Empty ? @"
+        var hasTheme = !string.IsNullOrWhiteSpace(theme);
+        var themeFilter = hasTheme ? @"
   AND EXISTS (
     SELECT 1
     FROM citydb.appear_to_surface_data a2s
@@ -232,7 +233,7 @@ ORDER BY g.id, sdm.surface_data_id";
         conn.Open();
         var cmd = new NpgsqlCommand(sql, conn);
         cmd.Parameters.AddWithValue("ids", sourceIds);
-        if (theme != string.Empty) {
+        if (hasTheme) {
             cmd.Parameters.AddWithValue("theme", theme);
         }
         var reader = cmd.ExecuteReader();

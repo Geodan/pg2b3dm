@@ -13,6 +13,29 @@ public class UnitTest1
 {
     private PostgreSqlContainer _containerPostgres;
 
+    // The two 1x1 textures of the appearance fixture, so a theme test can name what it expects.
+    private static readonly byte[] RedPng = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC");
+    private static readonly byte[] BluePng = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNgYPgPAAEDAQAIicLsAAAAAElFTkSuQmCC");
+
+    private static GeometryRecord GetThemedGeometry(NpgsqlConnection conn, string theme)
+    {
+        var geometries = GeometryRepository.GetGeometrySubset(
+            conn,
+            "citydb.geometry_data",
+            "geometry",
+            new double[] { 29, 29, 32, 32 },
+            4326,
+            4326,
+            keepProjection: true,
+            idColumn: "id",
+            includeTextures: true,
+            theme: theme
+        );
+
+        Assert.That(geometries.Count, Is.EqualTo(1));
+        return geometries[0];
+    }
+
     [SetUp]
     public async Task Setup()
     {
@@ -160,8 +183,9 @@ public class UnitTest1
     }
 
     // Geometry 4 carries the same surface twice: surface_data 4 (red, theme 'summer') and
-    // surface_data 5 (blue, theme 'winter'). Selecting 'winter' must yield the blue texture -
-    // without a theme the lower surface_data_id would win.
+    // surface_data 5 (blue, theme 'winter'). Unfiltered, both mappings come back and the renderer
+    // takes the first per objectId, which is the lower surface_data_id - the red one. Selecting
+    // 'winter' must narrow that to the blue texture instead.
     [Test]
     public void ThemeFilterSelectsTexturesOfSelectedTheme()
     {
@@ -169,9 +193,11 @@ public class UnitTest1
         var conn = new NpgsqlConnection(connectionString);
 
         var withoutTheme = GetThemedGeometry(conn, string.Empty);
+        var blankTheme = GetThemedGeometry(conn, "  ");
         var winter = GetThemedGeometry(conn, "winter");
 
         Assert.That(withoutTheme.Textures.Count, Is.EqualTo(2));
+        Assert.That(blankTheme.Textures.Count, Is.EqualTo(2));
         Assert.That(winter.Textures.Count, Is.EqualTo(1));
         Assert.That(winter.Textures[0].TextureImageData, Is.EqualTo(BluePng));
     }
@@ -188,28 +214,6 @@ public class UnitTest1
 
         Assert.That(summer.Textures.Count, Is.EqualTo(1));
         Assert.That(summer.Textures[0].TextureImageData, Is.EqualTo(RedPng));
-    }
-
-    private static readonly byte[] RedPng = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC");
-    private static readonly byte[] BluePng = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNgYPgPAAEDAQAIicLsAAAAAElFTkSuQmCC");
-
-    private static GeometryRecord GetThemedGeometry(NpgsqlConnection conn, string theme)
-    {
-        var geometries = GeometryRepository.GetGeometrySubset(
-            conn,
-            "citydb.geometry_data",
-            "geometry",
-            new double[] { 29, 29, 32, 32 },
-            4326,
-            4326,
-            keepProjection: true,
-            idColumn: "id",
-            includeTextures: true,
-            theme: theme
-        );
-
-        Assert.That(geometries.Count, Is.EqualTo(1));
-        return geometries[0];
     }
 
     [Test]
