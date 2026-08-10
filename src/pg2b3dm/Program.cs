@@ -124,6 +124,13 @@ class Program
             Console.WriteLine($"Texture pipeline enabled: {inputTable.UseTexturePipeline}");
             if (!String.IsNullOrWhiteSpace(inputTable.Theme)) {
                 Console.WriteLine($"Texture theme filter: {inputTable.Theme}");
+                // A theme no appearance carries is not an error to the tiler: it bakes a complete
+                // tileset in which every tile is untextured, so a typo only shows up in the viewer.
+                // Say it once here, not per tile - with a theme filter most tiles are legitimately
+                // untextured.
+                if (inputTable.UseTexturePipeline && !CityDbRepository.HasTheme(conn, inputTable.Theme)) {
+                    Console.WriteLine($"Warning: no appearance has theme '{inputTable.Theme}', all tiles will be untextured.");
+                }
             }
 
             var skipCreateTiles = (bool)o.SkipCreateTiles;

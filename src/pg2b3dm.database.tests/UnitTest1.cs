@@ -123,6 +123,18 @@ public class UnitTest1
         Assert.That(hasIdColumn, Is.True);
     }
 
+    // A theme nobody wrote bakes an untextured tileset that otherwise looks fine, so the caller
+    // needs to hear about the typo before tiling, not after opening the viewer.
+    [Test]
+    public void DetectWhetherThemeExists()
+    {
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
+
+        Assert.That(CityDbRepository.HasTheme(conn, "winter"), Is.True);
+        Assert.That(CityDbRepository.HasTheme(conn, "wintr"), Is.False);
+    }
+
     [Test]
     public void TextureCheckIsPerTile()
     {
