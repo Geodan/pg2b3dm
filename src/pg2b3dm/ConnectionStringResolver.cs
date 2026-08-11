@@ -11,7 +11,7 @@ public static class ConnectionStringResolver
 {
     private const string DefaultHost = "localhost";
     private const string DefaultPort = "5432";
-    private const string ExampleCommand = "pg2b3dm --connection \"Host=localhost;Username=postgres;Database=postgres;Ssl Mode=Require;CommandTimeOut=0\" -t my_schema.my_table";
+    private const string ExampleCommand = "pg2b3dm --connection \"Host=localhost;Username=postgres;Database=postgres;CommandTimeOut=0\" -t my_schema.my_table";
     private static readonly string[] DeprecatedParameterOrder = ["--username", "--host", "--dbname", "--port"];
     private static readonly Dictionary<string, string> DeprecatedParameterAliases = new(StringComparer.OrdinalIgnoreCase)
     {
