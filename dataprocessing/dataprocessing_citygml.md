@@ -211,6 +211,29 @@ Priority rule during export:
 - If textures and shaders are both available in the same tile, textures are used.
 - Tiles without texture data keep existing shader/default behavior.
 
+### Selecting an appearance theme
+
+One geometry can carry textures from several appearance themes (for example an aerial photo theme next to
+thematic analysis layers). Themes live in `citydb.appearance.theme` and are linked to the textures through
+`citydb.appear_to_surface_data`. List the available themes with:
+
+```sql
+SELECT DISTINCT theme FROM citydb.appearance;
+```
+
+Use the `--theme` option to export the textures of one theme:
+
+```bash
+pg2b3dm --connection "Host=localhost;Port=5440;Username=postgres;Database=postgres;CommandTimeOut=0" -t citydb.geometry_data -c geometry --theme <theme>
+```
+
+Notes:
+
+- Without `--theme` the export is unchanged: no theme filter is applied and, for a geometry with multiple
+  mappings, the lowest `surface_data_id` wins.
+- Run pg2b3dm once per theme (into separate output folders) to publish one tileset per theme from the same
+  geometry, instead of duplicating the geometry per theme.
+
 Sample World Port Center Rotterdam:
 
 <img width="986" height="948" alt="image" src="https://github.com/user-attachments/assets/1e434d3f-7918-4b9b-87e6-18f168f45b55" />

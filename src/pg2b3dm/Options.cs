@@ -28,6 +28,9 @@ public class Options
     [Option('q', "query", Required = false, Default = "", HelpText = "Query parameter")]
     public string Query { get; set; }
 
+    [Option("theme", Required = false, Default = "", HelpText = "3DCityDB v5+ appearance theme to select textures from (filters the surface_data via appearance). Empty = no theme filter (lowest surface_data_id wins).")]
+    public string Theme { get; set; }
+
     [Option("copyright", Required = false, Default = "", HelpText = "glTF asset copyright")]
     public string Copyright { get; set; }
 
