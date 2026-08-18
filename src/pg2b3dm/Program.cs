@@ -20,7 +20,7 @@ class Program
     {
         var version = Assembly.GetEntryAssembly().GetName().Version;
         Console.WriteLine($"Tool: pg2b3dm {version}");
-        Console.WriteLine("Options: " + string.Join(" ", args));
+        Console.WriteLine("Options: " + CommandLineArgumentSanitizer.SanitizeForLogging(args));
         Parser.Default.ParseArguments<Options>(args).WithParsed(o => {
             // Octree checks 
             if(o.subdivisionScheme == SubdivisionScheme.OCTREE) {
