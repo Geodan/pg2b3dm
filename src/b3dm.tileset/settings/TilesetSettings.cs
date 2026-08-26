@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace B3dm.Tileset.settings;
+namespace B3dm.Tileset;    
 
 public class TilesetSettings
 {

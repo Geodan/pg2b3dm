@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using B3dm.Tileset.Extensions;
-using B3dm.Tileset.settings;
 using Newtonsoft.Json;
 using subtree;
 using Wkx;
