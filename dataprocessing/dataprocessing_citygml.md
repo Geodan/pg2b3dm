@@ -233,6 +233,18 @@ Notes:
   mappings, the lowest `surface_data_id` wins.
 - Run pg2b3dm once per theme (into separate output folders) to publish one tileset per theme from the same
   geometry, instead of duplicating the geometry per theme.
+- The theme match is case-sensitive (`ap.theme = @theme`, an exact string comparison) and the value is not
+  trimmed. `--theme Aerial` will not match a theme stored as `aerial` or `" Aerial"`. Use the
+  `SELECT DISTINCT theme FROM citydb.appearance;` query above to confirm the exact spelling before running
+  pg2b3dm.
+- The theme filter adds an `EXISTS` semi-join on `citydb.appear_to_surface_data` and `citydb.appearance`. On
+  larger datasets this benefits from indexes on `citydb.appear_to_surface_data(surface_data_id)` and
+  `citydb.appearance(theme)`:
+
+```sql
+CREATE INDEX ON citydb.appear_to_surface_data(surface_data_id);
+CREATE INDEX ON citydb.appearance(theme);
+```
 
 #### Note on building your own 3DCityDB v5 test data
 
