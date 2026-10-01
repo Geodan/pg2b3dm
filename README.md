@@ -460,6 +460,8 @@ Press F5 to start debugging.
 
 ## History
 
+2026-10-01: release 2.28.0: add support for option --theme for selecting textures from 3DCityDB v5+ appearance theme (filters the surface_data via appearance).
+
 2026-03-24: release 2.27.0: add option --connection for database connection string (deprecating parameters -U, -h, -d and -p)
 
 2026-03-02: release 2.26.0: add support for textures in 3dcitydb v5
