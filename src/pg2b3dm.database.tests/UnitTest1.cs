@@ -13,6 +13,29 @@ public class UnitTest1
 {
     private PostgreSqlContainer _containerPostgres;
 
+    // The two 1x1 textures of the appearance fixture, so a theme test can name what it expects.
+    private static readonly byte[] RedPng = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC");
+    private static readonly byte[] BluePng = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNgYPgPAAEDAQAIicLsAAAAAElFTkSuQmCC");
+
+    private static GeometryRecord GetThemedGeometry(NpgsqlConnection conn, string theme)
+    {
+        var geometries = GeometryRepository.GetGeometrySubset(
+            conn,
+            "citydb.geometry_data",
+            "geometry",
+            new double[] { 29, 29, 32, 32 },
+            4326,
+            4326,
+            keepProjection: true,
+            idColumn: "id",
+            includeTextures: true,
+            theme: theme
+        );
+
+        Assert.That(geometries.Count, Is.EqualTo(1));
+        return geometries[0];
+    }
+
     [SetUp]
     public async Task Setup()
     {
@@ -31,6 +54,8 @@ public class UnitTest1
         await _containerPostgres.ExecScriptAsync(initScript4);
         var initScript5 = File.ReadAllText("./postgres-db/5_create_3dcitydb_texture_tables.sql");
         await _containerPostgres.ExecScriptAsync(initScript5);
+        var initScript6 = File.ReadAllText("./postgres-db/6_create_3dcitydb_appearance_tables.sql");
+        await _containerPostgres.ExecScriptAsync(initScript6);
     }
 
     [TearDown]
@@ -98,6 +123,18 @@ public class UnitTest1
         Assert.That(hasIdColumn, Is.True);
     }
 
+    // A theme nobody wrote bakes an untextured tileset that otherwise looks fine, so the caller
+    // needs to hear about the typo before tiling, not after opening the viewer.
+    [Test]
+    public void DetectWhetherThemeExists()
+    {
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
+
+        Assert.That(CityDbRepository.HasTheme(conn, "winter"), Is.True);
+        Assert.That(CityDbRepository.HasTheme(conn, "wintr"), Is.False);
+    }
+
     [Test]
     public void TextureCheckIsPerTile()
     {
@@ -155,6 +192,40 @@ public class UnitTest1
         Assert.That(texturedGeometries.Count, Is.EqualTo(1));
         Assert.That(texturedGeometries[0].HasTextureData(), Is.True);
         Assert.That(texturedGeometries[0].Textures.Count, Is.EqualTo(2));
+    }
+
+    // Geometry 4 carries the same surface twice: surface_data 4 (red, theme 'summer') and
+    // surface_data 5 (blue, theme 'winter'). Unfiltered, both mappings come back and the renderer
+    // takes the first per objectId, which is the lower surface_data_id - the red one. Selecting
+    // 'winter' must narrow that to the blue texture instead.
+    [Test]
+    public void ThemeFilterSelectsTexturesOfSelectedTheme()
+    {
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
+
+        var withoutTheme = GetThemedGeometry(conn, string.Empty);
+        var blankTheme = GetThemedGeometry(conn, "  ");
+        var winter = GetThemedGeometry(conn, "winter");
+
+        Assert.That(withoutTheme.Textures.Count, Is.EqualTo(2));
+        Assert.That(blankTheme.Textures.Count, Is.EqualTo(2));
+        Assert.That(winter.Textures.Count, Is.EqualTo(1));
+        Assert.That(winter.Textures[0].TextureImageData, Is.EqualTo(BluePng));
+    }
+
+    // surface_data 4 is referenced by two appearances that both carry theme 'summer'. The filter
+    // is a semi-join, so that must still be one texture - a JOIN would duplicate it.
+    [Test]
+    public void ThemeFilterDeduplicatesSurfaceDataSharedByAppearances()
+    {
+        var connectionString = _containerPostgres.GetConnectionString();
+        var conn = new NpgsqlConnection(connectionString);
+
+        var summer = GetThemedGeometry(conn, "summer");
+
+        Assert.That(summer.Textures.Count, Is.EqualTo(1));
+        Assert.That(summer.Textures[0].TextureImageData, Is.EqualTo(RedPng));
     }
 
     [Test]

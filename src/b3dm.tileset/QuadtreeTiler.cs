@@ -98,7 +98,7 @@ public class QuadtreeTiler
 
             byte[] bytes = null;
 
-            var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection, inputTable.IdColumn, inputTable.UseTexturePipeline);
+            var geometries = GeometryRepository.GetGeometrySubset(conn, inputTable.TableName, inputTable.GeometryColumn, tile.BoundingBox, source_epsg, target_srs, inputTable.ShadersColumn, inputTable.AttributeColumns, where, inputTable.RadiusColumn, keepProjection, inputTable.IdColumn, inputTable.UseTexturePipeline, inputTable.Theme);
             // var scale = new double[] { 1, 1, 1 };
             if (geometries.Count > 0) {
 

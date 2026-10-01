@@ -46,6 +46,20 @@ SELECT EXISTS (
         return ExecuteBooleanScalar(conn, sql);
     }
 
+    public static bool HasTheme(NpgsqlConnection conn, string theme)
+    {
+        const string sql = @"
+SELECT EXISTS (
+    SELECT 1
+    FROM citydb.appearance
+    WHERE theme = @theme
+)";
+
+        return ExecuteBooleanScalar(conn, sql, cmd => {
+            cmd.Parameters.AddWithValue("theme", theme);
+        });
+    }
+
     public static bool HasColumn(NpgsqlConnection conn, string tableName, string columnName)
     {
         var schemaAndTable = GetSchemaAndTable(tableName);

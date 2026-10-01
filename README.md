@@ -109,6 +109,11 @@ If `--connection` is not specified and none of the deprecated database parameter
 
   -q, --query                     (Default: '') Query parameter
 
+  --theme                         (Default: '') 3DCityDB v5+ appearance theme to
+                                  select textures from (filters the surface_data
+                                  via appearance). Empty = no theme filter
+                                  (lowest surface_data_id wins).
+
   --copyright                     (Default: '') glTF asset copyright
 
   --default_color                 (Default: #FFFFFF) Default color, in RGB(A) order

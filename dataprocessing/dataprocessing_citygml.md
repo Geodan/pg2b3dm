@@ -211,6 +211,61 @@ Priority rule during export:
 - If textures and shaders are both available in the same tile, textures are used.
 - Tiles without texture data keep existing shader/default behavior.
 
+### Selecting an appearance theme
+
+One geometry can carry textures from several appearance themes (for example an aerial photo theme next to
+thematic analysis layers). Themes live in `citydb.appearance.theme` and are linked to the textures through
+`citydb.appear_to_surface_data`. List the available themes with:
+
+```sql
+SELECT DISTINCT theme FROM citydb.appearance;
+```
+
+Use the `--theme` option to export the textures of one theme:
+
+```bash
+pg2b3dm --connection "Host=localhost;Port=5440;Username=postgres;Database=postgres;CommandTimeOut=0" -t citydb.geometry_data -c geometry --theme <theme>
+```
+
+Notes:
+
+- Without `--theme` the export is unchanged: no theme filter is applied and, for a geometry with multiple
+  mappings, the lowest `surface_data_id` wins.
+- Run pg2b3dm once per theme (into separate output folders) to publish one tileset per theme from the same
+  geometry, instead of duplicating the geometry per theme.
+- The theme match is case-sensitive (`ap.theme = @theme`, an exact string comparison) and the value is not
+  trimmed. `--theme Aerial` will not match a theme stored as `aerial` or `" Aerial"`. Use the
+  `SELECT DISTINCT theme FROM citydb.appearance;` query above to confirm the exact spelling before running
+  pg2b3dm.
+- The theme filter adds an `EXISTS` semi-join on `citydb.appear_to_surface_data` and `citydb.appearance`. On
+  larger datasets this benefits from indexes on `citydb.appear_to_surface_data(surface_data_id)` and
+  `citydb.appearance(theme)`:
+
+```sql
+CREATE INDEX ON citydb.appear_to_surface_data(surface_data_id);
+CREATE INDEX ON citydb.appearance(theme);
+```
+
+#### Note on building your own 3DCityDB v5 test data
+
+If you're creating 3DCityDB v5 test data via direct SQL inserts (rather than through `citydb import citygml`), be
+aware of a mismatch between how **pg2b3dm** and **citydb-tool export citygml** locate appearances:
+
+- **pg2b3dm** joins `geometry_data → surface_data_mapping → surface_data` and never looks at
+  `appearance.feature_id`. It doesn't care whether an appearance is global or feature-specific — it will pick up
+  textures either way.
+- **`citydb-tool export citygml`** only finds appearances that are reachable through a feature's `property` row
+  named `appearance`. This means the appearance must be linked to a specific feature.
+
+When writing test data by hand, it's tempting to create one shared appearance per theme with `is_global = 1` and
+`feature_id = NULL` (simpler than duplicating it per building). This works fine for pg2b3dm, but
+`citydb-tool export citygml` will silently skip it — no error, not even an empty `appearance/` directory to
+indicate something is missing.
+
+Takeaway: if you want your test data to also round-trip correctly through `citydb-tool export citygml`, give each
+feature (building) its own per-feature copy of the appearance instead of one global, feature-less appearance. If
+you only need to feed the data into pg2b3dm, a global appearance is fine.
+
 Sample World Port Center Rotterdam:
 
 <img width="986" height="948" alt="image" src="https://github.com/user-attachments/assets/1e434d3f-7918-4b9b-87e6-18f168f45b55" />

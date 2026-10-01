@@ -73,6 +73,7 @@ class Program
             inputTable.TableName = o.GeometryTable;
             inputTable.GeometryColumn = o.GeometryColumn;
             inputTable.Query = o.Query;
+            inputTable.Theme = o.Theme;
             inputTable.RadiusColumn = o.RadiusColumn;
             inputTable.ShadersColumn = o.ShadersColumn;
             inputTable.AttributeColumns = o.AttributeColumns;
@@ -121,6 +122,16 @@ class Program
                 Console.WriteLine($"Warning: column 'id' missing in {inputTable.TableName}, texture pipeline disabled.");
             }
             Console.WriteLine($"Texture pipeline enabled: {inputTable.UseTexturePipeline}");
+            if (!String.IsNullOrWhiteSpace(inputTable.Theme)) {
+                Console.WriteLine($"Texture theme filter: {inputTable.Theme}");
+                // A theme no appearance carries is not an error to the tiler: it bakes a complete
+                // tileset in which every tile is untextured, so a typo only shows up in the viewer.
+                // Say it once here, not per tile - with a theme filter most tiles are legitimately
+                // untextured.
+                if (inputTable.UseTexturePipeline && !CityDbRepository.HasTheme(conn, inputTable.Theme)) {
+                    Console.WriteLine($"Warning: no appearance has theme '{inputTable.Theme}', all tiles will be untextured.");
+                }
+            }
 
             var skipCreateTiles = (bool)o.SkipCreateTiles;
             Console.WriteLine("Skip create tiles: " + skipCreateTiles);

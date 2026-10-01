@@ -8,6 +8,7 @@ public class InputTable
     public string RadiusColumn { get; set; } = string.Empty;
     public string ShadersColumn { get; set; } = string.Empty;
     public string Query { get; set; } = string.Empty;
+    public string Theme { get; set; } = string.Empty;
 
     public string LodColumn { get; set; } = string.Empty;
     public string AttributeColumns { get; set; } = string.Empty;

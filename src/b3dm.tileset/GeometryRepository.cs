@@ -38,7 +38,7 @@ public static class GeometryRepository
         return result;
     }
 
-    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", bool keepProjection = false, string idColumn = "", bool includeTextures = false)
+    public static List<GeometryRecord> GetGeometrySubset(NpgsqlConnection conn, string geometry_table, string geometry_column, double[] bbox, int source_epsg, int target_srs, string shaderColumn = "", string attributesColumns = "", string query = "", string radiusColumn = "", bool keepProjection = false, string idColumn = "", bool includeTextures = false, string theme = "")
     {
         var sqlselect = GetSqlSelect(geometry_column, shaderColumn, attributesColumns, radiusColumn, target_srs, idColumn);
         var sqlFrom = "FROM " + geometry_table;
@@ -51,7 +51,7 @@ public static class GeometryRepository
 
         var geometries = GetGeometries(conn, shaderColumn, attributesColumns, sql, radiusColumn, idColumn);
         if (includeTextures) {
-            EnrichWithTextures(conn, geometries);
+            EnrichWithTextures(conn, geometries, theme);
         }
         return geometries;
     }
@@ -181,7 +181,7 @@ public static class GeometryRepository
         return geometries;
     }
 
-    private static void EnrichWithTextures(NpgsqlConnection conn, List<GeometryRecord> geometries)
+    private static void EnrichWithTextures(NpgsqlConnection conn, List<GeometryRecord> geometries, string theme = "")
     {
         var sourceIds = geometries
             .Where(g => g.SourceId.HasValue)
@@ -198,7 +198,21 @@ public static class GeometryRepository
             .GroupBy(g => g.SourceId!.Value)
             .ToDictionary(g => g.Key, g => g.First());
 
-        const string sql = @"
+        // Optional appearance-theme filter: without it the query keeps its original shape
+        // (lowest surface_data_id wins per geometry); with a theme the surface_data is
+        // constrained to that appearance theme. Uses an EXISTS semi-join, not a JOIN, so a
+        // surface_data referenced by several appearances sharing the theme yields one row,
+        // not N duplicate textures.
+        var hasTheme = !string.IsNullOrWhiteSpace(theme);
+        var themeFilter = hasTheme ? @"
+  AND EXISTS (
+    SELECT 1
+    FROM citydb.appear_to_surface_data a2s
+    JOIN citydb.appearance ap ON ap.id = a2s.appearance_id
+    WHERE a2s.surface_data_id = sd.id
+      AND ap.theme = @theme)" : string.Empty;
+
+        var sql = $@"
 SELECT g.id,
        g.geometry_properties::text AS geometry_properties,
        sdm.texture_mapping::text AS texture_mapping,
@@ -213,12 +227,15 @@ JOIN citydb.tex_image ti
   ON ti.id = sd.tex_image_id
 WHERE g.id = ANY(@ids)
   AND sdm.texture_mapping IS NOT NULL
-  AND ti.image_data IS NOT NULL
+  AND ti.image_data IS NOT NULL{themeFilter}
 ORDER BY g.id, sdm.surface_data_id";
 
         conn.Open();
         var cmd = new NpgsqlCommand(sql, conn);
         cmd.Parameters.AddWithValue("ids", sourceIds);
+        if (hasTheme) {
+            cmd.Parameters.AddWithValue("theme", theme);
+        }
         var reader = cmd.ExecuteReader();
 
         while (reader.Read()) {
