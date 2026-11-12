@@ -16,6 +16,21 @@ public static class BoundingBoxRepository
         return bbox3d;
     }
 
+    /// <summary>
+    /// As GetBoundingBoxForTable, but holding every envelope centroid: for projected input the transformed extent can miss some.
+    /// </summary>
+    public static (BoundingBox bbox, double zmin, double zmax) GetBoundingBoxForQuadtree(IDbConnection conn, string geometry_table, string geometry_column, int source_epsg, bool keepProjection = false, string query = "")
+    {
+        if (keepProjection || source_epsg == 4326) {
+            return GetBoundingBoxForTable(conn, geometry_table, geometry_column, keepProjection, query);
+        }
+        var select = "SELECT least(st_xmin(e), x0), least(st_ymin(e), y0), greatest(st_xmax(e), x1), greatest(st_ymax(e), y1), st_zmin(e), st_zmax(e) ";
+        var rows = $"select {geometry_column}, st_transform(ST_Centroid(ST_Envelope({geometry_column})), 4326) as p from {geometry_table} {query}";
+        var sqlBounds = $"{select} FROM (select st_transform(ST_3DExtent({geometry_column}), 4979) as e, " +
+            $"min(ST_X(p)) as x0, min(ST_Y(p)) as y0, max(ST_X(p)) as x1, max(ST_Y(p)) as y1 from ({rows}) as r) as t";
+        return GetBounds(conn, sqlBounds);
+    }
+
     private static (BoundingBox, double, double) GetBounds(IDbConnection conn, string sql)
     {
         conn.Open();

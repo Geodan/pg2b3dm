@@ -8,7 +8,8 @@ public static class FeatureCountRepository
     public static int CountFeaturesInBox(NpgsqlConnection conn, string geometry_table, string geometry_column, Point from, Point to, string query, int source_epsg, bool keepProjection = false)
     {
         var select = $"COUNT({geometry_column})";
-        var where = GeometryRepository.GetWhere(geometry_column, from, to, query, source_epsg, keepProjection);
+        // only decides whether to split: the index filter will do
+        var where = GeometryRepository.GetIndexFilter(geometry_column, from, to, query, source_epsg, keepProjection);
 
         var sql = $"SELECT {select} FROM {geometry_table} WHERE {where}";
         conn.Open();

@@ -67,9 +67,9 @@ public static class GeometryRepository
         var where = "";
 
         if (!hasZ) {
-            where = keepProjection ?
-                $"ST_Centroid(ST_Envelope({geometry_column})) && ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, {source_epsg}) {query}" :
-                $"ST_Centroid(ST_Envelope({geometry_column})) && st_transform(ST_MakeEnvelope({fromX}, {fromY}, {toX}, {toY}, 4326), {source_epsg}) {query}";
+            // `&&` is the index filter; the tile is decided on the centroid itself
+            var centroid = GetCentroid(geometry_column);
+            where = $"{centroid} && {GetTileBox(from, to, source_epsg, keepProjection)} and {GetCentroidInTile(centroid, from, to, keepProjection)} {query}";
         }
         else {
             var fromBox = keepProjection ?
@@ -86,6 +86,53 @@ public static class GeometryRepository
         }
 
         return where;
+    }
+
+    /// <summary>
+    /// The index filter alone: may count features of the neighbouring tiles, never misses one of the tile's.
+    /// </summary>
+    public static string GetIndexFilter(string geometry_column, Point from, Point to, string query, int source_epsg, bool keepProjection)
+    {
+        if (from.Z.HasValue && to.Z.HasValue) {
+            return GetWhere(geometry_column, from, to, query, source_epsg, keepProjection);
+        }
+        return $"{GetCentroid(geometry_column)} && {GetTileBox(from, to, source_epsg, keepProjection)} {query}";
+    }
+
+    private static string GetCentroid(string geometry_column)
+    {
+        return $"ST_Centroid(ST_Envelope({geometry_column}))";
+    }
+
+    // A box in the source CRS that holds the whole tile.
+    private static string GetTileBox(Point from, Point to, int source_epsg, bool keepProjection)
+    {
+        var envelope = $"ST_MakeEnvelope({ToSql(from.X)}, {ToSql(from.Y)}, {ToSql(to.X)}, {ToSql(to.Y)}";
+        if (keepProjection || source_epsg == 4326) {
+            return $"{envelope}, {source_epsg})";
+        }
+        // Projected, the tile's edges are curves: segmentize before transforming, then widen by
+        // 0.1 % for the sag left between the points, and by twice the corners' round trip to 4326,
+        // because the centroid is transformed the other way (the directions differ by up to 1.6 m for DHDN).
+        var segment = ToSql(Math.Max(to.X.Value - from.X.Value, to.Y.Value - from.Y.Value) / 64);
+        var corners = $"st_transform({envelope}, 4326), {source_epsg})";
+        var size = $"greatest(ST_XMax({corners}) - ST_XMin({corners}), ST_YMax({corners}) - ST_YMin({corners}))";
+        var roundTrip = $"ST_HausdorffDistance({corners}, st_transform(st_transform({corners}, 4326), {source_epsg}))";
+        return $"ST_Expand(st_transform(ST_Segmentize({envelope}, 4326), {segment}), {source_epsg}), 0.001 * {size} + 2 * {roundTrip})";
+    }
+
+    // The centroid in the tile, half-open: a shared edge belongs to one tile.
+    private static string GetCentroidInTile(string centroid, Point from, Point to, bool keepProjection)
+    {
+        var point = keepProjection ? centroid : $"st_transform({centroid}, 4326)";
+        // offset 0: transformed once per row, not once per comparison
+        return $"(select ST_X(p) >= {ToSql(from.X)} and ST_X(p) < {ToSql(to.X)} and ST_Y(p) >= {ToSql(from.Y)} and ST_Y(p) < {ToSql(to.Y)} " +
+            $"from (select {point} as p offset 0) as centroid)";
+    }
+
+    private static string ToSql(double? value)
+    {
+        return value.Value.ToString(CultureInfo.InvariantCulture);
     }
 
     public static string GetSqlSelect(string geometry_column, string shaderColumn, string attributesColumns, string radiusColumn, int target_srs, string idColumn = "")
