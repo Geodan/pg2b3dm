@@ -66,10 +66,11 @@ public class QuadtreeTiler
                     var dx = (bbox.XMax - bbox.XMin) / 2;
                     var dy = (bbox.YMax - bbox.YMin) / 2;
 
-                    var xstart = bbox.XMin + dx * x;
-                    var ystart = bbox.YMin + dy * y;
-                    var xend = xstart + dx;
-                    var yend = ystart + dy;
+                    // the outer edges are the parent's own, so the children cover it exactly
+                    var xstart = x == 0 ? bbox.XMin : bbox.XMin + dx;
+                    var ystart = y == 0 ? bbox.YMin : bbox.YMin + dy;
+                    var xend = x == 0 ? bbox.XMin + dx : bbox.XMax;
+                    var yend = y == 0 ? bbox.YMin + dy : bbox.YMax;
 
                     var bboxQuad = new BoundingBox(xstart, ystart, xend, yend);
                     var new_tile = new Tile(z, tile.X * 2 + x, tile.Y * 2 + y);

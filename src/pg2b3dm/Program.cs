@@ -139,7 +139,9 @@ class Program
             Console.WriteLine($"Query bounding box of {inputTable.TableName}.{inputTable.GeometryColumn}...");
             var where = (inputTable.Query != string.Empty ? $" where {inputTable.Query}" : String.Empty);
 
-            var bbox_table = BoundingBoxRepository.GetBoundingBoxForTable(conn, inputTable.TableName, inputTable.GeometryColumn, keepProjection, where);
+            var bbox_table = subdivisionScheme == SubdivisionScheme.QUADTREE ?
+                BoundingBoxRepository.GetBoundingBoxForQuadtree(conn, inputTable.TableName, inputTable.GeometryColumn, source_epsg, keepProjection, where) :
+                BoundingBoxRepository.GetBoundingBoxForTable(conn, inputTable.TableName, inputTable.GeometryColumn, keepProjection, where);
             var bbox = bbox_table.bbox;
             var zmin = bbox_table.zmin;
             var zmax = bbox_table.zmax;

@@ -241,6 +241,8 @@ For large datasets create a spatial index on the geometry column:
 psql> CREATE INDEX ON the_table USING gist(st_centroid(st_envelope(geom_triangle)));
 ```
 
+A feature belongs to the one tile its envelope centroid falls in (in lon/lat, or in the source CRS with --keep_projection); the index serves to find the candidates.
+
 When there the spatial index is not present the following warning is shown.
 
 ![image](https://user-images.githubusercontent.com/538812/261248327-c29b4520-a374-4441-83bf-2b60e8313c65.png)
