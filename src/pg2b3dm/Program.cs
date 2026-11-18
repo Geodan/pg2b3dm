@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using B3dm.Tileset;
@@ -263,12 +264,29 @@ class Program
 
             Console.WriteLine();
 
+            if (o.Create3tz == true) {
+                Create3tzArchive(outputSettings.OutputFolder);
+            }
+
             stopWatch.Stop();
 
             var timeSpan = stopWatch.Elapsed;
             Console.WriteLine("Time: {0}h {1}m {2}s {3}ms", Math.Floor(timeSpan.TotalHours), timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
             Console.WriteLine($"Program finished {DateTime.Now.ToLocalTime().ToString("s")}.");
         });
+    }
+
+    private static void Create3tzArchive(string outputFolder)
+    {
+        var folder = Path.GetFullPath(outputFolder).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        if (!File.Exists(Path.Combine(folder, "tileset.json"))) {
+            Console.WriteLine("No tileset.json created, skipping 3tz creation.");
+            return;
+        }
+        var archivePath = folder + ThreeTzWriter.Extension;
+        Console.WriteLine($"Creating 3tz archive: {archivePath}");
+        ThreeTzWriter.Create(folder, archivePath);
+        Directory.Delete(folder, true);
     }
 
     private static void OctreeTile(string connectionString, BoundingBox3D bbox3D, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings)

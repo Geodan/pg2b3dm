@@ -130,6 +130,7 @@ If `--connection` is not specified and none of the deprecated database parameter
                                   AlphaCutoff (used with MASK alpha mode)
 
   --create_gltf                   (Default: true) Create glTF files
+  --create_3tz                    (Default: false) Package the output as a 3D Tiles Archive (.3tz) and remove the loose output folder
 
   --radiuscolumn                  (Default: '') Column with radius values for lines
 
@@ -258,6 +259,18 @@ postgresql> update delaware_buildings set radius = 0.5 + random() * (1.5 - 0.5);
 Sample with pipes (green = data, blue = water, purple = sewage, yellow = gas, red = electricity):
 
 ![image](https://github.com/Geodan/pg2b3dm/assets/538812/20280276-02a2-41f1-8b3d-4a893eb82db3)
+
+## 3tz parameter
+
+With `--create_3tz true` the generated tileset is packaged as a [3D Tiles Archive (3tz, v1.4)](https://github.com/Maxar-Public/3tz-specification/blob/main/Specification.md). The archive is created next to the output folder, using the output folder name plus the `.3tz` extension (for example `-o ./output` results in `./output.3tz`). After the archive is created, the loose output folder is removed.
+
+The archive contains `tileset.json` at its root, all files are stored uncompressed (for the fastest read performance), and the `@3dtilesIndex1@` index file is added as last entry as required by the specification.
+
+Example:
+
+```
+pg2b3dm -h localhost -U postgres -c geom_triangle -t my_table -o ./output --create_3tz true
+```
 
 ## Keep projection parameter
 
