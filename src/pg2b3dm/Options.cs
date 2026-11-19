@@ -52,7 +52,7 @@ public class Options
     [Option("create_gltf", Required = false, Default = true, HelpText = "Create glTF")]
     public bool? CreateGltf { get; set; }
 
-    [Option("create_3tz", Required = false, Default = false, HelpText = "Package the output as a 3D Tiles Archive (.3tz) and remove the loose output folder")]
+    [Option("create_3tz", Required = false, Default = false, HelpText = "Package the output as a 3D Tiles Archive (.3tz) as tileset.3tz in the output folder; tiles are generated in a temporary folder that is removed afterwards")]
     public bool? Create3tz { get; set; }
 
     [Option("radiuscolumn", Required = false, Default = "", HelpText = "Radius column")]

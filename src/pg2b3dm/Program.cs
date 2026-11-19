@@ -229,6 +229,10 @@ class Program
             };
 
             var outputFolder = o.Output;
+            var create3tz = o.Create3tz == true;
+            if (create3tz) {
+                outputFolder = Path.Combine(Path.GetTempPath(), "pg2b3dm_" + Guid.NewGuid().ToString("N"));
+            }
             var createSubtreeFolder = useImplicitTiling;
             var outputSettings = OutputDirectoryCreator.GetFolders(outputFolder, createSubtreeFolder);
             var tilesetSettings = new TilesetSettings();
@@ -264,8 +268,8 @@ class Program
 
             Console.WriteLine();
 
-            if (o.Create3tz == true) {
-                Create3tzArchive(outputSettings.OutputFolder);
+            if (create3tz) {
+                Create3tzArchive(outputSettings.OutputFolder, o.Output);
             }
 
             stopWatch.Stop();
@@ -276,17 +280,24 @@ class Program
         });
     }
 
-    private static void Create3tzArchive(string outputFolder)
+    private static void Create3tzArchive(string tempFolder, string outputFolder)
     {
-        var folder = Path.GetFullPath(outputFolder).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        if (!File.Exists(Path.Combine(folder, "tileset.json"))) {
-            Console.WriteLine("No tileset.json created, skipping 3tz creation.");
-            return;
+        var folder = Path.GetFullPath(tempFolder).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        try {
+            if (!File.Exists(Path.Combine(folder, "tileset.json"))) {
+                Console.WriteLine("No tileset.json created, skipping 3tz creation.");
+                return;
+            }
+            Directory.CreateDirectory(outputFolder);
+            var archivePath = Path.Combine(Path.GetFullPath(outputFolder), "tileset" + ThreeTzWriter.Extension);
+            Console.WriteLine($"Creating 3tz archive: {archivePath}");
+            ThreeTzWriter.Create(folder, archivePath);
         }
-        var archivePath = folder + ThreeTzWriter.Extension;
-        Console.WriteLine($"Creating 3tz archive: {archivePath}");
-        ThreeTzWriter.Create(folder, archivePath);
-        Directory.Delete(folder, true);
+        finally {
+            if (Directory.Exists(folder)) {
+                Directory.Delete(folder, true);
+            }
+        }
     }
 
     private static void OctreeTile(string connectionString, BoundingBox3D bbox3D, InputTable inputTable, StylingSettings stylingSettings, TilesetSettings tilesetSettings, TilingSettings tilingSettings)

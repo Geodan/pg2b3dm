@@ -130,7 +130,7 @@ If `--connection` is not specified and none of the deprecated database parameter
                                   AlphaCutoff (used with MASK alpha mode)
 
   --create_gltf                   (Default: true) Create glTF files
-  --create_3tz                    (Default: false) Package the output as a 3D Tiles Archive (.3tz) and remove the loose output folder
+  --create_3tz                    (Default: false) Package the output as a 3D Tiles Archive (.3tz) as tileset.3tz in the output folder; tiles are generated in a temporary folder that is removed afterwards
 
   --radiuscolumn                  (Default: '') Column with radius values for lines
 
@@ -262,7 +262,7 @@ Sample with pipes (green = data, blue = water, purple = sewage, yellow = gas, re
 
 ## 3tz parameter
 
-With `--create_3tz true` the generated tileset is packaged as a [3D Tiles Archive (3tz, v1.4)](https://github.com/Maxar-Public/3tz-specification/blob/main/Specification.md). The archive is created next to the output folder, using the output folder name plus the `.3tz` extension (for example `-o ./output` results in `./output.3tz`). After the archive is created, the loose output folder is removed.
+With `--create_3tz true` the generated tileset is packaged as a [3D Tiles Archive (3tz, v1.4)](https://github.com/Maxar-Public/3tz-specification/blob/main/Specification.md). The tiles are first generated in a temporary folder, then packaged as `tileset.3tz` in the output folder (for example `-o ./output` results in `./output/tileset.3tz`), and finally the temporary folder is deleted. The output folder itself is kept (existing contents are not removed).
 
 The archive contains `tileset.json` at its root, all files are stored uncompressed (for the fastest read performance), and the `@3dtilesIndex1@` index file is added as last entry as required by the specification.
 
